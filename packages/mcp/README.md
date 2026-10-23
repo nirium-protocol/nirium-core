@@ -1,6 +1,11 @@
 # nirium-mcp
 
-Model Context Protocol server for [Nirium](https://nirium.xyz) - exposes market data, autonomous treasury loop control, and x402 paid endpoints (plus experimental MPP Charge, no confirmed mainnet settlement yet) to any MCP-compatible AI: Claude, GPT, Cursor, VS Code Copilot, and others.
+> **Canonical source:** the published `nirium-mcp` package comes from
+> [`nirium-protocol/nirium`](https://github.com/nirium-protocol/nirium),
+> not from this copy. This one can drift behind the real release; check
+> `nirium-protocol/nirium` for the current version and source.
+
+Model Context Protocol server for [Nirium](https://nirium.xyz) - exposes market data, autonomous treasury loop control, and x402 paid endpoints (plus experimental MPP Charge: verified on testnet on 15 Oct 2026, not available on mainnet) to any MCP-compatible AI: Claude, GPT, Cursor, VS Code Copilot, and others.
 
 Software-only. This server never holds funds - paid tools sign per-request payments from a Stellar wallet you control via `STELLAR_SECRET_KEY`.
 
@@ -49,8 +54,8 @@ No install needed - run directly with `npx`, or add to your MCP client config.
 - `execute_paid_strategy` - $0.25 USDC - **testnet only**; execution needs a signing key and the mainnet box holds none by design, so it returns 501 without charging.
 
 **Paid via MPP - requires a funded `STELLAR_SECRET_KEY`**
-- `get_mpp_signals` - $0.02 USDC - same data and same testnet-only limit as `get_premium_signals`, settled via direct Soroban SAC transfer with no external facilitator
-- `get_mpp_market` - $0.05 USDC - same as `get_premium_market`, MPP-settled
+- `get_mpp_signals` - $0.02 USDC - same data and same testnet-only limit as `get_premium_signals`, settled via direct Soroban SAC transfer with no external facilitator. Experimental: verified on testnet on 15 Oct 2026 ([`4c44182b…`](https://stellar.expert/explorer/testnet/tx/4c44182bd5cc97cc8e7e82b26f4623fd00f36788686bcacad5440b0703d03498)), not available on mainnet
+- `get_mpp_market` - $0.05 USDC - same as `get_premium_market`, MPP-settled. Experimental: verified on testnet on 15 Oct 2026 ([`09558537…`](https://stellar.expert/explorer/testnet/tx/0955853793bcab23aa3911e6723a285870f47a21135939d6e0a276a3ae965960)), not available on mainnet
 
 ## Environment variables
 

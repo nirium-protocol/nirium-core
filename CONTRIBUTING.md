@@ -46,10 +46,10 @@ pnpm dev
 
 ```
 nirium-core/
-├── apps/web/                  → Next.js 15 Dashboard - 21 routes, i18n (EN/ES/ZH)
-├── packages/sdk/              → TypeScript SDK v0.6.1 (npm: nirium)
-├── packages/sdk-python/       → Python SDK v0.6.1 (PyPI: nirium)
-├── packages/contracts/        → Soroban smart contracts (Rust) - 6 contracts
+├── apps/web/                  → Next.js 15 Dashboard - 27 routes, i18n (EN/ES)
+├── packages/sdk/              → TypeScript SDK v0.16.1 (npm: nirium)
+├── packages/sdk-python/       → Python SDK v0.11.0 (PyPI: nirium)
+├── packages/contracts/        → Soroban smart contracts (Rust): NiriumVault + NiriumProtocol, both deployed on testnet
 ├── nirium-soroban-contracts/  → Additional Soroban contracts
 └── .github/workflows/         → CI, release, security-gate
 ```
@@ -122,4 +122,4 @@ By contributing, you agree that your contributions will be licensed under the [A
 
 ---
 
-*Updated May 12, 2026*
+*Updated October 23, 2026*

@@ -125,7 +125,7 @@ The client can call `set_rebalance_manager` and remove us unilaterally, without 
 
 That second transaction is the whole argument turned into evidence: the agent moved someone else's funds, and the contract gave it no way to take them out.
 
-**Audit scope, stated honestly:** the vault is DeFindex, audited by OtterSec (March 2025, 16 findings, all 13 vulnerabilities resolved), running a Blend V2 strategy (3 independent audits). The deployed WASM matches the public 1.0.0 release. What is *not* covered is the Etherfuse pool as an external dependency and each instance's configuration. **Fees:** Nirium takes no percentage of your capital; DeFindex, the protocol behind the vault, takes 20% of the yield it generates.
+**Audit scope, stated honestly:** the vault is DeFindex, audited by OtterSec (March 2025, 16 findings total - 13 of them vulnerabilities, all resolved; the other 3 were non-vulnerability suggestions), running a Blend V2 strategy (3 independent audits). The deployed WASM matches the public 1.0.0 release. What is *not* covered is the Etherfuse pool as an external dependency and each instance's configuration. **Fees:** Nirium takes no percentage of your capital; DeFindex, the protocol behind the vault, takes 20% of the yield it generates.
 
 The mainnet signer is a **separate process with its own key and no HTTP surface**: the mainnet API box holds no signing key at all, by design, and enforces it at startup.
 
@@ -300,11 +300,10 @@ An invalid signature returns **400 and nothing is anchored**: IPFS has no delete
 |---|---|---|---|
 | TypeScript | [nirium (npm)](https://www.npmjs.com/package/nirium) | 0.16.1 | `npm install nirium` |
 | Python | [nirium (PyPI)](https://pypi.org/project/nirium/) | 0.11.0 | `pip install nirium` |
+| MCP server | [nirium-mcp (npm)](https://www.npmjs.com/package/nirium-mcp) | 0.6.3 | `npx nirium-mcp` |
+| Pollar adapter | [nirium-pollar-adapter (npm)](https://www.npmjs.com/package/nirium-pollar-adapter) | 0.5.0 | `npm install nirium-pollar-adapter` |
 
 > The two SDKs share full Treasury parity (12 methods, `proposeTreasuryRebalance()`/`propose_treasury_rebalance()` included) since 10-sep-2026. `x402Serve()` stays TypeScript-only - it's Express middleware, server-side Node, with no meaningful equivalent in an async Python client. Going the other way, Python ships a resilient, auto-reconnecting WebSocket client (backoff, jitter, dedup) and a LangChain `BaseTool` (`pip install nirium[langchain]`) that TypeScript doesn't have yet - the gap runs both directions, not just one.
-
-| MCP server | [nirium-mcp (npm)](https://www.npmjs.com/package/nirium-mcp) | 0.6.0 | `npx nirium-mcp` |
-| Pollar adapter | [nirium-pollar-adapter (npm)](https://www.npmjs.com/package/nirium-pollar-adapter) | 0.4.1 | `npm install nirium-pollar-adapter` |
 
 ```typescript
 import { Agent } from 'nirium';
@@ -381,18 +380,17 @@ pip install nirium       # Python SDK
 ## Project Structure
 
 ```
-Nirium/                        (public repo)
+nirium-core/                   (public repo)
 ├── apps/web/                  → Next.js 15 dashboard (nirium.xyz), 27 routes, i18n (EN/ES)
 ├── packages/sdk/              → TypeScript SDK v0.16.1 (npm: nirium)
 ├── packages/sdk-python/       → Python SDK v0.11.0 (PyPI: nirium)
-├── packages/contracts/        → Soroban contracts (Rust), 2 contracts, 5 fuzz targets
+├── packages/contracts/        → Soroban contracts (Rust): NiriumVault + NiriumProtocol, both deployed on testnet, 5 fuzz targets
 ├── packages/policy-account/   → Soroban policy account (Rust), scopes a key to one vault
-├── packages/pollar-adapter/   → nirium-pollar-adapter v0.4.1, sign x402 with a social login
 ├── .github/workflows/         → CI, release, security-gate, desktop release
 │
 ├── packages/agent/            → [private] Express 5 API, 86 endpoints (85 HTTP + 1 WebSocket)
-├── packages/mcp/              → [public] MCP server v0.6.0, 25 tools
-├── packages/cli/              → [public] CLI v1.1.1 (npm: nirium-cli)
+├── packages/mcp/              → [public] MCP server v0.6.3, 25 tools
+├── packages/cli/              → [public] CLI v2.0.1 (npm: nirium-cli)
 ├── packages/desktop/          → [private] Tauri desktop wrapper
 ```
 
@@ -441,7 +439,7 @@ Nirium received two Stellar Community Fund Instawards, through the Stellar Ambas
 | Core infrastructure + x402 on testnet | ✅ Complete · MPP experimental |
 | Institutional API (86 endpoints) + published SDKs | ✅ Complete |
 | Internal security self-review (no external audit; see report) | ✅ Complete |
-| MCP server v0.6.0, 25 tools | ✅ Complete |
+| MCP server v0.6.3, 25 tools | ✅ Complete |
 | Etherfuse CETES integration (testnet + SPEI sandbox) | ✅ Complete |
 | Self-service API keys console (`/keys`, wallet-signed via SEP-53) | ✅ Live |
 | Mainnet receive-only nodes (x402, Audit Trail, Reporting) | ✅ Live, early access |
@@ -473,7 +471,7 @@ Nirium received two Stellar Community Fund Instawards, through the Stellar Ambas
 |---|---|
 | [SDKs.md](SDKs.md) | Full TypeScript + Python SDK documentation |
 | [API_DOCUMENTATION_OPENAPI.yaml](API_DOCUMENTATION_OPENAPI.yaml) | OpenAPI specification |
-| [MCP_INTEGRATION_GUIDE.md](MCP_INTEGRATION_GUIDE.md) | MCP v0.6.0, 25 tools for Claude Desktop / Cursor |
+| [MCP_INTEGRATION_GUIDE.md](MCP_INTEGRATION_GUIDE.md) | MCP v0.6.3, 25 tools for Claude Desktop / Cursor |
 | [INTERNAL_SECURITY_AUDIT.md](INTERNAL_SECURITY_AUDIT.md) | Internal security self-review: method, findings, fixes, out of scope |
 | [NIRIUM_TECHNICAL_PAPER.md](NIRIUM_TECHNICAL_PAPER.md) | Technical whitepaper |
 | [SECURITY.md](SECURITY.md) | Responsible vulnerability disclosure policy |
@@ -516,7 +514,7 @@ wscat -c "wss://nirium-agent.fly.dev/ws/signals?token=YOUR_JWT"
 
 ## Legal
 
-The code in this repository (smart contracts, libraries, MCP server, CLI and web app) is open-source and licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0), which covers the Stellar Community Fund open-source requirement for smart contracts. The hosted agent API (`packages/agent`) and the desktop wrapper are private and are not part of this repository.
+Nirium Protocol is open-source and licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0), meeting the Stellar Community Fund open-source requirement.
 
 For full details, see [LICENSING.md](LICENSING.md).
 
@@ -524,4 +522,4 @@ This project operates under the [Stellar Community Fund](https://stellar.gitbook
 
 ---
 
-*Nirium Protocol: experimental software. Not financial advice. NiriumVault is testnet-only and audit-gated; the mainnet treasury node runs over a client-owned, third-party audited DeFindex vault in a role that cannot withdraw. Updated August 28, 2026.*
+*Nirium Protocol: experimental software. Not financial advice. NiriumVault is testnet-only and audit-gated; the mainnet treasury node runs over a client-owned, third-party audited DeFindex vault in a role that cannot withdraw. Updated October 23, 2026.*
