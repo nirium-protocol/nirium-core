@@ -50,7 +50,10 @@ The following components are in scope for security reports:
 
 > **⚠️ IMPORTANT: Nirium smart contracts have NOT been formally audited by any third-party security firm.**
 
-The protocol is currently deployed on **Stellar Testnet only** and uses test tokens with no monetary value. A formal third-party audit is planned for Month 3 of operations (Soroban layer via SCF Audit Bank; API/server layer independently funded).
+**Update, 2026-10-23 (checked against this repo's own README that day):** this section previously said the protocol is deployed on Stellar Testnet only with no monetary value - that contradicted the README's own "Mainnet (real value)" section in this same repo. The corrected picture:
+
+- **NiriumVault and NiriumProtocol** (the Soroban contracts this repo ships) remain **Stellar Testnet only**, audit-gated, no real funds ever reach them. A formal third-party audit is planned for Month 3 of operations (Soroban layer via SCF Audit Bank; API/server layer independently funded).
+- **Three things move real value on mainnet today**, none of them custodied by a Nirium-held key: a settled x402 micropayment, a treasury vault deployment the client signs, and an autonomous Invest the agent signs on a third-party DeFindex vault whose contract gives the agent no way to withdraw funds (see the README's "Mainnet (real value)" table for the transaction hashes).
 
 **Internal security review (May 2026, revised 2026-10-12):** a self-review, not a third-party audit and not a certification. Method, findings, fixes and what was left out are in [INTERNAL_SECURITY_AUDIT.md](INTERNAL_SECURITY_AUDIT.md).
 
