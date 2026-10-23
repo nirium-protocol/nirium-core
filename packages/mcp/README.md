@@ -76,8 +76,8 @@ Anchor a **hash** of your data rather than the data itself. IPFS content cannot 
 ## Run from source
 
 ```bash
-git clone https://github.com/nirium-protocol/nirium-sdk
-cd nirium-sdk/packages/mcp
+git clone https://github.com/nirium-protocol/nirium
+cd nirium/packages/mcp
 npm install
 STELLAR_SECRET_KEY=S... AGENT_API_URL=http://localhost:3001 npx tsx src/index.ts
 ```

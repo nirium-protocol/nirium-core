@@ -159,7 +159,7 @@ Traction is **self-generated and independently verifiable**. It does not depend 
   | 2026-08 | [stellar/stellar-dev-skill#96](https://github.com/stellar/stellar-dev-skill/pull/96) | Add Nirium to the Foundation's community developer-skills catalog. | **Merged.** |
   | 2026-08 | [OpenZeppelin/stellar-contracts#840](https://github.com/OpenZeppelin/stellar-contracts/issues/840) | Read the fee-abstraction Lazy-mode expiration check as validating the wrong value; proposed a fix ([#844](https://github.com/OpenZeppelin/stellar-contracts/pull/844)). | Closed - maintainer treats the Lazy-mode value as intended behavior. Our reading, corrected by theirs. |
   | 2026-08 | [x402-foundation/x402#3148](https://github.com/x402-foundation/x402/issues/3148) | Original header claim was corrected by a reviewer; reframed as a proposal for a payment-rejection reason-code vocabulary, grounded in five measured failure modes from production integrators. | Open, awaiting maintainer response on the proposal. |
-- **A real integrator's own words**, not solicited copy:
+- From Fer, founder of AgentLedger, who now also works with Nirium part-time:
 
   > "We verify everything a 402 claims, whoever it comes from, and with Nirium it all checked out... And when things did come up, they got resolved fast. They warned us about a risk in our integration - that the collection account rotated on mainnet - before it bit us, and the bugs we reported were fixed the same day, not in the next release. That tells me more than any number on a landing page."
   > - Fer, AgentLedger
@@ -449,7 +449,7 @@ Nirium received two Stellar Community Fund Instawards, through the Stellar Ambas
 | Agent attestation in the audit trail (signed evidence) | ✅ Shipped |
 | Treasury node on mainnet over a client-owned DeFindex vault | ✅ Live, invite-only during legal review |
 | Legal opinion on the treasury node (MX + cross-border) | 🔄 In progress: gates opening it beyond invite-only |
-| Etherfuse, enterprise KYB onboarding | 🔄 In progress |
+| Etherfuse, enterprise KYB onboarding | **Update, 2026-10-14:** this row previously read "In progress". Etherfuse told us they cannot commit to a partnership or KYB track at this time, only co-marketing. Closed, not in progress. |
 | Stellar Community Fund Build Award | 🔄 Building verifiable third-party traction before applying |
 | Formal independent audit of NiriumVault | Planned, ahead of any NiriumVault mainnet deployment |
 | NiriumVault mainnet deployment (real treasury funds) | Post formal audit |
@@ -461,7 +461,7 @@ Nirium received two Stellar Community Fund Instawards, through the Stellar Ambas
 - **3rd place, Fintech World Cup Mexico 2026**: Sui Loop (founder's prior project; architecture migrated to Nirium on Stellar)
 - **Stellar Community Fund Instawards (2)**, via the Stellar Ambassador Program; full KYC complete (Airtable + Persona + W-8BEN)
 - **Update, 2026-10-12 (checked against this repository):** this list previously included "Stellar Scale / Kickstart: 83/100 Bootcamp Impact; active graduate with ongoing SDF mentorship". The line was removed because it could not be verified (no source for the 83/100 figure or for an SDF mentorship), not reworded.
-- **Etherfuse**: active technical integration (CETES on testnet + SPEI sandbox); enterprise KYB onboarding in progress
+- **Update, 2026-10-14 (confirmed directly with Etherfuse):** this line previously read "active technical integration (CETES on testnet + SPEI sandbox); enterprise KYB onboarding in progress". We used Etherfuse's CETES vault via DeFindex (4 mainnet rebalances, 6-Aug-2026); no partnership or KYB is in progress.
 
 ---
 
@@ -514,7 +514,7 @@ wscat -c "wss://nirium-agent.fly.dev/ws/signals?token=YOUR_JWT"
 
 ## Legal
 
-Nirium Protocol is open-source and licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0), meeting the Stellar Community Fund open-source requirement.
+The code in this repository (smart contracts, libraries, MCP server, CLI and web app) is open-source and licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0), which covers the Stellar Community Fund open-source requirement for smart contracts. The hosted agent API (`packages/agent`) and the desktop wrapper are private and are not part of the public repository.
 
 For full details, see [LICENSING.md](LICENSING.md).
 
