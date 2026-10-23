@@ -13,7 +13,7 @@ The root [`LICENSE`](LICENSE) file applies to everything in this repository.
 | Package | What it is |
 |---------|------------|
 | `apps/web/` | nirium.xyz web dashboard |
-| `packages/contracts/` | Soroban smart contracts (NiriumVault, NiriumProtocol) |
+| `nirium-soroban-contracts/` | Soroban smart contracts (NiriumVault, NiriumProtocol) |
 | `packages/policy-account/` | Soroban policy account that scopes a key to one vault |
 | `packages/sdk/` | TypeScript library (`npm install nirium`) |
 | `packages/sdk-python/` | Python library (`pip install nirium`) |

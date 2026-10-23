@@ -44,7 +44,7 @@ Cargo.lock
 # dependency spec (see fuzz/Cargo.toml's ed25519-dalek comment) from
 # silently breaking CI again whenever crates.io publishes something new.
 !fuzz/Cargo.lock
-# Root workspace lockfile (packages/contracts + protocol/) -- these compile
+# Root workspace lockfile (nirium-soroban-contracts + protocol/) -- these compile
 # to deployed WASM artifacts, not a library other Rust projects depend on,
 # so the usual "don't commit a library's Cargo.lock" advice doesn't apply
 # here; reproducible builds matter more than resolution flexibility. Same
@@ -55,7 +55,7 @@ Cargo.lock
 !/Cargo.lock
 fuzz/corpus/
 fuzz/artifacts/
-packages/contracts/test_snapshots/
+nirium-soroban-contracts/test_snapshots/
 *.wasm
 
 
@@ -222,5 +222,5 @@ stellar-build/
 packages/agent/central_issuer.json
 
 # stale deploy artifacts
-packages/contracts/deployment_id.txt
-packages/contracts/deploy_output.log
+nirium-soroban-contracts/deployment_id.txt
+nirium-soroban-contracts/deploy_output.log

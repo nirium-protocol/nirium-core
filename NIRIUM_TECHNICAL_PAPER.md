@@ -82,7 +82,7 @@ A single consolidated contract covering what were originally separate concerns, 
 | Strategy Marketplace | Strategy CID registry, ELO-weighted subscriptions |
 | Skill Gate | x402 payment gate, atomic skill unlock |
 
-**Soroban source modules** (`packages/contracts/src/` for NiriumVault, `packages/contracts/protocol/` for NiriumProtocol):
+**Soroban source modules** (`nirium-soroban-contracts/src/` for NiriumVault, `nirium-soroban-contracts/protocol/` for NiriumProtocol):
 - `nirium_vault.rs` - Core vault, flash loans, agent delegation, 2-of-3 multisig emergency pause
 - `agent_auth.rs` - Delegation validation utilities, permission level system (Owner/Agent/ReadOnly)
 - NiriumProtocol `lib.rs` - ELO scoring, strategy marketplace, skill gate, consolidated from what were previously five independent sub-crates (hub, elo, marketplace, sentinel, skill-vault), retired to cut audit cost roughly 60-70% and reduce attack surface.

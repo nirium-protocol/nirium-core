@@ -384,7 +384,7 @@ nirium-core/                   (public repo)
 ├── apps/web/                  → Next.js 15 dashboard (nirium.xyz), 27 routes, i18n (EN/ES)
 ├── packages/sdk/              → TypeScript SDK v0.16.1 (npm: nirium)
 ├── packages/sdk-python/       → Python SDK v0.11.0 (PyPI: nirium)
-├── packages/contracts/        → Soroban contracts (Rust): NiriumVault + NiriumProtocol, both deployed on testnet, 5 fuzz targets
+├── nirium-soroban-contracts/  → Soroban contracts (Rust): NiriumVault + NiriumProtocol, both deployed on testnet, 5 fuzz targets
 ├── packages/policy-account/   → Soroban policy account (Rust), scopes a key to one vault
 ├── .github/workflows/         → CI, release, security-gate, desktop release
 │
