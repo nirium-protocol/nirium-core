@@ -19,8 +19,8 @@ Thank you for your interest in contributing to Nirium Protocol. This document co
 
 ```bash
 # Clone the public repo
-git clone https://github.com/Eras256/Nirium.git
-cd Nirium
+git clone https://github.com/nirium-protocol/nirium-core.git
+cd nirium-core
 
 # Install dependencies
 pnpm install
@@ -45,7 +45,7 @@ pnpm dev
 ## Project Structure (Public Repo)
 
 ```
-Nirium/
+nirium-core/
 ├── apps/web/                  → Next.js 15 Dashboard — 21 routes, i18n (EN/ES/ZH)
 ├── packages/sdk/              → TypeScript SDK v0.6.1 (npm: nirium)
 ├── packages/sdk-python/       → Python SDK v0.6.1 (PyPI: nirium)
