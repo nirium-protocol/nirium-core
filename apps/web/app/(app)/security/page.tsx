@@ -223,7 +223,7 @@ export default function SecurityPage() {
                                 {lang('View on Stellar Expert', 'Ver en Stellar Expert')}
                             </a>
                             <Link
-                                href="https://github.com/Eras256/Nirium"
+                                href="https://github.com/nirium-protocol/nirium-core"
                                 target="_blank"
                                 rel="noopener"
                                 className="inline-flex items-center gap-2 text-xs text-stellar-teal hover:underline"
