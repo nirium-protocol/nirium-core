@@ -234,7 +234,7 @@ export default function PollarAdapterDocumentationPage() {
                 <footer className="pt-10 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-sm">
                     <div className="flex gap-5 text-gray-400">
                         <a href="https://www.npmjs.com/package/nirium-pollar-adapter" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">npm</a>
-                        <a href="https://github.com/Eras256/Nirium" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>
+                        <a href="https://github.com/nirium-protocol/nirium-core" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>
                         <a href="/" className="hover:text-white transition-colors">nirium.xyz</a>
                     </div>
                     <span className="text-xs font-mono text-gray-600">nirium-pollar-adapter v0.4.0 · Stellar Mainnet</span>
