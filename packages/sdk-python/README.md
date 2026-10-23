@@ -1,6 +1,6 @@
 # nirium
 
-Official Python SDK for the **Nirium Protocol** — autonomous AI treasury infrastructure on Stellar/Soroban.
+Official Python SDK for the **Nirium Protocol** - autonomous AI treasury infrastructure on Stellar/Soroban.
 
 Nirium agents rebalance USDC ↔ CETES (tokenized Mexican T-bills via Etherfuse) 24/7 without human intervention. Built for developers who want to integrate autonomous treasury management, agentic payments (x402; MPP Charge is experimental), and real-time market signals into their applications.
 
@@ -44,7 +44,7 @@ agent = Agent(api_url="https://nirium-agent.fly.dev", api_key="sk_inst_...", tok
 
 @agent.on("signal")
 async def on_signal(data):
-    print(f"Signal: {data['signal_type']} — {data['data']['details']}")
+    print(f"Signal: {data['signal_type']} - {data['data']['details']}")
 
 asyncio.run(agent.subscribe())
 ```
@@ -61,7 +61,7 @@ agent = Agent(api_url="https://nirium-agent.fly.dev", api_key="sk_inst_...", tok
 
 ## Payment Protocols
 
-### x402 — Pay-Per-Request
+### x402 - Pay-Per-Request
 ```python
 agent.init_x402(
     secret_key="S...",          # Stellar secret key
@@ -71,7 +71,7 @@ agent.init_x402(
 response = await agent.x402_fetch("https://nirium-agent.fly.dev/api/v1/premium/signals")
 ```
 
-### MPP — Session-Based Budget Delegation
+### MPP - Session-Based Budget Delegation
 ```python
 agent.init_mpp(
     secret_key="S...",
@@ -87,7 +87,7 @@ response = await agent.mpp_fetch("https://nirium-agent.fly.dev/api/v1/mpp/signal
 |---|---|
 | **Public** (no key) | `health`, `loop/status`, `execute-demo`, `signals/recent`, `skills` list |
 | **Protected** (API key) | `execute`, `market`, `loop/start\|stop\|scan`, `subscriptions`, `skills/install`, `webhooks` |
-| **WebSocket** (JWT) | `/ws/signals` — real-time signal stream |
+| **WebSocket** (JWT) | `/ws/signals` - real-time signal stream |
 | **x402 Premium** | `/api/v1/premium/signals` ($0.02 USDC), `/api/v1/premium/market` ($0.05 USDC) |
 | **MPP** | `/api/v1/mpp/signals`, `/api/v1/mpp/market` |
 
@@ -98,7 +98,7 @@ Batch disbursement, non-custodial: the node builds an **unsigned** transaction, 
 ```python
 run = await agent.create_payout_run(
     recipients=[{"wallet": "GABC...", "amount": "250.00"}],
-    acknowledge_terms=True,   # required on every network — 403 without it
+    acknowledge_terms=True,   # required on every network - 403 without it
 )
 
 signed_xdr = sign_with_your_wallet(run["xdr"])
@@ -106,13 +106,13 @@ settled = await agent.submit_payout(run["runId"], signed_xdr)
 print(settled["txHash"], settled["cid"])   # on-chain hash + IPFS receipt
 ```
 
-Licensed for **independent service payments only** — contractors, freelancers, B2B. Not for subordinate-employee salary. Read `get_payout_terms()` before integrating; classifying recipients and meeting tax and labor obligations is the client's responsibility.
+Licensed for **independent service payments only** - contractors, freelancers, B2B. Not for subordinate-employee salary. Read `get_payout_terms()` before integrating; classifying recipients and meeting tax and labor obligations is the client's responsibility.
 
 Mainnet is invite-only during early access and additionally requires `client_info`.
 
 ## Audit Trail
 
-Anchor evidence to IPFS and get back a CID — an integrity seal, not notarization.
+Anchor evidence to IPFS and get back a CID - an integrity seal, not notarization.
 
 ```python
 anchor = await agent.anchor_audit_record(
@@ -162,4 +162,4 @@ Anchor a **hash** rather than the data itself: IPFS content cannot be deleted, s
 
 ## License
 
-Apache 2.0 — Nirium Protocol
+Apache 2.0 - Nirium Protocol

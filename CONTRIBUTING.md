@@ -12,7 +12,7 @@ Thank you for your interest in contributing to Nirium Protocol. This document co
 
 - Node.js 20+
 - pnpm 9+
-- Rust (for Soroban contracts — `rustup target add wasm32-unknown-unknown`)
+- Rust (for Soroban contracts - `rustup target add wasm32-unknown-unknown`)
 - Git
 
 ### Getting Started
@@ -25,7 +25,7 @@ cd nirium-core
 # Install dependencies
 pnpm install
 
-# Start development (frontend only — agent API is private)
+# Start development (frontend only - agent API is private)
 pnpm dev
 ```
 
@@ -46,10 +46,10 @@ pnpm dev
 
 ```
 nirium-core/
-├── apps/web/                  → Next.js 15 Dashboard — 21 routes, i18n (EN/ES/ZH)
+├── apps/web/                  → Next.js 15 Dashboard - 21 routes, i18n (EN/ES/ZH)
 ├── packages/sdk/              → TypeScript SDK v0.6.1 (npm: nirium)
 ├── packages/sdk-python/       → Python SDK v0.6.1 (PyPI: nirium)
-├── packages/contracts/        → Soroban smart contracts (Rust) — 6 contracts
+├── packages/contracts/        → Soroban smart contracts (Rust) - 6 contracts
 ├── nirium-soroban-contracts/  → Additional Soroban contracts
 └── .github/workflows/         → CI, release, security-gate
 ```
@@ -70,7 +70,7 @@ The agent API server and desktop app are maintained in a private repository. SDK
 6. Commit using conventional commits (see below)
 7. Push and open a PR against `main`
 
-Reviewers will not follow up for missing context — include a clear description of what changed and why.
+Reviewers will not follow up for missing context - include a clear description of what changed and why.
 
 ### Commit Convention
 
@@ -87,14 +87,14 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### AI Assistance Disclosure
 
-Every commit produced with AI assistance carries a `Co-Authored-By: <name of the model that actually produced the commit> <noreply@anthropic.com>` trailer (the model changes between sessions, so no single name is fixed here; the repository's `.gitmessage` has the same rule). This is a factual disclosure of how the commit was produced — it is never stripped to make a commit look human-authored, and never added where it doesn't apply to fake the opposite. If you use AI assistance in your own contributions, disclose it the same way.
+Every commit produced with AI assistance carries a `Co-Authored-By: <name of the model that actually produced the commit> <noreply@anthropic.com>` trailer (the model changes between sessions, so no single name is fixed here; the repository's `.gitmessage` has the same rule). This is a factual disclosure of how the commit was produced - it is never stripped to make a commit look human-authored, and never added where it doesn't apply to fake the opposite. If you use AI assistance in your own contributions, disclose it the same way.
 
 ### Code Style
 
 - **TypeScript:** strict mode, explicit types for all public APIs
 - **Rust:** `cargo fmt` + `cargo clippy` (zero warnings)
 - **CSS:** Tailwind utilities + custom design tokens
-- **Comments:** only when the *why* is non-obvious — no narration of what the code does
+- **Comments:** only when the *why* is non-obvious - no narration of what the code does
 
 ### Smart Contract Changes
 

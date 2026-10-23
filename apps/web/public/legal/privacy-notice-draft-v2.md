@@ -1,6 +1,6 @@
-# Aviso de Privacidad — Nirium Protocol (borrador v2, LFPDPPP 2025)
+# Aviso de Privacidad - Nirium Protocol (borrador v2, LFPDPPP 2025)
 
-> **BORRADOR — PENDIENTE DE REVISIÓN LEGAL.** Este documento NO está publicado
+> **BORRADOR - PENDIENTE DE REVISIÓN LEGAL.** Este documento NO está publicado
 > en `/privacy`. El aviso en vivo (v1, actualizado 15-ago-2026) sigue siendo el
 > vigente hasta que este borrador sea confirmado por el despacho externo. Se
 > preparó como reemplazo completo, no como un parche, para que el abogado
@@ -8,7 +8,7 @@
 > el archivo `page.tsx` vivo.
 >
 > Qué cambió respecto al v1 vigente: el v1 ya cubre correctamente la reforma
-> LFPDPPP 2025 (autoridad nueva, plazos, derechos ARCO) — esa parte se
+> LFPDPPP 2025 (autoridad nueva, plazos, derechos ARCO) - esa parte se
 > mantiene sin cambios de sustancia. Lo nuevo es la Sección 2b y el ajuste de
 > la Sección 3: describir la telemetría de uso de `x402Serve()`, agregada el
 > 18-ago-2026, que el v1 no menciona porque no existía cuando se escribió.
@@ -34,7 +34,7 @@ para la infraestructura de software; no almacenamos datos financieros):
 - Direcciones públicas de Stellar (formato `G...`) cuando el usuario firma una
   transacción, un login social vía Pollar, o un atestiguamiento de auditoría.
   **Una dirección pública de Stellar es un identificador pseudónimo, no un
-  dato biométrico ni un dato financiero sensible** — es la misma naturaleza
+  dato biométrico ni un dato financiero sensible** - es la misma naturaleza
   que un número de cuenta público, y es la posición que este Proyecto ya
   sostiene consistentemente para los recibos de auditoría (`NiriumMainnet.md`
   §3.6): se ancla la dirección y el monto, nunca datos personales crudos.
@@ -55,13 +55,13 @@ ping puede contener:
 - Una dirección pública de Stellar del integrador (`pay_to`), del mismo tipo
   descrito en la Sección 2.
 - Un **hash SHA-256** de la llave de facilitador del integrador (emitida por
-  OpenZeppelin, no por Nirium) — **nunca la llave en texto plano**.
+  OpenZeppelin, no por Nirium) - **nunca la llave en texto plano**.
 - La red (`testnet`/`mainnet`), un conteo de rutas configuradas, un conteo de
   solicitudes procesadas, y la versión del paquete instalado.
 
 **Este dato lo genera el software del integrador, no una visita de una persona
 a nuestro sitio.** No incluye información de los usuarios finales del
-integrador — Nirium nunca ve esas solicitudes, que ocurren enteramente en
+integrador - Nirium nunca ve esas solicitudes, que ocurren enteramente en
 infraestructura ajena. El único propósito de este dato es saber si el paquete
 publicado se usa en producción; puede desactivarse por el integrador
 estableciendo `NIRIUM_X402SERVE_TELEMETRY=false` en su propio entorno.
@@ -93,7 +93,7 @@ Usted puede limitar el uso o divulgación de sus datos personales enviando su
 solicitud al correo electrónico: **niriumprotocol@gmail.com**. Si usted es un
 integrador que instaló `x402Serve()` y desea desactivar la telemetría descrita
 en la Sección 2b sin contactarnos, puede hacerlo directamente estableciendo
-`NIRIUM_X402SERVE_TELEMETRY=false` en su propio entorno — no requiere
+`NIRIUM_X402SERVE_TELEMETRY=false` en su propio entorno - no requiere
 solicitud.
 
 ## 6. Derechos ARCO y cómo ejercerlos
@@ -147,7 +147,7 @@ incorporated legal entity.
 We collect hashed API keys, webhook URLs, usage metrics, and public Stellar
 addresses (`G...`) for authentication, rate limiting, and security purposes.
 A public Stellar address is a pseudonymous identifier, not biometric or
-sensitive financial data — the same position we already apply consistently to
+sensitive financial data - the same position we already apply consistently to
 audit receipts.
 
 **New since 18-Aug-2026**: our published `nirium` SDK includes `x402Serve()`,
@@ -155,7 +155,7 @@ a function a third-party developer installs on **their own server** to charge
 for their own API. It sends an optional, non-blocking telemetry ping that may
 include the integrator's Stellar address, a SHA-256 hash of their facilitator
 key (never the raw key), network, route/request counts, and SDK version. This
-never includes data about the integrator's own end users — Nirium never sees
+never includes data about the integrator's own end users - Nirium never sees
 those requests, which happen entirely on infrastructure we do not operate.
 Integrators can opt out by setting `NIRIUM_X402SERVE_TELEMETRY=false`.
 
@@ -166,6 +166,6 @@ data. We use essential session cookies only, no marketing tracking. You may
 exercise your ARCO rights (Access, Rectification, Cancellation, Opposition) by
 contacting **niriumprotocol@gmail.com**. We will respond within 20 business
 days, per the LFPDPPP as amended on March 20, 2025 (in force since March 21,
-2025) — under which Mexico's former data protection authority (INAI) was
+2025) - under which Mexico's former data protection authority (INAI) was
 dissolved and its functions transferred to the Secretaría Anticorrupción y
 Buen Gobierno.

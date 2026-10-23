@@ -1,9 +1,9 @@
-# Nirium MCP Server — Integration Guide v0.4.0
+# Nirium MCP Server - Integration Guide v0.4.0
 
 > Model Context Protocol server for Nirium Protocol.
 > Exposes 11 tools to any MCP-compatible AI: Claude, GPT, Cursor, VS Code Copilot.
 > Published on npm as [`nirium-mcp`](https://www.npmjs.com/package/nirium-mcp).
-> Tested: 19 April 2026 via JSON-RPC stdio (see note on `get_system_health` below — removed after this test run).
+> Tested: 19 April 2026 via JSON-RPC stdio (see note on `get_system_health` below - removed after this test run).
 
 ---
 
@@ -114,7 +114,7 @@ Strategies: `flash-loan-arb` | `path-arbitrage` | `cross-dex` | `blend-yield` | 
   "success": true,
   "simulated_profit": 0,
   "gas_consumed": 24500,
-  "message": "No arbitrage window detected — market conditions stable"
+  "message": "No arbitrage window detected - market conditions stable"
 }
 ```
 
@@ -124,7 +124,7 @@ Strategies: `flash-loan-arb` | `path-arbitrage` | `cross-dex` | `blend-yield` | 
   "success": true,
   "simulated_profit": 0,
   "gas_consumed": 24500,
-  "message": "No arbitrage window detected — market conditions stable"
+  "message": "No arbitrage window detected - market conditions stable"
 }
 ```
 
@@ -138,7 +138,7 @@ Input: none
 Output: { address, network, niriumApiKeySet, x402Enabled, freeTools, authenticatedTools, paidToolsX402, paidToolsMpp }
 ```
 
-**Test result (no key):** ✅ PASS — returns `"No STELLAR_SECRET_KEY configured. Set it to enable paid tools."`
+**Test result (no key):** ✅ PASS - returns `"No STELLAR_SECRET_KEY configured. Set it to enable paid tools."`
 
 ---
 
@@ -162,7 +162,7 @@ Output: { stopped, message }
 
 > Both require `NIRIUM_API_KEY` in env. Without it: `{ "error": "Unauthorized" }`.
 >
-> **Removed:** an earlier build also exposed `get_system_health`, but that endpoint requires an admin-permission API key (`adminMiddleware`), which no self-service key from `/keys` ever has — every external caller got an unexplained 403. Dropped from the public tool list rather than ship a tool that can't work for anyone outside Nirium.
+> **Removed:** an earlier build also exposed `get_system_health`, but that endpoint requires an admin-permission API key (`adminMiddleware`), which no self-service key from `/keys` ever has - every external caller got an unexplained 403. Dropped from the public tool list rather than ship a tool that can't work for anyone outside Nirium.
 
 ---
 
@@ -170,7 +170,7 @@ Output: { stopped, message }
 
 Payment flow: MCP auto-handles HTTP 402 → signs Soroban auth → sends X-PAYMENT header → receives 200.
 
-#### `get_premium_signals` — $0.02 USDC
+#### `get_premium_signals` - $0.02 USDC
 Premium arbitrage signals with confidence scores, profit estimates, valid-until ledger windows.
 
 ```
@@ -178,7 +178,7 @@ Input: { count?: number }
 Output: [{ signal_type, asset_pair, confidence, estimated_profit_pct, valid_until_ledger }]
 ```
 
-#### `get_premium_market` — $0.05 USDC
+#### `get_premium_market` - $0.05 USDC
 Enriched market state: arbitrage windows, yield ranking, fee pressure alerts, execution recommendation.
 
 ```
@@ -186,7 +186,7 @@ Input: none
 Output: { market, arbitrageWindows, yieldRanking, recommendation }
 ```
 
-#### `execute_paid_strategy` — $0.25 USDC
+#### `execute_paid_strategy` - $0.25 USDC
 Execute a DeFi strategy on Stellar via Soroban. No Nirium account required.
 
 ```
@@ -198,19 +198,19 @@ Output: { txHash, status, profit, gasConsumed }
 
 ### PAID via MPP Charge (requires `STELLAR_SECRET_KEY` + funded wallet)
 
-No external facilitator — direct Soroban SAC transfer. Same data as x402 equivalents.
+No external facilitator - direct Soroban SAC transfer. Same data as x402 equivalents.
 
-#### `get_mpp_signals` — $0.02 USDC via MPP
+#### `get_mpp_signals` - $0.02 USDC via MPP
 Same output as `get_premium_signals`.
 
-#### `get_mpp_market` — $0.05 USDC via MPP
+#### `get_mpp_market` - $0.05 USDC via MPP
 Same output as `get_premium_market`.
 
 ---
 
 ## Test Results Summary (19 April 2026)
 
-13 tool invocations tested end-to-end at the time (`get_system_health` included below for the historical record — it was removed from the tool list on 16 July 2026, see note above). Paid tools tested with a funded Stellar testnet wallet (1 USDC obtained via SDEX swap from Friendbot XLM). MPP prices shown here were corrected on 16 July 2026 to match the enforced `mppRoutes.ts` price table ($0.02/$0.05, not $0.01 as originally logged).
+13 tool invocations tested end-to-end at the time (`get_system_health` included below for the historical record - it was removed from the tool list on 16 July 2026, see note above). Paid tools tested with a funded Stellar testnet wallet (1 USDC obtained via SDEX swap from Friendbot XLM). MPP prices shown here were corrected on 16 July 2026 to match the enforced `mppRoutes.ts` price table ($0.02/$0.05, not $0.01 as originally logged).
 
 | Tool | Auth Required | Status | Notes |
 |------|--------------|--------|-------|
@@ -219,14 +219,14 @@ Same output as `get_premium_market`.
 | `execute_demo` (path-arb) | None | ✅ PASS | Simulation, no tx |
 | `execute_demo` (flash-loan) | None | ✅ PASS | Simulation, no tx |
 | `get_wallet_info` | None | ✅ PASS | Shows tier config |
-| `start_loop` | NIRIUM_API_KEY + STELLAR_PUBLIC_KEY | ✅ PASS | Requires `x-stellar-account` header — set `STELLAR_PUBLIC_KEY` in env |
+| `start_loop` | NIRIUM_API_KEY + STELLAR_PUBLIC_KEY | ✅ PASS | Requires `x-stellar-account` header - set `STELLAR_PUBLIC_KEY` in env |
 | `stop_loop` | NIRIUM_API_KEY | ✅ PASS | Loop stopped cleanly |
-| ~~`get_system_health`~~ | ~~NIRIUM_API_KEY~~ | REMOVED | Actually admin-gated — every non-admin key got 403, so it was dropped from the tool list |
-| `get_premium_signals` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.02 USDC via x402 — `paidWith: "USDC/Stellar"` |
-| `get_premium_market` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.05 USDC via x402 — path routes returned |
-| `execute_paid_strategy` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.25 USDC via x402 — txHash `77a250...`, contract CAU2X |
-| `get_mpp_signals` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.02 USDC via MPP — `noFacilitator: true` |
-| `get_mpp_market` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.05 USDC via MPP — path routes returned |
+| ~~`get_system_health`~~ | ~~NIRIUM_API_KEY~~ | REMOVED | Actually admin-gated - every non-admin key got 403, so it was dropped from the tool list |
+| `get_premium_signals` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.02 USDC via x402 - `paidWith: "USDC/Stellar"` |
+| `get_premium_market` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.05 USDC via x402 - path routes returned |
+| `execute_paid_strategy` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.25 USDC via x402 - txHash `77a250...`, contract CAU2X |
+| `get_mpp_signals` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.02 USDC via MPP - `noFacilitator: true` |
+| `get_mpp_market` | STELLAR_SECRET_KEY | ✅ PASS | Paid 0.05 USDC via MPP - path routes returned |
 
 **Protocol:** JSON-RPC 2.0 over stdio
 **Package:** [`nirium-mcp`](https://www.npmjs.com/package/nirium-mcp) on npm, v0.4.0
@@ -236,15 +236,15 @@ Same output as `get_premium_market`.
 
 ## Funding a Testnet Wallet for Paid Tools
 
-Paid tools cost 0.02–0.25 USDC per call. To get a funded testnet wallet in under 2 minutes:
+Paid tools cost 0.02-0.25 USDC per call. To get a funded testnet wallet in under 2 minutes:
 
-**Step 1 — Generate keypair and get free XLM:**
+**Step 1 - Generate keypair and get free XLM:**
 ```bash
 npx tsx packages/agent/src/scripts/setup-testnet-wallet.ts
 ```
 This generates a keypair and deposits 10,000 testnet XLM via Friendbot.
 
-**Step 2 — Add USDC trustline and buy USDC on testnet SDEX:**
+**Step 2 - Add USDC trustline and buy USDC on testnet SDEX:**
 ```bash
 npx tsx --eval "
 import { Keypair, Asset, Operation, TransactionBuilder, BASE_FEE, Networks } from '@stellar/stellar-sdk';
@@ -267,9 +267,9 @@ const acc2 = await horizon.loadAccount(kp.publicKey());
 acc2.balances.forEach((b:any) => console.log(b.asset_type === 'native' ? 'XLM: ' + b.balance : b.asset_code + ': ' + b.balance));
 "
 ```
-After this you'll have ~1 USDC — enough for 20+ paid tool calls.
+After this you'll have ~1 USDC - enough for 20+ paid tool calls.
 
-**Step 3 — Set env vars in Claude Desktop config:**
+**Step 3 - Set env vars in Claude Desktop config:**
 ```json
 "STELLAR_SECRET_KEY": "S...",
 "STELLAR_PUBLIC_KEY": "G..."
@@ -310,10 +310,10 @@ node dist/index.js
 
 - Institutional Partner team installs MCP in their Claude Desktop using their own API key as `NIRIUM_API_KEY`
 - This gives them access to loop control and health monitoring without touching the Core Repo
-- Paid tools (x402/MPP) require a funded Stellar testnet wallet — Institutional Partner provides their own keypair
+- Paid tools (x402/MPP) require a funded Stellar testnet wallet - Institutional Partner provides their own keypair
 - The MCP never exposes the Core Repo, secret keys, or admin credentials
 - All paid tool calls are logged server-side with payer Stellar address
 
 ---
 
-*Nirium MCP Integration Guide v0.4.0 — Tested 19 April 2026 — Updated 26 April 2026*
+*Nirium MCP Integration Guide v0.4.0 - Tested 19 April 2026 - Updated 26 April 2026*

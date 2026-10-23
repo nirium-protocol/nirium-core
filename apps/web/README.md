@@ -1,6 +1,6 @@
 # nirium-web
 
-Next.js 15 dashboard for the Nirium Protocol — [nirium.xyz](https://nirium.xyz)
+Next.js 15 dashboard for the Nirium Protocol - [nirium.xyz](https://nirium.xyz)
 
 ## Stack
 
@@ -46,7 +46,7 @@ The agent API URL defaults to `https://nirium-agent.fly.dev`. For local dev set 
 | Route | Description |
 |---|---|
 | `/` | Landing page with hero, market ticker (5 live indicators), protocol integrations |
-| `/dashboard` | Main operator dashboard — agent fleet, neural feed, revenue, settlement |
+| `/dashboard` | Main operator dashboard - agent fleet, neural feed, revenue, settlement |
 | `/agents` | Cluster agent list with status and performance metrics |
 | `/analytics` | Protocol analytics and execution history |
 | `/treasury` | Treasury / revenue tracking |
@@ -55,7 +55,7 @@ The agent API URL defaults to `https://nirium-agent.fly.dev`. For local dev set 
 | `/sandbox` | Sandbox account request and management |
 | `/docs` | API documentation and guides |
 | `/leaderboard` | Agent leaderboard with ELO ranking |
-| `/build` | Startup Ideas Hub — developer toolkit, code examples (TS/Py/cURL/MCP) |
+| `/build` | Startup Ideas Hub - developer toolkit, code examples (TS/Py/cURL/MCP) |
 | `/ramp` | Fiat on-ramp (MXN → CETES → USDC via Etherfuse) |
 | `/how-to-use` | Getting started guide |
 | `/manifesto` | Protocol manifesto |
@@ -70,21 +70,21 @@ The agent API URL defaults to `https://nirium-agent.fly.dev`. For local dev set 
 ## Live Market Ticker
 
 The landing page and dashboard show 5 real-time indicators:
-- **XLM/USDC** — multi-tier oracle (Reflector → CoinGecko → Stellar Expert)
-- **SDEX SPREAD** — orderbook spread in basis points
-- **BLEND RATE** — Blend Protocol supply rate, read from the pool when available (0 means no data)
-- **ETHERFUSE RATE** — CETES reference value, fixed at 5.57% (Jun 2026, app.etherfuse.com/b/cetes), not live
-- **BASE FEE** — Stellar network base fee
+- **XLM/USDC** - multi-tier oracle (Reflector → CoinGecko → Stellar Expert)
+- **SDEX SPREAD** - orderbook spread in basis points
+- **BLEND RATE** - Blend Protocol supply rate, read from the pool when available (0 means no data)
+- **ETHERFUSE RATE** - CETES reference value, fixed at 5.57% (Jun 2026, app.etherfuse.com/b/cetes), not live
+- **BASE FEE** - Stellar network base fee
 
 ## Key Components
 
-- `MarketTicker` — live 5-indicator ticker strip
-- `ProtocolFeed` — real-time agent decision logs
-- `ProtocolRevenue` — revenue tracking (testnet simulation)
-- `AISettingsModal` — LLM provider configuration
-- `ApiKeyManager` — institutional API key management
-- `StrategyBuilder` — visual strategy builder
-- `WalletConnector` — Freighter + Stellar Wallets Kit integration
+- `MarketTicker` - live 5-indicator ticker strip
+- `ProtocolFeed` - real-time agent decision logs
+- `ProtocolRevenue` - revenue tracking (testnet simulation)
+- `AISettingsModal` - LLM provider configuration
+- `ApiKeyManager` - institutional API key management
+- `StrategyBuilder` - visual strategy builder
+- `WalletConnector` - Freighter + Stellar Wallets Kit integration
 
 ## Deploy
 

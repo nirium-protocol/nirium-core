@@ -1,6 +1,6 @@
 # nirium-cli
 
-Scaffold Stellar agent projects — including one that charges for itself.
+Scaffold Stellar agent projects - including one that charges for itself.
 
 ```bash
 npm install -g nirium-cli
@@ -59,7 +59,7 @@ nirium status
 | Option | Values | Default |
 |---|---|---|
 | `-n, --name <name>` | project directory name | `nirium-bot-v1` |
-| `-t, --template <template>` | `ts` or `py` — `bot` only | `ts` |
+| `-t, --template <template>` | `ts` or `py` - `bot` only | `ts` |
 
 ## Links
 
@@ -69,4 +69,4 @@ nirium status
 
 ## License
 
-Apache 2.0 — Nirium Protocol
+Apache 2.0 - Nirium Protocol

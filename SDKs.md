@@ -1,4 +1,4 @@
-# Nirium Protocol — Official SDK Documentation
+# Nirium Protocol - Official SDK Documentation
 
 **Version:** 0.5.0  
 **Packages:** `nirium` on npm · `nirium` on PyPI  
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Nirium provides two official client SDKs — one for TypeScript/Node.js and one for Python. Both wrap the full REST API and WebSocket stream with idiomatic interfaces, identical capabilities, and production-grade patterns including automatic reconnection, error propagation, and x402/MPP payment protocol support.
+Nirium provides two official client SDKs - one for TypeScript/Node.js and one for Python. Both wrap the full REST API and WebSocket stream with idiomatic interfaces, identical capabilities, and production-grade patterns including automatic reconnection, error propagation, and x402/MPP payment protocol support.
 
 Both SDKs have been integration-tested against the live API with 33/33 endpoints passing.
 
@@ -157,8 +157,8 @@ Runs a Soroban dry-run simulation without submitting a transaction. Safe to call
 ```typescript
 const demo = await agent.executeDemo('path-arbitrage', 'XLM');
 console.log(demo.message);
-// "No arbitrage window detected — market conditions stable"  (profit: 0)
-// "Arbitrage window detected — executing strategy"           (profit: >0)
+// "No arbitrage window detected - market conditions stable"  (profit: 0)
+// "Arbitrage window detected - executing strategy"           (profit: >0)
 console.log(`Gas estimate: ${demo.gas_consumed} stroops`);
 ```
 
@@ -252,7 +252,7 @@ console.log(`Webhook ID: ${webhook.id}`);
 
 ```typescript
 const webhooks = await agent.getWebhooks();
-webhooks.forEach(w => console.log(`${w.id}: ${w.url} — active: ${w.active}`));
+webhooks.forEach(w => console.log(`${w.id}: ${w.url} - active: ${w.active}`));
 ```
 
 #### `testWebhook(id): Promise<{ success: boolean; message: string }>`
@@ -363,7 +363,7 @@ agent.disconnect();
 
 ### Payment Protocols
 
-#### x402 — Pay-Per-Request
+#### x402 - Pay-Per-Request
 
 ```typescript
 agent.initX402({
@@ -376,7 +376,7 @@ const response = await agent.x402Fetch('https://nirium-agent.fly.dev/skills/whal
 const data = await response.json();
 ```
 
-#### MPP — Machine Payment Protocol (Charge Mode)
+#### MPP - Machine Payment Protocol (Charge Mode)
 
 ```typescript
 agent.initMpp({
@@ -402,9 +402,9 @@ try {
 } catch (error) {
   // error.message format: "Nirium API Error [403]: {"error":"Forbidden","code":"LEGAL_CONSENT_REQUIRED"}"
   if (error.message.includes('429')) {
-    console.error('Rate limit hit — wait before retrying');
+    console.error('Rate limit hit - wait before retrying');
   } else if (error.message.includes('403')) {
-    console.error('Legal consent missing — add x-stellar-account header');
+    console.error('Legal consent missing - add x-stellar-account header');
   } else {
     console.error('Execution failed:', error.message);
   }
@@ -622,7 +622,7 @@ for s in data["signals"]:
 ```python
 result = await agent.execute_demo("path-arbitrage", "XLM")
 print(result["message"])
-# "No arbitrage window detected — market conditions stable"
+# "No arbitrage window detected - market conditions stable"
 print(f"Gas estimate: {result['gas_consumed']} stroops")
 ```
 
@@ -771,7 +771,7 @@ async def on_log(data):
 async def on_connected(_):
     print("Connected to Nirium Signal Stream")
 
-# Blocks indefinitely — reconnects on disconnect
+# Blocks indefinitely - reconnects on disconnect
 asyncio.run(agent.subscribe())
 ```
 
@@ -790,7 +790,7 @@ asyncio.run(agent.subscribe(callback=handle_signal))
 
 ### Payment Protocols
 
-#### x402 — Pay-Per-Request
+#### x402 - Pay-Per-Request
 
 ```python
 agent.init_x402(
@@ -803,7 +803,7 @@ data = await agent.x402_fetch("https://nirium-agent.fly.dev/skills/whale-tracker
 print(data)
 ```
 
-#### MPP — Machine Payment Protocol (Charge Mode)
+#### MPP - Machine Payment Protocol (Charge Mode)
 
 ```python
 agent.init_mpp(
@@ -834,9 +834,9 @@ try:
 
 except aiohttp.ClientResponseError as e:
     if e.status == 429:
-        print("Rate limit exceeded — back off and retry")
+        print("Rate limit exceeded - back off and retry")
     elif e.status == 403:
-        print("Legal consent missing — check x-stellar-account")
+        print("Legal consent missing - check x-stellar-account")
     elif e.status == 401:
         print("Invalid API key")
     else:
@@ -850,7 +850,7 @@ except Exception as e:
 
 # Common Patterns
 
-## Pattern 1 — Market Monitoring Loop
+## Pattern 1 - Market Monitoring Loop
 
 Poll prices and alert when spread exceeds a threshold.
 
@@ -900,7 +900,7 @@ asyncio.run(monitor_spread(50))
 
 ---
 
-## Pattern 2 — Strategy Execution with Retry
+## Pattern 2 - Strategy Execution with Retry
 
 Execute with exponential backoff on rate limit errors.
 
@@ -924,7 +924,7 @@ async function executeWithRetry(
     } catch (error: any) {
       if (error.message.includes('429') && attempt < maxAttempts) {
         const wait = Math.pow(2, attempt) * 1000;
-        console.log(`Rate limited — retrying in ${wait}ms`);
+        console.log(`Rate limited - retrying in ${wait}ms`);
         await new Promise(r => setTimeout(r, wait));
       } else {
         throw error;
@@ -955,7 +955,7 @@ async def execute_with_retry(strategy, asset, amount, wallet, max_attempts=3):
         except aiohttp.ClientResponseError as e:
             if e.status == 429 and attempt < max_attempts:
                 wait = (2 ** attempt)
-                print(f"Rate limited — retrying in {wait}s")
+                print(f"Rate limited - retrying in {wait}s")
                 await asyncio.sleep(wait)
             else:
                 raise
@@ -966,7 +966,7 @@ asyncio.run(execute_with_retry("path-arbitrage", "XLM", 1000, wallet))
 
 ---
 
-## Pattern 3 — Webhook Server Integration
+## Pattern 3 - Webhook Server Integration
 
 Receive and validate HMAC-signed event deliveries.
 
@@ -1045,7 +1045,7 @@ async def handle_webhook(request: Request):
 
 ---
 
-## Pattern 4 — Multi-Strategy Portfolio Runner
+## Pattern 4 - Multi-Strategy Portfolio Runner
 
 Scan market conditions and select the best strategy, then execute.
 
@@ -1075,7 +1075,7 @@ async function run() {
   const strategy = selectStrategy(market);
   
   if (!strategy) {
-    console.log('No opportunity — waiting for next cycle');
+    console.log('No opportunity - waiting for next cycle');
     return;
   }
   
@@ -1122,7 +1122,7 @@ async def run():
     strategy = select_strategy(market)
     
     if not strategy:
-        print("No opportunity — waiting")
+        print("No opportunity - waiting")
         return
     
     demo = await agent.execute_demo(strategy, "XLM")
@@ -1144,7 +1144,7 @@ asyncio.run(main())
 
 ---
 
-## Pattern 5 — Real-Time Signal Dashboard (WebSocket)
+## Pattern 5 - Real-Time Signal Dashboard (WebSocket)
 
 Subscribe to live signals and act on high-confidence opportunities.
 
@@ -1227,8 +1227,8 @@ asyncio.run(agent.subscribe())
 
 | Tier | Req/min | Req/day | Strategies/day |
 |---|---|---|---|
-| Public (no key) | 60 | — | — |
-| Sandbox | 30 | 1,000 | — |
+| Public (no key) | 60 | - | - |
+| Sandbox | 30 | 1,000 | - |
 | **Institutional** | **300** | **10,000** | **500** |
 | Admin | unlimited | unlimited | unlimited |
 
@@ -1244,7 +1244,7 @@ X-RateLimit-Reset: <unix_timestamp>
 
 **Best practices:**
 - Use `executeDemo()` first to validate strategy before calling `execute()`
-- Cache `getMarket()` responses — market state changes at most every 30 seconds
+- Cache `getMarket()` responses - market state changes at most every 30 seconds
 - Use WebSocket subscriptions instead of polling `getRecentSignals()` for real-time use cases
 - Check `getStats().connectivity.websocketClients` to monitor connection health
 
@@ -1275,4 +1275,4 @@ Verify transactions: `https://stellar.expert/explorer/testnet/tx/<txHash>`
 
 ---
 
-*Nirium Protocol — May 12, 2026*
+*Nirium Protocol - May 12, 2026*

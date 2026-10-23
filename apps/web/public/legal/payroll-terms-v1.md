@@ -1,19 +1,19 @@
-# Nirium Payroll / Disbursement — Governing Terms (v1)
+# Nirium Payroll / Disbursement - Governing Terms (v1)
 
-> **INTERIM — PENDING FINAL COUNSEL CONFIRMATION.** The arbitration language in
+> **INTERIM - PENDING FINAL COUNSEL CONFIRMATION.** The arbitration language in
 > §7 is the American Arbitration Association's International Centre for Dispute
 > Resolution (AAA-ICDR) **official standard clause**, quoted verbatim. The
 > governing law (§6) and the seat, language, and number of arbitrators (§7) are
 > filled in with the ICDR-recommended defaults for an early-stage Mexico-based
-> operator — Mexico, Mexico City, Spanish and English, one arbitrator. These are
+> operator - Mexico, Mexico City, Spanish and English, one arbitrator. These are
 > sensible interim values, **not yet reviewed and confirmed by outside counsel.**
 > Mainnet Payouts runs under these interim terms during early access; the
-> founder must have counsel confirm or adjust §6–§7 before broader reliance.
+> founder must have counsel confirm or adjust §6-§7 before broader reliance.
 >
 > This document is the reference artifact for the Legal Context Protocol
 > (LCP · https://legalcontextprotocol.org). Its SHA-256 is the LCP `atrHash`
 > published at `/.well-known/legal-context.json`. **If this text changes, the
-> hash changes — recompute it and update the discovery file and `LCP_ATR_HASH`.**
+> hash changes - recompute it and update the discovery file and `LCP_ATR_HASH`.**
 
 ## 1. Parties and scope
 
@@ -25,7 +25,7 @@ network. "**Nirium**" refers to the software provider.
 On **mainnet**, the Company must identify itself before a run can be built:
 legal name, tax identification number, and the name of an authorized
 representative (`clientInfo: { legalName, taxId, repName }`). This is not
-KYC in the regulated-institution sense — Nirium performs no verification of
+KYC in the regulated-institution sense - Nirium performs no verification of
 the information provided, holds no license to do so, and the requirement
 exists purely as documentation preparation, adopted six months ahead of the
 LFPIORPI Art. 17 fracc. XVI effective date (17-Jan-2027) rather than in
@@ -69,10 +69,10 @@ document and its `atrHash` prove *under which terms*.
 ## 6. Governing law
 
 These terms shall be governed by and construed in accordance with the laws of
-**Mexico** (interim value — pending final confirmation by outside counsel),
+**Mexico** (interim value - pending final confirmation by outside counsel),
 without regard to its conflict-of-laws rules.
 
-## 7. Dispute resolution — AAA-ICDR (official standard clause)
+## 7. Dispute resolution - AAA-ICDR (official standard clause)
 
 **Arbitration clause (ICDR standard, verbatim):**
 
@@ -92,7 +92,7 @@ without regard to its conflict-of-laws rules.
 > settled by arbitration in accordance with the International Arbitration Rules of
 > the International Centre for Dispute Resolution.
 
-**Supplementary provisions (ICDR-recommended interim values — pending final confirmation by counsel):**
+**Supplementary provisions (ICDR-recommended interim values - pending final confirmation by counsel):**
 
 - The number of arbitrators shall be **one**.
 - The place (seat) of arbitration shall be **Mexico City, Mexico**.
@@ -102,15 +102,15 @@ without regard to its conflict-of-laws rules.
 > scratch)**: one arbitrator, not three, because run values disputed under
 > this document are expected to stay small relative to three-arbitrator ICDR
 > cases, and a single arbitrator is materially faster and cheaper to convene
-> — the interim assumption is that speed matters more than a panel here.
+> - the interim assumption is that speed matters more than a panel here.
 > Mexico City as seat because it is where the Company's counterparties and,
 > in most anticipated disputes, the Company itself are located, and because
-> §6 already sets Mexican governing law — an ICDR seat outside the
+> §6 already sets Mexican governing law - an ICDR seat outside the
 > jurisdiction whose law governs the contract is an unforced complication.
 > Spanish and English together, not Spanish alone, because Nirium's own
 > operations and documentation are bilingual and a Recipient may not share
 > the Company's language. None of these were chosen to favor Nirium over the
-> Company — they were chosen to minimize friction for whichever party ends up
+> Company - they were chosen to minimize friction for whichever party ends up
 > needing to actually use this clause.
 
 Judgment on the award rendered by the arbitrator(s) may be entered in any court
@@ -133,7 +133,7 @@ receipt.
 
 ---
 
-*LCP conformance: Level 2 (Provable) — `terms` + `atrHash`. The AAA-ICDR dispute
+*LCP conformance: Level 2 (Provable) - `terms` + `atrHash`. The AAA-ICDR dispute
 resolution clause (§7) is referenced as additional context (a Level 4 field).
 Per-payout digital acceptance (Level 3) is not captured. Sources: ICDR standard
 clauses, https://www.icdr.org/clauses.*

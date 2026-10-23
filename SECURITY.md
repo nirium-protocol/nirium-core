@@ -29,13 +29,13 @@ The following components are in scope for security reports:
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **NiriumVault** (Soroban) | ✅ Internal review — formal audit pending | Treasury, flash loans, 2-of-3 multisig pause |
-| **Protocol Reputation / ELO** (Soroban) | ✅ Internal review — formal audit pending | Agent ELO scoring (base 1200, K=32) |
-| **Strategy Marketplace** (Soroban) | ✅ Internal review — formal audit pending | CID registry, token-spoofing fix applied |
-| **Protocol Sentinel** (Soroban) | ✅ Internal review — formal audit pending | Agent performance reporting contract |
-| **Settlement Hub** (Soroban) | ✅ Internal review — formal audit pending | MPP session escrow contract |
-| **Skill Vault** (Soroban) | ✅ Internal review — formal audit pending | x402 per-request payment gate |
-| **Frontend** (Next.js 15) | ✅ Internal review passed | Dashboard at nirium.xyz — 25 routes |
+| **NiriumVault** (Soroban) | ✅ Internal review - formal audit pending | Treasury, flash loans, 2-of-3 multisig pause |
+| **Protocol Reputation / ELO** (Soroban) | ✅ Internal review - formal audit pending | Agent ELO scoring (base 1200, K=32) |
+| **Strategy Marketplace** (Soroban) | ✅ Internal review - formal audit pending | CID registry, token-spoofing fix applied |
+| **Protocol Sentinel** (Soroban) | ✅ Internal review - formal audit pending | Agent performance reporting contract |
+| **Settlement Hub** (Soroban) | ✅ Internal review - formal audit pending | MPP session escrow contract |
+| **Skill Vault** (Soroban) | ✅ Internal review - formal audit pending | x402 per-request payment gate |
+| **Frontend** (Next.js 15) | ✅ Internal review passed | Dashboard at nirium.xyz - 25 routes |
 | **API endpoints** (Express 5) | ✅ Internal review passed | 55 endpoints at nirium-agent.fly.dev |
 | **Agent scripts** | ✅ Internal review passed | master.ts, swarm, indexer, buyer agents |
 
@@ -64,7 +64,7 @@ The following components are in scope for security reports:
 **Smart Contract Layer (Soroban):**
 - `require_auth` on all state-modifying contract functions
 - `checked_*` arithmetic throughout (no silent overflow)
-- `max_execution_amount` cap per agent delegation — hard physical limit
+- `max_execution_amount` cap per agent delegation - hard physical limit
 - Emergency multisig pause: 2-of-3 pattern (admin + cosigner) via `pause()` / `unpause()`
 - Agent kill switch: `revoke_agent()` callable even while contract is paused
 - Persistent storage TTL extensions (~2 years) on every interaction (SC-TTL-001)
@@ -73,7 +73,7 @@ The following components are in scope for security reports:
 
 **API Layer:**
 - JWT: HS256, 1h expiry, RBAC tiers (public / sandbox / institutional / admin)
-- API keys stored as SHA-256 hash only — irrecoverable after issuance
+- API keys stored as SHA-256 hash only - irrecoverable after issuance
 - `timingSafeEqual` for all key comparisons
 - SQL injection guards on all query params
 - Prompt injection sanitization on all LLM inputs
@@ -84,7 +84,7 @@ The following components are in scope for security reports:
 
 **Infrastructure:**
 - Row Level Security (RLS) on all Supabase tables
-- Non-custodial architecture — users retain sole key control
+- Non-custodial architecture - users retain sole key control
 - HMAC-SHA256 signed immutable audit trail per agent action
 - x402/MPP payment validation middleware on all premium routes
 - `legalShield` middleware: TOS consent check via `x-stellar-account` header

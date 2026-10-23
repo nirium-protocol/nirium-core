@@ -5,7 +5,7 @@ DeFindex en lugar de una llave ed25519 suelta.
 
 ## El mecanismo, en una línea
 
-Se registra **una** regla de contexto — `CallContract(vault)` — y **ninguna**
+Se registra **una** regla de contexto - `CallContract(vault)` - y **ninguna**
 regla `Default`. Esa ausencia es lo que acota: sin regla por defecto, ningún
 otro contrato queda autorizado.
 
@@ -19,7 +19,7 @@ Combinado con DeFindex:
 ## No es un contrato de custodia
 
 Nunca sostiene fondos: sostiene un permiso. Con un bug, lo peor alcanzable es
-llamar `rebalance` — que no puede sacar nada. Por eso se puede desplegar sin
+llamar `rebalance` - que no puede sacar nada. Por eso se puede desplegar sin
 la auditoría que el vault propio sí exigía. La lógica de firmas y políticas
 viene de `stellar-accounts` (OpenZeppelin), no de aquí.
 
