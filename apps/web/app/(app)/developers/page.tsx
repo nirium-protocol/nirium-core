@@ -847,7 +847,7 @@ export default function DevelopersPage() {
                                     <ArrowRight className="ml-2 w-6 h-6" />
                                 </Button>
                             </Link>
-                            <a href="https://github.com/Eras256/Nirium" target="_blank" rel="noopener">
+                            <a href="https://github.com/nirium-protocol/nirium-core" target="_blank" rel="noopener">
                                 <Button size="lg" variant="outline" className="px-12 py-8 text-xl rounded-2xl border-white/10 hover:bg-white/5">
                                     <Boxes className="mr-2 w-6 h-6" />
                                     GitHub
