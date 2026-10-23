@@ -44,6 +44,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # GHSA-mrhx-c7xc-m3w5 (zod < 4.6.6, high, memory exhaustion on
+      # oversized array validation) is allowlisted below via
+      # pnpm.auditConfig.ignoreGhsas in package.json — only fixed in zod
+      # 4.6.6+, but @x402/core 2.9.0 (resolved here) requires zod
+      # ^3.24.2, which cannot resolve to 4.x. No compatible fix exists
+      # as of 2026-10-23. Every other high finding still blocks the
+      # build. Revisit when @x402/core moves to zod 4 (no issue filed
+      # upstream yet as of this date).
       - name: Run pnpm Audit (high+ — blocks build)
         run: pnpm audit --audit-level=high
 
