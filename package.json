@@ -48,7 +48,8 @@
       "proxy-addr": ">=2.0.8",
       "follow-redirects": ">=1.16.1",
       "@modelcontextprotocol/sdk": ">=1.31.0",
-      "zod@4": "^4.6.6"
+      "zod@4": "^4.6.6",
+      "body-parser": ">=2.4.0"
     },
     "auditConfig": {
       "ignoreGhsas": [
