@@ -20,11 +20,11 @@ export default function Footer() {
               <span className="text-xl font-black tracking-tighter text-white">NIRIUM</span>
             </Link>
             <p className="text-sm text-zinc-400 max-w-xs leading-relaxed">
-              {lang("Open-source AI treasury agent infrastructure on Stellar.", "Infraestructura open-source de agentes de tesorería IA en Stellar.")}
+              {lang("Payment, audit and execution rails on Stellar. Your keys, your funds.", "Rieles de pago, auditoría y ejecución en Stellar. Tus llaves, tus fondos.")}
             </p>
             <div className="pt-4">
               <a
-                href="https://github.com/Eras256/Nirium"
+                href="https://github.com/nirium-protocol/nirium"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
@@ -43,7 +43,7 @@ export default function Footer() {
               <li><Link href="/developers" className="text-sm text-zinc-400 hover:text-white transition-colors">Developers</Link></li>
               <li><Link href="/docs" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Documentation", "Documentación")}</Link></li>
               <li>
-                <a href="https://github.com/Eras256/Nirium" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">
+                <a href="https://github.com/nirium-protocol/nirium" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">
                   GitHub <ExternalLink className="w-3 h-3" />
                 </a>
               </li>
@@ -63,7 +63,6 @@ export default function Footer() {
               <li><a href="https://communityfund.stellar.org/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">Stellar Community Fund <ExternalLink className="w-3 h-3" /></a></li>
               <li><a href="https://developers.stellar.org/docs" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">{lang("Developer Docs", "Docs para desarrolladores")} <ExternalLink className="w-3 h-3" /></a></li>
               <li><a href="http://discord.gg/stellardev" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">Stellar Discord <ExternalLink className="w-3 h-3" /></a></li>
-              <li><a href="https://stellarcommunityfund.gitbook.io/scf-handbook" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">SCF Handbook <ExternalLink className="w-3 h-3" /></a></li>
             </ul>
           </div>
 
@@ -104,7 +103,7 @@ export default function Footer() {
                 className="flex items-center gap-1.5 px-2 py-1 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400 uppercase tracking-wider hover:bg-purple-500/20 transition-colors"
               >
                 <ShieldCheck className="w-3 h-3" />
-                SCF Instaward Verified
+                {lang("Two SCF Instawards, delivered", "Dos SCF Instawards, entregados")}
               </a>
             </div>
 
