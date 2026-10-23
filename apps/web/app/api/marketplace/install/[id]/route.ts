@@ -37,7 +37,7 @@ const consumedTxHashes = new Set<string>();
 /**
  * Confirms the decoded transaction actually contains a payment operation
  * matching the skill's price, asset, and destination — reported by
- * chenshj73 (github.com/Eras256/Nirium/issues/1) as missing: the route
+ * chenshj73 (github.com/nirium-protocol/nirium-core/issues/1) as missing: the route
  * used to treat "a header is present" as proof of payment.
  */
 function findMatchingPaymentOp(
