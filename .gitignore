@@ -192,7 +192,7 @@ legal-preguntas-tesoreria.md
 # Contexto de estrategia SCF — SOLO en el privado
 # ---------------------------------------------
 # Instalado el 7-ago-2026 con stellar-build. Nada de esto va al repo público
-# (Eras256/Nirium) ni al de la organización (nirium-protocol/nirium-sdk).
+# (nirium-protocol/nirium-core, antes Eras256/Nirium) ni al de la organización (nirium-protocol/nirium-sdk).
 #
 # Por qué importa aunque hoy viva fuera del repo: ECOSYSTEM.md es el catálogo
 # de LumenLoop con los 728 proyectos y sus montos de award, y las notas de
