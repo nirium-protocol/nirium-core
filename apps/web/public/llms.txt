@@ -9,7 +9,7 @@
 **Focus:** Institutional DeFi infrastructure + autonomous agent orchestration
 **Website:** https://nirium.xyz
 **API:** https://nirium-agent.fly.dev
-**GitHub (public):** https://github.com/Eras256/Nirium
+**GitHub (public):** https://github.com/nirium-protocol/nirium-core
 
 ## Key Capabilities
 - **x402 Micropayments:** Per-request micro-billing for AI agent APIs on Stellar
