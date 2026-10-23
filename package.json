@@ -34,11 +34,11 @@
       "ip-address": "^10.3.1",
       "js-yaml": "^3.15.1",
       "nanoid": "^3.3.18",
-      "next": "^15.5.21",
+      "next": "^15.5.28",
       "postcss": "^8.5.18",
       "sharp": "^0.35.5",
       "@toon-format/toon": ">=2.3.1",
-      "toml": ">=4.1.2",
+      "toml": ">=5.0.1",
       "smol-toml": ">=1.7.1",
       "undici@6": "6.28.1",
       "undici@8": "8.10.2",
@@ -46,6 +46,7 @@
       "ws@8": "8.21.3",
       "source-map-js": ">=1.2.2",
       "proxy-addr": ">=2.0.8",
+      "follow-redirects": ">=1.16.1",
       "@modelcontextprotocol/sdk": ">=1.31.0"
     },
     "auditConfig": {
