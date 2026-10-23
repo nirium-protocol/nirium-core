@@ -34,7 +34,7 @@ jobs:
       - name: Build Agent
         run: |
           # packages/agent/scripts/obfuscate.js only exists in the private
-          # repo. The public mirror (Eras256/Nirium) ships packages/agent as
+          # repo. The public mirror (nirium-protocol/nirium-core, renamed from Eras256/Nirium 22-oct-2026) ships packages/agent as
           # a deliberate placeholder — no real agent source, by design (see
           # AGENTS.md: "Sync al repo público" — never a raw push, always the
           # quirurgical/rebuild-public-repo.sh copy that leaves the agent as
