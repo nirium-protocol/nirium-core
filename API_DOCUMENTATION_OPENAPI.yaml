@@ -66,7 +66,7 @@ info:
     url: https://nirium.xyz
   license:
     name: MIT
-    url: https://github.com/Eras256/Nirium/blob/main/LICENSE
+    url: https://github.com/nirium-protocol/nirium-core/blob/main/LICENSE
 
 servers:
   - url: https://nirium-agent.fly.dev
