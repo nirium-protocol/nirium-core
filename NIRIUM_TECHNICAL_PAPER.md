@@ -10,7 +10,7 @@
 
 ## 1. Abstract
 
-Nirium is institutional DeFi infrastructure that enables fintechs and financial institutions to automate treasury operations, cross-border FX, and cash-flow management using autonomous agents on the Stellar network. The protocol combines Soroban smart contracts with a multi-LLM execution layer, x402 micropayments, MPP session budgets, and a 66-endpoint institutional API (65 HTTP + 1 WebSocket) - creating a full-stack platform where autonomous agents execute financial strategies on-chain with cryptographic accountability and boardroom-ready audit trails.
+Nirium is institutional DeFi infrastructure that enables fintechs and financial institutions to automate treasury operations, cross-border FX, and cash-flow management using autonomous agents on the Stellar network. The protocol combines Soroban smart contracts with a multi-LLM execution layer, x402 micropayments, MPP session budgets, and a 102-endpoint institutional API (101 HTTP + 1 WebSocket) - creating a full-stack platform where autonomous agents execute financial strategies on-chain with cryptographic accountability and boardroom-ready audit trails.
 
 Nirium addresses two markets simultaneously: institutional clients (B2B/A2A) that need automated treasury infrastructure, and the emerging agentic economy where AI agents pay for intelligence and execution with USDC micropayments. Both markets are served by the same protocol layer.
 
@@ -28,7 +28,7 @@ Layer 1 - Interface
   MCP Server (Claude Desktop / Cursor)
 
 Layer 2 - Intelligence & API
-  Express API Server, dual network, 66 endpoints (65 HTTP + 1 WebSocket)
+  Express API Server, dual network, 102 endpoints (101 HTTP + 1 WebSocket)
     - nirium-agent.fly.dev          (testnet - full autonomous loop)
     - nirium-agent-mainnet.fly.dev  (mainnet - receive-only, early access)
   Neural Reasoner (LLM, provider-agnostic, 8 providers)
@@ -93,7 +93,7 @@ A single consolidated contract covering what were originally separate concerns, 
 
 ### 4.1 Overview
 
-The Nirium API is deployed dual-network on Fly.io with Express 5 and Node 20, exposing 66 endpoints (65 HTTP + 1 WebSocket) across 11 categories:
+The Nirium API is deployed dual-network on Fly.io with Express 5 and Node >=22.12.0, exposing 102 endpoints (101 HTTP + 1 WebSocket - dedicated AST recount, 24-oct-2026, parsed against the real route registrations rather than estimated) across 13 categories:
 
 - **`nirium-agent.fly.dev`** (testnet) - full autonomous loop, all endpoints active
 - **`nirium-agent-mainnet.fly.dev`** (mainnet, early access) - receive-only: x402, MPP, Audit Trail, Reporting, and Payouts (invite-only). No private signing key lives on this box; the autonomous rebalance loop and indexer are disabled here.
@@ -109,29 +109,35 @@ The Nirium API is deployed dual-network on Fly.io with Express 5 and Node 20, ex
 | Admin | unlimited | system/health, config/llm |
 
 **Key middleware stack (in order):**
-1. `domainLock` - origin/CORS validation
-2. `security` - SQL injection, prompt injection, XDR/address sanitization
-3. `rateLimit` - sliding window per tier
-4. `auth` - JWT (HS256, 1h), API Key (SHA-256 hash), Sandbox token
-5. `aml` - AML screening
-6. `legalShield` - TOS consent check (requires `x-stellar-account` header on `/api/execute`)
-7. `x402` / `mpp` - payment validation on premium routes
+1. `security` - SQL injection, prompt injection, XDR/address sanitization
+2. `rateLimit` - sliding window per tier
+3. `auth` - JWT (HS256, 1h), API Key (SHA-256 hash), Sandbox token
+4. `legalShield` - TOS consent check (requires `x-stellar-account` header on `/api/execute`)
+5. `x402` / `mpp` - payment validation on premium routes
+
+(`aml.ts` was removed outright on 2026-10-07 after confirming with a grep across the whole agent source that it was never mounted on any route. `domainLock` and `obfuscation` still exist in the source tree but are also never imported anywhere - unused code, not active middleware.)
 
 ### 4.2 Endpoint Summary
 
-**Public:** `/health`, `/api/info`, `/api/loop/status`, `/api/signals/recent`, `/api/skills`, `/api/execute-demo`, `/api/public/*` (6 endpoints)
+**Public:** `/health`, `/api/info`, `/api/revenue`, `/api/nodes`, `/api/nodes/:id`, `/api/loop/status`, `/api/signals/recent`, `/api/skills`, `/api/skills/marketplace`, `/api/execute-demo`, `/api/tickers`, `/api/stats/global`, `/api/strategies`, `/api/subscriptions/stats`, `/api/vault/delegate` (POST/DELETE/PATCH), `/api/vault/delegations`, `/api/vault/delegate/:wallet`, `/api/public/*` (22 endpoints in `server.ts`, plus 6 more under `public.ts`)
 
-**Sandbox:** `/api/sandbox/request`, `/api/sandbox/status`, `/api/sandbox/info`, `/api/sandbox/accounts` (admin), `/api/sandbox/accounts/:id` (admin)
+**Sandbox:** `/api/sandbox/request`, `/api/sandbox/info`, `/api/sandbox/status`, `/api/sandbox/accounts` (admin), `/api/sandbox/accounts/:id` (admin)
 
 **Auth:** `/api/auth/token`, `/api/auth/keys` (GET/POST/DELETE - self-service, wallet-signed via SEP-53)
 
 **Payouts:** `/api/payroll/run`, `/api/payroll/submit`, `/api/payroll/onboard`, `/api/payroll/onboard/submit`, `/api/payroll/runs`, `/api/payroll/terms`, `/api/payroll/info` - mainnet requires client identification (legal name, tax ID, legal representative) and institutional-tier authorization
 
-**MPP:** `/api/v1/mpp/signals`, `/api/v1/mpp/market`, `/api/v1/mpp/execute`, `/api/v1/mpp/info` + 3 more
+**Payouts escrow (Trustless Work Multi-Release, testnet-only):** `/api/payroll/escrow/info`, `/deploy`, `/fund`, `/approve-milestone`, `/release-milestone`, `/approve-milestone/execute`, `/release-milestone/execute`, `/submit`, `/decision-gate/execute`, `/:contractId` (10 endpoints)
 
-**Market:** `/api/market`, `/api/tickers`, `/api/stats/global`, `/api/strategies`, `/api/revenue`
+**Treasury Rebalance:** `/api/treasury/info`, `/vault/:id`, `/vaults`, `/strategy/:id`, `/deploy`, `/deposit`, `/withdraw`, `/set-rebalance-manager`, `/rebalance`, `/rebalance/propose`, `/rebalance/execute`, `/submit` (12 endpoints)
 
-**Execution:** `/api/execute` (real, requires x-stellar-account), `/api/execute-demo`
+**Audit Trail:** `/api/audit/log`, `/api/audit/info`
+
+**Reporting:** `/api/reporting/summary`, `/api/reporting/export`, `/api/reporting/reconcile`, `/api/reporting/info`
+
+**MPP:** `/api/v1/mpp/signals`, `/api/v1/mpp/market`, `/api/v1/mpp/execute`, `/api/v1/mpp/info`, plus the (disabled) channel/* trio (7 endpoints total)
+
+**Market & Execution (API key):** `/api/market`, `/api/execute` (requires x-stellar-account)
 
 **Loop:** `/api/loop/start`, `/api/loop/stop`, `/api/loop/scan`, `/api/loop/status`
 
@@ -145,7 +151,9 @@ The Nirium API is deployed dual-network on Fly.io with Express 5 and Node 20, ex
 
 **Admin:** `/api/system/health`, `/api/config/llm`
 
-**x402 Premium:** `/api/v1/premium/signals` ($0.02 USDC), `/api/v1/premium/market` ($0.05 USDC)
+**x402 Premium:** `/api/v1/premium/signals` ($0.02 USDC), `/api/v1/premium/market` ($0.05 USDC), `/api/v1/premium/execute` ($0.25 USDC)
+
+**x402Serve telemetry:** `/api/x402serve/telemetry`, `/api/x402serve/info`
 
 ### 4.3 WebSocket Real-Time Signals
 JWT-authenticated WebSocket stream. Events: `signal` (arbitrage/yield signal), `log` (agent execution log), `connected`. Reconnects automatically. Used for real-time dashboard feeds and signal-triggered strategy execution.
@@ -379,7 +387,7 @@ All revenue streams are classified as software licensing under LRITF Art. 22, LM
 
 Nirium is the infrastructure layer where institutional DeFi and the agentic economy converge on Stellar. Institutions get automated treasury operations with full auditability and compliance-ready output. AI agents get a protocol they can pay into and execute against without human intermediation.
 
-The protocol's deployment - 66 API endpoints (65 HTTP + 1 WebSocket) across a dual-network stack, a single autonomous execution agent with deterministic fallback, 2 consolidated Soroban contracts, x402 and Payouts live in mainnet early access, MPP experimental, multi-LLM support, MCP server (25 tools), published SDKs (npm + PyPI, TypeScript 0.16.1 / Python 0.11.0), an internal security self-review (no external audit) - establishes the architectural foundation for the NiriumVault treasury contract's mainnet readiness, pending a formal independent third-party audit.
+The protocol's deployment - 102 API endpoints (101 HTTP + 1 WebSocket) across a dual-network stack, a single autonomous execution agent with deterministic fallback, 2 consolidated Soroban contracts, x402 and Payouts live in mainnet early access, MPP experimental, multi-LLM support, MCP server (25 tools), published SDKs (npm + PyPI, TypeScript 0.16.1 / Python 0.11.0), an internal security self-review (no external audit) - establishes the architectural foundation for the NiriumVault treasury contract's mainnet readiness, pending a formal independent third-party audit.
 
 **Update, 2026-10-12:** this paragraph previously listed "12/12 PASS" for the MCP server and "internal security review passed (83/83)". Both scores were removed (see section 9.1). The rest of this paper is dated July 13, 2026 and has not been re-verified; versions and the mainnet status of MPP in particular have since changed (MPP Charge is experimental, with no confirmed mainnet settlement).
 
