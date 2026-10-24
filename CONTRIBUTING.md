@@ -10,7 +10,7 @@ Thank you for your interest in contributing to Nirium Protocol. This document co
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js >=22.12.0 (the real floor - `@stellar/stellar-sdk` 16.x requires it; older Node installs silently resolve an older, incompatible SDK)
 - pnpm 9+
 - Rust (for Soroban contracts - `rustup target add wasm32-unknown-unknown`)
 - Git

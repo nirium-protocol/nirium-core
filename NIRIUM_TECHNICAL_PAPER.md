@@ -23,8 +23,8 @@ Nirium addresses two markets simultaneously: institutional clients (B2B/A2A) tha
 ```
 Layer 1 - Interface
   Next.js 15 Dashboard (nirium.xyz)
-  TypeScript SDK v0.7.0 (npm: nirium)
-  Python SDK v0.7.0 (pypi: nirium)
+  TypeScript SDK v0.16.1 (npm: nirium)
+  Python SDK v0.11.0 (pypi: nirium)
   MCP Server (Claude Desktop / Cursor)
 
 Layer 2 - Intelligence & API
@@ -188,7 +188,7 @@ Info tools (no auth): `get_wallet_info` - shows x402/MPP session configuration
 
 Authenticated tools (NIRIUM_API_KEY required): `start_loop`, `stop_loop`, `get_system_health`
 
-Paid tools (x402 - STELLAR_SECRET_KEY + funded wallet): `get_premium_signals` ($0.01), `get_premium_market` ($0.01), `execute_paid_strategy` ($0.05)
+Paid tools (x402 - STELLAR_SECRET_KEY + funded wallet): `get_premium_signals` ($0.02), `get_premium_market` ($0.05), `execute_paid_strategy` ($0.25)
 
 Paid tools (MPP - direct Soroban SAC, no facilitator): `get_mpp_signals` ($0.01), `get_mpp_market` ($0.01)
 
@@ -297,9 +297,9 @@ SEP-10, SEP-24, SEP-31, SEP-12/Travel Rule, Bug Bounty, Proof of Reserves, Sanct
 
 ## 10. SDKs
 
-Both SDKs verified against live API (July 2026, v0.7.0).
+Both SDKs verified against live API, current as of 24 Oct 2026: TypeScript `nirium` 0.16.1, Python `nirium` 0.11.0.
 
-### TypeScript (Node.js ≥ 18)
+### TypeScript (Node.js >=22.12.0 - `@stellar/stellar-sdk` 16.x requires it)
 ```bash
 npm install nirium
 ```
@@ -309,7 +309,7 @@ const agent = new Agent({ apiKey: 'sk_inst_...', baseUrl: 'https://nirium-agent.
 
 await agent.ping();
 await agent.getMarket();
-await agent.execute('path-arb', 'XLM-USDC', { amount: 5000 }, 'G...');
+await agent.execute('path-arbitrage', 'XLM-USDC', { amount: 5000 }, 'G...');
 agent.subscribe(signal => console.log(signal.signal_type));
 ```
 
@@ -318,15 +318,20 @@ agent.subscribe(signal => console.log(signal.signal_type));
 pip install nirium
 ```
 ```python
+import asyncio
 from nirium import Agent
-agent = Agent(api_url="https://nirium-agent.fly.dev", api_key="sk_inst_...")
 
-await agent.get_market()
-await agent.execute("path-arb", "XLM-USDC", {"amount": 5000}, stellar_account="G...")
+async def main():
+    agent = Agent(api_url="https://nirium-agent.fly.dev", api_key="sk_inst_...")
 
-@agent.on("signal")
-async def on_signal(data): print(data['signal_type'])
-await agent.subscribe()
+    await agent.get_market()
+    await agent.execute("path-arbitrage", "XLM-USDC", {"amount": 5000}, stellar_account="G...")
+
+    @agent.on("signal")
+    async def on_signal(data): print(data['signal_type'])
+    await agent.subscribe()
+
+asyncio.run(main())
 ```
 
 Full documentation: [SDKs.md](SDKs.md)
@@ -374,7 +379,7 @@ All revenue streams are classified as software licensing under LRITF Art. 22, LM
 
 Nirium is the infrastructure layer where institutional DeFi and the agentic economy converge on Stellar. Institutions get automated treasury operations with full auditability and compliance-ready output. AI agents get a protocol they can pay into and execute against without human intermediation.
 
-The protocol's deployment - 66 API endpoints (65 HTTP + 1 WebSocket) across a dual-network stack, a single autonomous execution agent with deterministic fallback, 2 consolidated Soroban contracts, x402 and Payouts live in mainnet early access, MPP experimental, multi-LLM support, MCP server (11 tools), published SDKs (npm + PyPI, v0.7.0), an internal security self-review (no external audit) - establishes the architectural foundation for the NiriumVault treasury contract's mainnet readiness, pending a formal independent third-party audit.
+The protocol's deployment - 66 API endpoints (65 HTTP + 1 WebSocket) across a dual-network stack, a single autonomous execution agent with deterministic fallback, 2 consolidated Soroban contracts, x402 and Payouts live in mainnet early access, MPP experimental, multi-LLM support, MCP server (25 tools), published SDKs (npm + PyPI, TypeScript 0.16.1 / Python 0.11.0), an internal security self-review (no external audit) - establishes the architectural foundation for the NiriumVault treasury contract's mainnet readiness, pending a formal independent third-party audit.
 
 **Update, 2026-10-12:** this paragraph previously listed "12/12 PASS" for the MCP server and "internal security review passed (83/83)". Both scores were removed (see section 9.1). The rest of this paper is dated July 13, 2026 and has not been re-verified; versions and the mainnet status of MPP in particular have since changed (MPP Charge is experimental, with no confirmed mainnet settlement).
 

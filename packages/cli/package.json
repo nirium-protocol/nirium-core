@@ -1,6 +1,6 @@
 {
   "name": "nirium-cli",
-  "version": "1.0.4",
+  "version": "3.0.0",
   "description": "Nirium CLI — scaffold Stellar agent projects and check agent status",
   "main": "bin/nirium.js",
   "type": "module",
@@ -8,7 +8,8 @@
     "nirium": "bin/nirium.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublishOnly": "node --check bin/nirium.js",
+    "test": "node --test test/doctor-seller.test.js test/config-secret.test.js test/serve-api-key.test.js test/verify-hash-only.test.js test/pay-agent-construction.test.js test/pay-status-and-cap.test.js test/status.test.js"
   },
   "keywords": [
     "stellar",
@@ -21,8 +22,30 @@
   "author": "Nirium Team",
   "license": "Apache-2.0",
   "dependencies": {
-    "axios": "^1.13.6",
-    "commander": "^11.0.0"
+    "axios": "^1.20.0",
+    "commander": "^11.0.0",
+    "nirium": "^0.16.1",
+    "express": "^5.1.0",
+    "@stellar/stellar-sdk": "^16.3.0",
+    "@x402/express": "^2.28.0"
+  },
+  "overrides": {
+    "@stellar/stellar-sdk": {
+      "axios": ">=1.20.0"
+    },
+    "follow-redirects": ">=1.16.1",
+    "proxy-addr": ">=2.0.8",
+    "toml": ">=5.0.1",
+    "qs": ">=6.16.0",
+    "mppx": {
+      "zod": "^4.6.6"
+    },
+    "@stellar/mpp": {
+      "zod": "^4.6.6"
+    },
+    "viem": {
+      "zod": "^4.6.6"
+    }
   },
   "devDependencies": {
     "@types/node": "^20.19.30",
@@ -34,10 +57,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nirium-protocol/nirium-sdk.git"
+    "url": "git+https://github.com/nirium-protocol/nirium.git"
   },
   "homepage": "https://nirium.xyz",
   "engines": {
-    "node": ">=18"
+    "node": ">=22.12.0"
   }
 }
