@@ -19,8 +19,20 @@ jobs:
       - name: Install cargo-audit
         run: cargo install cargo-audit --locked || true
 
+      # RUSTSEC-2026-0387 (crypto-bigint 0.5.5, timing variability) is a real,
+      # structural dead end, not an oversight: elliptic-curve 0.13.8 (pulled
+      # in by soroban-env-host 22.1.3, which is locked to our deployed
+      # soroban-sdk 22.0.11) requires crypto-bigint = "^0.5" - the first fixed
+      # release is 0.7.6, two major versions away, and cargo refuses to
+      # resolve it (confirmed 2026-10-24: `cargo update -p crypto-bigint
+      # --precise 0.7.6` fails with "candidate versions found which didn't
+      # match"). The real fix is a soroban-sdk major-version bump, a separate
+      # and much larger decision - not something to roll into a dependency
+      # audit fix. Ignored here so the gate reflects a real, dated decision
+      # instead of staying red for a vulnerability nobody can act on from
+      # this repo alone. Revisit when soroban-sdk moves past 22.x.
       - name: Run Cargo Audit
-        run: cargo audit
+        run: cargo audit --ignore RUSTSEC-2026-0387
 
   node-audit:
     name: Node.js Supply Chain Audit
