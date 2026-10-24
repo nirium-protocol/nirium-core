@@ -1,0 +1,44 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "pip"
+    directory: "/packages/sdk-python"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Isolated on purpose from the root Cargo workspace - stellar-accounts
+  # requires soroban-sdk ^26.1.0, two majors ahead of the deployed
+  # NiriumVault/NiriumProtocol pin. Updated separately so a bump here never
+  # drags the deployed contracts' dependency tree along with it.
+  - package-ecosystem: "cargo"
+    directory: "/packages/policy-account"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # cargo-fuzz targets, own lockfile (committed on purpose - this crate only
+  # runs in CI, never published; see AGENTS.md on why its Cargo.lock is
+  # tracked unlike the rest of the repo's .gitignore default).
+  - package-ecosystem: "cargo"
+    directory: "/fuzz"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
