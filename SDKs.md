@@ -1,6 +1,6 @@
 # Nirium Protocol - Official SDK Documentation
 
-**Version:** 0.5.0  
+**Version:** `nirium` (npm/TypeScript) 0.16.1 · `nirium` (PyPI/Python) 0.11.0  
 **Packages:** `nirium` on npm · `nirium` on PyPI  
 **API Base:** `https://nirium-agent.fly.dev`  
 **Network:** Stellar Testnet
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Nirium provides two official client SDKs - one for TypeScript/Node.js and one for Python. Both wrap the full REST API and WebSocket stream with idiomatic interfaces, identical capabilities, and production-grade patterns including automatic reconnection, error propagation, and x402/MPP payment protocol support.
+Nirium provides two official client SDKs - one for TypeScript/Node.js and one for Python. Both wrap the full REST API and WebSocket stream with idiomatic interfaces and production-grade patterns including automatic reconnection, error propagation, and x402/MPP payment protocol support. Capabilities are not identical: `x402Serve()` (charge for your own API) is TypeScript-only; a LangChain tool (`NiriumX402Tool`) and a WebSocket client with backoff/jitter/dedup are Python-only.
 
 Both SDKs have been integration-tested against the live API with 33/33 endpoints passing.
 
@@ -49,7 +49,7 @@ Both SDKs have been integration-tested against the live API with 33/33 endpoints
 npm install nirium
 ```
 
-**Requirements:** Node.js >= 18 · TypeScript >= 5.0
+**Requirements:** Node.js >= 22.12.0 (required by `@stellar/stellar-sdk` 16.x) · TypeScript >= 5.0
 
 ## Setup
 
