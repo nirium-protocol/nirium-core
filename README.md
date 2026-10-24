@@ -145,6 +145,17 @@ The mainnet signer is a **separate process with its own key and no HTTP surface*
 
 ---
 
+## Why now
+
+Market context, high-confidence sources only - this is not traction (see the next section for that), and none of it implies any relationship with Nirium unless stated.
+
+- **Mastercard published Verifiable Intent** ([mastercard.com](https://www.mastercard.com/us/en/news-and-trends/stories/2026/verifiable-intent.html)), an open standard for proving what a user actually authorized in an agent payment. Its own spec repo has two open issues asking the exact question Audit Trail already answers: [#37](https://github.com/agent-intent/verifiable-intent/issues/37) ("does VI check that a purchase matches what the user asked for, not only that it was authorized?") and [#42](https://github.com/agent-intent/verifiable-intent/issues/42) (what evidence anchors a decision after the fact). Verifying the payment is not the same problem as verifying the decision - that gap is Audit Trail's whole premise.
+- **Tokenized RWA on Stellar grew 360%+ in 2026**, nearing $4B, with roughly $490M of it non-U.S. sovereign debt - CETES included - per Cointelegraph ([cointelegraph.com](https://cointelegraph.com/news/stellar-tokenized-rwa-market-nears-4b-after-fourfold-2026-growth)). This is the asset class the Treasury Node rebalances into.
+- **MPP shipped on a production mainnet**: Stripe and Tempo launched the Machine Payments Protocol on Tempo's mainnet in March 2026 ([theblock.co](https://www.theblock.co/post/394131/tempo-mainnet-goes-live-with-machine-payments-protocol-for-agents)). Nirium's own MPP Charge mode is testnet-only (see the status table above) - cited here as evidence the protocol itself is moving toward production elsewhere, not as our own traction.
+- **Institutional auto-renewal infrastructure went live on Stellar**: Ascend and M1X Global completed the first institutional repo on Stellar using a sovereign-bond-backed stablecoin, with 72 automated hourly rolls over three days, announced 23-oct-2026 ([businesswire.com](https://www.businesswire.com/news/home/20261023351098/en/)). Unrelated to Nirium - cited only as a market signal that institutional-grade automation is landing on this chain.
+
+---
+
 ## Market Traction: Developer Adoption & Verifiable On-Chain Activity
 
 Traction is **self-generated and independently verifiable**. It does not depend on third-party announcements:
