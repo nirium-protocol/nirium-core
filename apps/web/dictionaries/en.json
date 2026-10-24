@@ -167,7 +167,7 @@
         "h_close": "Go check it",
         "close_p1": "Every link above resolves to something you don't have to take our word for — a live block explorer, a public GitHub repository, a documentation page DeFindex controls, not us. Decode the transaction. Read the contract. If something here doesn't hold up the way this post says it does, that's worth knowing — for you and for us.",
         "where_label": "Where we are",
-        "where_body": "Nirium's Treasury Node runs on mainnet as the RebalanceManager on DeFindex vaults the client owns — invite-only during legal review of a specific open question under Mexico's anti-money-laundering law (LFPIORPI, Art. 24 Bis 4) on virtual-asset intermediation, with a public, client-signed path (propose-and-sign) available to anyone today. x402, MPP, and audit anchoring are live on both testnet and mainnet."
+        "where_body": "Nirium's Treasury Node runs on mainnet as the RebalanceManager on DeFindex vaults the client owns — invite-only during legal review of a specific open question under Mexico's anti-money-laundering law (LFPIORPI, Art. 24 Bis 4) on virtual-asset intermediation, with a public, client-signed path (propose-and-sign) available to anyone today. x402 and audit anchoring are live on both testnet and mainnet; MPP is testnet-only."
       },
       "x402-outage-verify-it-yourself": {
         "tag": "Settlement",
