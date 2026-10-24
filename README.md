@@ -52,6 +52,20 @@ The framework supports up to 10 nodes per vault. Live catalog: `GET /api/nodes`.
 
 Every claim below is a link. Nothing here asks to be believed.
 
+### Status at a glance
+
+| Product | Status |
+|---|---|
+| x402 | Live in production, mainnet |
+| Audit Trail | Live in production, mainnet |
+| Reporting | Live in production, mainnet |
+| Treasury Rebalance | Mainnet, invite-only |
+| Payouts | Mainnet, invite-only |
+| Policy hook (pre-sign `ALLOW`/`DENY`) | Experimental |
+| MPP Charge | Testnet only |
+
+The detailed tables below back each row with a transaction hash or a live endpoint - this one is just the summary.
+
 ### Mainnet (real value)
 
 | What | Status | Verify |
