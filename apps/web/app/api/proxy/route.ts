@@ -24,7 +24,7 @@ const ALLOWED_ORIGINS = new Set([
     'https://www.nirium.xyz',
     'https://app.nirium.xyz',
     'http://localhost:3000',
-    'http://localhost:3001',
+    'http://localhost:3002',
 ]);
 
 /** Rate limit: max requests per window per IP */
@@ -51,7 +51,7 @@ const ALLOWED_HOSTS = new Set([
     'www.nirium.xyz',
     'app.nirium.xyz',
     'localhost:3000',
-    'localhost:3001',
+    'localhost:3002',
 ]);
 
 /** Patterns that indicate malicious or scanning traffic */

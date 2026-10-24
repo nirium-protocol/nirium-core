@@ -61,7 +61,7 @@ No install needed - run directly with `npx`, or add to your MCP client config.
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `AGENT_API_URL` | No (defaults to `http://127.0.0.1:3001`) | Nirium agent API base URL |
+| `AGENT_API_URL` | No (defaults to `http://127.0.0.1:3002`) | Nirium agent API base URL |
 | `STELLAR_SECRET_KEY` | For paid tools | Funds x402 and MPP payments |
 | `NIRIUM_API_KEY` | For `start_loop`/`stop_loop` | Agent API key from [nirium.xyz/keys](https://nirium.xyz/keys) |
 | `STELLAR_NETWORK` | No (defaults to `testnet`) | `testnet` or `mainnet` |
@@ -79,7 +79,7 @@ Anchor a **hash** of your data rather than the data itself. IPFS content cannot 
 git clone https://github.com/nirium-protocol/nirium
 cd nirium/packages/mcp
 npm install
-STELLAR_SECRET_KEY=S... AGENT_API_URL=http://localhost:3001 npx tsx src/index.ts
+STELLAR_SECRET_KEY=S... AGENT_API_URL=http://localhost:3002 npx tsx src/index.ts
 ```
 
 ## License
