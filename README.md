@@ -19,7 +19,7 @@
 >
 > Nirium is **experimental software**. Nirium's own **NiriumVault** treasury contract remains on **Stellar Testnet, audit-gated**: no independent third-party audit has occurred yet, and no real client funds ever reach that contract.
 >
-> The **autonomous treasury node runs on mainnet over a DeFindex vault the client owns**: a third-party contract audited by OtterSec, not ours. Nirium holds only the vault's `RebalanceManager` role, which by the contract's own design cannot withdraw funds, change roles, or pause anything. Autonomous rebalancing on mainnet is **invite-only** while a legal review closes. A separate set of receive-only nodes (x402 micropayments, MPP Charge, IPFS audit anchoring, non-custodial Payouts, Reporting) also run in **mainnet early access**; several move real USDC under the client's own wallet signature - see the evidence table below for which ones, and MPP Charge's current status specifically. **Nirium never custodies funds.**
+> The **autonomous treasury node runs on mainnet over a DeFindex vault the client owns**: a third-party contract audited by OtterSec, not ours. Nirium holds only the vault's `RebalanceManager` role, which by the contract's own design cannot withdraw funds, change roles, or pause anything. Autonomous rebalancing on mainnet is **invite-only** while a legal review closes. A separate set of receive-only nodes (x402 micropayments, IPFS audit anchoring, non-custodial Payouts, Reporting) also run in **mainnet early access**; several move real USDC under the client's own wallet signature - see the evidence table below for which ones. **MPP Charge is testnet-only and experimental**: verified with settled payments on testnet (15 Oct 2026), but it has never settled on mainnet - see the evidence table's MPP row for the exact status. **Nirium never custodies funds.**
 >
 > **Update, 2026-10-08 (checked against the live `/api/tickers` on both networks that day):** until today the site, the API and the docs showed a CETES rate of 5.57% under labels such as "Banxico ref", "Today" and, on one dashboard card, "LIVE". It was a fixed reference value read once from app.etherfuse.com/b/cetes in June 2026, not a live reading and not from Banxico. The labels are corrected; the value itself is unchanged and still not live. The same release stops publishing `1 / xlmPrice` as the USDC price in `/api/tickers`: that figure (about 5.25) was how many XLM one dollar buys, and is now `null`.
 >
@@ -39,10 +39,10 @@
 |---|---|---|---|---|
 | 1 | **Settlement** (x402 active; MPP Charge experimental) | x402 ✅ Active · MPP ⚠️ Experimental | both | Per-request micropayments for AI agents. Pay for others' APIs with `initX402()` today - x402 has confirmed mainnet settlements (see the evidence table below). MPP Charge is implemented but experimental: verified on testnet on 15 Oct 2026 with settled payments in pull and push mode (it had rejected a valid payment on 1 Oct); mainnet is unverified. **Update, 2026-10-07:** this previously said charging for your own with `x402Serve()` was invite-only, same gate as Treasury and Payouts - there is no such gate. `x402Serve()` is a general-purpose library that runs on the integrator's own server; Nirium does not operate or gate it. Legal review of third-party use is open - compliance is the integrator's own responsibility. |
 | 2 | **Audit Trail** | ✅ Active | both | Evidence anchored to IPFS as immutable receipts, optionally **signed by the agent that produced it** (ed25519 over a domain-separated statement), so the CID proves not just *that* a fact is unaltered but *who declared it*. |
-| 3 | **Payouts** | ✅ Active | both | Non-custodial batch disbursements, up to 100 recipients per transaction. Mainnet is invite-only; independent service payments only (contractors, freelancers, B2B); never subordinate-employee salary. A milestone variant (Trustless Work Multi-Release - one contract, a distinct receiver per milestone) runs on testnet: `GET /api/payroll/escrow/info`. |
-| 4 | **Treasury Rebalance** | ✅ Active | both | Moves idle capital into a CETES strategy and back, on its own, over a **DeFindex vault the client owns**. Live on mainnet, invite-only during legal review. |
+| 3 | **Payouts** | ✅ Active (mainnet invite-only) | both | Non-custodial batch disbursements, up to 100 recipients per transaction. Mainnet is invite-only; independent service payments only (contractors, freelancers, B2B); never subordinate-employee salary. A milestone variant (Trustless Work Multi-Release - one contract, a distinct receiver per milestone) runs on testnet: `GET /api/payroll/escrow/info`. |
+| 4 | **Treasury Rebalance** | ✅ Active (mainnet invite-only) | both | Moves idle capital into a CETES strategy and back, on its own, over a **DeFindex vault the client owns**. Live on mainnet, invite-only during legal review. |
 | 5 | **Reporting** | ✅ Active | both | Institutional-format summaries and CSV/JSON exports over anchored receipts. Read-only; regulatory filings remain the client's responsibility. |
-| 6 | **Compliance Sentinel** | 🟡 Proposed | testnet | Not built. The intent is to validate every proposed transfer against a policy before it is signed. What exists today is the agent-to-agent x402 client pattern in `coordinationService`; the auditor endpoint it calls does not exist yet, and the call fails open by design so a downed auditor never blocks execution. Do not rely on this as a control. |
+| 6 | **Compliance Sentinel** | 🟡 Proposed | testnet | Not built, for Nirium's own proposed transfers specifically: the intent is a server-side auditor that validates each one against a policy before it is signed. What exists today for that exact direction is the agent-to-agent x402 client pattern in `coordinationService`; the auditor endpoint it calls does not exist yet, and the call fails open by design so a downed auditor never blocks execution. Do not rely on this as a control. **A related but different mechanism is shipped**: the SDK's client-side pre-sign policy hook (`initX402({ policy })`, experimental since 0.16.0) lets a *payer* - not Nirium's own execution - get an ALLOW/DENY from their own policy before any x402 payment is signed. See `packages/sdk/README.md#pre-sign-policy-hook-experimental` for its scope and limits. |
 
 The framework supports up to 10 nodes per vault. Live catalog: `GET /api/nodes`.
 
@@ -316,13 +316,22 @@ agent.subscribe(signal => console.log(signal));
 ```
 
 ```python
+import asyncio
 from nirium import Agent
-agent = Agent(api_url="https://nirium-agent.fly.dev", api_key="sk_inst_...")
 
-market = await agent.get_market()
-await agent.anchor_audit_record(hash="...")
-async for signal in agent.listen():
-    print(signal)
+async def main():
+    agent = Agent(api_url="https://nirium-agent.fly.dev", api_key="sk_inst_...")
+
+    market = await agent.get_market()
+    await agent.anchor_audit_record(hash="...")
+
+    @agent.on("signal")
+    async def on_signal(data):
+        print(data)
+
+    await agent.subscribe()
+
+asyncio.run(main())
 ```
 
 See [SDKs.md](SDKs.md) for full SDK documentation.
@@ -354,7 +363,7 @@ Live: [nirium.xyz/build](https://nirium.xyz/build)
 ## Quick Start
 
 ### Requirements
-- Node.js 20+, pnpm 9+
+- Node.js >=22.12.0, pnpm 9+ (`@stellar/stellar-sdk` 16.x requires 22.12.0+; an older Node resolves an older, incompatible SDK silently)
 - [Freighter Wallet](https://freighter.app/) for dashboard interactions
 
 ### Run locally
@@ -390,7 +399,7 @@ nirium-core/                   (public repo)
 │
 ├── packages/agent/            → [private] Express 5 API, 86 endpoints (85 HTTP + 1 WebSocket)
 ├── packages/mcp/              → [public] MCP server v0.6.3, 25 tools
-├── packages/cli/              → [public] CLI v2.0.1 (npm: nirium-cli)
+├── packages/cli/              → [public] CLI v3.0.0 (npm: nirium-cli)
 ├── packages/desktop/          → [private] Tauri desktop wrapper
 ```
 

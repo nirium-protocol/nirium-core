@@ -1,7 +1,7 @@
 {
   "name": "nirium-mcp",
-  "version": "0.6.0",
-  "description": "Model Context Protocol server for Nirium — exposes market data, autonomous loop control, and x402 paid signals to any MCP-compatible AI (Claude, GPT, Cursor, VS Code Copilot).",
+  "version": "0.6.3",
+  "description": "Model Context Protocol server for Nirium - exposes market data, autonomous loop control, and x402/MPP paid signals to any MCP-compatible AI (Claude, GPT, Cursor, VS Code Copilot).",
   "main": "dist/index.js",
   "bin": {
     "nirium-mcp": "dist/index.js"
@@ -9,10 +9,11 @@
   "homepage": "https://nirium.xyz",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nirium-protocol/nirium-sdk.git"
+    "url": "git+https://github.com/nirium-protocol/nirium.git",
+    "directory": "packages/mcp"
   },
   "bugs": {
-    "url": "https://github.com/nirium-protocol/nirium-sdk/issues",
+    "url": "https://github.com/nirium-protocol/nirium/issues",
     "email": "niriumprotocol@gmail.com"
   },
   "author": {
@@ -25,6 +26,7 @@
     "README.md"
   ],
   "scripts": {
+    "prepublishOnly": "npm run build",
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc --watch"

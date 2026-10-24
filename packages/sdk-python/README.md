@@ -1,13 +1,8 @@
 # nirium
 
-> **Canonical source:** the published PyPI `nirium` package comes from
-> [`nirium-protocol/nirium`](https://github.com/nirium-protocol/nirium),
-> not from this copy. This one can drift behind the real release; check
-> `nirium-protocol/nirium` for the current version and source.
-
 Autonomous treasury and agentic-payments infrastructure for **Nirium Protocol** on Stellar/Soroban - Python client.
 
-Nirium agents rebalance USDC ↔ CETES (tokenized Mexican T-bills via Etherfuse) 24/7 without human intervention. Built for developers who want to integrate autonomous treasury management, agentic payments (x402; MPP Charge is experimental), and real-time market signals into their applications.
+Nirium agents rebalance USDC ↔ CETES (tokenized Mexican T-bills via Etherfuse) 24/7 without human intervention. Built for developers who want to integrate autonomous treasury management, agentic payments with x402, and real-time market signals into their applications.
 
 ## Install
 
@@ -137,15 +132,15 @@ Environment variables: `STELLAR_SECRET_KEY` (or `STELLAR_TESTNET_SECRET_KEY`), o
 
 Runnable example: [`examples/langchain-x402-agent`](../../examples/langchain-x402-agent).
 
-### MPP - Session-Based Budget Delegation
-```python
-agent.init_mpp(
-    secret_key="S...",
-    network="stellar:testnet",
-)
+### MPP Charge: does not work in this version
 
-response = await agent.mpp_fetch("https://nirium-agent.fly.dev/api/v1/mpp/signals")
-```
+`init_mpp()` and `mpp_fetch()` in nirium 0.11.0 cannot pay an MPP Charge server. `mpp_fetch()` raises `ValueError: This is not a valid account:` before sending anything, because it:
+
+- reads the payment challenge from the JSON body of the `402`, but MPP sends it in the `WWW-Authenticate` header;
+- builds a classic Stellar payment, where MPP Charge needs a Soroban SAC transfer;
+- sends its proof in an `X-PAYMENT` header, where MPP uses `Authorization: Payment`.
+
+This is not fixed in the version published today. Use x402 (`init_x402()` / `x402_fetch()`) for paid endpoints. The TypeScript package has an MPP Charge client (experimental, see its README): Nirium's hosted testnet `/api/v1/mpp/*` endpoint accepted its payments on 15 October 2026, in `pull` and `push` mode (mainnet not tested). That does not change this Python version, which still cannot pay.
 
 ### Endpoint Access Model
 
@@ -155,7 +150,7 @@ response = await agent.mpp_fetch("https://nirium-agent.fly.dev/api/v1/mpp/signal
 | **Protected** (API key) | `execute`, `market`, `loop/start\|stop\|scan`, `subscriptions`, `skills/install`, `webhooks` |
 | **WebSocket** (JWT) | `/ws/signals` - real-time signal stream |
 | **x402 Premium** | `/api/v1/premium/signals` ($0.02 USDC), `/api/v1/premium/market` ($0.05 USDC) |
-| **MPP** | `/api/v1/mpp/signals`, `/api/v1/mpp/market` |
+| **MPP Charge** | `/api/v1/mpp/signals`, `/api/v1/mpp/market` (testnet verified with the TypeScript client on 15 Oct 2026, mainnet untested; `mpp_fetch()` does not work in this version) |
 
 ## Payouts
 
@@ -232,14 +227,14 @@ Anchor a **hash** rather than the data itself: IPFS content cannot be deleted, s
 | Revenue | `get_revenue()`, `get_info()` |
 | Nodes | `get_nodes()` |
 | Payouts | `create_payout_run()`, `submit_payout()`, `onboard_payout_recipient()`, `submit_payout_onboard()`, `get_payout_runs()`, `get_payout_terms()`, `get_payout_info()` |
-| LangChain | `NiriumX402Tool`, `create_nirium_x402_tool()` |
 | Treasury | `get_treasury_info()`, `get_treasury_vault()`, `get_treasury_vaults()`, `get_treasury_strategy_asset()`, `deploy_treasury_vault()`, `deposit_to_treasury_vault()`, `withdraw_from_treasury_vault()`, `set_treasury_rebalance_manager()`, `build_treasury_rebalance()`, `propose_treasury_rebalance()`, `execute_treasury_rebalance()`, `submit_treasury_tx()` |
 | Audit Trail | `anchor_audit_record()`, `get_audit_info()` |
 | Reporting | `get_reporting_summary()`, `get_reporting_export()` |
 | Admin | `configure_llm()` |
 | WebSocket | `subscribe()`, `on()` decorator |
 | x402 Payments | `init_x402()`, `x402_fetch()` |
-| MPP Payments | `init_mpp()`, `mpp_fetch()` |
+| LangChain | `NiriumX402Tool`, `create_nirium_x402_tool()` |
+| MPP Charge (does not work in this version, see above) | `init_mpp()`, `mpp_fetch()` |
 
 ## Requirements
 
