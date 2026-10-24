@@ -5,7 +5,7 @@
 
 ![Network](https://img.shields.io/badge/Network-Testnet%20%2B%20Mainnet%20(partial)-orange?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Active-yellow?style=for-the-badge)
-![API](https://img.shields.io/badge/API-86%20Endpoints-blue?style=for-the-badge)
+![API](https://img.shields.io/badge/API-102%20Endpoints-blue?style=for-the-badge)
 ![Security](https://img.shields.io/badge/Security-Internal%20Self%20Assessment%20Only%2C%20No%20External%20Audit-blue?style=for-the-badge)
 ![Instaward](https://img.shields.io/badge/Instaward%20%231%20%26%20%232-Delivered-blueviolet?style=for-the-badge)
 ![x402](https://img.shields.io/badge/x402-In%20Production-teal?style=for-the-badge)
