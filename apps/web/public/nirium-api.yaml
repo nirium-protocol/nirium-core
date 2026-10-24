@@ -39,7 +39,7 @@ info:
 
     - **Production:** `https://nirium-agent.fly.dev`
     - **Staging:** `https://api-staging.nirium.xyz`
-    - **Local Dev:** `http://localhost:3001`
+    - **Local Dev:** `http://localhost:3002`
 
     ## Support
 
@@ -59,7 +59,7 @@ servers:
     description: Production Server
   - url: https://api-staging.nirium.xyz
     description: Staging Server
-  - url: http://localhost:3001
+  - url: http://localhost:3002
     description: Local Development
 
 tags:
