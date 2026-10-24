@@ -31,7 +31,7 @@
 
 **Nirium is an Infrastructure-as-Software provider**: autonomous treasury and agentic payments (x402; MPP experimental) on Stellar/Soroban, not a consumer dashboard.
 
-**The hero product is the rail, not the data.** An 86-endpoint API and TypeScript/Python SDKs that let any B2B fintech both *pay* for machine-to-machine services and *charge* for its own, plus autonomous execution nodes that run treasury operations 24/7 without manual CFO intervention.
+**The hero product is the rail, not the data.** A 102-endpoint API and TypeScript/Python SDKs that let any B2B fintech both *pay* for machine-to-machine services and *charge* for its own, plus autonomous execution nodes that run treasury operations 24/7 without manual CFO intervention.
 
 ### Execution Nodes
 
@@ -180,7 +180,7 @@ Fintech / Institution (B2B / A2A)
   [i18n: EN / ES, 27 routes]
         |
         v
-  [Agent API: dual network, 86 endpoints]
+  [Agent API: dual network, 102 endpoints]
         |-- nirium-agent.fly.dev          (testnet, full autonomous loop, agent holds a key)
         |-- nirium-agent-mainnet.fly.dev  (mainnet, receive-only, NO signing key by design)
         |-- Auth (JWT / API key / sandbox tiers)
@@ -218,7 +218,7 @@ Fintech / Institution (B2B / A2A)
 
 ## Core Features
 
-### Institutional API (86 endpoints: 85 HTTP + 1 WebSocket)
+### Institutional API (102 endpoints: 101 HTTP + 1 WebSocket)
 
 Multi-tier authentication with sandbox accounts, self-service API keys (`/keys`, wallet-signed via SEP-53), tiers (free/sandbox/institutional/enterprise), and JWT for WebSocket. Full RBAC, sliding-window rate limiting. **Update, 2026-10-07:** this previously also said "AML checks, and domain lock" as live controls. Neither was ever mounted on any route - the AML middleware has been removed as dead code, and the domainLock/obfuscation modules remain in the repo, unused.
 
@@ -397,7 +397,7 @@ nirium-core/                   (public repo)
 ├── packages/policy-account/   → Soroban policy account (Rust), scopes a key to one vault
 ├── .github/workflows/         → CI, release, security-gate, desktop release
 │
-├── packages/agent/            → [private] Express 5 API, 86 endpoints (85 HTTP + 1 WebSocket)
+├── packages/agent/            → [private] Express 5 API, 102 endpoints (101 HTTP + 1 WebSocket)
 ├── packages/mcp/              → [public] MCP server v0.6.3, 25 tools
 ├── packages/cli/              → [public] CLI v3.0.0 (npm: nirium-cli)
 ├── packages/desktop/          → [private] Tauri desktop wrapper
@@ -446,7 +446,7 @@ Nirium received two Stellar Community Fund Instawards, through the Stellar Ambas
 | Milestone | Status |
 |---|---|
 | Core infrastructure + x402 on testnet | ✅ Complete · MPP experimental |
-| Institutional API (86 endpoints) + published SDKs | ✅ Complete |
+| Institutional API (102 endpoints) + published SDKs | ✅ Complete |
 | Internal security self-review (no external audit; see report) | ✅ Complete |
 | MCP server v0.6.3, 25 tools | ✅ Complete |
 | Etherfuse CETES integration (testnet + SPEI sandbox) | ✅ Complete |
