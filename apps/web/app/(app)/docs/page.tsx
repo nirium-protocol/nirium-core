@@ -716,7 +716,7 @@ function AgentSection() {
 ├── mcp/                      # Model Context Protocol server (25 tools)
 ├── sdk/                      # TypeScript SDK  (npm: nirium)
 ├── sdk-python/               # Python SDK      (pip: nirium)
-└── agent/                    # Express 5 runtime — 86 endpoints
+└── agent/                    # Express 5 runtime — 102 endpoints
 
 packages/agent/src/scripts/
 ├── master.ts                 # Orchestrator: proxy + agent + indexer
@@ -972,7 +972,7 @@ function ApiSection() {
                             // Lo que sí se puede afirmar es lo que se puede verificar.
                             { label: 'Redes', val: 'Testnet + Mainnet', icon: Activity, color: 'text-stellar-teal' },
                             { label: 'Latencia', val: 'medida en /health', icon: Clock, color: 'text-stellar-yellow' },
-                            { label: 'Endpoints', val: '86', icon: Layers, color: 'text-purple-400' },
+                            { label: 'Endpoints', val: '102', icon: Layers, color: 'text-purple-400' },
                             { label: 'Custodia', val: 'Ninguna', icon: Shield, color: 'text-green-400' },
                         ].map((stat) => (
                             <div key={stat.label} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors">
@@ -1183,7 +1183,7 @@ ws.on('message', (payload) => {
             <section id="endpoints-directory">
                 <div className="flex items-center gap-3 mb-8">
                     <Workflow className="text-stellar-teal w-6 h-6" />
-                    <h3 className="text-2xl font-bold uppercase tracking-tighter">{t.docs.api.explorer_title} (86)</h3>
+                    <h3 className="text-2xl font-bold uppercase tracking-tighter">{t.docs.api.explorer_title} (102)</h3>
                 </div>
 
                 <EndpointExplorer />

@@ -522,7 +522,7 @@
       },
       "companion": {
         "title": "REST API",
-        "desc": "86 endpoints. OpenAPI 3.1"
+        "desc": "102 endpoints. OpenAPI 3.1"
       }
     },
     "settlement_layer": {
@@ -1231,7 +1231,7 @@
         },
         "guides": {
           "title": "Guías de Integración API",
-          "desc": "Documentación de 86 endpoints REST para conectar sus sistemas legacy."
+          "desc": "Documentación de 102 endpoints REST para conectar sus sistemas legacy."
         },
         "marketplace": {
           "title": "Librería de Blueprints",
@@ -2523,7 +2523,7 @@
   "developers_page": {
     "hero": {
       "title": "Construye en",
-      "subtitle": "Infraestructura B2B: paquete TypeScript, 86 endpoints REST, servidor MCP para Claude/Cursor, y soporte nativo para micropagos x402 (cliente MPP Charge: experimental)."
+      "subtitle": "Infraestructura B2B: paquete TypeScript, 102 endpoints REST, servidor MCP para Claude/Cursor, y soporte nativo para micropagos x402 (cliente MPP Charge: experimental)."
     },
     "quickstart": {
       "title": "Aprovisionamiento: 5 Líneas",
@@ -2557,7 +2557,7 @@
     },
     "hub": {
       "title": "Hub de Telemetría",
-      "subtitle": "86 Endpoints diseñados estrictamente para el ruteo autónomo institucional y exportación forense (para operadores sujetos a Ley Fintech).",
+      "subtitle": "102 Endpoints diseñados estrictamente para el ruteo autónomo institucional y exportación forense (para operadores sujetos a Ley Fintech).",
       "infrastructure": "Infraestructura B2B Core",
       "explorer": "Explorador de Cumplimiento",
       "subsystems": "+18 Subsistemas modulares para Orquestación Institucional"
