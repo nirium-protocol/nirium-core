@@ -63,7 +63,7 @@
     "@stellar/mpp": "^0.4.0",
     "@vercel/analytics": "^1.6.1",
     "@x402/core": "^2.9.0",
-    "@x402/express": "^2.9.0",
+    "@x402/express": "^2.28.0",
     "@x402/fetch": "^2.9.0",
     "@x402/stellar": "^2.9.0",
     "class-variance-authority": "^0.7.1",
