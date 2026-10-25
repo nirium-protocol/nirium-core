@@ -167,7 +167,7 @@
         "h_close": "Ve y compruébalo",
         "close_p1": "Cada link de arriba resuelve a algo que no tienes que creernos por nuestra palabra — un explorador de bloques en vivo, un repositorio público de GitHub, una página de documentación que controla DeFindex, no nosotros. Decodifica la transacción. Lee el contrato. Si algo aquí no resiste como este post dice que resiste, vale la pena saberlo — para ti y para nosotros.",
         "where_label": "Dónde estamos",
-        "where_body": "El Treasury Node de Nirium corre en mainnet como RebalanceManager sobre vaults de DeFindex que el cliente posee — invite-only mientras se resuelve una pregunta legal específica abierta bajo la ley mexicana de prevención de lavado de dinero (LFPIORPI, art. 24 Bis 4) sobre intermediación de activos virtuales, con un camino público firmado por el cliente (propose-and-sign) disponible para cualquiera hoy. x402, MPP y el anclaje de auditoría están en vivo en testnet y en mainnet."
+        "where_body": "El Treasury Node de Nirium corre en mainnet como RebalanceManager sobre vaults de DeFindex que el cliente posee — invite-only mientras se resuelve una pregunta legal específica abierta bajo la ley mexicana de prevención de lavado de dinero (LFPIORPI, art. 24 Bis 4) sobre intermediación de activos virtuales, con un camino público firmado por el cliente (propose-and-sign) disponible para cualquiera hoy. x402 y el anclaje de auditoría están en vivo en testnet y en mainnet; MPP solo está en testnet."
       },
       "x402-outage-verify-it-yourself": {
         "tag": "Liquidación",
