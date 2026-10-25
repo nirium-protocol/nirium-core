@@ -39,7 +39,7 @@ NEXT_PUBLIC_CONTRACT_VAULT=CAU2XBJTQUBTMPAUFRX7GMZ337I5WLBI4GYPWHZEVXTMJ66D3CP6D
 NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
 ```
 
-The agent API URL defaults to `https://nirium-agent.fly.dev`. For local dev set `NEXT_PUBLIC_AGENT_API_URL=http://localhost:3001`.
+The agent API URL defaults to `https://nirium-agent.fly.dev`. For local dev set `NEXT_PUBLIC_AGENT_API_URL=http://localhost:3002`.
 
 ## Pages
 

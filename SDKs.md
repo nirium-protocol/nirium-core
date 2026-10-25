@@ -68,7 +68,7 @@ const agent = new Agent({
 | Option | Type | Required | Description |
 |---|---|---|---|
 | `apiKey` | `string` | Yes | Your institutional API key |
-| `baseUrl` | `string` | No | Default: `http://localhost:3001` |
+| `baseUrl` | `string` | No | Default: `http://localhost:3002` |
 | `wsUrl` | `string` | No | WebSocket URL override |
 | `token` | `string` | No | JWT token for WebSocket authentication |
 
@@ -536,7 +536,7 @@ agent = Agent(
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `api_url` | `str` | No | Default: `http://localhost:3001` |
+| `api_url` | `str` | No | Default: `http://localhost:3002` |
 | `api_key` | `str` | No | Your institutional API key |
 | `token` | `str` | No | JWT token for WebSocket authentication |
 

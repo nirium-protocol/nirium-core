@@ -41,7 +41,7 @@ Add to `claude_desktop_config.json`:
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `AGENT_API_URL` | Yes | Nirium agent API URL. Default: `http://127.0.0.1:3001`. Production: `https://nirium-agent.fly.dev` |
+| `AGENT_API_URL` | Yes | Nirium agent API URL. Default: `http://127.0.0.1:3002`. Production: `https://nirium-agent.fly.dev` |
 | `NIRIUM_API_KEY` | For auth tools | API key from `/api/auth/keys`. Unlocks loop control (`start_loop`/`stop_loop`) |
 | `STELLAR_SECRET_KEY` | For paid tools | Stellar testnet keypair. Funds x402 + MPP payments |
 | `STELLAR_NETWORK` | No | `testnet` (default) or `mainnet` |
