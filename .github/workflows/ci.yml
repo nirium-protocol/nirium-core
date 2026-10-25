@@ -31,6 +31,9 @@ jobs:
       - name: Build SDK
         run: pnpm --filter nirium build
 
+      - name: Test SDK
+        run: pnpm --filter nirium test
+
       - name: Build Agent
         run: |
           # packages/agent/scripts/obfuscate.js only exists in the private
@@ -50,6 +53,9 @@ jobs:
       - name: Build CLI
         run: pnpm --filter nirium-cli build
 
+      - name: Test CLI
+        run: pnpm --filter nirium-cli test
+
       - name: Build Web
         run: pnpm --filter nirium-web build
         env:
@@ -59,6 +65,24 @@ jobs:
           NEXT_PUBLIC_STELLAR_NETWORK: testnet
           NEXT_PUBLIC_HORIZON_URL: https://horizon-testnet.stellar.org
           NEXT_PUBLIC_SOROBAN_RPC_URL: https://soroban-testnet.stellar.org
+
+  sdk-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install SDK with test extras
+        run: pip install -e '.[test]'
+        working-directory: packages/sdk-python
+
+      - name: Test Python SDK
+        run: pytest
+        working-directory: packages/sdk-python
 
   contracts:
     runs-on: ubuntu-latest
