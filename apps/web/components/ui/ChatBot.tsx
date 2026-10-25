@@ -90,7 +90,7 @@ const ChatBot = () => {
                 treasury: "La sección de [Tesorería](/treasury) gestiona tus bóvedas Soroban **2-de-3 multisig** y reglas de flujo de caja.\n\nActivos soportados: **XLM · USDC · CETES**\nProveedor: Etherfuse (0.2% all-in)",
                 analytics: "La sección de [Analytics](/analytics) proporciona una vista forense de cada transacción — criptográficamente firmada, anclada en IPFS.",
                 fiat: "Para obtener CETES tokenizados contratas directamente con **Etherfuse**, operador regulado: tú le transfieres a su CLABE y ellos emiten el token a tu wallet.\n\n**Nirium nunca recibe, sostiene ni convierte fiat** — solo muestra la instrucción y lee el saldo. El KYC lo hace Etherfuse. Hoy en sandbox: [ver flujo](/ramp).",
-                devs: "La sección de [Developers](/developers) expone **86 endpoints REST**, SDK TypeScript/Python, servidor MCP para Claude/Cursor, y soporte nativo para **x402** (cliente MPP Charge: experimental).",
+                devs: "La sección de [Developers](/developers) expone **102 endpoints REST**, SDK TypeScript/Python, servidor MCP para Claude/Cursor, y soporte nativo para **x402** (cliente MPP Charge: experimental).",
                 docs: {
                     overview: "Visión general de Nirium v0.16.0: [Ver Documentación](/docs?tab=overview).",
                     api: "API Sandbox: Gestiona tus llaves y explora endpoints en [Docs > API](/docs?tab=api).",
@@ -113,7 +113,7 @@ const ChatBot = () => {
                 treasury: "The [Treasury](/treasury) section manages your Soroban **2-of-3 multisig** vaults and automated cash-flow rules.\n\nSupported assets: **XLM · USDC · CETES**\nProvider: Etherfuse (0.2% all-in)",
                 analytics: "The [Analytics](/analytics) section provides a forensic view of every transaction — cryptographically signed and IPFS-anchored.",
                 fiat: "To get tokenized CETES you contract directly with **Etherfuse**, a regulated operator: you transfer to their CLABE and they issue the token to your wallet.\n\n**Nirium never receives, holds or converts fiat** — we only show the instruction and read the balance. KYC is done by Etherfuse. Sandbox today: [see the flow](/ramp).",
-                devs: "The [Developers](/developers) section exposes **86 REST endpoints**, TypeScript/Python SDK, MCP server for Claude/Cursor, and native **x402** support (MPP Charge client: experimental).",
+                devs: "The [Developers](/developers) section exposes **102 REST endpoints**, TypeScript/Python SDK, MCP server for Claude/Cursor, and native **x402** support (MPP Charge client: experimental).",
                 docs: {
                     overview: "Nirium v0.16.0 overview: [View Documentation](/docs?tab=overview).",
                     api: "API Sandbox: Manage keys and explore endpoints at [Docs > API](/docs?tab=api).",
