@@ -349,7 +349,7 @@ Full documentation: [SDKs.md](SDKs.md)
 ## 11. Infrastructure
 
 ### 11.1 Agent API - Fly.io (dual box)
-- **Runtime:** Node 20, Docker
+- **Runtime:** Node 22, Docker
 - **Entrypoint:** `packages/agent/dist/src/scripts/master.js`
 - **Box A** (`nirium-agent`, testnet): full Orchestrator - MASTER proxy + AGENT + INDEXER + autonomous rebalance loop. 2GB RAM (1GB degrades outbound networking under load).
 - **Box B** (`nirium-agent-mainnet`, mainnet early access): receive-only - no `STELLAR_SECRET_KEY`, autonomous loop and indexer disabled. 2GB RAM.
