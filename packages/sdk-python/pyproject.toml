@@ -13,7 +13,7 @@ authors = [{name = "Nirium Protocol", email = "niriumprotocol@gmail.com"}]
 keywords = ["nirium", "stellar", "soroban", "defi", "agent", "autonomous", "treasury", "x402", "mpp", "agentic-payments", "usdc", "cetes", "etherfuse", "rwa"]
 dependencies = [
     "aiohttp>=3.9.0",
-    "websockets>=13.0",
+    "websockets>=16.1.1",
     "stellar-sdk>=11.0.0,<16.0.0",
 ]
 
