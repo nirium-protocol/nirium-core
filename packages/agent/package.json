@@ -24,7 +24,7 @@
         "@remix-run/node-fetch-server": "^0.13.0",
         "@stellar/mpp": "^0.7.1",
         "@stellar/stellar-sdk": "^14.0.0",
-        "@supabase/supabase-js": "^2.97.0",
+        "@supabase/supabase-js": "^2.118.0",
         "@x402/core": "^2.17.0",
         "@x402/express": "^2.17.0",
         "@x402/fetch": "^2.17.0",
