@@ -25,7 +25,7 @@ stellar-xdr = { version = "22.0.0", features = ["curr", "alloc"] }
 # a `cargo update -p ed25519-dalek@3.0.0 --precise 2.2.0` applied on top
 # of this pin to force it -- re-run that if the lockfile is ever
 # regenerated and this starts failing again.
-ed25519-dalek = "=2.2.0"
+ed25519-dalek = "=3.0.0"
 
 [[bin]]
 name = "fuzz_vault_create"
