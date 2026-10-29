@@ -9,7 +9,7 @@ import {
     Shield, ShieldCheck, Code2, BookOpen,
     Menu, X, ChevronRight, Activity, Zap, Globe,
     Layers, Cpu, Send, Building2
-, KeyRound, Home
+, KeyRound, Home, FileCheck
 } from "lucide-react";
 import { useFreighter } from "@/hooks/useFreighter";
 import { useLanguage } from "@/context/LanguageContext";
@@ -50,6 +50,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                 { href: "/docs",             label: t.nav.docs,        icon: BookOpen,        accent: "#8B5CF6" },
                 { href: "/developers",       label: t.nav.developers,  icon: Code2,           accent: "#6366F1" },
                 { href: "/keys",             label: t.nav.apikeys,     icon: KeyRound,        accent: "#FFD23F" },
+                { href: "/verify",           label: t.nav.verifyAudit, icon: FileCheck,       accent: "#10B981" },
             ]
         }
     ];
