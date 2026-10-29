@@ -6,7 +6,7 @@ import { useFreighter } from "@/hooks/useFreighter";
 import {
     Menu, X, Zap, Shield, Activity,
     LogOut, CreditCard, Building2, Code2, ArrowUpRight, Newspaper, KeyRound, Mail,
-    ChevronDown, Send, ShieldCheck, Cpu
+    ChevronDown, Send, ShieldCheck, Cpu, FileCheck
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -76,6 +76,7 @@ export default function Navbar() {
                 { name: t.nav.docs,       href: "/docs",       icon: Newspaper },
                 { name: t.nav.developers, href: "/developers", icon: Code2 },
                 { name: t.nav.api,        href: "/keys",       icon: KeyRound },
+                { name: t.nav.verifyAudit, href: "/verify",    icon: FileCheck },
             ],
         },
     ];
