@@ -18,11 +18,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-langchain = ["langchain-core>=0.3.0"]
+langchain = ["langchain-core>=1.7.4"]
 test = [
     "pytest>=9.2.0",
     "pytest-asyncio>=1.4.1",
-    "langchain-core>=0.3.0",
+    "langchain-core>=1.7.4",
 ]
 
 [project.urls]
