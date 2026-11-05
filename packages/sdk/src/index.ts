@@ -271,7 +271,8 @@ export interface PayoutRecipient {
 
 /**
  * Identity of the paying company. Required on mainnet — the Payouts node
- * collects it ahead of Mexico's LFPIORPI Fracción XVI (effective 2027-01-17).
+ * collects it under Mexico's LFPIORPI Fracción XVI (in force since ~Sep 2019,
+ * not a future date).
  */
 export interface PayoutClientInfo {
     legalName: string;
@@ -524,7 +525,15 @@ export interface TreasuryVaultState {
     holderBalance?: string;
     /** True only when Nirium holds RebalanceManager and NOT Manager on this vault. */
     niriumIsRebalanceManagerOnly: boolean | null;
+    /** 'enabled' means the vault is on the signer's allowlist. For activity, read `rebalanceEvidence`. */
     autonomousRebalancing: 'enabled' | 'invite-only' | 'not-managed-by-nirium';
+    /** Only for 'enabled' vaults. */
+    rebalanceEvidence?: {
+        /** Last rebalance confirmed on-chain and recorded by the signer. null = none recorded. */
+        lastRebalance: string | null;
+        /** Signer heartbeat (mainnet only). null = no data. */
+        signer: { lastBeatAgeSec: number; alive: boolean } | null;
+    };
 }
 
 export interface TreasuryVaultSummary {
@@ -554,7 +563,7 @@ function queryString(params?: object): string {
  *
  * const agent = new Agent({
  *   apiKey: 'nrm_your_key_here',
- *   baseUrl: 'http://localhost:3002',
+ *   baseUrl: 'http://localhost:3001',
  * });
  *
  * // Check health
@@ -593,7 +602,7 @@ export class Agent {
 
     constructor(config: AgentConfig) {
         this.apiKey = config.apiKey;
-        this.baseUrl = (config.baseUrl || 'http://localhost:3002').replace(/\/$/, '');
+        this.baseUrl = (config.baseUrl || 'http://localhost:3001').replace(/\/$/, '');
         this.wsUrl = config.wsUrl || this.baseUrl.replace(/^http/, 'ws') + '/ws/signals';
         this.token = config.token || null;
     }

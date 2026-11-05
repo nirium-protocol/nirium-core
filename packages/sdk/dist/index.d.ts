@@ -253,7 +253,8 @@ export interface PayoutRecipient {
 }
 /**
  * Identity of the paying company. Required on mainnet — the Payouts node
- * collects it ahead of Mexico's LFPIORPI Fracción XVI (effective 2027-01-17).
+ * collects it under Mexico's LFPIORPI Fracción XVI (in force since ~Sep 2019,
+ * not a future date).
  */
 export interface PayoutClientInfo {
     legalName: string;
@@ -501,7 +502,18 @@ export interface TreasuryVaultState {
     holderBalance?: string;
     /** True only when Nirium holds RebalanceManager and NOT Manager on this vault. */
     niriumIsRebalanceManagerOnly: boolean | null;
+    /** 'enabled' means the vault is on the signer's allowlist. For activity, read `rebalanceEvidence`. */
     autonomousRebalancing: 'enabled' | 'invite-only' | 'not-managed-by-nirium';
+    /** Only for 'enabled' vaults. */
+    rebalanceEvidence?: {
+        /** Last rebalance confirmed on-chain and recorded by the signer. null = none recorded. */
+        lastRebalance: string | null;
+        /** Signer heartbeat (mainnet only). null = no data. */
+        signer: {
+            lastBeatAgeSec: number;
+            alive: boolean;
+        } | null;
+    };
 }
 export interface TreasuryVaultSummary {
     vault: string;
@@ -899,7 +911,7 @@ export interface X402ServeConfig {
     network?: 'stellar:testnet' | 'stellar:pubnet';
     /** Default: OpenZeppelin Channels, el facilitador canónico de Stellar. */
     facilitatorUrl?: string;
-    /** Mainnet lo exige; testnet no. */
+    /** Las dos redes lo exigen - el facilitador rechaza un servidor sin llave también en testnet. */
     facilitatorApiKey?: string;
     facilitatorAuthHeader?: string;
     appName?: string;

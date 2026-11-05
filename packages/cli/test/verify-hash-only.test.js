@@ -178,3 +178,35 @@ test('human output says NOT CHECKED, not MISMATCH, for hash-only without --hash'
     assert.doesNotMatch(r.out, /MISMATCH/);
     assert.match(r.out, /VERIFICATION PASSED/);
 });
+
+// Real mainnet record anchor QmYCLPugmnYJbcuPpTngX2oDc5Cd1rYg7hzw9bL7CpfuNB
+// (mainnet-QmYCLPug.json is a copy). recibo-original.json is its record as
+// anchored; recibo-cambiado.json changes one field.
+const QMYCLPUG_ANCHORED = '9934ab9e303fb1bc301bd851c08c99d40902e3af97d25401833828ec9cf72e20';
+const RECIBO_CAMBIADO_SHA = '21f993d2136ce0ba10b6d31d7684b698ce71d5fbfbec7b1f2ce8743a306e28d9';
+
+test('record mode, --evidence with the original file passes', async () => {
+    const r = await verify('mainnet-QmYCLPug', '--evidence', path.join(fixtures, 'recibo-original.json'));
+    assert.equal(r.code, 0, r.stdout + r.stderr);
+    assert.equal(r.json.hashStatus, 'match');
+    assert.equal(r.json.signatureStatus, 'valid');
+});
+
+test('record mode, --evidence with a changed file: Computed is the file sha-256, not the anchored hash', async () => {
+    const r = await verify('mainnet-QmYCLPug', '--evidence', path.join(fixtures, 'recibo-cambiado.json'));
+    assert.equal(r.code, 1);
+    assert.equal(r.json.hashStatus, 'mismatch');
+    assert.equal(r.json.expectedHash, QMYCLPUG_ANCHORED);
+    assert.equal(r.json.computedHash, RECIBO_CAMBIADO_SHA);
+    // The anchored record itself was not altered, so its signature still verifies.
+    assert.equal(r.json.signatureStatus, 'valid');
+
+    const human = await new Promise((resolve) => {
+        const child = spawn(process.execPath, [cli, 'verify', 'mainnet-QmYCLPug', '--gateway', gateway, '--evidence', path.join(fixtures, 'recibo-cambiado.json')]);
+        let out = '';
+        child.stdout.on('data', (d) => { out += d; });
+        child.on('close', () => resolve(out));
+    });
+    assert.match(human, new RegExp(`Computed: ${RECIBO_CAMBIADO_SHA}`));
+    assert.match(human, /VERIFICATION FAILED/);
+});

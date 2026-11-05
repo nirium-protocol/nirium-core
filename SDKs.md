@@ -1,6 +1,6 @@
 # Nirium Protocol - Official SDK Documentation
 
-**Version:** `nirium` (npm/TypeScript) 0.16.1 · `nirium` (PyPI/Python) 0.11.0  
+**Version:** 0.5.0  
 **Packages:** `nirium` on npm · `nirium` on PyPI  
 **API Base:** `https://nirium-agent.fly.dev`  
 **Network:** Stellar Testnet
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Nirium provides two official client SDKs - one for TypeScript/Node.js and one for Python. Both wrap the full REST API and WebSocket stream with idiomatic interfaces and production-grade patterns including automatic reconnection, error propagation, and x402/MPP payment protocol support. Capabilities are not identical: `x402Serve()` (charge for your own API) is TypeScript-only; a LangChain tool (`NiriumX402Tool`) and a WebSocket client with backoff/jitter/dedup are Python-only.
+Nirium provides two official client SDKs - one for TypeScript/Node.js and one for Python. Both wrap the full REST API and WebSocket stream with idiomatic interfaces, identical capabilities, and production-grade patterns including automatic reconnection, error propagation, and x402/MPP payment protocol support.
 
 Both SDKs have been integration-tested against the live API with 33/33 endpoints passing.
 
@@ -49,7 +49,7 @@ Both SDKs have been integration-tested against the live API with 33/33 endpoints
 npm install nirium
 ```
 
-**Requirements:** Node.js >= 22.12.0 (required by `@stellar/stellar-sdk` 16.x) · TypeScript >= 5.0
+**Requirements:** Node.js >= 18 · TypeScript >= 5.0
 
 ## Setup
 
@@ -68,7 +68,7 @@ const agent = new Agent({
 | Option | Type | Required | Description |
 |---|---|---|---|
 | `apiKey` | `string` | Yes | Your institutional API key |
-| `baseUrl` | `string` | No | Default: `http://localhost:3002` |
+| `baseUrl` | `string` | No | Default: `http://localhost:3001` |
 | `wsUrl` | `string` | No | WebSocket URL override |
 | `token` | `string` | No | JWT token for WebSocket authentication |
 
@@ -536,7 +536,7 @@ agent = Agent(
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `api_url` | `str` | No | Default: `http://localhost:3002` |
+| `api_url` | `str` | No | Default: `http://localhost:3001` |
 | `api_key` | `str` | No | Your institutional API key |
 | `token` | `str` | No | JWT token for WebSocket authentication |
 

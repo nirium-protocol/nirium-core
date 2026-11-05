@@ -1566,11 +1566,18 @@ function verifyAuditDocument(doc, cid, { expectedHash } = {}) {
     // when given, otherwise report the hash as unchecked (not as a mismatch).
     const mode = doc.record ? 'record' : 'hash-only';
     let computedHash = '';
+    let recordHash = '';
     let hashStatus;
     if (mode === 'record') {
-        computedHash = crypto.createHash('sha256').update(JSON.stringify(doc.record)).digest('hex');
-        hashStatus = computedHash === anchoredHash ? 'match' : 'mismatch';
-        if (hashStatus === 'match' && expectedHash && expectedHash !== anchoredHash) hashStatus = 'mismatch';
+        recordHash = crypto.createHash('sha256').update(JSON.stringify(doc.record)).digest('hex');
+        computedHash = recordHash;
+        hashStatus = recordHash === anchoredHash ? 'match' : 'mismatch';
+        // --hash/--evidence that disagrees with the anchor is what the user is
+        // asking about: report its hash, not the record's (which can equal the anchor).
+        if (expectedHash && expectedHash !== anchoredHash) {
+            hashStatus = 'mismatch';
+            computedHash = expectedHash;
+        }
     } else if (expectedHash) {
         computedHash = expectedHash;
         hashStatus = expectedHash === anchoredHash ? 'match' : 'mismatch';
@@ -1586,7 +1593,7 @@ function verifyAuditDocument(doc, cid, { expectedHash } = {}) {
         // Never trust the document's own statement field. In record mode the
         // statement is built from the recomputed record hash; in hash-only mode
         // from content_sha256 (a swapped content_sha256 breaks the signature).
-        statement = `nirium-audit-v1:${mode === 'record' ? computedHash : anchoredHash}`;
+        statement = `nirium-audit-v1:${mode === 'record' ? recordHash : anchoredHash}`;
         declaredStatement = doc.agent.statement;
         signatureScheme = verifyEd25519Signature(signerKey, statement, doc.agent.signature) || undefined;
         signatureStatus = signatureScheme ? 'valid' : 'invalid';
