@@ -42,7 +42,7 @@
 | 3 | **Payouts** | ✅ Active (mainnet invite-only) | both | Non-custodial batch disbursements, up to 100 recipients per transaction. Mainnet is invite-only; independent service payments only (contractors, freelancers, B2B); never subordinate-employee salary. A milestone variant (Trustless Work Multi-Release - one contract, a distinct receiver per milestone) runs on testnet: `GET /api/payroll/escrow/info`. |
 | 4 | **Treasury Rebalance** | ✅ Active (mainnet invite-only) | both | Moves idle capital into a CETES strategy and back, on its own, over a **DeFindex vault the client owns**. Live on mainnet, invite-only during legal review. |
 | 5 | **Reporting** | ✅ Active | both | Institutional-format summaries and CSV/JSON exports over anchored receipts. Read-only; regulatory filings remain the client's responsibility. |
-| 6 | **Compliance Sentinel** | 🟡 Proposed | testnet | Not built, for Nirium's own proposed transfers specifically: the intent is a server-side auditor that validates each one against a policy before it is signed. What exists today for that exact direction is the agent-to-agent x402 client pattern in `coordinationService`; the auditor endpoint it calls does not exist yet, and the call fails open by design so a downed auditor never blocks execution. Do not rely on this as a control. **A related but different mechanism is shipped**: the SDK's client-side pre-sign policy hook (`initX402({ policy })`, experimental since 0.16.0) lets a *payer* - not Nirium's own execution - get an ALLOW/DENY from their own policy before any x402 payment is signed. See `packages/sdk/README.md#pre-sign-policy-hook-experimental` for its scope and limits. |
+| 6 | **Policy Gate** | ✅ Active | both | Routes every outgoing x402 payment through your own policy engine before it is signed (`initX402({ policy })`, #96). Binds the decision to the exact authorization; a deny, timeout, or stale answer signs nothing. Not a remote key-custody control - it wraps the signing call inside the same process that holds the key, so direct access to that signer bypasses it. See the roadmap for a stronger, not-yet-designed alternative. |
 
 The framework supports up to 10 nodes per vault. Live catalog: `GET /api/nodes`.
 
@@ -92,8 +92,8 @@ The detailed tables below back each row with a transaction hash or a live endpoi
 | What | Status | Verify |
 |---|---|---|
 | API box | Live, full autonomous loop, agent holds a key | [`/health`](https://nirium-agent.fly.dev/health) · [`/api/loop/status`](https://nirium-agent.fly.dev/api/loop/status) |
-| NiriumVault | Live: treasury, delegation, flash loans, 2-of-3 multisig | [`CBTWMZCG…AWSZU`](https://stellar.expert/explorer/testnet/contract/CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU) |
-| NiriumProtocol | Live: ELO, marketplace, scoring, skill gate | [`CC2TU5BD…FR5L5NR5`](https://stellar.expert/explorer/testnet/contract/CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5) |
+| NiriumVault | Live: treasury, delegation, flash loans, 2-of-3 multisig | [`CARTJIAS…5SICV`](https://stellar.expert/explorer/testnet/contract/CARTJIASVFHS4JJ24GVRO3XFQD37JCJEAXVPS7SPIWB3HLBXAYQ5SICV) |
+| NiriumProtocol | Live: ELO, marketplace, scoring, skill gate | [`CBKCTMTC…CNSXX`](https://stellar.expert/explorer/testnet/contract/CBKCTMTCCZQIPEESLHHEZKXYSPWNO24NEG33T2XSAAAHPISBND5CNSXX) |
 | Policy Account | Live: one `CallContract` rule, **no** `Default` rule | [`CCZW2WIF…B5LML`](https://stellar.expert/explorer/testnet/contract/CCZW2WIFAD7OQX35U5AILTNF32TCHQUYVPNB32GGKEKKPII2HF7B5LML) |
 | Treasury: full cycle, 5 Aug 2026 | deploy → deposit → autonomous invest | [`a96eec81…a2662`](https://stellar.expert/explorer/testnet/tx/a96eec81347731ced1505cd20be7bbc92d66fbc88c8e12e5376d685ff82a2662) → [`2c4df5a8…2c3b7`](https://stellar.expert/explorer/testnet/tx/2c4df5a85de8357c1f4868ddbb88aa123db04fc80967291fe3f06e9a9332c3b7) → [`c53d4746…52ed3`](https://stellar.expert/explorer/testnet/tx/c53d474658898af7ebbb84d17845902572147cfe1fb72965833e3d4cf7552ed3) |
 | Trustless Work escrow: full cycle, 2 Sep 2026 | deploy (human) → allowlist gate confirmed blocking, then permitting → approve + release milestone, both **agent-signed** | [`8c89ede2…5921f13`](https://stellar.expert/explorer/testnet/tx/8c89ede21a7b2246c2d0bef3d7ee0a4e7218f7ec7a07b2b3d3cc150d05921f13) |
@@ -369,8 +369,8 @@ See [SDKs.md](SDKs.md) for full SDK documentation.
 
 | Contract | Network | Contract ID | Function |
 |---|---|---|---|
-| **NiriumVault** (Vault ID 1 active) | Testnet | `CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU` | Core treasury: vaults, agent delegation, strategy execution, flash loans, 2-of-3 multisig |
-| **NiriumProtocol** | Testnet | `CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5` | Unified registry: ELO reputation, strategy marketplace, agent scoring, skill gate (x402) |
+| **NiriumVault** (Vault ID 1 active) | Testnet | `CARTJIASVFHS4JJ24GVRO3XFQD37JCJEAXVPS7SPIWB3HLBXAYQ5SICV` | Core treasury: vaults, agent delegation, strategy execution, flash loans, 2-of-3 multisig |
+| **NiriumProtocol** | Testnet | `CBKCTMTCCZQIPEESLHHEZKXYSPWNO24NEG33T2XSAAAHPISBND5CNSXX` | Unified registry: ELO reputation, strategy marketplace, agent scoring, skill gate (x402) |
 | **Policy Account** | Testnet | `CCZW2WIFAD7OQX35U5AILTNF32TCHQUYVPNB32GGKEKKPII2HF7B5LML` | Scopes an agent key to a single vault: one `CallContract` rule, **no** `Default` rule |
 | **DeFindex vault** (reference) | Mainnet | `CAMDXG6L4LXLXXV675KZSHM3BMSETZ4NVMC7JYIQCZ2JTG54OMSK57MH` | Third-party, OtterSec-audited, owned by its deployer; Nirium holds RebalanceManager only |
 
@@ -489,6 +489,7 @@ Nirium received two Stellar Community Fund Instawards, through the Stellar Ambas
 | Stellar Community Fund Build Award | 🔄 Building verifiable third-party traction before applying |
 | Formal independent audit of NiriumVault | Planned, ahead of any NiriumVault mainnet deployment |
 | NiriumVault mainnet deployment (real treasury funds) | Post formal audit |
+| **KineGuard** (tentative name) - remote key-custody policy gate: the auditor endpoint would hold or gate access to the signing key itself, not just opine before the same process signs | 💭 Idea only. Not designed, not scoped, no date. Distinct from Policy Gate above (#6), which already covers "ask a policy engine before signing" - this would only be worth building if it closes that control's one real gap: code in the same process as the key can bypass a same-process hook. |
 
 ---
 
