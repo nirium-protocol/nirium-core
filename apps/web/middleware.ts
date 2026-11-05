@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { isNiriumtoberLive } from '@/lib/niriumtober'
 import type { NextRequest } from 'next/server'
 
 // ═══ Jurisdicciones prohibidas — Tier A de la política ═══
@@ -29,6 +30,15 @@ const ALWAYS_ALLOWED = /^\/(legal|terms|privacy|disclaimers|risk-disclosure|coc|
 export function middleware(request: NextRequest) {
     const country = request.headers.get('x-vercel-ip-country') || ''
     const path = request.nextUrl.pathname
+
+    // /sandbox ya no existe como producto: todo lleva a testnet real. 301 a
+    // Niriumtober mientras dure la campaña y a /build después, por fecha.
+    if (path === '/sandbox' || path.startsWith('/sandbox/')) {
+        const url = request.nextUrl.clone()
+        url.pathname = isNiriumtoberLive() ? '/build/niriumtober' : '/build'
+        url.search = isNiriumtoberLive() ? '?ref=sandbox' : ''
+        return NextResponse.redirect(url, 301)
+    }
 
     if (BLOCKED_COUNTRIES.has(country) && !ALWAYS_ALLOWED.test(path)) {
         // Las rutas /api son la operación de verdad: construir una corrida de
