@@ -114,7 +114,7 @@ export default function BuildPage() {
                                 {si.cta_button}
                             </a>
                             <Link
-                                href="/sandbox"
+                                href="/keys"
                                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-tight hover:bg-white/10 transition-all"
                             >
                                 <TerminalIcon className="w-4 h-4" />
@@ -404,7 +404,7 @@ nirium.<span className="text-cyan-400">subscribe</span>((signal) =&gt; {"{"}{"\n
                             <Code2 className="w-4 h-4" />
                             {ah.cta_docs}
                         </a>
-                        <Link href="/sandbox" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white font-bold text-xs sm:text-sm uppercase tracking-tight hover:bg-white/10 transition-all">
+                        <Link href="/keys" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white font-bold text-xs sm:text-sm uppercase tracking-tight hover:bg-white/10 transition-all">
                             <TerminalIcon className="w-4 h-4" />
                             {ah.cta_sandbox}
                         </Link>

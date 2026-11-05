@@ -278,7 +278,7 @@ export default function SecurityPage() {
                         {lang('Your keys, your funds', 'Tus llaves, tus fondos')}
                     </h2>
                     <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-                        <Link href="/sandbox">
+                        <Link href="/keys">
                             <Button size="lg" variant="premium">
                                 {lang('Create testnet vault', 'Crear vault en testnet')}
                                 <ArrowRight className="ml-2 w-4 h-4" />

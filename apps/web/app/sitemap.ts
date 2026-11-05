@@ -15,7 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/marketplace',
         '/agents',
         '/analytics',
-        '/sandbox',
         '/manifesto',
         '/privacy',
         '/terms',

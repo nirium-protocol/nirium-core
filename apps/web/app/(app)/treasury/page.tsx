@@ -327,7 +327,7 @@ export default function TreasuryPage() {
                         {t.treasury_page.cta.subtitle}
                     </p>
                     <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-                        <Link href="/sandbox">
+                        <Link href="/keys">
                             <Button size="lg" variant="premium">
                                 {t.treasury_page.cta.start}
                                 <ArrowRight className="ml-2 w-4 h-4" />

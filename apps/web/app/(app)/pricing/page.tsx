@@ -187,7 +187,7 @@ export default function PricingPage() {
                         {/* FREE */}
                         <div className="flex flex-col p-6 rounded-2xl border border-white/10 bg-white/[0.02]">
                             <div className="mb-6">
-                                <div className="text-xs font-mono uppercase tracking-widest text-white/40 mb-2">Sandbox</div>
+                                <div className="text-xs font-mono uppercase tracking-widest text-white/40 mb-2">Testnet</div>
                                 <div className="text-4xl font-black mb-1">$0</div>
                                 <p className="text-sm text-white/50">
                                     {lang('Free forever on testnet', 'Para siempre en testnet')}
@@ -201,7 +201,7 @@ export default function PricingPage() {
                                     </li>
                                 ))}
                             </ul>
-                            <Link href="/sandbox">
+                            <Link href="/keys">
                                 <Button variant="outline" className="w-full border-white/20 hover:bg-white/5">
                                     {lang('Start free', 'Empezar gratis')}
                                 </Button>
@@ -236,7 +236,7 @@ export default function PricingPage() {
                                     </li>
                                 ))}
                             </ul>
-                            <Link href="/sandbox">
+                            <Link href="/keys">
                                 <Button variant="premium" className="w-full">
                                     {lang('Try on testnet', 'Probar en testnet')}
                                     <ArrowRight className="ml-2 w-4 h-4" />
@@ -467,7 +467,7 @@ export default function PricingPage() {
                         {lang('No card. No contract. Cancel anytime.', 'Sin tarjeta. Sin contrato. Cancela cuando quieras.')}
                     </p>
                     <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-                        <Link href="/sandbox">
+                        <Link href="/keys">
                             <Button size="lg" variant="premium">
                                 {lang('Create free vault', 'Crear vault gratis')}
                                 <ArrowRight className="ml-2 w-4 h-4" />

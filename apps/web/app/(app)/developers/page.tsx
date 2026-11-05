@@ -841,7 +841,7 @@ export default function DevelopersPage() {
                             {t.developers_page.cta.subtitle}
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link href="/sandbox">
+                            <Link href="/keys">
                                 <Button size="lg" variant="premium" className="px-12 py-8 text-xl rounded-2xl">
                                     {t.developers_page.cta.get_key}
                                     <ArrowRight className="ml-2 w-6 h-6" />

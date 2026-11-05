@@ -291,7 +291,7 @@ export default function CompliancePage() {
                             {t.compliance_page.cta.subtitle}
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link href="/sandbox">
+                            <Link href="/keys">
                                 <Button size="lg" variant="premium" className="px-10 py-8 text-lg rounded-2xl">
                                     {t.compliance_page.cta.try_testnet}
                                     <ArrowRight className="ml-2 w-5 h-5" />
