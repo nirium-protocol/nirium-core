@@ -12,10 +12,18 @@
 
 #![cfg(test)]
 
+use std::rc::Rc;
+
 use soroban_sdk::{
     symbol_short,
     testutils::{Address as _, Events},
-    token, vec, Address, Env, IntoVal, String,
+    token, vec,
+    xdr::{
+        AccountEntry, AccountEntryExt, AccountId, LedgerEntry, LedgerEntryData, LedgerEntryExt,
+        LedgerKey, LedgerKeyAccount, PublicKey, ScAddress, SequenceNumber, String32, Thresholds,
+        Uint256, VecM,
+    },
+    Address, Bytes, Env, IntoVal, String, TryFromVal,
 };
 
 // `crate::` doesn't work here: integration tests (files under tests/) are
@@ -44,14 +52,50 @@ fn create_token(env: &Env) -> (Address, token::StellarAssetClient<'_>) {
     (token_address.address(), token_client)
 }
 
+/// The native XLM asset contract, deployed at its canonical address. The
+/// vault rejects any other `xlm_address`, so tests have to use the real one.
+fn native_xlm(env: &Env) -> Address {
+    let deployer = env.deployer().with_stellar_asset(Bytes::from_array(env, &[0u8; 4]));
+    let addr = deployer.deployed_address();
+    if token::Client::new(env, &addr).try_symbol().is_err() {
+        deployer.deploy();
+    }
+    addr
+}
+
+/// A classic G-account holding native XLM, written straight into the test
+/// ledger: the native asset has no admin, so it can't be minted.
+fn funded_native_account(env: &Env, seed: u8, stroops: i64) -> Address {
+    let account_id = AccountId(PublicKey::PublicKeyTypeEd25519(Uint256([seed; 32])));
+    let key = Rc::new(LedgerKey::Account(LedgerKeyAccount { account_id: account_id.clone() }));
+    let entry = Rc::new(LedgerEntry {
+        last_modified_ledger_seq: 0,
+        data: LedgerEntryData::Account(AccountEntry {
+            account_id: account_id.clone(),
+            balance: stroops,
+            seq_num: SequenceNumber(0),
+            num_sub_entries: 0,
+            inflation_dest: None,
+            flags: 0,
+            home_domain: String32::default(),
+            thresholds: Thresholds([1, 0, 0, 0]),
+            signers: VecM::default(),
+            ext: AccountEntryExt::V0,
+        }),
+        ext: LedgerEntryExt::V0,
+    });
+    env.host().add_ledger_entry(&key, &entry, None).unwrap();
+    Address::try_from_val(env, &ScAddress::Account(account_id)).unwrap()
+}
+
 /// create_vault() charges its 12.5 XLM deployment fee (DEPLOYMENT_FEE =
-/// 125_000_000 stroops) via a separate xlm_address parameter, distinct from
-/// the vault's own base token -- funds owner with well above that so every
-/// call site doesn't have to reason about the exact fee amount itself.
+/// 125_000_000 stroops) in native XLM, distinct from the vault's own base
+/// token. Funds owner with well above that from a funded classic account.
 fn create_xlm(env: &Env, owner: &Address) -> Address {
-    let (xlm_addr, xlm_admin) = create_token(env);
-    xlm_admin.mint(owner, &1_000_000_000);
-    xlm_addr
+    let xlm = native_xlm(env);
+    let faucet = funded_native_account(env, 7, 100_000_000_000);
+    token::Client::new(env, &xlm).transfer(&faucet, owner, &1_000_000_000);
+    xlm
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -608,4 +652,148 @@ fn test_pool_creation_excessive_fee() {
         &500_000i128,
         &1000u32,
     );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FZN-2026-NIR-02 REGRESSION TESTS
+// ═══════════════════════════════════════════════════════════════
+
+fn vault_with_agent(budget: i128) -> (Env, NiriumVaultContractClient<'static>, u64, Address, Address) {
+    let (env, _contract_id, client) = setup_env();
+    let owner = Address::generate(&env);
+    let agent = Address::generate(&env);
+    let treasury = Address::generate(&env);
+    let admin = Address::generate(&env);
+
+    let (vault_token, vault_token_admin) = create_token(&env);
+    vault_token_admin.mint(&owner, &100_000_000_000);
+    let xlm_addr = create_xlm(&env, &owner);
+
+    client.initialize(&treasury, &admin);
+    let vault = client.create_vault(&owner, &vault_token, &String::from_str(&env, "Test Vault"), &xlm_addr);
+    client.delegate_agent(&vault.vault_id, &agent, &budget);
+    (env, client, vault.vault_id, agent, admin)
+}
+
+#[test]
+#[should_panic(expected = "xlm_address must be the native XLM asset contract")]
+fn test_create_vault_rejects_spoofed_fee_token() {
+    let (env, _contract_id, client) = setup_env();
+    let owner = Address::generate(&env);
+    let treasury = Address::generate(&env);
+    let admin = Address::generate(&env);
+
+    let (vault_token, _) = create_token(&env);
+    let (fake_xlm, fake_admin) = create_token(&env);
+    fake_admin.mint(&owner, &1_000_000_000);
+
+    client.initialize(&treasury, &admin);
+    client.create_vault(&owner, &vault_token, &String::from_str(&env, "Spoof"), &fake_xlm);
+}
+
+#[test]
+fn test_create_vault_fee_goes_to_treasury_in_native_xlm() {
+    let (env, _contract_id, client) = setup_env();
+    let owner = Address::generate(&env);
+    let treasury = Address::generate(&env);
+    let admin = Address::generate(&env);
+
+    let (vault_token, _) = create_token(&env);
+    let xlm = create_xlm(&env, &owner);
+    let xlm_client = token::Client::new(&env, &xlm);
+
+    client.initialize(&treasury, &admin);
+    client.create_vault(&owner, &vault_token, &String::from_str(&env, "Fee"), &xlm);
+
+    assert_eq!(xlm_client.balance(&treasury), 125_000_000);
+    assert_eq!(client.get_total_fees(), 125_000_000);
+}
+
+#[test]
+#[should_panic(expected = "exceeds agent max execution amount")]
+fn test_agent_budget_is_cumulative() {
+    let (_env, client, vault_id, agent, _admin) = vault_with_agent(1_000);
+    client.execute_blend_yield(&agent, &vault_id, &true, &600i128);
+    assert_eq!(client.get_agent_spent(&vault_id, &agent), 600);
+    // Under the per-call cap, but over the total budget.
+    client.execute_blend_yield(&agent, &vault_id, &true, &600i128);
+}
+
+#[test]
+fn test_redelegation_resets_budget() {
+    let (_env, client, vault_id, agent, _admin) = vault_with_agent(1_000);
+    client.execute_blend_yield(&agent, &vault_id, &true, &600i128);
+    client.delegate_agent(&vault_id, &agent, &1_000i128);
+    assert_eq!(client.get_agent_spent(&vault_id, &agent), 0);
+    client.execute_blend_yield(&agent, &vault_id, &true, &600i128);
+    assert_eq!(client.get_agent_spent(&vault_id, &agent), 600);
+}
+
+#[test]
+#[should_panic(expected = "amount must be positive")]
+fn test_agent_amount_must_be_positive() {
+    let (_env, client, vault_id, agent, _admin) = vault_with_agent(1_000);
+    // A negative amount must not be able to wind the running total back.
+    client.execute_blend_yield(&agent, &vault_id, &true, &-500i128);
+}
+
+#[test]
+#[should_panic(expected = "contract is paused")]
+fn test_pause_blocks_agent_execution() {
+    let (_env, client, vault_id, agent, admin) = vault_with_agent(1_000);
+    client.pause(&admin, &admin);
+    client.execute_blend_yield(&agent, &vault_id, &true, &100i128);
+}
+
+#[test]
+#[should_panic(expected = "contract is paused")]
+fn test_pause_blocks_flash_loan() {
+    let (env, client, vault_id, agent, admin) = vault_with_agent(1_000_000_000);
+    let (base_token, _) = create_token(&env);
+    let (quote_token, _) = create_token(&env);
+    let pool = client.create_pool(&admin, &base_token, &quote_token, &1_000_000_000i128, &1_000_000_000i128, &30u32);
+    client.pause(&admin, &admin);
+    client.flash_loan_execute(&agent, &vault_id, &pool.pool_id, &1_000i128, &0i128);
+}
+
+#[test]
+#[should_panic(expected = "contract is paused")]
+fn test_pause_blocks_create_pool() {
+    let (env, client, _vault_id, _agent, admin) = vault_with_agent(1_000);
+    let (base_token, _) = create_token(&env);
+    let (quote_token, _) = create_token(&env);
+    client.pause(&admin, &admin);
+    client.create_pool(&admin, &base_token, &quote_token, &1_000i128, &1_000i128, &30u32);
+}
+
+#[test]
+#[should_panic(expected = "contract is paused")]
+fn test_pause_blocks_set_cosigners() {
+    let (env, client, _vault_id, _agent, admin) = vault_with_agent(1_000);
+    client.pause(&admin, &admin);
+    client.set_cosigners(&admin, &Address::generate(&env), &Address::generate(&env));
+}
+
+#[test]
+fn test_revoke_still_works_while_paused() {
+    let (_env, client, vault_id, agent, admin) = vault_with_agent(1_000);
+    client.pause(&admin, &admin);
+    client.revoke_agent(&vault_id, &agent);
+    assert!(!client.get_agent_delegation(&vault_id, &agent).is_active);
+}
+
+#[test]
+#[should_panic(expected = "E_NOT_ACTIVE")]
+fn test_closed_vault_rejects_deposit() {
+    let (_env, client, vault_id, _agent, _admin) = vault_with_agent(1_000);
+    client.close_vault(&vault_id);
+    client.deposit(&vault_id, &1_000i128);
+}
+
+#[test]
+#[should_panic(expected = "E_NOT_ACTIVE")]
+fn test_closed_vault_rejects_agent_execution() {
+    let (_env, client, vault_id, agent, _admin) = vault_with_agent(1_000);
+    client.close_vault(&vault_id);
+    client.execute_blend_yield(&agent, &vault_id, &true, &100i128);
 }

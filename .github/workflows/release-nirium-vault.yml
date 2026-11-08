@@ -1,0 +1,39 @@
+# Verified build of the NiriumVault contract (SEP-0055).
+#
+# On a `nirium-vault-v*` tag, stellar-expert/soroban-build-workflow builds the
+# `nirium-contracts` package from this exact commit, stamps
+# source_repo=github:nirium-protocol/nirium-core and home_domain=nirium.xyz into
+# the WASM metadata, publishes a GitHub release with the WASM attached, attests
+# that same file, and registers the hash with stellar.expert's contract
+# validation. The WASM that gets deployed is the one attached to that release,
+# never a local rebuild: a hash that differs by one byte matches no attestation.
+#
+# Tag prefix is `nirium-vault-v`, not `v`: release.yml (desktop app) already
+# runs on every `v*` tag, and "vault-v1" would match it too.
+#
+# Pinned to the commit of release v25.1.0 (published 2026-03-09), reviewed on
+# 2026-11-08: it checks out the tagged commit, builds from source with
+# `stellar contract build --optimize`, and attests the same file it uploads.
+# The pin freezes release.yml only. The actions it calls (actions/checkout@v4,
+# stellar/stellar-cli@v25.1.0, actions/attest-build-provenance@v1) resolve their
+# own tags at run time; fork the workflow if that residual risk is unacceptable.
+name: Build and Release NiriumVault
+
+on:
+  push:
+    tags: ["nirium-vault-v*"]
+
+permissions:            # inherited by the called workflow, which cannot elevate them
+  contents: write       # create the release, attach the WASM
+  id-token: write       # sign the attestation
+  attestations: write   # publish it
+
+jobs:
+  release:
+    uses: stellar-expert/soroban-build-workflow/.github/workflows/release.yml@e43b241f114bcf02151c30d61088506c6ad3ae0b  # v25.1.0
+    with:
+      release_name: ${{ github.ref_name }}
+      package: nirium-contracts
+      home_domain: nirium.xyz
+    secrets:
+      release_token: ${{ secrets.GITHUB_TOKEN }}

@@ -273,6 +273,12 @@ impl NiriumProtocolContract {
     ) -> u64 {
         creator.require_auth();
 
+        // subscribe() rejects fee <= 0, so such a listing could never be
+        // subscribed to: reject it here instead of storing it (FZN-2026-NIR-02).
+        if subscription_fee_usdc <= 0 {
+            panic!("invalid fee");
+        }
+
         let id: u64 = env.storage().instance().get(&DataKey::SNextId).unwrap_or(1);
         let listing = StrategyListing {
             id,
@@ -464,5 +470,45 @@ impl NiriumProtocolContract {
     pub fn set_usdc_token(env: Env, caller: Address, usdc_token: Address) {
         require_admin(&env, &caller);
         env.storage().instance().set(&DataKey::UsdcToken, &usdc_token);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use soroban_sdk::testutils::Address as _;
+
+    fn setup() -> (Env, NiriumProtocolContractClient<'static>, Address) {
+        let env = Env::default();
+        env.mock_all_auths();
+        let id = env.register(NiriumProtocolContract, ());
+        let client = NiriumProtocolContractClient::new(&env, &id);
+        let admin = Address::generate(&env);
+        client.initialize(&admin, &Address::generate(&env), &Address::generate(&env));
+        (env, client, admin)
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid fee")]
+    fn publish_rejects_zero_fee() {
+        let (env, client, _) = setup();
+        let creator = Address::generate(&env);
+        client.publish_strategy(&creator, &String::from_str(&env, "s"), &String::from_str(&env, "cid"), &0i128);
+    }
+
+    #[test]
+    #[should_panic(expected = "invalid fee")]
+    fn publish_rejects_negative_fee() {
+        let (env, client, _) = setup();
+        let creator = Address::generate(&env);
+        client.publish_strategy(&creator, &String::from_str(&env, "s"), &String::from_str(&env, "cid"), &-1i128);
+    }
+
+    #[test]
+    fn publish_accepts_positive_fee() {
+        let (env, client, _) = setup();
+        let creator = Address::generate(&env);
+        let id = client.publish_strategy(&creator, &String::from_str(&env, "s"), &String::from_str(&env, "cid"), &1_000_000i128);
+        assert_eq!(id, 1);
     }
 }
