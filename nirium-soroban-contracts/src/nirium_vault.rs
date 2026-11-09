@@ -16,8 +16,11 @@
 //! 3. Single-Invocation Flash Loans — this contract's pattern
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, token, Address, Env, String, Vec,
+    contract, contractimpl, contracttype, symbol_short, token, Address, Bytes, Env, String, Vec,
 };
+
+/// `Asset::Native` serialized as XDR: the AssetType discriminant 0, no body.
+const NATIVE_ASSET_XDR: [u8; 4] = [0, 0, 0, 0];
 
 // ═══════════════════════════════════════════════════════════════
 // ERROR CODES
@@ -72,6 +75,9 @@ pub enum DataKey {
     /// Multisig cosigners for emergency operations (2-of-3 pattern)
     Cosigner1,
     Cosigner2,
+    /// Running total executed by an agent against its delegation budget
+    /// (vault_id, agent_address) → i128. Reset when the owner re-delegates.
+    AgentSpent(u64, Address),
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -148,7 +154,9 @@ impl NiriumVaultContract {
     // ─── Emergency Pause (IR-001) ────────────────────────────
 
     /// Check that the contract is not paused. Called at the top of every
-    /// state-mutating function. Panics if paused.
+    /// state-mutating function, agent executions included (via verify_agent).
+    /// Deliberate exceptions: pause/unpause themselves and revoke_agent, so an
+    /// owner can always cut an agent off during an emergency stop.
     fn check_not_paused(env: &Env) {
         let paused: bool = env
             .storage()
@@ -160,9 +168,20 @@ impl NiriumVaultContract {
         }
     }
 
+    /// Canonical native XLM asset contract for the network this contract runs
+    /// on. Deterministic, so no storage and no admin knob to get wrong.
+    fn native_xlm(env: &Env) -> Address {
+        env.deployer()
+            .with_stellar_asset(Bytes::from_array(env, &NATIVE_ASSET_XDR))
+            .deployed_address()
+    }
+
     /// Set cosigners for multisig emergency operations (2-of-3 pattern).
     /// Only the admin can register cosigners. Typically: Admin, Legal, CTO.
     pub fn set_cosigners(env: Env, admin: Address, cosigner1: Address, cosigner2: Address) {
+        // Blocked while paused: otherwise the admin alone could swap in a
+        // cosigner it controls and unpause, bypassing the 2-of-3 requirement.
+        Self::check_not_paused(&env);
         let stored_admin: Address = env
             .storage()
             .instance()
@@ -300,7 +319,13 @@ impl NiriumVaultContract {
         Self::check_not_paused(&env);
         owner.require_auth();
 
-        // Platform fee: 12.5 XLM (always charged in XLM regardless of Vault's base currency)
+        // Platform fee: 12.5 XLM (always charged in XLM regardless of Vault's base currency).
+        // `xlm_address` stays in the signature for compatibility, but must be the
+        // canonical native XLM contract for this network: a caller-chosen token
+        // would let anyone pay the fee in a worthless asset (FZN-2026-NIR-02).
+        if xlm_address != Self::native_xlm(&env) {
+            panic!("xlm_address must be the native XLM asset contract");
+        }
         let treasury: Address = env.storage().instance().get(&DataKey::Treasury).unwrap();
         let xlm_client = token::Client::new(&env, &xlm_address);
         xlm_client.transfer(&owner, &treasury, &DEPLOYMENT_FEE);
@@ -378,6 +403,12 @@ impl NiriumVaultContract {
         let mut vault = vault_res.unwrap();
 
         vault.owner.require_auth();
+
+        // Closed vaults take no new funds. Withdraw stays open on purpose:
+        // an owner must always be able to get money out.
+        if !vault.is_active {
+            panic!("E_NOT_ACTIVE: vault is closed");
+        }
 
         let xlm_client = token::Client::new(&env, &vault.token_address);
         xlm_client.transfer(&vault.owner, &env.current_contract_address(), &amount);
@@ -526,6 +557,13 @@ impl NiriumVaultContract {
 
         vault.owner.require_auth();
 
+        if !vault.is_active {
+            panic!("E_NOT_ACTIVE: vault is closed");
+        }
+        if max_execution_amount <= 0 {
+            panic!("max_execution_amount must be positive");
+        }
+
         let delegation = AgentDelegation {
             vault_id,
             agent: agent_address.clone(),
@@ -547,6 +585,10 @@ impl NiriumVaultContract {
             TTL_LEDGERS,
             TTL_LEDGERS,
         );
+        // A new delegation is a new budget: the running total starts over.
+        let spent_key = DataKey::AgentSpent(vault_id, agent_address.clone());
+        env.storage().persistent().set(&spent_key, &0i128);
+        env.storage().persistent().extend_ttl(&spent_key, TTL_LEDGERS, TTL_LEDGERS);
 
         env.events().publish(
             (symbol_short!("agent"), symbol_short!("delegate")),
@@ -597,9 +639,28 @@ impl NiriumVaultContract {
 
     // ─── Internal: Verify Agent ──────────────────────────────
 
-    /// Verify an agent is delegated and within execution limits.
+    /// Verify an agent is delegated and within its execution budget.
+    ///
+    /// `max_execution_amount` is a cumulative budget for the life of the
+    /// delegation, not a per-call cap: a per-call check alone let an agent
+    /// stay under the limit on every call while the total grew without bound
+    /// (FZN-2026-NIR-02). The owner re-delegates to grant a fresh budget.
     fn verify_agent(env: &Env, vault_id: u64, agent: &Address, amount: i128) -> AgentDelegation {
+        Self::check_not_paused(env);
         agent.require_auth();
+
+        if amount <= 0 {
+            panic!("amount must be positive");
+        }
+
+        let vault: Vault = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Vault(vault_id))
+            .expect("vault not found");
+        if !vault.is_active {
+            panic!("E_NOT_ACTIVE: vault is closed");
+        }
 
         let delegation: AgentDelegation = env
             .storage()
@@ -610,11 +671,26 @@ impl NiriumVaultContract {
         if !delegation.is_active {
             panic!("agent delegation has been revoked");
         }
-        if amount > delegation.max_execution_amount {
+
+        let spent_key = DataKey::AgentSpent(vault_id, agent.clone());
+        let spent: i128 = env.storage().persistent().get(&spent_key).unwrap_or(0);
+        let new_spent = spent.checked_add(amount).expect("spent overflow");
+        if new_spent > delegation.max_execution_amount {
             panic!("exceeds agent max execution amount");
         }
+        // Any later panic in the calling function reverts this write too.
+        env.storage().persistent().set(&spent_key, &new_spent);
+        env.storage().persistent().extend_ttl(&spent_key, TTL_LEDGERS, TTL_LEDGERS);
 
         delegation
+    }
+
+    /// Amount an agent has executed so far against its current delegation.
+    pub fn get_agent_spent(env: Env, vault_id: u64, agent: Address) -> i128 {
+        env.storage()
+            .persistent()
+            .get(&DataKey::AgentSpent(vault_id, agent))
+            .unwrap_or(0)
     }
 
     // ─── Mock Pool Operations ────────────────────────────────
@@ -630,6 +706,7 @@ impl NiriumVaultContract {
         quote_amount: i128,
         fee_bps: u32,
     ) -> MockPool {
+        Self::check_not_paused(&env);
         creator.require_auth();
 
         // SC-POOL-01: Restrict pool creation to admin only.
