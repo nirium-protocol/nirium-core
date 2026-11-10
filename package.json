@@ -46,7 +46,7 @@
       "ws@8": "8.21.3",
       "source-map-js": ">=1.2.2",
       "proxy-addr": ">=2.0.8",
-      "follow-redirects": ">=1.16.1",
+      "follow-redirects": ">=1.16.2",
       "@modelcontextprotocol/sdk": ">=1.31.0",
       "zod@4": "^4.6.6",
       "body-parser": ">=2.4.0"
