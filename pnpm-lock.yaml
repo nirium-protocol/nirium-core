@@ -43,7 +43,7 @@ importers:
         version: 1.2.4(@types/react@19.2.14)(react@19.2.5)
       '@stellar/mpp':
         specifier: ^0.4.0
-        version: 0.4.0(@stellar/stellar-sdk@16.4.1)(mppx@0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))
+        version: 0.4.0(@stellar/stellar-sdk@16.4.1)(mppx@0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))
       '@vercel/analytics':
         specifier: ^1.6.1
         version: 1.6.1(next@15.5.28(@types/node@20.19.39)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react@19.2.5)
@@ -52,7 +52,7 @@ importers:
         version: 2.28.0
       '@x402/express':
         specifier: ^2.9.0
-        version: 2.9.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.2.1)(typescript@5.9.3)(utf-8-validate@6.0.6)
+        version: 2.9.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.3.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
       '@x402/fetch':
         specifier: ^2.9.0
         version: 2.9.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
@@ -66,11 +66,11 @@ importers:
         specifier: ^16.4.5
         version: 16.6.1
       express:
-        specifier: ^5.1.0
-        version: 5.2.1
+        specifier: ^5.3.0
+        version: 5.3.0
       mppx:
         specifier: ^0.5.5
-        version: 0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+        version: 0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
     devDependencies:
       '@types/node':
         specifier: ^20.11.0
@@ -216,7 +216,7 @@ importers:
         version: 0.13.0
       '@stellar/mpp':
         specifier: ^0.7.1
-        version: 0.7.1(@stellar/stellar-sdk@14.6.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))
+        version: 0.7.1(@stellar/stellar-sdk@14.6.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)))
       '@stellar/stellar-sdk':
         specifier: ^14.0.0
         version: 14.6.1
@@ -228,7 +228,7 @@ importers:
         version: 2.28.0
       '@x402/express':
         specifier: ^2.17.0
-        version: 2.17.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.2.1)(typescript@5.9.3)(utf-8-validate@6.0.6)
+        version: 2.17.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.3.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
       '@x402/fetch':
         specifier: ^2.17.0
         version: 2.17.0
@@ -248,14 +248,14 @@ importers:
         specifier: ^16.4.5
         version: 16.6.1
       express:
-        specifier: ^5.1.0
-        version: 5.2.1
+        specifier: ^5.3.0
+        version: 5.3.0
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.3
       mppx:
         specifier: ^0.6.31
-        version: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+        version: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))
       node-cron:
         specifier: ^3.0.3
         version: 3.0.3
@@ -316,7 +316,7 @@ importers:
         version: 16.3.1
       '@x402/express':
         specifier: ^2.28.0
-        version: 2.28.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.2.1)(typescript@5.9.3)(utf-8-validate@6.0.6)
+        version: 2.28.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.3.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
       axios:
         specifier: ^1.20.0
         version: 1.20.0
@@ -324,11 +324,11 @@ importers:
         specifier: ^11.0.0
         version: 11.1.0
       express:
-        specifier: ^5.1.0
-        version: 5.2.1
+        specifier: ^5.3.0
+        version: 5.3.0
       nirium:
         specifier: ^0.16.1
-        version: 0.16.1(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(bufferutil@4.1.0)(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
+        version: 0.16.1(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(bufferutil@4.1.0)(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
     devDependencies:
       '@types/node':
         specifier: ^20.19.30
@@ -344,7 +344,7 @@ importers:
         version: 1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       '@stellar/mpp':
         specifier: ^0.7.1
-        version: 0.7.1(@stellar/stellar-sdk@14.6.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)))
+        version: 0.7.1(@stellar/stellar-sdk@14.6.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)))
       '@stellar/stellar-sdk':
         specifier: ^14.0.0
         version: 14.6.1
@@ -359,7 +359,7 @@ importers:
         version: 2.28.0
       mppx:
         specifier: ^0.6.31
-        version: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))
+        version: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))
       zod:
         specifier: ^3.25.0
         version: 3.25.76
@@ -378,7 +378,7 @@ importers:
     dependencies:
       '@stellar/mpp':
         specifier: ^0.7.1
-        version: 0.7.1(@stellar/stellar-sdk@16.4.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))
+        version: 0.7.1(@stellar/stellar-sdk@16.4.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))
       '@stellar/stellar-sdk':
         specifier: ^16.4.1
         version: 16.4.1
@@ -390,7 +390,7 @@ importers:
         version: 2.30.0
       mppx:
         specifier: ^0.6.31
-        version: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+        version: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
       viem:
         specifier: ^2.55.19
         version: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
@@ -1187,12 +1187,14 @@ packages:
 
   '@ledgerhq/errors@6.32.0':
     resolution: {integrity: sha512-BjjvhLM6UXYUbhllqAduo9PSneLt9FXZ3TBEUFQ3MMSZOCHt0gAgDySLwul99R8fdYWkXBza4DYQjUNckpN2lg==}
+    deprecated: This package is no longer maintained and will not receive updates. Published versions remain available.
 
   '@ledgerhq/hw-app-str@7.2.8':
     resolution: {integrity: sha512-VHICY9jyZW5LM/8zc/mSbW7fS2bAC1OTVOtRwdQLEDn6Gv9UaNcCWjaHI1UKAnDUqYX7DUQuIPiTP1b4O+mtUQ==}
 
   '@ledgerhq/hw-transport-webusb@6.29.12':
     resolution: {integrity: sha512-mMGKPYAUz9MNcURe+hSTSHwqPwCli6D0lCl15Z4hDOpcqhZ26vwoeWVKeQp53NNCetHOl0lauPkN43Gt9pIggg==}
+    deprecated: This package is no longer maintained. Use @ledgerhq/device-transport-kit-web-hid instead.
 
   '@ledgerhq/hw-transport@6.31.12':
     resolution: {integrity: sha512-FO5LRIXYC8ELtaohlO8qK0b3TfHUNBZ3+CXKPHiHj2jJwrxPf4s5kcgBYrmzuf1C/1vfrMOjzyty6OgrMIbU6Q==}
@@ -2521,11 +2523,13 @@ packages:
 
   '@trezor/connect-web@9.7.2':
     resolution: {integrity: sha512-r4wMnQ51KO1EaMpO8HLB95E+4s+aaZE9Vjx1dHYaD+Xj40LR7OJmR6DyDKuF0Ioji3Jxx1MwZCaFfvA+0JW+Sg==}
+    deprecated: 'Trezor Connect 9 is no longer supported and gets no fixes. Upgrade to Trezor Connect 10: https://connect.trezor.io/10/guides/migrating-to-connect-10/'
     peerDependencies:
       tslib: ^2.6.2
 
   '@trezor/connect@9.7.2':
     resolution: {integrity: sha512-Sn6F4mNH+yi2vAHy29kwhs50bRLn92drg3znm3pkY+8yEBxI4MmuP8sKYjdgUEJnQflWh80KlcvEDeVa4olVRA==}
+    deprecated: 'Trezor Connect 9 is no longer supported and gets no fixes. Upgrade to Trezor Connect 10: https://connect.trezor.io/10/guides/migrating-to-connect-10/'
     peerDependencies:
       tslib: ^2.6.2
 
@@ -3398,6 +3402,7 @@ packages:
 
   axios-retry@4.5.0:
     resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    deprecated: axios-retry is no longer maintained. See https://github.com/softonic/axios-retry for alternatives.
     peerDependencies:
       axios: ^1.20.0
 
@@ -3769,8 +3774,8 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
-  content-disposition@1.1.0:
-    resolution: {integrity: sha512-5jRCH9Z/+DRP7rkvY83B+yGIGX96OYdJmzngqnw2SBSxqCFPd0w2km3s5iawpGX8krnwSGmF0FW5Nhr0Hfai3g==}
+  content-disposition@2.0.1:
+    resolution: {integrity: sha512-e+H0ZXHSWYrENhQzw1LPuP4oF5MzVKmDU6d3hxlvaPEYLLg62MxtQNPRx4SYSuYJSBUgnQIG4HIN2tEtNv7Dog==}
     engines: {node: '>=18'}
 
   content-type@1.0.5:
@@ -4047,8 +4052,8 @@ packages:
   encode-utf8@1.0.3:
     resolution: {integrity: sha512-ucAnuBEhUK4boH2HjVYG5Q2mQyPorvv0u/ocS+zhdw0S8AlHYY+GOFhP1Gio5z4icpP2ivFSvhtFjQi8+T9ppw==}
 
-  encodeurl@2.0.0:
-    resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
+  encodeurl@2.0.1:
+    resolution: {integrity: sha512-Ev/hIyePLZtpL98x562lvPtenrUfGr0lfaf44HFZ+hDEwso7ccV9QAZrEVLg0hxNAzygaAFxy2dYaAKKM0G06A==}
     engines: {node: '>= 0.8'}
 
   env-paths@4.0.0:
@@ -4203,8 +4208,8 @@ packages:
     peerDependencies:
       express: '>= 4.11'
 
-  express@5.2.1:
-    resolution: {integrity: sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==}
+  express@5.3.0:
+    resolution: {integrity: sha512-qCqy1xSoaugxOD4IVHb1ZWdkvCF2W3aE2okKouWj8VwJ+ztskSiXoBnCSJqfKT+cVPJhuJqe9YLbY425+Zh00g==}
     engines: {node: '>= 18'}
 
   eyes@0.1.8:
@@ -5138,8 +5143,8 @@ packages:
   md5@2.3.0:
     resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}
 
-  media-typer@1.1.0:
-    resolution: {integrity: sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==}
+  media-typer@1.1.1:
+    resolution: {integrity: sha512-yz3xRaG20c6/BOzvYoDaGtPmGscs7YivItZEEqe6GbwNfHuxu9YNmvnEkMzKldAGY4/80pRcQRZSEnhquk9XuQ==}
     engines: {node: '>= 0.8'}
 
   merge-descriptors@2.0.0:
@@ -5303,9 +5308,9 @@ packages:
   near-api-js@5.1.1:
     resolution: {integrity: sha512-h23BGSKxNv8ph+zU6snicstsVK1/CTXsQz4LuGGwoRE24Hj424nSe4+/1tzoiC285Ljf60kPAqRCmsfv9etF2g==}
 
-  negotiator@1.0.0:
-    resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
-    engines: {node: '>= 0.6'}
+  negotiator@1.1.0:
+    resolution: {integrity: sha512-NMPBRMJgiQHjbd8phG3Vebdx4kZ1H121rbl5IkMqeOsahptB9BKo/d7oJ3zTXqTgagn2bWlNSXkh0QUGM31RYg==}
+    engines: {node: '>=18'}
 
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
@@ -5438,8 +5443,8 @@ packages:
     resolution: {integrity: sha512-0eJJY6hXLGf1udHwfNftBqH+g73EU4B504nZeKpz1sYRKafAghwxEJunB2O7rDZkL4PGfsMVnTXZ2EjibbqcsA==}
     engines: {node: '>=14.0.0'}
 
-  on-finished@2.4.1:
-    resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
+  on-finished@2.4.2:
+    resolution: {integrity: sha512-ATWUv387i+nLD49EiDoOft5scf32Vsdz3ktrQJG9bi7jRFmaXTssvyvj1EmeKVVgvesbqUtvQQvaS2TpTukAZQ==}
     engines: {node: '>= 0.8'}
 
   once@1.4.0:
@@ -5753,12 +5758,8 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  qs@6.15.1:
-    resolution: {integrity: sha512-6YHEFRL9mfgcAvql/XhwTvf5jKcOiiupt2FiJxHkiX1z4j7WL8J/jRHYLluORvc1XxB5rV20KoeK00gVJamspg==}
-    engines: {node: '>=0.6'}
-
-  qs@6.16.1:
-    resolution: {integrity: sha512-5Px6J7rfHBAGUhNQ3es4YzcOdBBw0SDcVtThJml4RdnKw4tKs2epA0kPZ+K8X+WiHktT93RHVcQ/3ym5aTCgtg==}
+  qs@6.17.1:
+    resolution: {integrity: sha512-jd3COkaKVgGUW+ZHyEHCG9bH7RoaaiWuMgzsIBjUMVjLAaWGWpoUAVwljVvBHxRu/2qEHnadLGZrkutYUBPQJA==}
     engines: {node: '>=0.6'}
 
   queue-microtask@1.2.3:
@@ -5776,8 +5777,8 @@ packages:
   randomfill@1.0.4:
     resolution: {integrity: sha512-87lcbR8+MhcWcUiQ+9e+Rwx8MyR2P7qnt15ynUlbm3TU/fjbgz4GsvfSUDTemtCCtVCqb4ZcEFlyPNTh9bBTLw==}
 
-  range-parser@1.2.1:
-    resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
+  range-parser@1.3.0:
+    resolution: {integrity: sha512-hek2mFQpPuI4E1BBKrSto+BU3e3x4xuarsbiwr3+lf7p44juvFMV0XFWQAP3xUyqXA4RrXLIoaSUGbSt056ZMw==}
     engines: {node: '>= 0.6'}
 
   raw-body@3.0.2:
@@ -6039,10 +6040,6 @@ packages:
 
   side-channel-weakmap@1.0.2:
     resolution: {integrity: sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==}
-    engines: {node: '>= 0.4'}
-
-  side-channel@1.1.0:
-    resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
     engines: {node: '>= 0.4'}
 
   side-channel@1.1.1:
@@ -6438,10 +6435,6 @@ packages:
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
-
-  type-is@2.0.1:
-    resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
-    engines: {node: '>= 0.6'}
 
   type-is@2.1.0:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
@@ -7080,7 +7073,7 @@ snapshots:
       idb-keyval: 6.2.1
       ox: 0.6.9(typescript@5.9.3)(zod@3.25.76)
       preact: 10.24.2
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       zustand: 5.0.3(@types/react@19.2.14)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
     transitivePeerDependencies:
       - '@types/react'
@@ -7111,7 +7104,7 @@ snapshots:
       jose: 6.2.2
       md5: 2.3.0
       uncrypto: 0.1.3
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       zod: 3.25.76
     transitivePeerDependencies:
       - bufferutil
@@ -7932,8 +7925,8 @@ snapshots:
       cross-spawn: 7.0.6
       eventsource: 3.0.7
       eventsource-parser: 3.0.6
-      express: 5.2.1
-      express-rate-limit: 8.3.2(express@5.2.1)
+      express: 5.3.0
+      express-rate-limit: 8.3.2(express@5.3.0)
       hono: 4.13.5
       jose: 6.2.2
       json-schema-typed: 8.0.2
@@ -7956,8 +7949,8 @@ snapshots:
       cross-spawn: 7.0.6
       eventsource: 3.0.7
       eventsource-parser: 3.0.6
-      express: 5.2.1
-      express-rate-limit: 8.3.2(express@5.2.1)
+      express: 5.3.0
+      express-rate-limit: 8.3.2(express@5.3.0)
       hono: 4.13.5
       jose: 6.2.2
       json-schema-typed: 8.0.2
@@ -8387,7 +8380,7 @@ snapshots:
     dependencies:
       big.js: 6.2.2
       dayjs: 1.11.13
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -8400,7 +8393,7 @@ snapshots:
       '@reown/appkit-wallet': 1.8.19(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
       '@walletconnect/universal-provider': 2.23.7(@vercel/blob@2.3.3)(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
       valtio: 2.1.7(@types/react@19.2.14)(react@19.2.5)
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -8563,7 +8556,7 @@ snapshots:
       '@walletconnect/logger': 3.0.2
       '@walletconnect/universal-provider': 2.23.7(@vercel/blob@2.3.3)(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
       valtio: 2.1.7(@types/react@19.2.14)(react@19.2.5)
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
     optionalDependencies:
       '@base-org/account': 2.4.0(@types/react@19.2.14)(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.5)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.5))(utf-8-validate@6.0.6)(zod@3.25.76)
       '@safe-global/safe-apps-provider': 0.18.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
@@ -8626,7 +8619,7 @@ snapshots:
       bs58: 6.0.0
       semver: 7.7.2
       valtio: 2.1.7(@types/react@19.2.14)(react@19.2.5)
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
     optionalDependencies:
       '@lit/react': 1.0.8(@types/react@19.2.14)
     transitivePeerDependencies:
@@ -8676,7 +8669,7 @@ snapshots:
   '@safe-global/safe-apps-sdk@9.1.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)':
     dependencies:
       '@safe-global/safe-gateway-typescript-sdk': 3.23.1
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -8712,14 +8705,14 @@ snapshots:
       '@signinwithethereum/siwe-parser': 4.2.0
     optionalDependencies:
       ethers: 6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-      viem: 2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
 
   '@signinwithethereum/siwe@4.2.0(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))':
     dependencies:
       '@signinwithethereum/siwe-parser': 4.2.0
     optionalDependencies:
       ethers: 6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
 
   '@simplewebauthn/browser@13.3.0': {}
 
@@ -9647,34 +9640,34 @@ snapshots:
 
   '@stellar/js-xdr@4.0.0': {}
 
-  '@stellar/mpp@0.4.0(@stellar/stellar-sdk@16.4.1)(mppx@0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))':
+  '@stellar/mpp@0.4.0(@stellar/stellar-sdk@16.4.1)(mppx@0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))':
     dependencies:
       '@stellar/stellar-sdk': 16.4.1
-      mppx: 0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+      mppx: 0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
       zod: 4.6.7
 
-  '@stellar/mpp@0.7.1(@stellar/stellar-sdk@14.6.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)))':
+  '@stellar/mpp@0.7.1(@stellar/stellar-sdk@14.6.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)))':
     dependencies:
       '@stellar/stellar-sdk': 14.6.1
-      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))
+      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))
       zod: 4.6.7
 
-  '@stellar/mpp@0.7.1(@stellar/stellar-sdk@14.6.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))':
+  '@stellar/mpp@0.7.1(@stellar/stellar-sdk@14.6.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)))':
     dependencies:
       '@stellar/stellar-sdk': 14.6.1
-      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76))
       zod: 4.6.7
 
-  '@stellar/mpp@0.7.1(@stellar/stellar-sdk@16.3.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))':
+  '@stellar/mpp@0.7.1(@stellar/stellar-sdk@16.3.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))':
     dependencies:
       '@stellar/stellar-sdk': 16.3.1
-      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
       zod: 4.6.7
 
-  '@stellar/mpp@0.7.1(@stellar/stellar-sdk@16.4.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))':
+  '@stellar/mpp@0.7.1(@stellar/stellar-sdk@16.4.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))':
     dependencies:
       '@stellar/stellar-sdk': 16.4.1
-      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
       zod: 4.6.7
 
   '@stellar/stellar-base@14.0.1':
@@ -11006,34 +10999,34 @@ snapshots:
     dependencies:
       zod: 3.25.76
 
-  '@x402/express@2.17.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.2.1)(typescript@5.9.3)(utf-8-validate@6.0.6)':
+  '@x402/express@2.17.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.3.0)(typescript@5.9.3)(utf-8-validate@6.0.6)':
     dependencies:
       '@x402/core': 2.17.0
       '@x402/extensions': 2.17.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(typescript@5.9.3)(utf-8-validate@6.0.6)
-      express: 5.2.1
+      express: 5.3.0
     transitivePeerDependencies:
       - bufferutil
       - ethers
       - typescript
       - utf-8-validate
 
-  '@x402/express@2.28.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.2.1)(typescript@5.9.3)(utf-8-validate@6.0.6)':
+  '@x402/express@2.28.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.3.0)(typescript@5.9.3)(utf-8-validate@6.0.6)':
     dependencies:
       '@x402/core': 2.28.0
       '@x402/extensions': 2.28.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(typescript@5.9.3)(utf-8-validate@6.0.6)
-      express: 5.2.1
+      express: 5.3.0
     transitivePeerDependencies:
       - bufferutil
       - ethers
       - typescript
       - utf-8-validate
 
-  '@x402/express@2.9.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.2.1)(typescript@5.9.3)(utf-8-validate@6.0.6)':
+  '@x402/express@2.9.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(express@5.3.0)(typescript@5.9.3)(utf-8-validate@6.0.6)':
     dependencies:
       '@x402/core': 2.9.0
       '@x402/extensions': 2.9.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(typescript@5.9.3)(utf-8-validate@6.0.6)
-      express: 5.2.1
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      express: 5.3.0
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       zod: 3.25.76
     transitivePeerDependencies:
       - bufferutil
@@ -11050,7 +11043,7 @@ snapshots:
       ajv: 8.18.0
       jose: 5.10.0
       tweetnacl: 1.0.3
-      viem: 2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       zod: 3.25.76
     transitivePeerDependencies:
       - bufferutil
@@ -11067,7 +11060,7 @@ snapshots:
       ajv: 8.18.0
       jose: 5.10.0
       tweetnacl: 1.0.3
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       zod: 3.25.76
     transitivePeerDependencies:
       - bufferutil
@@ -11084,7 +11077,7 @@ snapshots:
       jose: 5.10.0
       siwe: 2.3.2(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))
       tweetnacl: 1.0.3
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       zod: 3.25.76
     transitivePeerDependencies:
       - bufferutil
@@ -11107,7 +11100,7 @@ snapshots:
   '@x402/fetch@2.9.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)':
     dependencies:
       '@x402/core': 2.9.0
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       zod: 3.25.76
     transitivePeerDependencies:
       - bufferutil
@@ -11202,7 +11195,7 @@ snapshots:
   accepts@2.0.0:
     dependencies:
       mime-types: 3.0.2
-      negotiator: 1.0.0
+      negotiator: 1.1.0
 
   acorn-import-attributes@1.9.5(acorn@8.15.0):
     dependencies:
@@ -11469,8 +11462,8 @@ snapshots:
       debug: 4.4.3
       http-errors: 2.0.1
       iconv-lite: 0.7.3
-      on-finished: 2.4.1
-      qs: 6.16.1
+      on-finished: 2.4.2
+      qs: 6.17.1
       raw-body: 3.0.2
       type-is: 2.1.0
     transitivePeerDependencies:
@@ -11733,7 +11726,7 @@ snapshots:
 
   concat-map@0.0.1: {}
 
-  content-disposition@1.1.0: {}
+  content-disposition@2.0.1: {}
 
   content-type@1.0.5: {}
 
@@ -11998,7 +11991,7 @@ snapshots:
 
   encode-utf8@1.0.3: {}
 
-  encodeurl@2.0.0: {}
+  encodeurl@2.0.1: {}
 
   env-paths@4.0.0:
     dependencies:
@@ -12167,22 +12160,22 @@ snapshots:
 
   exponential-backoff@3.1.3: {}
 
-  express-rate-limit@8.3.2(express@5.2.1):
+  express-rate-limit@8.3.2(express@5.3.0):
     dependencies:
-      express: 5.2.1
+      express: 5.3.0
       ip-address: 10.7.0
 
-  express@5.2.1:
+  express@5.3.0:
     dependencies:
       accepts: 2.0.0
       body-parser: 2.4.0
-      content-disposition: 1.1.0
-      content-type: 1.0.5
+      content-disposition: 2.0.1
+      content-type: 2.1.0
       cookie: 0.7.2
       cookie-signature: 1.2.2
       debug: 4.4.3
       depd: 2.0.0
-      encodeurl: 2.0.0
+      encodeurl: 2.0.1
       escape-html: 1.0.3
       etag: 1.8.1
       finalhandler: 2.1.1
@@ -12190,17 +12183,17 @@ snapshots:
       http-errors: 2.0.1
       merge-descriptors: 2.0.0
       mime-types: 3.0.2
-      on-finished: 2.4.1
+      on-finished: 2.4.2
       once: 1.4.0
       parseurl: 1.3.3
       proxy-addr: 2.0.8
-      qs: 6.15.1
-      range-parser: 1.2.1
+      qs: 6.17.1
+      range-parser: 1.3.0
       router: 2.2.0
       send: 1.2.1
       serve-static: 2.2.1
       statuses: 2.0.2
-      type-is: 2.0.1
+      type-is: 2.1.0
       vary: 1.1.2
     transitivePeerDependencies:
       - supports-color
@@ -12260,9 +12253,9 @@ snapshots:
   finalhandler@2.1.1:
     dependencies:
       debug: 4.4.3
-      encodeurl: 2.0.0
+      encodeurl: 2.0.1
       escape-html: 1.0.3
-      on-finished: 2.4.1
+      on-finished: 2.4.2
       parseurl: 1.3.3
       statuses: 2.0.2
     transitivePeerDependencies:
@@ -13593,7 +13586,7 @@ snapshots:
       crypt: 0.0.2
       is-buffer: 1.1.6
 
-  media-typer@1.1.0: {}
+  media-typer@1.1.1: {}
 
   merge-descriptors@2.0.0: {}
 
@@ -13657,7 +13650,7 @@ snapshots:
 
   motion-utils@11.18.1: {}
 
-  mppx@0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)):
+  mppx@0.5.11(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)):
     dependencies:
       incur: 0.3.25
       ox: 0.14.7(typescript@5.9.3)(zod@4.6.7)
@@ -13665,38 +13658,38 @@ snapshots:
       zod: 4.6.7
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7)
-      express: 5.2.1
+      express: 5.3.0
       hono: 4.13.5
     transitivePeerDependencies:
       - typescript
 
-  mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)):
+  mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)):
     dependencies:
       incur: 0.4.11
       ox: 0.14.27(typescript@5.9.3)(zod@4.6.7)
-      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       zod: 4.6.7
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76)
-      express: 5.2.1
+      express: 5.3.0
       hono: 4.13.5
     transitivePeerDependencies:
       - typescript
 
-  mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)):
+  mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)):
     dependencies:
       incur: 0.4.11
       ox: 0.14.27(typescript@5.9.3)(zod@4.6.7)
-      viem: 2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+      viem: 2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       zod: 4.6.7
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7)
-      express: 5.2.1
+      express: 5.3.0
       hono: 4.13.5
     transitivePeerDependencies:
       - typescript
 
-  mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)):
+  mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)):
     dependencies:
       incur: 0.4.11
       ox: 0.14.27(typescript@5.9.3)(zod@4.6.7)
@@ -13704,7 +13697,7 @@ snapshots:
       zod: 4.6.7
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7)
-      express: 5.2.1
+      express: 5.3.0
       hono: 4.13.5
     transitivePeerDependencies:
       - typescript
@@ -13768,7 +13761,9 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  negotiator@1.0.0: {}
+  negotiator@1.1.0:
+    dependencies:
+      content-type: 2.1.0
 
   neo-async@2.6.2: {}
 
@@ -13808,13 +13803,13 @@ snapshots:
       - debug
       - supports-color
 
-  nirium@0.16.1(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(bufferutil@4.1.0)(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7):
+  nirium@0.16.1(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(bufferutil@4.1.0)(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7):
     dependencies:
-      '@stellar/mpp': 0.7.1(@stellar/stellar-sdk@16.3.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))
+      '@stellar/mpp': 0.7.1(@stellar/stellar-sdk@16.3.1)(mppx@0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)))
       '@stellar/stellar-sdk': 16.3.1
       '@x402/fetch': 2.28.0
       '@x402/stellar': 2.28.0
-      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.2.1)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
+      mppx: 0.6.31(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(express@5.3.0)(hono@4.13.5)(typescript@5.9.3)(viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7))
       viem: 2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7)
       ws: 8.21.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
@@ -13897,7 +13892,7 @@ snapshots:
 
   on-exit-leak-free@2.1.2: {}
 
-  on-finished@2.4.1:
+  on-finished@2.4.2:
     dependencies:
       ee-first: 1.1.1
 
@@ -13969,21 +13964,6 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.34(typescript@5.9.3)(zod@3.25.76):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.1
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - zod
-
   ox@0.14.34(typescript@5.9.3)(zod@4.6.7):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
@@ -13992,7 +13972,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@4.6.7)
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.3
@@ -14284,11 +14264,7 @@ snapshots:
       pngjs: 5.0.0
       yargs: 15.4.1
 
-  qs@6.15.1:
-    dependencies:
-      side-channel: 1.1.0
-
-  qs@6.16.1:
+  qs@6.17.1:
     dependencies:
       es-define-property: 1.0.1
       side-channel: 1.1.1
@@ -14308,7 +14284,7 @@ snapshots:
       randombytes: 2.1.0
       safe-buffer: 5.2.1
 
-  range-parser@1.2.1: {}
+  range-parser@1.3.0: {}
 
   raw-body@3.0.2:
     dependencies:
@@ -14530,22 +14506,22 @@ snapshots:
   send@1.2.1:
     dependencies:
       debug: 4.4.3
-      encodeurl: 2.0.0
+      encodeurl: 2.0.1
       escape-html: 1.0.3
       etag: 1.8.1
       fresh: 2.0.0
       http-errors: 2.0.1
       mime-types: 3.0.2
       ms: 2.1.3
-      on-finished: 2.4.1
-      range-parser: 1.2.1
+      on-finished: 2.4.2
+      range-parser: 1.3.0
       statuses: 2.0.2
     transitivePeerDependencies:
       - supports-color
 
   serve-static@2.2.1:
     dependencies:
-      encodeurl: 2.0.0
+      encodeurl: 2.0.1
       escape-html: 1.0.3
       parseurl: 1.3.3
       send: 1.2.1
@@ -14637,14 +14613,6 @@ snapshots:
       get-intrinsic: 1.3.0
       object-inspect: 1.13.4
       side-channel-map: 1.0.1
-
-  side-channel@1.1.0:
-    dependencies:
-      es-errors: 1.3.0
-      object-inspect: 1.13.4
-      side-channel-list: 1.0.1
-      side-channel-map: 1.0.1
-      side-channel-weakmap: 1.0.2
 
   side-channel@1.1.1:
     dependencies:
@@ -15031,16 +14999,10 @@ snapshots:
 
   type-fest@4.41.0: {}
 
-  type-is@2.0.1:
-    dependencies:
-      content-type: 1.0.5
-      media-typer: 1.1.0
-      mime-types: 3.0.2
-
   type-is@2.1.0:
     dependencies:
       content-type: 2.1.0
-      media-typer: 1.1.0
+      media-typer: 1.1.1
       mime-types: 3.0.2
 
   typed-array-buffer@1.0.3:
@@ -15244,7 +15206,7 @@ snapshots:
       d3-time: 3.1.0
       d3-timer: 3.0.1
 
-  viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76):
+  viem@2.55.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -15278,30 +15240,13 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76):
-    dependencies:
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
-      isows: 1.0.7(ws@8.21.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))
-      ox: 0.14.34(typescript@5.9.3)(zod@3.25.76)
-      ws: 8.21.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
   viem@2.56.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@4.6.7):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@4.6.7)
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
       isows: 1.0.7(ws@8.21.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))
       ox: 0.14.34(typescript@5.9.3)(zod@4.6.7)
       ws: 8.21.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)

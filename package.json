@@ -68,7 +68,7 @@
     "@x402/stellar": "^2.28.0",
     "class-variance-authority": "^0.7.1",
     "dotenv": "^16.4.5",
-    "express": "^5.1.0",
+    "express": "^5.3.0",
     "mppx": "^0.5.5"
   }
 }

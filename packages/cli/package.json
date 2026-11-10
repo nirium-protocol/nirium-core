@@ -25,7 +25,7 @@
     "axios": "^1.20.0",
     "commander": "^11.0.0",
     "nirium": "^0.16.1",
-    "express": "^5.1.0",
+    "express": "^5.3.0",
     "@stellar/stellar-sdk": "^16.3.0",
     "@x402/express": "^2.28.0"
   },
