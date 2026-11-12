@@ -2,6 +2,8 @@
 > Institutional DeFi Infrastructure Powered by Autonomous Agents on Stellar/Soroban
 
 **Version:** 2.5 - July 2026 (Updated Jul 13, 2026 - dual-network execution nodes, self-service API keys, non-custodial Payouts)
+
+> **Update, 2026-11-11:** figures in this paper (versions, endpoint counts) are as of its July-October 2026 revisions. The testnet NiriumVault is now the source-verified build `CDMFURE6…` (see section 3.1). Current status and evidence: [README](README.md) and [EVIDENCE.md](https://github.com/nirium-protocol/nirium/blob/main/EVIDENCE.md).
 **Author:** Nirium Protocol Team
 **Network:** Stellar Testnet (NiriumVault treasury, audit-gated) + Mainnet (receive-only execution nodes, early access)
 **Contact:** niriumprotocol@gmail.com
@@ -54,8 +56,8 @@ The LLM layer advises. The contract decides. A compromised LLM cannot drain fund
 
 ### 3.1 NiriumVault - Primary Execution Contract
 
-**Contract ID:** `CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU`
-**Active Vault:** ID 1 (testnet, agent delegated)
+**Contract ID:** `CDMFURE6MYROTA2A6DLD4TN2S4QTN64L2FZ2I2RY2AREONX6DUQOI2S2` (testnet, source-verified on Stellar Expert, 9 Nov 2026)
+**Update, 2026-11-11:** this section previously listed `CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU` with "Active Vault: ID 1". That was the deployment nirium.xyz used until 9 Nov 2026; the site now uses the source-verified build above.
 
 Core functions:
 - `create_vault(owner, asset, name, xlm_address)` - deploys vault, charges 12.5 XLM
