@@ -1,6 +1,6 @@
 # Nirium Protocol - Official SDK Documentation
 
-> **Historical document (SDK 0.5.0, spring 2026), kept for reference.** The maintained SDK docs are the package READMEs in [nirium-protocol/nirium](https://github.com/nirium-protocol/nirium): TypeScript `nirium` ([packages/sdk](https://github.com/nirium-protocol/nirium/tree/main/packages/sdk)) and Python `nirium` ([packages/sdk-python](https://github.com/nirium-protocol/nirium/tree/main/packages/sdk-python)). Current releases, checked on npm and PyPI on 11 Nov 2026: `nirium` 0.19.0 (npm) and `nirium` 0.11.1 (PyPI).
+> **Historical document (SDK 0.5.0, spring 2026), kept for reference.** The maintained SDK docs are the package READMEs in [nirium-protocol/nirium](https://github.com/nirium-protocol/nirium): TypeScript `nirium` ([packages/sdk](https://github.com/nirium-protocol/nirium/tree/main/packages/sdk)) and Python `nirium` ([packages/sdk-python](https://github.com/nirium-protocol/nirium/tree/main/packages/sdk-python)). Current releases, checked on npm and PyPI on 12 Nov 2026: `nirium` 0.19.1 (npm) and `nirium` 0.11.2 (PyPI).
 
 **Version:** 0.5.0  
 **Packages:** `nirium` on npm · `nirium` on PyPI  

@@ -1,6 +1,6 @@
 # Nirium MCP Server - Integration Guide v0.4.0
 
-> **Historical document (MCP v0.4.0, April 2026), kept for reference.** The maintained guide is the [`nirium-mcp` README](https://github.com/nirium-protocol/nirium/tree/main/packages/mcp) in nirium-protocol/nirium, with the current tool list. Current release, checked on npm on 11 Nov 2026: `nirium-mcp` 0.6.4.
+> **Historical document (MCP v0.4.0, April 2026), kept for reference.** The maintained guide is the [`nirium-mcp` README](https://github.com/nirium-protocol/nirium/tree/main/packages/mcp) in nirium-protocol/nirium, with the current tool list. Current release, checked on npm on 12 Nov 2026: `nirium-mcp` 0.6.5.
 
 > Model Context Protocol server for Nirium Protocol.
 > Exposes 11 tools to any MCP-compatible AI: Claude, GPT, Cursor, VS Code Copilot.
