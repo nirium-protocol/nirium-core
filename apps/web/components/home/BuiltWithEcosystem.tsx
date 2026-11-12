@@ -40,13 +40,13 @@ const BUILT_WITH_GROUPS: BuiltWithGroup[] = [
                 badge: { en: 'v0.6.0, testnet proven', es: 'v0.6.0, probado en testnet' },
                 tags: ['Wallets', 'Social login', 'x402'],
                 description: {
-                    en: "Social-login wallets (email/Google), no seed phrase. nirium-pollar-adapter v0.6.0 translates Pollar's signature into a SEP-43 auth entry to pay via x402, and can auto-anchor an Audit Trail receipt whenever a Pollar transaction settles. Checked live on testnet (2026-11-01): a real payment produced a verifiable receipt, with its transaction hash and IPFS CID both published. No evidence it runs in Pollar's own production today. A letter of intent was signed on 2026-10-08: a statement of intent, not a pilot, and no paid use.",
-                    es: 'Wallets con login social (correo/Google), sin frase semilla. nirium-pollar-adapter v0.6.0 traduce su firma a un auth entry SEP-43 para pagar por x402, y puede anclar automáticamente un recibo de Audit Trail cada vez que una transacción de Pollar se liquida. Verificado en vivo en testnet (1-nov-2026): un pago real produjo un recibo verificable, con su hash de transacción y CID de IPFS publicados. Sin evidencia de que corra en producción de Pollar hoy. Se firmó una carta de intención el 2026-10-08: es una declaración de intención, no un piloto, y no hay uso de pago.',
+                    en: "Social-login wallets (email/Google), no seed phrase. nirium-pollar-adapter v0.6.1 translates Pollar's signature into a SEP-43 auth entry to pay via x402, and can auto-anchor an Audit Trail receipt whenever a Pollar transaction settles. Checked live on testnet (2026-11-01): a real payment produced a verifiable receipt, with its transaction hash and IPFS CID both published. No evidence it runs in Pollar's own production today. A letter of intent was signed on 2026-10-08: a statement of intent, not a pilot, and no paid use.",
+                    es: 'Wallets con login social (correo/Google), sin frase semilla. nirium-pollar-adapter v0.6.1 traduce su firma a un auth entry SEP-43 para pagar por x402, y puede anclar automáticamente un recibo de Audit Trail cada vez que una transacción de Pollar se liquida. Verificado en vivo en testnet (1-nov-2026): un pago real produjo un recibo verificable, con su hash de transacción y CID de IPFS publicados. Sin evidencia de que corra en producción de Pollar hoy. Se firmó una carta de intención el 2026-10-08: es una declaración de intención, no un piloto, y no hay uso de pago.',
                 },
                 evidenceUrl: 'https://github.com/pollar-xyz/pollar-apps/pull/30',
                 evidenceLabel: { en: 'pollar-xyz/pollar-apps#30 - merged 2026-08-31', es: 'pollar-xyz/pollar-apps#30 - merged 2026-08-31' },
                 secondaryEvidenceUrl: 'https://www.npmjs.com/package/nirium-pollar-adapter',
-                secondaryEvidenceLabel: { en: 'nirium-pollar-adapter@0.6.0 on npm', es: 'nirium-pollar-adapter@0.6.0 en npm' },
+                secondaryEvidenceLabel: { en: 'nirium-pollar-adapter@0.6.1 on npm', es: 'nirium-pollar-adapter@0.6.1 en npm' },
             },
             {
                 name: 'AgentLedger',
