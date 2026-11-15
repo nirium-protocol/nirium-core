@@ -88,6 +88,12 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 Every commit produced with AI assistance carries a `Co-Authored-By: <name of the model that actually produced the commit> <noreply@anthropic.com>` trailer (the model changes between sessions, so no single name is fixed here; the repository's `.gitmessage` has the same rule). This is a factual disclosure of how the commit was produced - it is never stripped to make a commit look human-authored, and never added where it doesn't apply to fake the opposite. If you use AI assistance in your own contributions, disclose it the same way.
 
+### AI-assisted code review
+
+Pull requests between the two maintainers (@Eras256 and @M0nsxx) are often reviewed with help from Claude: the assistant reads the diff and drafts the review comment. From 15 Nov 2026 every review says so in its first line (`AI-assisted review (Claude)`), followed by what the approving maintainer checked personally, and that maintainer is responsible for the approval.
+
+Many earlier reviews (October and November 2026) were drafted the same way, often in the pull request author's own Claude session, and pasted by the reviewer without saying so. This note is the disclosure for those. An approval in this repository means a second maintainer took responsibility for the change; it is not an independent audit. What you can check independently is authorship: each maintainer commits from their own account.
+
 ### Code Style
 
 - **TypeScript:** strict mode, explicit types for all public APIs
