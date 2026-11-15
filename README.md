@@ -53,21 +53,21 @@ Every claim below is a link. Nothing here asks to be believed.
 | Product | Status |
 |---|---|
 | x402 | Live on mainnet ([last settled payment 29 Sep 2026](https://stellar.expert/explorer/public/account/GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP)) |
-| Audit Trail | Live on mainnet (last anchor 6 Nov 2026) |
+| Audit Trail | Live on mainnet (last anchor 12 Nov 2026) |
 | Reporting | Live on mainnet |
 | Treasury Rebalance | Mainnet, invite-only (4 self-funded rebalances, last 6 Aug 2026) |
 | Payouts | Mainnet, invite-only (no mainnet runs yet) |
 | Policy hook (pre-sign `ALLOW`/`DENY`) | Experimental |
 | MPP Charge | Testnet only |
 
-The detailed tables below back each row with a transaction hash or a live endpoint - this one is just the summary. Statuses checked against Horizon and the live API on 10 Nov 2026.
+The detailed tables below back each row with a transaction hash or a live endpoint - this one is just the summary. Statuses checked against Horizon and the live API on 15 Nov 2026.
 
 ### Mainnet (real value)
 
 | What | Status | Verify |
 |---|---|---|
 | API box | Live, **receive-only, holds no signing key**, enforced at startup | [`/health`](https://nirium-agent-mainnet.fly.dev/health) · [`/api/nodes`](https://nirium-agent-mainnet.fly.dev/api/nodes) |
-| x402: first real payment | Settled 9 Jul 2026 | [`3134a51c…7558bc`](https://stellar.expert/explorer/public/tx/3134a51c66091fd7fbd85b38a4a6ec6cd432bb92c2450eac84ea7855cb7558bc) |
+| x402: first real payment | Settled 9 Jul 2026 | [`8a2487b8…d73170`](https://stellar.expert/explorer/public/tx/8a2487b8545e02324ced5d902fa350f0f5d8c2d5d2210272506a320b36d73170) |
 | x402: most recent settled payment | 29 Sep 2026, checked against the recipient account on 10 Nov 2026 | [`GCLBBPON…ZWKBHP`](https://stellar.expert/explorer/public/account/GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP) |
 | x402: paid from a social login (Pollar) | Settled 5 Aug 2026, holding **zero XLM** end to end | [`e4fa3df9…16ed9`](https://stellar.expert/explorer/public/tx/e4fa3df9cb225a4d7f64dd0082eb38218ada4b4af3378f288989a5d4b1116ed9) |
 | `nirium-pollar-adapter`: end-to-end from a clean npm install | Settled 27 Jul 2026, standard Stellar keypair signer (the pluggable-signer test, not Pollar-specific) | [`48136451…3795e`](https://stellar.expert/explorer/public/tx/4813645165d15af1e503d66ef84d826e83fff235d4f98c3f6eba8a4e7c83795e) · receipt [`QmRzgTtVPg…`](https://gateway.pinata.cloud/ipfs/QmRzgTtVPg5a5pipi8npfpXt81xiGG5Ue5Rygd6Fye1aon) · **Update, 2026-10-07:** the receipt above no longer resolves on the Pinata gateway (404 on two checks). The original bytes are not kept in this repo, so it was not re-pinned under the same CID. The payment itself is verifiable on Stellar Expert. **Update, 2026-11-10:** the receipt resolves again - 200 on both the Pinata gateway and `nirium.myfilebase.com`. |
@@ -286,8 +286,11 @@ import { x402Serve } from 'nirium';
 app.use('/premium', x402Serve({
     payTo: 'G...',
     routes: { 'GET /signals': '$0.02' },
+    facilitatorApiKey: process.env.X402_FACILITATOR_API_KEY, // OpenZeppelin Channels, per network
 }));
 ```
+
+Replay protection and a per-IP rate limit are available since nirium 0.15.0 through the optional `guard`; without it, `x402Serve()` verifies and settles the payment and nothing else. On the paying side, both SDKs refuse more than $1 of USDC per payment by default unless the integrator raises the cap (Python since 0.12.0, which also refuses a 402 offered on another network).
 
 **MPP Charge is experimental**: implemented and verified on testnet (settled payments in pull and push mode, 15 Oct 2026); mainnet is unverified. Its design: the client signs a complete USDC transfer inside the request, the server validates it by simulation and broadcasts it, with no external facilitator. MPP's Channel mode is implemented but **disabled**, because its setup phase deploys a channel contract holding a deposit, which is temporary custody and falls under the same audit gate as our own vault.
 
@@ -324,12 +327,12 @@ An invalid signature returns **400 and nothing is anchored**: IPFS has no delete
 | SDK | Package | Version | Install |
 |---|---|---|---|
 | TypeScript | [nirium (npm)](https://www.npmjs.com/package/nirium) | 0.19.1 | `npm install nirium` |
-| Python | [nirium (PyPI)](https://pypi.org/project/nirium/) | 0.11.2 | `pip install nirium` |
+| Python | [nirium (PyPI)](https://pypi.org/project/nirium/) | 0.12.0 | `pip install nirium` |
 | MCP server | [nirium-mcp (npm)](https://www.npmjs.com/package/nirium-mcp) | 0.6.5 | `npx nirium-mcp` |
 | Pollar adapter | [nirium-pollar-adapter (npm)](https://www.npmjs.com/package/nirium-pollar-adapter) | 0.6.1 | `npm install nirium-pollar-adapter` |
 | CLI | [nirium-cli (npm)](https://www.npmjs.com/package/nirium-cli) | 3.2.2 | `npm install -g nirium-cli` |
 
-Versions checked against the npm and PyPI registries on 10 Nov 2026. These packages are released from [nirium-protocol/nirium](https://github.com/nirium-protocol/nirium).
+Versions checked against the npm and PyPI registries on 15 Nov 2026. These packages are released from [nirium-protocol/nirium](https://github.com/nirium-protocol/nirium).
 
 > The two SDKs share full Treasury parity (12 methods, `proposeTreasuryRebalance()`/`propose_treasury_rebalance()` included) since 10-sep-2026. `x402Serve()` stays TypeScript-only - it's Express middleware, server-side Node, with no meaningful equivalent in an async Python client. Going the other way, Python ships a resilient, auto-reconnecting WebSocket client (backoff, jitter, dedup) and a LangChain `BaseTool` (`pip install nirium[langchain]`) that TypeScript doesn't have yet - the gap runs both directions, not just one.
 
@@ -555,4 +558,4 @@ This project operates under the [Stellar Community Fund](https://stellar.gitbook
 
 ---
 
-*Nirium Protocol: experimental software. Not financial advice. NiriumVault is testnet-only and audit-gated; the mainnet treasury node runs over a client-owned, third-party audited DeFindex vault in a role that cannot withdraw. Updated November 10, 2026.*
+*Nirium Protocol: experimental software. Not financial advice. NiriumVault is testnet-only and audit-gated; the mainnet treasury node runs over a client-owned, third-party audited DeFindex vault in a role that cannot withdraw. Updated November 15, 2026.*
