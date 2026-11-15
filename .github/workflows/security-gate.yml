@@ -1,4 +1,4 @@
-name: Security Gate — Dependency Audit
+name: Security Gate — Dependency Audit and Secret Scan
 
 on:
   push:
@@ -7,6 +7,34 @@ on:
     branches: [main]
 
 jobs:
+  secret-scan:
+    name: Secret Scan (gitleaks, full history)
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_VERSION: 8.28.0
+      GITLEAKS_SHA256: a65b5253807a68ac0cafa4414031fd740aeb55f54fb7e55f386acb52e6a840eb
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # full history: a secret committed once and deleted later
+                          # still ships in every clone of this public repo.
+      # The OSS CLI, pinned and checksum-verified, instead of gitleaks/gitleaks-action,
+      # which needs a paid license for organization-owned repos.
+      - name: Install gitleaks
+        run: |
+          curl -sSfL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz -C "$RUNNER_TEMP" gitleaks
+          rm gitleaks.tar.gz
+      # .gitleaks.toml adds a Stellar secret-seed rule to gitleaks' defaults.
+      # .gitleaksignore lists every finding already reviewed (15 Nov 2026), with the
+      # reason per group; anything not listed there fails this job.
+      - name: Scan full history for secrets
+        run: |
+          "$RUNNER_TEMP/gitleaks" git --no-banner --redact --verbose \
+            --config .gitleaks.toml --gitleaks-ignore-path .gitleaksignore .
+
   rust-audit:
     name: Rust Supply Chain Audit
     runs-on: ubuntu-latest

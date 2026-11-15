@@ -1,0 +1,102 @@
+# gitleaks fingerprints reviewed one by one (15 Nov 2026), full history of this public repo.
+# Format: commit:file:ruleID:line, exactly as gitleaks prints it. Any finding NOT listed here
+# fails the Secret Scan job, so a new secret still blocks the build.
+#
+# CAT A - real Stellar secret seeds, TESTNET only, now dead:
+#   .env.local (2 Feb 2026) -> GAJ3L3II...QSMC and packages/agent/central_issuer.json
+#   (25 Mar 2026) -> GD5RKTD2...LOEE. Neither account ever existed on mainnet. Both were
+#   account-merged into Friendbot on 15 Nov 2026 (testnet txs 5a22acc4... and 4edd4f41...),
+#   so the leaked seeds no longer control anything. History is not rewritten on purpose.
+#
+# CAT C - false positives, reason on each group.
+
+# -- CAT A --
+084eba3b7e71841cedc0ee8c4f8f1d560e210eec:.env.local:stellar-secret-seed:11
+68140317ec04ea3cab6ae0efc58803157e878546:packages/agent/central_issuer.json:stellar-secret-seed:1
+084eba3b7e71841cedc0ee8c4f8f1d560e210eec:.env.local:generic-api-key:11
+68140317ec04ea3cab6ae0efc58803157e878546:packages/agent/central_issuer.json:generic-api-key:1
+
+# -- CAT C: Supabase anon key (role=anon), public by design, RLS-protected --
+23cda3979d7e35fac831b1f3feced26c13eacae3:apps/web/public/baf/index.html:jwt:330
+
+# -- CAT C: deliberately invalid key in a negative test --
+6160b41797f4d1c5d0beb07731b678f3991986b7:tests/security-test-suite.sh:generic-api-key:98
+
+# -- CAT C: doc example key, not a valid key format (41 chars; real keys are sk_inst_ + 64 hex) --
+168c67378e72b2dc32e5ed84fd1eb37be2051bbb:SDKs.md:generic-api-key:327
+168c67378e72b2dc32e5ed84fd1eb37be2051bbb:SDKs.md:generic-api-key:530
+168c67378e72b2dc32e5ed84fd1eb37be2051bbb:SDKs.md:generic-api-key:60
+168c67378e72b2dc32e5ed84fd1eb37be2051bbb:SDKs.md:generic-api-key:756
+8de07bea6af9509c358ea70f36da899bdcfcfcb5:SDKs.md:generic-api-key:327
+8de07bea6af9509c358ea70f36da899bdcfcfcb5:SDKs.md:generic-api-key:530
+8de07bea6af9509c358ea70f36da899bdcfcfcb5:SDKs.md:generic-api-key:60
+8de07bea6af9509c358ea70f36da899bdcfcfcb5:SDKs.md:generic-api-key:756
+
+# -- CAT C: doc placeholder or truncated key (sk_inst_6c89a2d... shown as hidden) --
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:generic-api-key:1585
+
+# -- CAT C: doc/test placeholder header (YOUR_SANDBOX_KEY, sk_inst_TU_KEY, sk_inst_xxx..., invalid_key_123) --
+168c67378e72b2dc32e5ed84fd1eb37be2051bbb:README.md:curl-auth-header:375
+4482a370c272ba4085f0995ba91c331dbc845eb1:packages/agent/src/scripts/setup-testnet-wallet.ts:curl-auth-header:101
+6160b41797f4d1c5d0beb07731b678f3991986b7:tests/security-test-suite.sh:curl-auth-header:103
+6160b41797f4d1c5d0beb07731b678f3991986b7:tests/security-test-suite.sh:curl-auth-header:93
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:1029
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:1041
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:1051
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:367
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:377
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:448
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:487
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:658
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:732
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:752
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:771
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:796
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:866
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:876
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:886
+74b6900e7cc53e4469aeae81d5593007a255cd1c:INSTITUTIONAL_INTEGRATION_GUIDE.md:curl-auth-header:964
+
+# -- CAT C: fixture: public G... key in a signed-receipt fixture --
+19663d7b2a20e7e7ec1cdf3e9164b0c37200e047:packages/cli/test/fixtures/verify/hash-only-base64.json:generic-api-key:10
+19663d7b2a20e7e7ec1cdf3e9164b0c37200e047:packages/cli/test/fixtures/verify/hash-only-hex.json:generic-api-key:10
+19663d7b2a20e7e7ec1cdf3e9164b0c37200e047:packages/cli/test/fixtures/verify/hash-only-other-key.json:generic-api-key:10
+19663d7b2a20e7e7ec1cdf3e9164b0c37200e047:packages/cli/test/fixtures/verify/hash-only-sep53.json:generic-api-key:10
+19663d7b2a20e7e7ec1cdf3e9164b0c37200e047:packages/cli/test/fixtures/verify/hash-only-tampered.json:generic-api-key:10
+19663d7b2a20e7e7ec1cdf3e9164b0c37200e047:packages/cli/test/fixtures/verify/mainnet-QmZDVSxE.json:generic-api-key:7
+19663d7b2a20e7e7ec1cdf3e9164b0c37200e047:packages/cli/test/fixtures/verify/record-tampered.json:generic-api-key:14
+19663d7b2a20e7e7ec1cdf3e9164b0c37200e047:packages/cli/test/fixtures/verify/record.json:generic-api-key:14
+3fd2930476702452ad1827b9761cc44993e5a3be:packages/cli/test/fixtures/verify/mainnet-QmYCLPug.json:generic-api-key:1
+
+# -- CAT C: fuzz: synthetic key (0123456789abcdef repeated) --
+eba424a0b6e73490d5834f81d9df27a76687f5ad:fuzz/fuzz_targets/fuzz_auth_keys.rs:generic-api-key:226
+eba424a0b6e73490d5834f81d9df27a76687f5ad:fuzz/fuzz_targets/fuzz_auth_keys.rs:generic-api-key:257
+
+# -- CAT C: i18n label keys (evidence_txN_label), not credentials --
+902ec2cacfb2872c76a48fa3b63f8c838d7d5de1:apps/web/app/(app)/blog/x402-outage-verify-it-yourself/page.tsx:generic-api-key:24
+902ec2cacfb2872c76a48fa3b63f8c838d7d5de1:apps/web/app/(app)/blog/x402-outage-verify-it-yourself/page.tsx:generic-api-key:29
+
+# -- CAT C: mock values in a demo UI (x402_ prefix is no real service's key format) --
+6d70355ecf6347886b941bfcc8c19a3ce17680b7:apps/web/src/app/lab/page.tsx:generic-api-key:47
+6d70355ecf6347886b941bfcc8c19a3ce17680b7:apps/web/src/app/lab/page.tsx:generic-api-key:65
+9d58beee6ef77d5ca3241df2d5192596c47e5498:apps/web/src/app/lab/page.tsx:generic-api-key:47
+9d58beee6ef77d5ca3241df2d5192596c47e5498:apps/web/src/app/lab/page.tsx:generic-api-key:65
+
+# -- CAT C: obfuscated bundle; no Supabase/JWT/key literal found on inspection --
+90457c542577785000207a2c4874a93195934b02:packages/agent/dist/server.js:generic-api-key:1
+
+# -- CAT C: placeholder 'qa_secret_key_123' --
+4482a370c272ba4085f0995ba91c331dbc845eb1:packages/agent/src/scripts/institutional-health-check.ts:generic-api-key:128
+
+# -- CAT C: public C... contract id (native testnet SAC) --
+47428725afc4851792feea6a06d51e387be41d78:packages/agent/dist/execution/executeStrategy.js:generic-api-key:49
+47428725afc4851792feea6a06d51e387be41d78:packages/agent/src/execution/executeStrategy.ts:generic-api-key:69
+a22e3908d3e0c90ac2d1b3105620ec3314a717bb:packages/agent/dist/execution/executeStrategy.js:generic-api-key:49
+
+# -- CAT C: public Stellar G... account / C... contract id --
+4b602b7af66c2444b549cd820933f13c8f3df76b:apps/web/app/(app)/dashboard/page.tsx:generic-api-key:1632
+6f8f4f05467073e786e27fe511c279e480d952af:apps/web/app/build/niriumtober/page.tsx:generic-api-key:1385
+74b6900e7cc53e4469aeae81d5593007a255cd1c:apps/web/lib/sorobanContracts.ts:generic-api-key:175
+961f6287edf22b580db824cb76a3b1fc14d23f3f:apps/web/lib/sorobanContracts.ts:generic-api-key:175
+a06ee38669f65af42dfc103cf3991ca4afa3b19a:apps/web/lib/sorobanContracts.ts:generic-api-key:175
+daa1e28b8995df6cec4b715dae7e115989f64d80:apps/web/lib/sorobanContracts.ts:generic-api-key:144

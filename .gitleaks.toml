@@ -1,0 +1,27 @@
+# gitleaks config for the Security Gate secret scan.
+# Starts from gitleaks default rules and adds a Stellar secret-seed rule, since that is
+# the key type this project handles. Reviewed findings live in .gitleaksignore.
+# Every allowlist entry below is narrow on purpose; add to it only for values that
+# are provably not secrets (public data, published test vectors).
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "stellar-secret-seed"
+description = "Stellar secret seed (S... strkey)"
+regex = '''\bS[A-Z2-7]{55}\b'''
+keywords = ["s"]
+
+  # Placeholder seeds such as SXXXX...XXXX used in docs.
+  [[rules.allowlists]]
+  description = "All-X placeholder seed"
+  regexTarget = "match"
+  regexes = ['''^SX{55}$''']
+
+[[allowlists]]
+# Stellar public keys (G... strkeys) are public account IDs, not secrets,
+# but the built-in generic-api-key rule can flag `"key": "G..."` in fixtures.
+description = "Stellar public account IDs"
+regexTarget = "secret"
+regexes = ['''^G[A-Z2-7]{55}$''']
