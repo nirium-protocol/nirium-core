@@ -156,7 +156,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                         del sitio (home, disclaimer legal) ya listaba los cuatro.
                         Treasury va aquí, no en la línea de testnet: el rebalanceo
                         (DeFindex, bóveda del cliente) ya corre en mainnet, invite-only
-                        mientras cierra la revisión legal. Solo NiriumVault -- el
+                        hasta tener una opinión legal por escrito. Solo NiriumVault -- el
                         contrato propio de Nirium -- sigue en testnet, audit-gated.
                         Calificador por ítem, no uno solo al final de la línea: en
                         una lista corrida "TREASURY (INVITE-ONLY)" al cierre se leía

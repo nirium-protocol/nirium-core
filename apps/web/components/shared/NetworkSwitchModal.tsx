@@ -115,8 +115,8 @@ export default function NetworkSwitchModal({ open, onConfirm, onCancel }: Props)
                 <div className="p-6 space-y-5">
                     <p className="text-sm text-white/60 leading-relaxed">
                         {lang(
-                            "You're about to point the console at real Stellar mainnet data. Settlement and audit anchoring there move real USDC, signed by your own wallet — Nirium never holds it. The autonomous treasury runs on mainnet over a DeFindex vault you own — invite-only while a legal review closes. Nirium's own NiriumVault stays on testnet until an external audit.",
-                            "Estás por apuntar la consola a datos reales de Stellar mainnet. La liquidación y el anclaje de auditoría ahí mueven USDC real, firmado por tu propia wallet — Nirium nunca lo custodia. La tesorería autónoma corre en mainnet sobre una bóveda DeFindex que tú posees — por invitación mientras cierra la revisión legal. NiriumVault, el contrato propio de Nirium, se queda en testnet hasta una auditoría externa.")}
+                            "You're about to point the console at real Stellar mainnet data. Settlement and audit anchoring there move real USDC, signed by your own wallet — Nirium never holds it. The autonomous treasury runs on mainnet over a DeFindex vault you own — invite-only until we have a written legal opinion. Nirium's own NiriumVault stays on testnet until an external audit.",
+                            "Estás por apuntar la consola a datos reales de Stellar mainnet. La liquidación y el anclaje de auditoría ahí mueven USDC real, firmado por tu propia wallet — Nirium nunca lo custodia. La tesorería autónoma corre en mainnet sobre una bóveda DeFindex que tú posees — por invitación hasta tener una opinión legal por escrito. NiriumVault, el contrato propio de Nirium, se queda en testnet hasta una auditoría externa.")}
                     </p>
 
                     <div className="rounded-xl border border-white/10 overflow-hidden">

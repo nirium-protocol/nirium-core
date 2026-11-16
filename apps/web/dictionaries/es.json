@@ -1311,7 +1311,7 @@
       },
       "operator_wallet": "Llave Institucional (Operador)",
       "mainnet_treasury": "Tesorería de liquidación (solo recepción):",
-      "network_scope": "En mainnet corren los rieles software-only y non-custodial: liquidación x402, anclaje de auditoría y reportería. Las dispersiones en mainnet son por invitación. El rebalanceo autónomo corre en mainnet sobre bóvedas de DeFindex propiedad del cliente, por invitación mientras concluye la revisión legal. NiriumVault, el contrato propio de Nirium, sigue en testnet, audit-gated, hasta una auditoría externa formal. MPP Charge es experimental y no está disponible en mainnet.",
+      "network_scope": "En mainnet corren los rieles software-only y non-custodial: liquidación x402, anclaje de auditoría y reportería. Las dispersiones en mainnet son por invitación. El rebalanceo autónomo corre en mainnet sobre bóvedas de DeFindex propiedad del cliente, por invitación hasta tener una opinión legal por escrito. NiriumVault, el contrato propio de Nirium, sigue en testnet, audit-gated, hasta una auditoría externa formal. MPP Charge es experimental y no está disponible en mainnet.",
       "testnet_warning": "Testnet — sin capital real en riesgo",
       "stats": {
         "version": "Versión Testnet",
@@ -1390,7 +1390,7 @@
         "m1": "Fase 1: Blindaje y Cumplimiento — Audit Trails y Reportes (entregado)",
         "m2": "Fase 2: Nodos de Settlement, Payouts y Audit en mainnet early access",
         "m3": "Fase 3: Auditoría externa de seguridad y verificación formal de los contratos del vault",
-        "m4": "Fase 4: Rebalanceo de Tesorería — entregado en mainnet, invite-only mientras cierra la revisión legal; escala a disponibilidad general y LatAm después"
+        "m4": "Fase 4: Rebalanceo de Tesorería — entregado en mainnet, invite-only hasta tener una opinión legal por escrito; escala a disponibilidad general y LatAm después"
       },
       "ecosystem_impact_title": "Ecosistema Stellar",
       "ecosystem_impact_desc": "Nirium está optimizado para el ecosistema de Stellar, enfocándose en soluciones de tesorería flexibles y de alto impacto para la región LatAm. Colaboramos con Capítulos de Embajadores locales para asegurar la alineación con las necesidades financieras regionales.",
@@ -2203,7 +2203,7 @@
   },
   "strategy_builder": {
     "upgrade_banner": {
-      "preview": "Modo preview — el lienzo compone el esquema; la ejecución real corre en el nodo. La tesorería autónoma ya está en mainnet sobre una bóveda DeFindex que tú posees, invite-only mientras cierra la revisión legal. NiriumVault, el contrato propio, sigue en testnet hasta la auditoría externa.",
+      "preview": "Modo preview — el lienzo compone el esquema; la ejecución real corre en el nodo. La tesorería autónoma ya está en mainnet sobre una bóveda DeFindex que tú posees, invite-only hasta tener una opinión legal por escrito. NiriumVault, el contrato propio, sigue en testnet hasta la auditoría externa.",
       "upgrade": "Actualizar"
     },
     "deploy_gate": {
@@ -2571,7 +2571,7 @@
     },
     "quickstart": {
       "title": "Aprovisionamiento: 5 Líneas",
-      "subtitle": "Rebalanceo corporativo autónomo (USDC a CETES) en mainnet, por invitación mientras concluye la revisión legal."
+      "subtitle": "Rebalanceo corporativo autónomo (USDC a CETES) en mainnet, por invitación hasta tener una opinión legal por escrito."
     },
     "agentic_payments": {
       "title": "Micropagos B2B para Agentes",
@@ -2733,7 +2733,7 @@
   },
   "legal": {
     "disclaimer_short": "Nirium es software experimental en Stellar Testnet. No es asesoría financiera. No garantiza rendimientos, dividendos ni retornos. Úselo bajo su propio riesgo.",
-    "disclaimer_full": "Nirium es infraestructura software-only, non-custodial, y nunca custodia fondos de clientes. La liquidación non-custodial (x402), el anclaje de auditoría y la reportería corren en Stellar mainnet; el rebalanceo autónomo corre en mainnet sobre bóvedas de DeFindex propiedad del cliente, por invitación mientras concluye la revisión legal; NiriumVault, el contrato propio de Nirium, corre en Stellar testnet, audit-gated, hasta una auditoría externa formal. MPP Charge es experimental y no está disponible en mainnet. Nirium no es asesoría financiera, no es un producto de inversión, ni una actividad financiera regulada. No garantiza rendimientos, dividendos, apreciación de activos ni retornos de ningún tipo. Los datos de tasas de referencia mostrados (ej. CETES vía Etherfuse) son información pública de referencia únicamente — no proyecciones ni promesas de retorno. XLM y los activos de Stellar son volátiles. Los servicios financieros los prestan partners regulados, no Nirium.",
+    "disclaimer_full": "Nirium es infraestructura software-only, non-custodial, y nunca custodia fondos de clientes. La liquidación non-custodial (x402), el anclaje de auditoría y la reportería corren en Stellar mainnet; el rebalanceo autónomo corre en mainnet sobre bóvedas de DeFindex propiedad del cliente, por invitación hasta tener una opinión legal por escrito; NiriumVault, el contrato propio de Nirium, corre en Stellar testnet, audit-gated, hasta una auditoría externa formal. MPP Charge es experimental y no está disponible en mainnet. Nirium no es asesoría financiera, no es un producto de inversión, ni una actividad financiera regulada. No garantiza rendimientos, dividendos, apreciación de activos ni retornos de ningún tipo. Los datos de tasas de referencia mostrados (ej. CETES vía Etherfuse) son información pública de referencia únicamente — no proyecciones ni promesas de retorno. XLM y los activos de Stellar son volátiles. Los servicios financieros los prestan partners regulados, no Nirium.",
     "rate_disclaimer": "Tasa de referencia del protocolo únicamente. No es una proyección o garantía de retorno.",
     "non_custodial": "No custodial. Tú tienes las llaves.",
     "testnet_only": "Solo Testnet. Sin fondos reales.",
@@ -2747,7 +2747,7 @@
       "nonCustodial": "Non-custodial",
       "batch": "≤100 / lote",
       "ipfs": "Recibo IPFS",
-      "lcp": "LCP · en revisión legal",
+      "lcp": "LCP · opinión legal pendiente",
       "testnet": "Testnet",
       "mainnet": "Mainnet · Beta privada"
     },
