@@ -30,7 +30,7 @@ const FEATURES_MAINNET: Feature[] = [
     // No es adorno legal: el encuadre se defiende explicando el flujo de fondos,
     // y el mejor lugar para explicarlo es donde alguien decide comprar.
     { en: 'x402 market state — $0.05 per call. We sell our own data directly', es: 'Market state x402 — $0.05 por llamada. Vendemos nuestros propios datos directamente' },
-    { en: 'x402Serve() — charge for YOUR API, same rail. Funds go payer → you; they never touch Nirium. Third-party facilitator use is invite-only while legal review closes', es: 'x402Serve() — cobra por TU API, el mismo riel. El dinero va del pagador a ti; nunca toca a Nirium. Usarlo como facilitador de terceros es solo por invitación mientras cierra la revisión legal' },
+    { en: 'x402Serve() — charge for YOUR API, same rail. Funds go payer → you; they never touch Nirium. Third-party facilitator use is invite-only until we have a written legal opinion', es: 'x402Serve() — cobra por TU API, el mismo riel. El dinero va del pagador a ti; nunca toca a Nirium. Usarlo como facilitador de terceros es solo por invitación hasta tener una opinión legal por escrito' },
     // MPP Charge salió de esta lista el 4-oct-2026: estaba listada como viva en
     // mainnet y no lo está (ver la nota fechada debajo de la tarjeta).
     // "Desplegar y depositar" se quedaba corto y justo donde no conviene: RETIRAR
@@ -55,13 +55,13 @@ const FEATURES_GROWTH: Feature[] = [
     // DeFindex es contrato ajeno ya auditado y del cliente — por eso una puede
     // ir a mainnet hoy y la otra no.
     { en: 'Nirium’s own mainnet vault (once audited)', es: 'Vault propio de Nirium en mainnet (post-auditoría)' },
-    { en: 'Treasury node — autonomously moves idle capital into the yield strategy and back out, on a DeFindex vault you own (early access, no cost during beta \u2014 invite-only on mainnet while the legal review closes)', es: 'Nodo de tesorería — mueve solo el capital ocioso hacia la estrategia de rendimiento y de regreso, sobre una bóveda DeFindex tuya (early access, sin costo durante la beta — invite-only en mainnet mientras cierra la revisión legal)' },
+    { en: 'Treasury node — autonomously moves idle capital into the yield strategy and back out, on a DeFindex vault you own (early access, no cost during beta \u2014 invite-only on mainnet until we have a written legal opinion)', es: 'Nodo de tesorería — mueve solo el capital ocioso hacia la estrategia de rendimiento y de regreso, sobre una bóveda DeFindex tuya (early access, sin costo durante la beta — invite-only en mainnet hasta tener una opinión legal por escrito)' },
     { en: 'Unlimited transactions',             es: 'Transacciones ilimitadas' },
     { en: 'Institutional-format exports (CSV/JSON)', es: 'Exportes formato institucional (CSV/JSON)' },
     { en: 'IPFS anchoring (Pinata)',             es: 'Anclaje IPFS (Pinata)' },
     { en: 'x402 agentic payments',              es: 'Pagos agénticos x402' },
     { en: 'Payouts / batch disbursement',       es: 'Dispersiones / pagos por lote' },
-    { en: 'LCP legal layer (in legal review)',  es: 'Capa legal LCP (en revisión legal)' },
+    { en: 'LCP legal layer (legal opinion pending)',  es: 'Capa legal LCP (opinión legal pendiente)' },
     { en: 'Cross-border USDC transfers',        es: 'Transfers cross-border USDC' },
     { en: 'CETES and USDC reference rates, attributed to their source', es: 'Tasas de referencia CETES y USDC, con su fuente' },
     { en: 'Visual Strategy Builder (drag & drop)', es: 'Strategy Builder visual (drag & drop)' },
@@ -388,8 +388,8 @@ export default function PricingPage() {
                             {
                                 q: lang('What does the treasury node cost?', '¿Cuánto cuesta el nodo de tesorería?'),
                                 a: lang(
-                                    'Deploying the vault costs nothing beyond the Stellar network fee (about 1.4 XLM on mainnet), which you pay from your own wallet — the vault is yours from the first block. Autonomous rebalancing is early access and carries no cost during the beta. On mainnet it is invite-only while the legal review closes — not a technical limit: the signer runs, but rebalancing someone else’s funds is the question sitting with counsel, so we do not open it before the answer. One thing we do not charge but you should know: DeFindex, the protocol behind the vault, takes 20% of the yield generated. Nirium never takes a percentage of your capital.',
-                                    'Desplegar la bóveda no cuesta nada más que el fee de red de Stellar (unos 1.4 XLM en mainnet), que pagas desde tu propia wallet — la bóveda es tuya desde el primer bloque. El rebalanceo autónomo es early access y no tiene costo durante la beta. En mainnet es invite-only mientras cierra la revisión legal — y no por un límite técnico: el firmante corre, pero reacomodar fondos de otra persona es justo la pregunta que está con el abogado, así que no lo abrimos antes de la respuesta. Algo que no cobramos nosotros pero conviene que sepas: DeFindex, el protocolo de la bóveda, se lleva 20% sobre el rendimiento generado. Nirium nunca cobra un porcentaje de tu capital.'),
+                                    'Deploying the vault costs nothing beyond the Stellar network fee (about 1.4 XLM on mainnet), which you pay from your own wallet — the vault is yours from the first block. Autonomous rebalancing is early access and carries no cost during the beta. On mainnet it is invite-only until we have a written legal opinion — not a technical limit: the signer runs, but rebalancing someone else’s funds is the question sitting with counsel, so we do not open it before the answer. One thing we do not charge but you should know: DeFindex, the protocol behind the vault, takes 20% of the yield generated. Nirium never takes a percentage of your capital.',
+                                    'Desplegar la bóveda no cuesta nada más que el fee de red de Stellar (unos 1.4 XLM en mainnet), que pagas desde tu propia wallet — la bóveda es tuya desde el primer bloque. El rebalanceo autónomo es early access y no tiene costo durante la beta. En mainnet es invite-only hasta tener una opinión legal por escrito — y no por un límite técnico: el firmante corre, pero reacomodar fondos de otra persona es justo la pregunta que está con el abogado, así que no lo abrimos antes de la respuesta. Algo que no cobramos nosotros pero conviene que sepas: DeFindex, el protocolo de la bóveda, se lleva 20% sobre el rendimiento generado. Nirium nunca cobra un porcentaje de tu capital.'),
                             },
                             {
                                 q: lang('How do I pay $0.05 if there is no card on file?', '¿Cómo pago $0.05 si no hay tarjeta?'),

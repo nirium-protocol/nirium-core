@@ -214,7 +214,7 @@ export default function PollarAdapterDocumentationPage() {
                     <p className="text-[11px] font-mono uppercase tracking-widest text-stellar-teal mb-3">06 · Una oferta abierta</p>
                     <h2 className="text-2xl sm:text-3xl font-bold mb-3">Acceso ampliado, cuando les sirva</h2>
                     <p className="text-gray-400 leading-relaxed mb-6">
-                        Dos piezas de infraestructura de Nirium hoy son invite-only en mainnet mientras cerramos una revisión legal. Si a Pollar le resulta útil para evaluar la integración con más profundidad, podemos abrir acceso anticipado.
+                        Dos piezas de infraestructura de Nirium hoy son invite-only en mainnet hasta tener una opinión legal por escrito. Si a Pollar le resulta útil para evaluar la integración con más profundidad, podemos abrir acceso anticipado.
                     </p>
                     <div className="grid sm:grid-cols-2 gap-4">
                         <div className="bg-white/[0.02] border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors">

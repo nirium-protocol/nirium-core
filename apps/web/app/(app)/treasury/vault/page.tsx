@@ -620,7 +620,7 @@ export default function TreasuryVaultConsole() {
                         <div className="rounded-xl border border-amber-400/25 bg-amber-400/[0.05] p-4 space-y-3">
                             <p className="text-[11px] text-amber-400/90 leading-relaxed">
                                 {lang(
-                                    'This vault is yours end to end: name an address you control as RebalanceManager. Nirium\u2019s autonomous rebalancing on mainnet is invite-only while the legal review closes — when it opens, you hand the role over with set_rebalance_manager, and you can take it back the same way.',
+                                    'This vault is yours end to end: name an address you control as RebalanceManager. Nirium\u2019s autonomous rebalancing on mainnet is invite-only until we have a written legal opinion — when it opens, you hand the role over with set_rebalance_manager, and you can take it back the same way.',
                                     'Esta b\u00f3veda es tuya de punta a punta: pon una direcci\u00f3n tuya como RebalanceManager. El rebalanceo aut\u00f3nomo de Nirium en mainnet es invite-only mientras cierra la revisi\u00f3n legal — cuando abra, le entregas el rol con set_rebalance_manager, y te lo puedes quedar de vuelta igual.')}
                             </p>
                             <input
@@ -880,8 +880,8 @@ export default function TreasuryVaultConsole() {
                                             'Autonomous rebalancing is on for this vault. Nirium’s signer decides on its own every 10 minutes — there is no button here because if you could trigger it, it would not be autonomous.',
                                             'El rebalanceo autónomo está encendido para esta bóveda. El firmante de Nirium decide por su cuenta cada 10 minutos — aquí no hay botón porque si pudieras dispararlo tú, no sería autónomo.')
                                         : lang(
-                                            'This vault names Nirium as rebalance manager, but autonomous rebalancing is not enabled for it — being named is not the same as being enabled. On mainnet it is invite-only while the legal review closes, and enabling a vault takes a commit to the repository, with author and date.',
-                                            'Esta bóveda nombra a Nirium como rebalance manager, pero el rebalanceo autónomo no está habilitado para ella — nombrarnos no es lo mismo que habilitarla. En mainnet es invite-only mientras cierra la revisión legal, y habilitar una bóveda requiere un commit al repositorio, con autor y fecha.')}
+                                            'This vault names Nirium as rebalance manager, but autonomous rebalancing is not enabled for it — being named is not the same as being enabled. On mainnet it is invite-only until we have a written legal opinion, and enabling a vault takes a commit to the repository, with author and date.',
+                                            'Esta bóveda nombra a Nirium como rebalance manager, pero el rebalanceo autónomo no está habilitado para ella — nombrarnos no es lo mismo que habilitarla. En mainnet es invite-only hasta tener una opinión legal por escrito, y habilitar una bóveda requiere un commit al repositorio, con autor y fecha.')}
                                 </div>
                             )}
 

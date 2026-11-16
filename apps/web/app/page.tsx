@@ -191,7 +191,7 @@ export default function Home() {
             title: 'Treasury',
             status: lang('Mainnet · invite-only', 'Mainnet · solo invitación'),
             tone: 'gated' as const,
-            body: lang('Idle capital moves into a CETES strategy and back over a DeFindex vault you own. Invite-only while legal review closes.', 'El capital ocioso entra a una estrategia de CETES y regresa, sobre una bóveda DeFindex tuya. Solo por invitación mientras cierra la revisión legal.'),
+            body: lang('Idle capital moves into a CETES strategy and back over a DeFindex vault you own. Invite-only until we have a written legal opinion.', 'El capital ocioso entra a una estrategia de CETES y regresa, sobre una bóveda DeFindex tuya. Solo por invitación hasta tener una opinión legal por escrito.'),
             href: '/treasury',
         },
         {
@@ -312,8 +312,8 @@ export default function Home() {
                             </motion.div>
                             <p className="mt-3 text-[11px] text-white/35 leading-relaxed max-w-xl">
                                 {lang(
-                                    'Third-party facilitator use of x402Serve() on mainnet is invite-only while legal review closes - same gate as Treasury and Payouts.',
-                                    'Usar x402Serve() como facilitador de terceros en mainnet es solo por invitación mientras cierra la revisión legal - la misma puerta que Treasury y Payouts.')}
+                                    'Third-party facilitator use of x402Serve() on mainnet is invite-only until we have a written legal opinion - same gate as Treasury and Payouts.',
+                                    'Usar x402Serve() como facilitador de terceros en mainnet es solo por invitación hasta tener una opinión legal por escrito - la misma puerta que Treasury y Payouts.')}
                             </p>
                         </div>
 
@@ -545,7 +545,7 @@ export default function Home() {
                         {lang('Your API, paid per request.', 'Tu API, pagada por request.')}
                     </h2>
                     <p className="mt-4 text-white/60 max-w-xl mx-auto">
-                        {lang('Start on testnet in five minutes. Mainnet for third-party facilitators is invite-only while legal review closes.', 'Empieza en testnet en cinco minutos. Mainnet para facilitadores de terceros es solo por invitación mientras cierra la revisión legal.')}
+                        {lang('Start on testnet in five minutes. Mainnet for third-party facilitators is invite-only until we have a written legal opinion.', 'Empieza en testnet en cinco minutos. Mainnet para facilitadores de terceros es solo por invitación hasta tener una opinión legal por escrito.')}
                     </p>
                     <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
                         <a href="#try-testnet">
@@ -576,7 +576,7 @@ export default function Home() {
                         <span className="text-white/20">•</span>
                         <span className="font-mono">MPP <span className="text-white/35">({lang('experimental', 'experimental')})</span></span>
                         <span className="text-white/20">•</span>
-                        <span className="font-mono">LCP <span className="text-white/35">({lang('in legal review', 'en revisión legal')})</span></span>
+                        <span className="font-mono">LCP <span className="text-white/35">({lang('legal opinion pending', 'opinión legal pendiente')})</span></span>
                         <span className="text-white/20">•</span>
                         <span className="font-mono">Apache 2.0</span>
                         <span className="text-white/20">•</span>

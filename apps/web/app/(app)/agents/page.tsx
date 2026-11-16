@@ -84,7 +84,7 @@ export default function AgentsPage() {
                 "Batch USDC/XLM payment (≤100 recipients) + sponsored USDC trustline onboarding",
                 "Pago batch USDC/XLM (≤100 destinatarios) + alta de trustline USDC"),
             audit: lang(
-                "Immutable IPFS receipt per run (optional LCP legal layer — in legal review)",
+                "Immutable IPFS receipt per run (optional LCP legal layer — pending a legal opinion)",
                 "Recibo IPFS inmutable por corrida (capa legal LCP opcional — en revisión legal)"),
             metric: lang(
                 "Mainnet early access · independent service payments only · Freighter-signed",
@@ -165,7 +165,7 @@ export default function AgentsPage() {
                 "Audit Node",
                 "Nodo de Auditoría"),
             role: lang(
-                "Anchors every operation to IPFS as an immutable, publicly verifiable receipt, and powers institutional-format exports. Optional Legal Context Protocol layer in legal review.",
+                "Anchors every operation to IPFS as an immutable, publicly verifiable receipt, and powers institutional-format exports. Optional Legal Context Protocol layer, pending a legal opinion.",
                 "Ancla cada operación a IPFS como recibo inmutable y públicamente verificable, y alimenta exportes con formato institucional. Capa opcional Legal Context Protocol en revisión legal."),
             cycle: lang("Continuous", "Continuo"),
             trigger: lang("Every signed execution", "Cada ejecución firmada"),

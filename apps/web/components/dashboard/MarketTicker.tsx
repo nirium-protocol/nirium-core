@@ -84,7 +84,7 @@ function buildTickers(market: any, prev: any, t: any): TickerItem[] {
             // como "esto ya cumple".
             label: "COMPLIANCE",
             value: "NON-FINANCIAL ADVICE // REFERENCE DATA",
-            change: "LCP · in legal review",
+            change: "LCP · legal opinion pending",
             trend: 'neutral',
         }
     ];
@@ -105,7 +105,7 @@ const MarketTicker = () => {
             { label: "XLM/USDC", value: '-', change: '-', trend: 'neutral' },
             { label: "🇲🇽 CETES", value: '-', change: t.common.tickers.cetes_fixed, trend: 'neutral' },
             { label: t.common.tickers.sdex_spread, value: '-', change: '-', trend: 'neutral' },
-            { label: "COMPLIANCE", value: "NON-FINANCIAL ADVICE // REFERENCE DATA", change: "LCP · in legal review", trend: 'neutral' },
+            { label: "COMPLIANCE", value: "NON-FINANCIAL ADVICE // REFERENCE DATA", change: "LCP · legal opinion pending", trend: 'neutral' },
         ]);
     }, [t]);
 

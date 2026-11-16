@@ -211,7 +211,7 @@
         "h_close": "Go check it",
         "close_p1": "Every link above resolves to something you don't have to take our word for — a live block explorer, a public GitHub repository, a documentation page DeFindex controls, not us. Decode the transaction. Read the contract. If something here doesn't hold up the way this post says it does, that's worth knowing — for you and for us.",
         "where_label": "Where we are",
-        "where_body": "Nirium's Treasury Node runs on mainnet as the RebalanceManager on DeFindex vaults the client owns — invite-only during legal review of a specific open question under Mexico's anti-money-laundering law (LFPIORPI, Art. 24 Bis 4) on virtual-asset intermediation, with a public, client-signed path (propose-and-sign) available to anyone today. x402 and audit anchoring are live on both testnet and mainnet; MPP is testnet-only."
+        "where_body": "Nirium's Treasury Node runs on mainnet as the RebalanceManager on DeFindex vaults the client owns — invite-only pending a written legal opinion on a specific open question under Mexico's anti-money-laundering law (LFPIORPI, Art. 24 Bis 4) on virtual-asset intermediation, with a public, client-signed path (propose-and-sign) available to anyone today. x402 and audit anchoring are live on both testnet and mainnet; MPP is testnet-only."
       },
       "x402-outage-verify-it-yourself": {
         "tag": "Settlement",
@@ -613,7 +613,7 @@
         "badge": "FOUNDERS · WEEKEND BUILDS",
         "title": "What you can build",
         "title_span": "with Nirium",
-        "subtitle": "Twelve product ideas you can prototype on our stack — most primitives here are live on Stellar Testnet today. A couple (marked Invite-Only) touch a legal question still under review and aren't open for general use yet.",
+        "subtitle": "Twelve product ideas you can prototype on our stack — most primitives here are live on Stellar Testnet today. A couple (marked Invite-Only) touch a legal question that still awaits a written legal opinion and aren't open for general use yet.",
         "items": {
           "global_payroll": {
             "name": "Global Payroll Fleet",
@@ -685,7 +685,7 @@
           },
           "rwa_market": {
             "name": "Institutional RWA",
-            "tagline": "B2B infrastructure for sovereign-instrument routing (CETES via Etherfuse) — the operator sets the mandate; agents execute it 24/7, never taking custody. This is the real Treasury Rebalance node — invite-only while legal review of Art. 24 Bis 4 stays open.",
+            "tagline": "B2B infrastructure for sovereign-instrument routing (CETES via Etherfuse) — the operator sets the mandate; agents execute it 24/7, never taking custody. This is the real Treasury Rebalance node — invite-only until we have a written legal opinion on Art. 24 Bis 4.",
             "stack": [
               "Vault",
               "Execute"
@@ -724,7 +724,7 @@
           },
           "escrow_fleet": {
             "name": "Institutional Escrow",
-            "tagline": "Concept only, not shipped: connecting or releasing a trade between two counterparties on their behalf is the exact intermediation test under LFPIORPI Art. 24 Bis 4 that already gates Treasury Rebalance. Not published as a capability until that legal review closes.",
+            "tagline": "Concept only, not shipped: connecting or releasing a trade between two counterparties on their behalf is the exact intermediation test under LFPIORPI Art. 24 Bis 4 that already gates Treasury Rebalance. Not published as a capability until we have a written legal opinion on it.",
             "stack": [
               "Vault",
               "Execute"
@@ -1100,7 +1100,7 @@
       },
       "rwa_disclaimer": {
         "title": "4. Sovereign Asset (CETES) Risks",
-        "content": "Operations with CETES are subject to institutional availability, banking window constraints, and Banxico regulations. Nirium acts solely as a technological bridge (Middleware) and, where autonomous rebalancing is enabled, holds only the RebalanceManager role on a client-owned DeFindex vault — a role that cannot withdraw funds. Counterparty risk, legal custody of the underlying asset, and AML compliance rest entirely with the bond issuer, the final custodian, and the regulated operator. CETES exposure occurs on Stellar Mainnet through client-owned, third-party-audited vaults (invite-only pending legal review) and, separately, as a Stellar Testnet proof of concept via Nirium's own NiriumVault contract."
+        "content": "Operations with CETES are subject to institutional availability, banking window constraints, and Banxico regulations. Nirium acts solely as a technological bridge (Middleware) and, where autonomous rebalancing is enabled, holds only the RebalanceManager role on a client-owned DeFindex vault — a role that cannot withdraw funds. Counterparty risk, legal custody of the underlying asset, and AML compliance rest entirely with the bond issuer, the final custodian, and the regulated operator. CETES exposure occurs on Stellar Mainnet through client-owned, third-party-audited vaults (invite-only pending a written legal opinion) and, separately, as a Stellar Testnet proof of concept via Nirium's own NiriumVault contract."
       },
       "dispute": {
         "title": "5. Jurisdiction and Technological Arbitration",
@@ -1291,7 +1291,7 @@
         },
         "ipfs": {
           "title": "Cryptographic Integrity",
-          "desc": "Every state mutation is hashed with SHA-256 and persists on decentralized networks. Each record can be bound to LCP legal terms (SHA-256 atrHash, AAA-ICDR) once LCP is active; it is in legal review today."
+          "desc": "Every state mutation is hashed with SHA-256 and persists on decentralized networks. Each record can be bound to LCP legal terms (SHA-256 atrHash, AAA-ICDR) once LCP is active; it is off today, pending a legal opinion."
         },
         "payroll": {
           "title": "Payouts & Disbursements",
@@ -1311,7 +1311,7 @@
       },
       "operator_wallet": "Institutional Key (Operator)",
       "mainnet_treasury": "Settlement treasury (receive-only):",
-      "network_scope": "Mainnet runs the software-only, non-custodial rails: x402 settlement, audit anchoring and reporting. Payouts on mainnet is invite-only. Autonomous rebalancing runs on mainnet over DeFindex vaults the client owns, invite-only while legal review concludes. NiriumVault, Nirium's own contract, stays on testnet, audit-gated, until a formal external audit. MPP Charge is experimental and not available on mainnet.",
+      "network_scope": "Mainnet runs the software-only, non-custodial rails: x402 settlement, audit anchoring and reporting. Payouts on mainnet is invite-only. Autonomous rebalancing runs on mainnet over DeFindex vaults the client owns, invite-only until we have a written legal opinion. NiriumVault, Nirium's own contract, stays on testnet, audit-gated, until a formal external audit. MPP Charge is experimental and not available on mainnet.",
       "testnet_warning": "Testnet — no real capital at risk",
       "stats": {
         "version": "Testnet Version",
@@ -1390,7 +1390,7 @@
         "m1": "Phase 1: Compliance & Protocol Hardening — Audit Trails & Reporting (shipped)",
         "m2": "Phase 2: Settlement, Payouts & Audit nodes on mainnet early access",
         "m3": "Phase 3: External security audit & formal verification of the vault contracts",
-        "m4": "Phase 4: Treasury Rebalance — delivered on mainnet, invite-only while legal review closes; scaling to general availability & LatAm after that"
+        "m4": "Phase 4: Treasury Rebalance — delivered on mainnet, invite-only until we have a written legal opinion; scaling to general availability & LatAm after that"
       },
       "ecosystem_impact_title": "Stellar Ecosystem",
       "ecosystem_impact_desc": "Nirium is optimized for the Stellar ecosystem, focusing on high-impact, flexible treasury solutions for the LatAm region. We collaborate with local Ambassador Chapters to ensure alignment with regional financial needs.",
@@ -2203,7 +2203,7 @@
   },
   "strategy_builder": {
     "upgrade_banner": {
-      "preview": "Preview mode — the canvas composes the schema; execution runs in the node. The autonomous treasury is already live on mainnet over a DeFindex vault you own, invite-only while the legal review closes. NiriumVault, our own contract, stays on testnet until the external audit.",
+      "preview": "Preview mode — the canvas composes the schema; execution runs in the node. The autonomous treasury is already live on mainnet over a DeFindex vault you own, invite-only until we have a written legal opinion. NiriumVault, our own contract, stays on testnet until the external audit.",
       "upgrade": "Upgrade"
     },
     "deploy_gate": {
@@ -2529,7 +2529,7 @@
       },
       "lcp": {
         "title": "Legal Context (LCP)",
-        "desc": "Beyond cryptographic proof: every receipt can be bound to a versioned governing agreement via its SHA-256 ATR hash, with an AAA-ICDR dispute-resolution clause. LCP can make each disbursement legally enforceable once active — in legal review today."
+        "desc": "Beyond cryptographic proof: every receipt can be bound to a versioned governing agreement via its SHA-256 ATR hash, with an AAA-ICDR dispute-resolution clause. LCP can make each disbursement legally enforceable once active — off today, pending a legal opinion."
       }
     },
     "fintech_law": {
@@ -2571,7 +2571,7 @@
     },
     "quickstart": {
       "title": "Provisioning: 5 Lines",
-      "subtitle": "Autonomous corporate rebalancing (USDC to CETES) on mainnet, invite-only while legal review concludes."
+      "subtitle": "Autonomous corporate rebalancing (USDC to CETES) on mainnet, invite-only until we have a written legal opinion."
     },
     "agentic_payments": {
       "title": "B2B Micropayments for Agents",
@@ -2733,7 +2733,7 @@
   },
   "legal": {
     "disclaimer_short": "Nirium is experimental software on Stellar Testnet. Not financial advice. No yields, dividends, or returns guaranteed. Use at your own risk.",
-    "disclaimer_full": "Nirium is software-only, non-custodial infrastructure and never holds client funds. Non-custodial settlement (x402), audit anchoring and reporting run on Stellar mainnet; autonomous rebalancing runs on mainnet over DeFindex vaults the client owns, invite-only while legal review concludes; NiriumVault, Nirium's own contract, runs on Stellar testnet, audit-gated, until a formal external audit. MPP Charge is experimental and not available on mainnet. Nirium is not financial advice, not an investment product, and not a regulated financial activity. It does not guarantee yields, dividends, asset appreciation, or returns of any kind. Reference rate data displayed (e.g., Etherfuse CETES) is public reference information only — not projections or promises of return. XLM and Stellar assets are volatile. Financial services are provided by regulated partners, not by Nirium.",
+    "disclaimer_full": "Nirium is software-only, non-custodial infrastructure and never holds client funds. Non-custodial settlement (x402), audit anchoring and reporting run on Stellar mainnet; autonomous rebalancing runs on mainnet over DeFindex vaults the client owns, invite-only until we have a written legal opinion; NiriumVault, Nirium's own contract, runs on Stellar testnet, audit-gated, until a formal external audit. MPP Charge is experimental and not available on mainnet. Nirium is not financial advice, not an investment product, and not a regulated financial activity. It does not guarantee yields, dividends, asset appreciation, or returns of any kind. Reference rate data displayed (e.g., Etherfuse CETES) is public reference information only — not projections or promises of return. XLM and Stellar assets are volatile. Financial services are provided by regulated partners, not by Nirium.",
     "rate_disclaimer": "Protocol reference rate only. Not a return projection or guarantee.",
     "non_custodial": "Non-custodial. You hold the keys.",
     "testnet_only": "Testnet only. No real funds.",
@@ -2747,7 +2747,7 @@
       "nonCustodial": "Non-custodial",
       "batch": "≤100 / batch",
       "ipfs": "IPFS receipt",
-      "lcp": "LCP · in legal review",
+      "lcp": "LCP · legal opinion pending",
       "testnet": "Testnet",
       "mainnet": "Mainnet · private Beta"
     },

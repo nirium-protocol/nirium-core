@@ -80,7 +80,7 @@ const data = await res.json();
 // ─────────────────────────────────────────────────────────────
 // CHARGE for YOUR OWN API. Same rail, other side of the counter.
 // Funds go payer → you. They never touch Nirium.
-// Third-party facilitator use is invite-only while legal review closes —
+// Third-party facilitator use is invite-only until we have a written legal opinion —
 // same gate as Treasury and Payouts. Request access before integrating.
 import { x402Serve } from "nirium";
 

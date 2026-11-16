@@ -72,7 +72,7 @@ Frontend and configuration:
 - **Controls that exist in the repository but are not mounted on any route:** domain lock and response obfuscation. The AML screening middleware was removed on 2026-10-07 because it was never imported anywhere.
 - **No formal threat model** is published yet.
 - **Frontend obfuscation** is a friction measure, not a security control, and is not counted as one.
-- **Regulatory posture** (Mexican and cross-border) is a legal question this document does not answer; see the open legal review described in the README.
+- **Regulatory posture** (Mexican and cross-border) is a legal question this document does not answer; see the open legal question described in the README.
 - **Open before any mainnet `NiriumVault` deployment:** full SEP-10 / SEP-24 / SEP-31 / SEP-12 flows, a public bug-bounty program, sanctions screening, a proof-of-reserves snapshot.
 
 ## Reporting
