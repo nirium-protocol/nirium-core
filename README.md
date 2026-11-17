@@ -48,6 +48,34 @@ The framework supports up to 10 nodes per vault. Live catalog: `GET /api/nodes`.
 
 Every claim below is a link. Nothing here asks to be believed.
 
+Who holds what. Your keys stay on your side: you sign every payment and every vault deposit or withdrawal. The mainnet API box holds no signing key, and receipts are hashes on IPFS that anyone can check.
+
+```mermaid
+flowchart TB
+    subgraph YOU["Your side: your keys"]
+        APP["Your app, backend or AI agent<br/>nirium SDK, CLI or MCP"]
+        KEY["Your key or wallet<br/>(Stellar keypair, SEP-43, Pollar)"]
+        VAULT["Your Treasury vault<br/>client-owned, DeFindex"]
+    end
+    subgraph NIRIUM["Nirium: no client funds"]
+        API["Agent API on Fly<br/>mainnet box is receive-only,<br/>holds no signing key"]
+        WEB["nirium.xyz<br/>/verify, /stats"]
+    end
+    FAC["x402 facilitator<br/>independent: OpenZeppelin"]
+    STELLAR[("Stellar<br/>USDC payments, Soroban")]
+    IPFS[("IPFS<br/>receipt hashes")]
+    KEY -- "signs every payment" --> APP
+    APP -- "x402 payment" --> FAC
+    FAC -- "settles" --> STELLAR
+    APP -- "anchor a receipt hash" --> API
+    API -- "pins" --> IPFS
+    WEB -- "anyone verifies a CID" --> IPFS
+    KEY -- "deposits and withdraws, you sign" --> VAULT
+    API -. "proposes a rebalance,<br/>you sign (mainnet: invite-only)" .-> VAULT
+    VAULT --- STELLAR
+```
+
+
 ### Status at a glance
 
 | Product | Status |
