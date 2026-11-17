@@ -102,6 +102,15 @@ jobs:
       # pnpm.auditConfig.ignoreGhsas in package.json. Every other high
       # finding still blocks the build. Revisit when @x402/core moves to
       # zod 4 (no issue filed upstream yet as of this date).
+      # GHSA-fc5q-39xc-vjpf (picomatch <= 4.0.7, ReDoS through crafted
+      # extglobs, no patched version published) is ignored via
+      # pnpm.auditConfig.ignoreGhsas. Every path that reaches picomatch here
+      # uses globs fixed in code or config, never user input: build, test and
+      # file-watching tools (jest, @parcel/watcher, chokidar, micromatch,
+      # tinyglobby, fdir) and unstorage's "fs" driver, whose ignore patterns
+      # come from its own config. @walletconnect/keyvaluestorage pulls
+      # unstorage but only loads its fs-lite and indexedb drivers, which do
+      # not import anymatch. Remove this once a patched picomatch is released.
       - name: Run pnpm Audit (high+ — blocks build)
         run: pnpm audit --audit-level=high
 
