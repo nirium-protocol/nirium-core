@@ -326,8 +326,8 @@ An invalid signature returns **400 and nothing is anchored**: IPFS has no delete
 
 | SDK | Package | Version | Install |
 |---|---|---|---|
-| TypeScript | [nirium (npm)](https://www.npmjs.com/package/nirium) | 0.19.3 | `npm install nirium` |
-| Python | [nirium (PyPI)](https://pypi.org/project/nirium/) | 0.12.3 | `pip install nirium` |
+| TypeScript | [nirium (npm)](https://www.npmjs.com/package/nirium) | 0.19.4 | `npm install nirium` |
+| Python | [nirium (PyPI)](https://pypi.org/project/nirium/) | 0.12.4 | `pip install nirium` |
 | MCP server | [nirium-mcp (npm)](https://www.npmjs.com/package/nirium-mcp) | 0.6.6 | `npx nirium-mcp` |
 | Pollar adapter | [nirium-pollar-adapter (npm)](https://www.npmjs.com/package/nirium-pollar-adapter) | 0.6.3 | `npm install nirium-pollar-adapter` |
 | CLI | [nirium-cli (npm)](https://www.npmjs.com/package/nirium-cli) | 3.2.2 | `npm install -g nirium-cli` |
