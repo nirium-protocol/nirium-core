@@ -120,7 +120,7 @@ export function useFreighter() {
                     await fetchBalance(addr);
                 }
             } catch {
-                // Not connected — fine
+                // Not connected - fine
             }
         };
         check();
@@ -187,7 +187,7 @@ export function useFreighter() {
 
     // Read the wallet's CURRENTLY ACTIVE address (the one it will actually sign
     // with) WITHOUT changing the connected treasury. Used to detect when the user
-    // has switched accounts in the wallet after connecting — signing then wouldn't
+    // has switched accounts in the wallet after connecting - signing then wouldn't
     // match the tx source (tx_bad_auth). Pure read; does not mutate state.
     const getAddress = async (): Promise<string | null> => {
         try {

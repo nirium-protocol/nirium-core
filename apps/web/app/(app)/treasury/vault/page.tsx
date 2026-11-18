@@ -1,7 +1,7 @@
 'use client';
 
 // ───────────────────────────────────────────────────────────────
-// Consola del Treasury Node — desplegar e inspeccionar una bóveda DeFindex.
+// Consola del Treasury Node - desplegar e inspeccionar una bóveda DeFindex.
 //
 // El flujo entero es non-custodial y se ve: el servidor arma un XDR SIN
 // firmar, la wallet del usuario lo firma, y el servidor solo lo transmite.
@@ -25,11 +25,19 @@ const PASSPHRASES: Record<string, string> = {
     mainnet: 'Public Global Stellar Network ; September 2015',
 };
 
+// Las llaves que manda el nodo (usdcBlend, etherfuseCetes…) son nombres internos.
+// Las cuatro son estrategias "blend-autocompound" de DeFindex; lo que cambia es el activo.
+const strategyLabel = (key: string) => {
+    const k = key.toLowerCase();
+    const asset = k.includes('cetes') ? 'CETES' : k.includes('usdc') ? 'USDC' : key;
+    return `${asset} · Blend (${key})`;
+};
+
 const shorten = (s: string, n = 6) => (s && s.length > n * 2 ? `${s.slice(0, n)}…${s.slice(-n)}` : s);
 
 // El nodo sirve estos textos solo en inglés y la página los renderiza literal
 // (el API es superficie de copy). Se traducen aquí contra la cadena exacta que
-// devuelve; si el nodo cambia el texto, cae al inglés — que es correcto,
+// devuelve; si el nodo cambia el texto, cae al inglés - que es correcto,
 // aunque no esté traducido. Preferible a inventar una traducción que no
 // corresponda a lo que el nodo realmente declara.
 const NODE_ES: Record<string, string> = {
@@ -38,13 +46,31 @@ const NODE_ES: Record<string, string> = {
     'change roles': 'cambiar roles',
     'pause or rescue': 'pausar o rescatar',
     'upgrade the contract': 'actualizar el contrato',
+    // El nodo manda este texto con raya larga (—); la versión con guion se queda
+    // por si un nodo viejo todavía la sirve. Antes solo existía la del guion y
+    // en español esta frase salía en inglés.
     'rebalance() takes no destination address — `to` is hardcoded to the vault itself, so withdrawal is not expressible.':
-        'rebalance() no acepta dirección de destino — el `to` está fijo a la propia bóveda, así que retirar no es expresable.',
+        'rebalance() no acepta dirección de destino: el `to` está fijo a la propia bóveda, así que retirar no es expresable.',
+    'rebalance() takes no destination address - `to` is hardcoded to the vault itself, so withdrawal is not expressible.':
+        'rebalance() no acepta dirección de destino: el `to` está fijo a la propia bóveda, así que retirar no es expresable.',
+    'DeFindex audited by OtterSec (2025-03-18): 16 findings, all 13 vulnerabilities resolved.':
+        'DeFindex auditado por OtterSec (18-03-2025): 16 hallazgos, las 13 vulnerabilidades resueltas.',
     'The client is the Manager and can call set_rebalance_manager to drop us unilaterally.':
         'El cliente es el Manager y puede llamar set_rebalance_manager para botarnos unilateralmente.',
-    'DeFindex audited by OtterSec (2025-03-18): 16 findings — 13 vulnerabilities, all resolved; the other 3 are non-critical suggestions, not vulnerabilities.':
-        'DeFindex auditado por OtterSec (18-03-2025): 16 hallazgos — 13 vulnerabilidades, todas resueltas; los otros 3 son sugerencias no críticas, no vulnerabilidades.',
+    'DeFindex audited by OtterSec (2025-03-18): 16 findings - 13 vulnerabilities, all resolved; the other 3 are non-critical suggestions, not vulnerabilities.':
+        'DeFindex auditado por OtterSec (18-03-2025): 16 hallazgos - 13 vulnerabilidades, todas resueltas; los otros 3 son sugerencias no críticas, no vulnerabilidades.',
     'Blend V2, independently audited three times.': 'Blend V2, auditado de forma independiente tres veces.',
+    // 12-nov-2026: textos nuevos del nodo (4 instrucciones, auditorías de Blend por nombre).
+    'move funds between idle and the vault\'s own strategy (Invest, Unwind)':
+        'mover fondos entre lo ocioso y la estrategia de la propia bóveda (Invest, Unwind)',
+    'swap inside the vault - the role allows it, Nirium\'s code never sends it':
+        'hacer swaps dentro de la bóveda: el rol lo permite, el código de Nirium nunca lo manda',
+    'rebalance() accepts Invest, Unwind and two swaps. None takes a destination address and every result stays in the vault, so withdrawal is not expressible. Worst case with a leaked agent key: value lost to slippage on a bad swap inside the vault.':
+        'rebalance() acepta Invest, Unwind y dos swaps. Ninguna recibe dirección de destino y todo resultado se queda en la bóveda, así que retirar no es expresable. Peor caso con una llave del agente filtrada: perder valor por slippage en un swap a mal precio dentro de la bóveda.',
+    'Blend V2: a Code4rena audit and two Certora reports (security assessment and formal verification), both marked draft.':
+        'Blend V2: una auditoría de Code4rena y dos reportes de Certora (evaluación de seguridad y verificación formal), ambos marcados como borrador.',
+    'the external pool itself and the configuration of each deployed instance.':
+        'el pool externo en sí y la configuración de cada instancia desplegada.',
     'The external pool itself and the configuration of each deployed instance.':
         'El pool externo en sí y la configuración de cada instancia desplegada.',
 };
@@ -53,7 +79,7 @@ const NODE_ES: Record<string, string> = {
  * Comprueba localmente que la firma sirve ANTES de enviarla.
  *
  * `txBadAuth` llega desde la red sin decir cuál de las dos cosas falló: la
- * cuenta o la red. Verificando aquí se distingue — y si la firma valida
+ * cuenta o la red. Verificando aquí se distingue - y si la firma valida
  * contra la OTRA red, la causa es el selector de Freighter, no la cuenta.
  * Barato: es una verificación ed25519 sobre un hash que ya tenemos.
  */
@@ -104,21 +130,24 @@ export default function TreasuryVaultConsole() {
     // Despliegue
     const [strategy, setStrategy] = useState('');
     const [asset, setAsset] = useState('');
-    const [name, setName] = useState('Nirium Treasury');
-    const [symbol, setSymbol] = useState('NTRS');
+    // Nombre y símbolo quedan on-chain en el token de participaciones de la bóveda.
+    // Antes el default era "Nirium Treasury"/NTRS: una bóveda que es del cliente
+    // salía con nuestro nombre en el explorador.
+    const [name, setName] = useState('Treasury Vault');
+    const [symbol, setSymbol] = useState('TVLT');
     const [deployed, setDeployed] = useState<{ hash: string } | null>(null);
     // Quién sostendrá el rol de RebalanceManager. En testnet lo pone el nodo
     // (el agente); en mainnet todavía no hay firmante nuestro, así que lo tiene
-    // que decidir quien despliega — y conviene que lo vea, no que lo adivine.
+    // que decidir quien despliega - y conviene que lo vea, no que lo adivine.
     const [rebalanceManager, setRebalanceManager] = useState('');
     // Reconocimiento de riesgo. Vive en el estado y NO se persiste: Payouts ya
     // exige aceptación explícita antes de mover dinero y esta consola era la
     // única superficie con fondos reales que no pedía nada. Por sesión y no en
-    // localStorage a propósito — una casilla que alguien marcó hace meses no es
+    // localStorage a propósito - una casilla que alguien marcó hace meses no es
     // un reconocimiento, es un mueble.
     const [acknowledged, setAcknowledged] = useState(false);
     // En mainnet el dueño decide a quién nombra encargado; el nodo no lo
-    // rellena. No es que no podamos —el firmante existe y corre— es que el
+    // rellena. No es que no podamos -el firmante existe y corre- es que el
     // rebalanceo autónomo con dinero de terceros es invite-only mientras cierra
     // la revisión legal, y rellenar el campo prometería un servicio que hoy no
     // se presta.
@@ -126,7 +155,7 @@ export default function TreasuryVaultConsole() {
 
     // Bóvedas desplegadas desde ESTE navegador. No es un índice on-chain: el
     // factory no permite listar por manager sin recorrer las ~200 existentes.
-    // Es una libreta local para no perder la dirección al recargar — y se dice
+    // Es una libreta local para no perder la dirección al recargar - y se dice
     // que es local, para que nadie la confunda con la fuente de verdad.
     const [mine, setMine] = useState<{ id: string; label: string; network: string }[]>([]);
     const REMEMBERED = 'nirium_treasury_vaults';
@@ -218,8 +247,8 @@ export default function TreasuryVaultConsole() {
      * Saca el dinero de la bóveda de vuelta a tu wallet.
      *
      * Faltaba, y era el hueco más grande: se podía depositar y no había forma
-     * de recuperarlo desde aquí. El flujo que probamos —desplegar, depositar,
-     * reacomodar— nunca lo necesita, y por eso no se notó; pero es lo primero
+     * de recuperarlo desde aquí. El flujo que probamos -desplegar, depositar,
+     * reacomodar- nunca lo necesita, y por eso no se notó; pero es lo primero
      * que pregunta quien pone dinero de verdad.
      *
      * Sin monto retira TODO. Pedir un número exacto de participaciones a siete
@@ -235,7 +264,7 @@ export default function TreasuryVaultConsole() {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ walletAddress: address, vault: vault.vault, network }),
             }).then((r) => r.json());
-            if (!built.ok) throw new Error(built.error || built.hint || 'build failed');
+            if (!built.ok) throw new Error(built.message || built.error || built.hint || 'build failed');
 
             const res = await signTransaction(built.xdr, { networkPassphrase: PASSPHRASES[network], address: address ?? undefined });
             const signedXdr = typeof res === 'string' ? res : (res as any).signedTxXdr;
@@ -267,6 +296,7 @@ export default function TreasuryVaultConsole() {
     };
 
     const deposit = async () => {
+        if (network === 'mainnet') { setError(lang('On mainnet, depositing from this page is invite-only until we have a written legal opinion.', 'En mainnet, depositar desde esta página es solo por invitación hasta tener una opinión legal por escrito.')); return; }
         if (!vault?.vault) return;
         const stroops = toStroops(amount);
         if (!stroops) { setError(lang('Enter a positive amount.', 'Escribe un monto positivo.')); return; }
@@ -278,7 +308,7 @@ export default function TreasuryVaultConsole() {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ walletAddress: address, vault: vault.vault, amounts: [stroops], invest: true, network }),
             }).then((r) => r.json());
-            if (!built.ok) throw new Error(built.error || built.hint || 'build failed');
+            if (!built.ok) throw new Error(built.message || built.error || built.hint || 'build failed');
 
             const res = await signTransaction(built.xdr, { networkPassphrase: PASSPHRASES[network], address: address ?? undefined });
             const signedXdr = typeof res === 'string' ? res : (res as any).signedTxXdr;
@@ -307,7 +337,7 @@ export default function TreasuryVaultConsole() {
         } finally { setBusy(null); }
     };
 
-    // El agente firma este con SU llave — el usuario no firma nada aquí.
+    // El agente firma este con SU llave - el usuario no firma nada aquí.
     const runRebalance = async (kind: 'Invest' | 'Unwind') => {
         const strategy = strategyOf(funds);
         if (!vault?.vault || !strategy) return;
@@ -323,15 +353,15 @@ export default function TreasuryVaultConsole() {
                     instructions: [{ kind, strategy, amount: stroops }],
                 }),
             }).then((res) => res.json());
-            if (!r.ok) throw new Error(r.hint ? `${r.error} — ${r.hint}` : (r.error || 'rebalance failed'));
-            setReceipt({ hash: r.hash, what: kind === 'Invest' ? lang('Invested', 'Puesto a trabajar') : lang('Unwound', 'Retirado a la bóveda') });
+            if (!r.ok) throw new Error(r.hint ? `${r.error} - ${r.hint}` : (r.error || 'rebalance failed'));
+            setReceipt({ hash: r.hash, what: kind === 'Invest' ? lang('Invested', 'Puesto a trabajar') : lang('Unwound', 'Sacado de la estrategia') });
             await inspect();
         } catch (e: any) {
             setError(e?.message || String(e));
         } finally { setBusy(null); }
     };
 
-    // El activo lo declara la estrategia — preguntarlo evita el par desalineado
+    // El activo lo declara la estrategia - preguntarlo evita el par desalineado
     // que el vault rechaza en su constructor con un error ilegible.
     useEffect(() => {
         if (!strategy) { setAsset(''); return; }
@@ -357,12 +387,13 @@ export default function TreasuryVaultConsole() {
     }, [network]);
 
     const deploy = async () => {
+        if (network === 'mainnet') { setError(lang('On mainnet, deploying a vault from this page is invite-only until we have a written legal opinion.', 'En mainnet, desplegar una bóveda desde esta página es solo por invitación hasta tener una opinión legal por escrito.')); return; }
         if (!isConnected || !address) { await connect(); return; }
         setError(null); setDeployed(null);
         try {
             // La tx se arma con la cuenta CONECTADA como source. Si la wallet
             // cambió de cuenta activa después de conectar, firmaría con la otra
-            // y la red la rechaza con txBadAuth — un error que no dice nada.
+            // y la red la rechaza con txBadAuth - un error que no dice nada.
             // Mismo guard que usa payroll por la misma razón.
             const active = await getAddress();
             if (active && active !== address) {
@@ -384,7 +415,7 @@ export default function TreasuryVaultConsole() {
                     ...(rebalanceManager ? { rebalanceManager } : {}),
                 }),
             }).then((r) => r.json());
-            if (!built.ok) throw new Error(built.error || built.hint || 'build failed');
+            if (!built.ok) throw new Error(built.message || built.error || built.hint || 'build failed');
 
             setBusy('sign');
             // Anclado a la dirección conectada: sin esto la wallet puede firmar
@@ -398,8 +429,8 @@ export default function TreasuryVaultConsole() {
             const verdict = diagnoseSignature(signedXdr, PASSPHRASES[network], address);
             if (verdict === 'wrong-network') {
                 setError(lang(
-                    `Your wallet signed for the other network. The site is on ${network} — switch Freighter to ${network} and try again.`,
-                    `Tu wallet firmó para la otra red. El sitio está en ${network} — cambia Freighter a ${network} y vuelve a intentar.`));
+                    `Your wallet signed for the other network. The site is on ${network} - switch Freighter to ${network} and try again.`,
+                    `Tu wallet firmó para la otra red. El sitio está en ${network} - cambia Freighter a ${network} y vuelve a intentar.`));
                 return;
             }
             if (verdict === 'wrong-account') {
@@ -434,7 +465,7 @@ export default function TreasuryVaultConsole() {
     };
 
     /**
-     * Entrega el rol de RebalanceManager. Lo firma el Manager — o sea tú —
+     * Entrega el rol de RebalanceManager. Lo firma el Manager - o sea tú -
      * porque delegar un permiso sobre tu bóveda no lo puede hacer quien lo
      * recibe. Reusa el mismo camino de firma que el despliegue: XDR sin firmar
      * del servidor, verificación local de la firma, y envío que espera
@@ -455,7 +486,7 @@ export default function TreasuryVaultConsole() {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ walletAddress: address, vault: lookup.trim(), rebalanceManager: to, network }),
             }).then((r) => r.json());
-            if (!built.ok) throw new Error(built.error || built.hint || 'build failed');
+            if (!built.ok) throw new Error(built.message || built.error || built.hint || 'build failed');
 
             const res = await signTransaction(built.xdr, { networkPassphrase: PASSPHRASES[network], address: address ?? undefined });
             const signedXdr = typeof res === 'string' ? res : (res as any).signedTxXdr;
@@ -504,7 +535,7 @@ export default function TreasuryVaultConsole() {
     const inspect = () => inspectVault(lookup);
 
     // La carga automática ocurre al montar, cuando Freighter todavía no
-    // reconectó — así que `holder` va vacío y el saldo no aparece. Al llegar
+    // reconectó - así que `holder` va vacío y el saldo no aparece. Al llegar
     // la dirección se relee, que es cuando la respuesta puede incluirlo.
     useEffect(() => {
         if (address && vault?.vault && vault.holderBalance === undefined) {
@@ -529,9 +560,13 @@ export default function TreasuryVaultConsole() {
                         }`}>{network}</span>
                     </div>
                     <p className="text-white/55 text-sm leading-relaxed max-w-2xl">
-                        {lang(
-                            'Deploy a DeFindex vault that you own. Nirium takes only the RebalanceManager role — it can move funds between the strategies inside your vault, and nothing else.',
-                            'Despliega una bóveda de DeFindex que tú posees. Nirium toma únicamente el rol de RebalanceManager: puede mover fondos entre las estrategias de tu bóveda, y nada más.')}
+                        {network === 'mainnet'
+                            ? lang(
+                                'Check or withdraw from a DeFindex vault you own. On mainnet, deploying and depositing here are invite-only. Nirium takes only the RebalanceManager role - it can move funds between the strategies inside your vault, and nothing else.',
+                                'Revisa o retira de una bóveda de DeFindex que es tuya. En mainnet, desplegar y depositar aquí es solo por invitación. Nirium toma únicamente el rol de RebalanceManager: puede mover fondos entre las estrategias de tu bóveda, y nada más.')
+                            : lang(
+                                'Deploy a DeFindex vault that you own. Nirium takes only the RebalanceManager role - it can move funds between the strategies inside your vault, and nothing else.',
+                                'Despliega una bóveda de DeFindex que tú posees. Nirium toma únicamente el rol de RebalanceManager: puede mover fondos entre las estrategias de tu bóveda, y nada más.')}
                     </p>
                 </header>
 
@@ -567,7 +602,28 @@ export default function TreasuryVaultConsole() {
                     </section>
                 )}
 
-                {/* Desplegar */}
+                {/* Desplegar. 16-nov-2026 (decidido por Giovanny): en mainnet, desplegar y
+                    fondear desde este sitio es solo por invitación, igual que Payouts, hasta
+                    tener una opinión legal por escrito. Retirar de una bóveda propia sigue
+                    abierto siempre (política de jurisdicciones). Testnet sin cambios. */}
+                {network === 'mainnet' ? (
+                <section className="rounded-2xl border border-amber-400/25 bg-amber-400/[0.04] p-6 space-y-3">
+                    <h2 className="text-[10px] font-black uppercase tracking-[0.25em] text-amber-400/90">
+                        {lang('Mainnet · invite-only', 'Mainnet · solo por invitación')}
+                    </h2>
+                    <p className="text-sm text-white/70 leading-relaxed">
+                        {lang(
+                            'On mainnet, deploying and funding a vault from this page is invite-only until we have a written legal opinion, the same as Payouts and autonomous rebalancing. On testnet everything stays open: switch to TEST in the menu to try it. If you already own a vault, you can always check it and withdraw below.',
+                            'En mainnet, desplegar y fondear una bóveda desde esta página es solo por invitación hasta tener una opinión legal por escrito, igual que Payouts y el rebalanceo autónomo. En testnet todo sigue abierto: cambia a TEST en el menú para probarlo. Si ya tienes una bóveda, siempre puedes revisarla y retirar abajo.')}
+                    </p>
+                    <a
+                        href="mailto:niriumprotocol@gmail.com?subject=Treasury%20on%20mainnet%20%E2%80%94%20request%20access"
+                        className="inline-flex items-center gap-1 text-sm font-bold text-amber-300 hover:text-amber-200 underline"
+                    >
+                        {lang('Request access →', 'Solicitar acceso →')}
+                    </a>
+                </section>
+                ) : (
                 <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 space-y-4">
                     <h2 className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-500">
                         {lang('1 · Deploy your vault', '1 · Despliega tu bóveda')}
@@ -589,7 +645,7 @@ export default function TreasuryVaultConsole() {
                             <select value={strategy} onChange={(e) => setStrategy(e.target.value)}
                                 className="mt-1 w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-stellar-teal/40">
                                 {Object.entries(info?.defindex?.strategies || {}).map(([k, v]) => (
-                                    <option key={v} value={v} className="bg-[#0A0A0A]">{k} — {shorten(v as string, 8)}</option>
+                                    <option key={v} value={v} className="bg-[#0A0A0A]">{strategyLabel(k)} - {shorten(v as string, 8)}</option>
                                 ))}
                             </select>
                         </label>
@@ -597,7 +653,7 @@ export default function TreasuryVaultConsole() {
                             vault rechaza el par desalineado con un error ilegible. */}
                         <div className="block sm:col-span-2">
                             <span className="text-[10px] uppercase tracking-widest text-white/40">
-                                {lang('Asset — read from the strategy', 'Activo — leído de la estrategia')}
+                                {lang('Asset - read from the strategy', 'Activo - leído de la estrategia')}
                             </span>
                             <div className="mt-1 w-full bg-black/30 border border-white/5 rounded-xl px-3 py-2 text-xs font-mono text-white/50 break-all">
                                 {asset || lang('reading…', 'leyendo…')}
@@ -607,21 +663,28 @@ export default function TreasuryVaultConsole() {
 
                     <p className="text-[11px] text-white/40 leading-relaxed">
                         {lang(
-                            'You sign with your own wallet. You become the Manager, the Emergency Manager and the Fee Receiver — all three. The vault fee is set to 0.',
-                            'Firmas con tu propia wallet. Tú quedas como Manager, Emergency Manager y Fee Receiver — los tres. La comisión de la bóveda queda en 0.')}
+                            'You sign with your own wallet. You become the Manager, the Emergency Manager and the Fee Receiver - all three. The vault fee is set to 0. Each vault holds one asset, the one of the strategy you pick (USDC or CETES): the agent moves it between idle and the strategy, and never swaps one asset for the other.',
+                            'Firmas con tu propia wallet. Tú quedas como Manager, Emergency Manager y Fee Receiver - los tres. La comisión de la bóveda queda en 0. Cada bóveda tiene un solo activo, el de la estrategia que elijas (USDC o CETES): el agente lo mueve entre quieto y la estrategia, y nunca cambia un activo por otro.')}
                     </p>
 
                     {/* En mainnet Nirium todavía no sostiene el rol: Box B no tiene
                         llave por diseño, y nombrar la del agente de testnet reusaría
                         una misma llave en las dos redes. Se dice y se deja desplegar
-                        — la bóveda y el depósito son iguales, y el Manager puede
+                        - la bóveda y el depósito son iguales, y el Manager puede
                         entregar el rol después con set_rebalance_manager. */}
                     {!nodeFillsRole && (
                         <div className="rounded-xl border border-amber-400/25 bg-amber-400/[0.05] p-4 space-y-3">
                             <p className="text-[11px] text-amber-400/90 leading-relaxed">
                                 {lang(
-                                    'This vault is yours end to end: name an address you control as RebalanceManager. Nirium\u2019s autonomous rebalancing on mainnet is invite-only until we have a written legal opinion — when it opens, you hand the role over with set_rebalance_manager, and you can take it back the same way.',
-                                    'Esta b\u00f3veda es tuya de punta a punta: pon una direcci\u00f3n tuya como RebalanceManager. El rebalanceo aut\u00f3nomo de Nirium en mainnet es invite-only mientras cierra la revisi\u00f3n legal — cuando abra, le entregas el rol con set_rebalance_manager, y te lo puedes quedar de vuelta igual.')}
+                                    'This vault is yours end to end: name an address you control as RebalanceManager. Nirium\u2019s autonomous rebalancing on mainnet is invite-only until we have a written legal opinion - when it opens, you hand the role over with set_rebalance_manager, and you can take it back the same way.',
+                                    'Esta b\u00f3veda es tuya de punta a punta: pon una direcci\u00f3n tuya como RebalanceManager. El rebalanceo aut\u00f3nomo de Nirium en mainnet es solo por invitaci\u00f3n hasta tener una opini\u00f3n legal por escrito - cuando abra, le entregas el rol con set_rebalance_manager, y te lo puedes quedar de vuelta igual.')}
+                                {" "}
+                                <a
+                                    href="mailto:niriumprotocol@gmail.com?subject=Treasury%20autonomous%20rebalancing%20%E2%80%94%20request%20access"
+                                    className="underline hover:text-amber-200"
+                                >
+                                    {lang("Request access \u2192", "Solicitar acceso \u2192")}
+                                </a>
                             </p>
                             <input
                                 value={rebalanceManager}
@@ -635,8 +698,8 @@ export default function TreasuryVaultConsole() {
                             {rebalanceManager && rebalanceManager === address && (
                                 <p className="text-[11px] text-red-400">
                                     {lang(
-                                        'This is the same address that will be Manager. The node requires them to differ — use a second address you control.',
-                                        'Es la misma dirección que quedará como Manager. El nodo exige que sean distintas — usa una segunda dirección tuya.')}
+                                        'This is the same address that will be Manager. The node requires them to differ - use a second address you control.',
+                                        'Es la misma dirección que quedará como Manager. El nodo exige que sean distintas - usa una segunda dirección tuya.')}
                                 </p>
                             )}
                         </div>
@@ -645,8 +708,12 @@ export default function TreasuryVaultConsole() {
                     <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-3">
                         <p className="text-[11px] text-white/50 leading-relaxed">
                             {lang(
-                                'Before you continue: the vault is a DeFindex contract — not Nirium’s — and the funds are yours from the first block; Nirium never holds them and cannot withdraw them. DeFindex, the protocol behind the vault, takes 20% of the yield generated; Nirium charges no percentage of your capital. Smart contracts carry risk even when audited. This is software, not financial advice, and it is not offered where local law restricts these services.',
-                                'Antes de seguir: la bóveda es un contrato de DeFindex —no de Nirium— y los fondos son tuyos desde el primer bloque; Nirium nunca los sostiene y no puede retirarlos. DeFindex, el protocolo de la bóveda, se lleva 20% del rendimiento generado; Nirium no cobra ningún porcentaje de tu capital. Los contratos inteligentes tienen riesgo aunque estén auditados. Esto es software, no asesoría financiera, y no se ofrece donde la ley local restrinja estos servicios.')}
+                                // 8-nov-2026: antes decía "DeFindex se lleva 20% del rendimiento". Leído
+                                // del contrato en mainnet: la parte de DeFindex (5000 bps) es la mitad de la
+                                // comisión de la bóveda, no del rendimiento, y aquí la comisión queda en 0
+                                // (report.rs: lock_fee(get_vault_fee) y luego el reparto).
+                                'Before you continue: the vault is a DeFindex contract - not Nirium’s - and the funds are yours from the first block; Nirium never holds them and cannot withdraw them. The vault fee is set to 0, so nobody takes a cut of the yield: DeFindex’s share is half of that fee, which today is half of 0, and only you, as Manager, can change it. Nirium charges no percentage of your capital. The strategy and the network have their own costs. Smart contracts carry risk even when audited. This is software, not financial advice, and it is not offered where local law restricts these services.',
+                                'Antes de seguir: la bóveda es un contrato de DeFindex -no de Nirium- y los fondos son tuyos desde el primer bloque; Nirium nunca los sostiene y no puede retirarlos. La comisión de la bóveda queda en 0, así que nadie se lleva una parte del rendimiento: lo de DeFindex es la mitad de esa comisión, hoy la mitad de 0, y solo tú, como Manager, la puedes cambiar. Nirium no cobra ningún porcentaje de tu capital. La estrategia y la red tienen sus propios costos. Los contratos inteligentes tienen riesgo aunque estén auditados. Esto es software, no asesoría financiera, y no se ofrece donde la ley local restrinja estos servicios.')}
                         </p>
                         <label className="flex items-start gap-2.5 cursor-pointer">
                             <input type="checkbox" checked={acknowledged}
@@ -680,11 +747,12 @@ export default function TreasuryVaultConsole() {
                         </div>
                     )}
                 </section>
+                )}
 
                 {/* Inspeccionar */}
                 <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 space-y-4">
                     <h2 className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-500">
-                        {lang('2 · Verify, deposit and rebalance', '2 · Verifica, deposita y rebalancea')}
+                        {network === 'mainnet' ? lang('2 · Check your vault or withdraw', '2 · Revisa tu bóveda o retira') : lang('2 · Verify, deposit and rebalance', '2 · Verifica, deposita y rebalancea')}
                     </h2>
                     <div className="flex gap-2">
                         <input value={lookup} onChange={(e) => setLookup(e.target.value)} spellCheck={false}
@@ -717,8 +785,8 @@ export default function TreasuryVaultConsole() {
                             </div>
                             <p className="text-[10px] text-white/30 leading-relaxed">
                                 {lang(
-                                    'A registry for convenience, not the source of truth — the roles that matter live in the contract. Vaults deployed here are recorded server-side and follow you across machines.',
-                                    'Un registro por comodidad, no la fuente de verdad — los roles que importan viven en el contrato. Las bóvedas desplegadas aquí quedan registradas del lado del servidor y te siguen entre computadoras.')}
+                                    'A registry for convenience, not the source of truth - the roles that matter live in the contract. Vaults deployed here are recorded server-side and follow you across machines.',
+                                    'Un registro por comodidad, no la fuente de verdad - los roles que importan viven en el contrato. Las bóvedas desplegadas aquí quedan registradas del lado del servidor y te siguen entre computadoras.')}
                             </p>
                         </div>
                     )}
@@ -802,9 +870,13 @@ export default function TreasuryVaultConsole() {
                         hasta cargar una bóveda hacía que no se supiera que existen. */}
                     {!vault?.ok && (
                         <p className="text-[11px] text-white/35 leading-relaxed pt-2 border-t border-white/5">
-                            {lang(
-                                'Paste a vault id in the box above to deposit and move funds between idle and the strategy. A vault you deploy in step 1 loads here on its own.',
-                                'Pega el id de una bóveda en el cuadro de arriba para depositar y mover fondos entre lo quieto y la estrategia. Si despliegas una en el paso 1, se carga aquí sola.')}
+                            {network === 'mainnet'
+                                ? lang(
+                                    'Paste the id of a vault you own in the box above to check it or withdraw.',
+                                    'Pega el id de una bóveda tuya en el cuadro de arriba para revisarla o retirar.')
+                                : lang(
+                                    'Paste a vault id in the box above to deposit and move funds between idle and the strategy. A vault you deploy in step 1 loads here on its own.',
+                                    'Pega el id de una bóveda en el cuadro de arriba para depositar y mover fondos entre lo quieto y la estrategia. Si despliegas una en el paso 1, se carga aquí sola.')}
                         </p>
                     )}
 
@@ -820,7 +892,7 @@ export default function TreasuryVaultConsole() {
 
                             {/* Decirlo ANTES de firmar. Sin saldo, el contrato
                                 responde Error(#10) enterrado en 10 eventos. */}
-                            {vault.holderBalance !== undefined && (
+                            {network !== 'mainnet' && vault.holderBalance !== undefined && (
                                 <div className={`rounded-xl border px-4 py-2.5 text-[11px] ${
                                     Number(vault.holderBalance) > 0
                                         ? 'border-white/10 bg-white/[0.02] text-white/50'
@@ -837,11 +909,13 @@ export default function TreasuryVaultConsole() {
                             )}
 
                             <div className="flex flex-wrap gap-2">
+                                {network !== 'mainnet' && (
                                 <button onClick={deposit} disabled={!acknowledged || !!busy}
                                     className="px-4 py-2 rounded-xl bg-stellar-teal/10 border border-stellar-teal/30 text-stellar-teal text-xs font-bold hover:bg-stellar-teal/20 disabled:opacity-40 transition-colors inline-flex items-center gap-2">
                                     {busy === 'deposit' && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                                     {lang('Deposit (you sign)', 'Depositar (firmas tú)')}
                                 </button>
+                                )}
                                 <button onClick={withdraw} disabled={!!busy}
                                     className="px-4 py-2 rounded-xl border border-white/15 text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 disabled:opacity-40 transition-colors inline-flex items-center gap-2">
                                     {busy === 'withdraw' && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
@@ -849,7 +923,7 @@ export default function TreasuryVaultConsole() {
                                 </button>
                                 {/* En mainnet NO hay botón de rebalanceo, y la ausencia es
                                     el punto. El firmante decide por su cuenta cada 10 min
-                                    sobre las bóvedas que tiene autorizadas — si el usuario
+                                    sobre las bóvedas que tiene autorizadas - si el usuario
                                     pudiera dispararlo, no sería autónomo. En testnet sí
                                     van, porque ahí el agente firma a demanda y esa ES la
                                     demostración. */}
@@ -863,7 +937,7 @@ export default function TreasuryVaultConsole() {
                                         <button onClick={() => runRebalance('Unwind')} disabled={!!busy || !strategyOf(funds)}
                                             className="px-4 py-2 rounded-xl border border-white/15 text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 disabled:opacity-40 transition-colors inline-flex items-center gap-2">
                                             {busy === 'Unwind' && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                                            {lang('Unwind (agent signs)', 'Retirar a la bóveda (firma el agente)')}
+                                            {lang('Unwind (agent signs)', 'Sacar de la estrategia (firma el agente)')}
                                         </button>
                                     </>
                                 )}
@@ -877,18 +951,44 @@ export default function TreasuryVaultConsole() {
                                 }`}>
                                     {vault?.autonomousRebalancing === 'enabled'
                                         ? lang(
-                                            'Autonomous rebalancing is on for this vault. Nirium’s signer decides on its own every 10 minutes — there is no button here because if you could trigger it, it would not be autonomous.',
-                                            'El rebalanceo autónomo está encendido para esta bóveda. El firmante de Nirium decide por su cuenta cada 10 minutos — aquí no hay botón porque si pudieras dispararlo tú, no sería autónomo.')
-                                        : lang(
-                                            'This vault names Nirium as rebalance manager, but autonomous rebalancing is not enabled for it — being named is not the same as being enabled. On mainnet it is invite-only until we have a written legal opinion, and enabling a vault takes a commit to the repository, with author and date.',
-                                            'Esta bóveda nombra a Nirium como rebalance manager, pero el rebalanceo autónomo no está habilitado para ella — nombrarnos no es lo mismo que habilitarla. En mainnet es invite-only hasta tener una opinión legal por escrito, y habilitar una bóveda requiere un commit al repositorio, con autor y fecha.')}
+                                            'Autonomous rebalancing is on for this vault. Nirium’s signer decides on its own every 10 minutes - there is no button here because if you could trigger it, it would not be autonomous.',
+                                            'El rebalanceo autónomo está encendido para esta bóveda. El firmante de Nirium decide por su cuenta cada 10 minutos - aquí no hay botón porque si pudieras dispararlo tú, no sería autónomo.')
+                                        : <>
+                                            {lang(
+                                                'This vault names Nirium as rebalance manager, but autonomous rebalancing is not enabled for it - being named is not the same as being enabled. On mainnet it is invite-only until we have a written legal opinion, and enabling a vault takes a commit to the repository, with author and date.',
+                                                'Esta bóveda nombra a Nirium como rebalance manager, pero el rebalanceo autónomo no está habilitado para ella - nombrarnos no es lo mismo que habilitarla. En mainnet es invite-only hasta tener una opinión legal por escrito, y habilitar una bóveda requiere un commit al repositorio, con autor y fecha.')}
+                                            {" "}
+                                            <a
+                                                href="mailto:niriumprotocol@gmail.com?subject=Treasury%20autonomous%20rebalancing%20%E2%80%94%20request%20access"
+                                                className="underline hover:text-amber-300"
+                                            >
+                                                {lang("Request access →", "Solicitar acceso →")}
+                                            </a>
+                                        </>}
+                                    {vault?.autonomousRebalancing === 'enabled' && vault?.rebalanceEvidence && (
+                                        <span className="block mt-2 text-white/50">
+                                            {vault.rebalanceEvidence.signer
+                                                ? (vault.rebalanceEvidence.signer.alive
+                                                    ? lang(`Last signer check: ${Math.round(vault.rebalanceEvidence.signer.lastBeatAgeSec / 60)} min ago.`, `Última revisión del firmante: hace ${Math.round(vault.rebalanceEvidence.signer.lastBeatAgeSec / 60)} min.`)
+                                                    : lang('The signer has not reported in over 30 min.', 'El firmante no reporta desde hace más de 30 min.'))
+                                                : lang('No signer heartbeat available.', 'Sin latido del firmante disponible.')}
+                                            {' '}
+                                            {vault.rebalanceEvidence.lastRebalance
+                                                ? lang(`Last on-chain move: ${vault.rebalanceEvidence.lastRebalance.slice(0, 10)}. Nothing moves while the vault is fully invested and the rate stays above the exit threshold.`, `Último movimiento on-chain: ${vault.rebalanceEvidence.lastRebalance.slice(0, 10)}. No se mueve nada mientras la bóveda está toda invertida y la tasa sigue arriba del umbral de salida.`)
+                                                : lang('No rebalance found on-chain for this vault yet.', 'Todavía no hay rebalanceos on-chain para esta bóveda.')}
+                                        </span>
+                                    )}
                                 </div>
                             )}
 
                             <p className="text-[11px] text-white/40 leading-relaxed">
-                                {lang(
-                                    'Deposit moves your tokens into the vault. Invest and Unwind (to the vault) are signed by the agent with its own key — and neither can send anything outside the vault.',
-                                    'Depositar mueve tus tokens a la bóveda. Invertir y Retirar a la bóveda los firma el agente con su propia llave — y ninguno puede mandar nada fuera de la bóveda.')}
+                                {network === 'mainnet'
+                                    ? lang(
+                                        'Withdraw moves your tokens from the vault back to your wallet, and you sign it. Depositing from this page on mainnet is invite-only until we have a written legal opinion.',
+                                        'Retirar mueve tus tokens de la bóveda de regreso a tu wallet, y lo firmas tú. Depositar desde esta página en mainnet es solo por invitación hasta tener una opinión legal por escrito.')
+                                    : lang(
+                                        'Deposit moves your tokens into the vault. Invest and Unwind (to the vault) are signed by the agent with its own key - and neither can send anything outside the vault.',
+                                        'Depositar mueve tus tokens a la bóveda. Invertir y Sacar de la estrategia los firma el agente con su propia llave - y ninguno puede mandar nada fuera de la bóveda.')}
                             </p>
 
                             {receipt && (
@@ -911,9 +1011,15 @@ export default function TreasuryVaultConsole() {
                 )}
 
                 <p className="text-[11px] text-white/30 leading-relaxed">
-                    {lang(
-                        'Rebalancing is not triggered from here. It is called by the RebalanceManager — the agent, with its own key — and it can only move funds between the strategies already inside your vault.',
-                        'El rebalanceo no se dispara desde aquí. Lo llama el RebalanceManager — el agente, con su propia llave — y solo puede mover fondos entre las estrategias que ya están dentro de tu bóveda.')}{' '}
+                    {/* Antes decía "no se dispara desde aquí" también en testnet, donde sí
+                        están los botones Invertir / Sacar de la estrategia. */}
+                    {network === 'mainnet'
+                        ? lang(
+                            'On mainnet, rebalancing is not triggered from here. It is called by the RebalanceManager - the agent, with its own key - and it can only move funds between the strategies already inside your vault.',
+                            'En mainnet el rebalanceo no se dispara desde aquí. Lo llama el RebalanceManager - el agente, con su propia llave - y solo puede mover fondos entre las estrategias que ya están dentro de tu bóveda.')
+                        : lang(
+                            'On testnet you can ask the agent to Invest or Unwind with the buttons above, to see it work. It signs with its own key and can only move funds between the vault and its strategy. On mainnet there is no button: the agent decides on its own.',
+                            'En testnet puedes pedirle al agente Invertir o Sacar de la estrategia con los botones de arriba, para verlo funcionar. Firma con su propia llave y solo puede mover fondos entre la bóveda y su estrategia. En mainnet no hay botón: el agente decide solo.')}{' '}
                     <Link href="/treasury" className="text-stellar-teal hover:underline">
                         {lang('How the node works', 'Cómo funciona el nodo')}
                     </Link>

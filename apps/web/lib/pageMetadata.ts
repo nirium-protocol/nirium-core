@@ -7,7 +7,7 @@ import { OG_SECTIONS, ogImageUrl } from "./og/sections";
 // raíz (no se mezclan campo por campo), por eso la imagen va aquí otra vez: sin
 // ella el link compartido sale sin tarjeta. Si la ruta tiene tarjeta propia en
 // lib/og/sections.ts se usa esa; si no, la general del sitio.
-const DEFAULT_OG_IMAGE = { url: "/og-image.png", width: 1200, height: 630, alt: "Nirium - payment, audit and execution rails on Stellar" };
+const DEFAULT_OG_IMAGE = { url: ogImageUrl("/home") ?? "/og-image.png", width: 1200, height: 630, alt: OG_SECTIONS["/home"].alt };
 
 export function pageMetadata({
     path,

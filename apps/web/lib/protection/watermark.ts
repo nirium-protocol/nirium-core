@@ -1,6 +1,6 @@
 'use client';
 // ═══════════════════════════════════════════════════════════════
-// Nirium — Invisible Unicode Watermarking (Zero-Width Steganography)
+// Nirium - Invisible Unicode Watermarking (Zero-Width Steganography)
 // ═══════════════════════════════════════════════════════════════
 //
 // TECHNIQUE: Zero-width character steganography
@@ -177,7 +177,7 @@ export function embedWatermark(
   // Inject after the first word boundary (space or end-of-string)
   const spaceIndex = carrier.indexOf(' ');
   if (spaceIndex === -1) {
-    // No space — inject at end
+    // No space - inject at end
     return carrier + zwEncoded;
   }
   return (

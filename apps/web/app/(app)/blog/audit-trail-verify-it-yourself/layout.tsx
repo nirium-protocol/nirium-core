@@ -11,6 +11,8 @@ const DESCRIPTION =
 export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
+    // Propio: si no, hereda el canonical /blog del layout del blog.
+    alternates: { canonical: '/blog/audit-trail-verify-it-yourself' },
     openGraph: {
         title: TITLE,
         description: DESCRIPTION,

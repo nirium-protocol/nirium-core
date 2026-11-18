@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 
 // page.tsx es 'use client', así que la metadata vive aquí (mismo patrón que
 // los posts del blog). Sin esto la ruta hereda el título del layout raíz.
-const TITLE = 'Niriumtober: ship your first agent receipt on Stellar this Halloween';
+const TITLE = 'Niriumtober: agent receipts on Stellar, Halloween 2026';
 const DESCRIPTION =
-    'Copy one snippet, run it on testnet in 5 minutes, earn a 3D badge. Free, no funds needed. Oct 22 to Nov 2, 2026.';
+    'A testnet build sprint that ran from Oct 22 to Nov 2, 2026: participants anchored agent receipts on Stellar and earned 3D badges. See the issues and what was built.';
 
 // El openGraph/twitter de una ruta REEMPLAZA al del layout raíz (no se mezcla
 // campo por campo): sin `images` y `card` aquí, el link salía sin imagen y con

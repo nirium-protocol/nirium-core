@@ -8,14 +8,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // versión anterior del sitio. /pollar-adapter-documentation (link directo
     // para el equipo de Pollar, no para indexar) y /labs/experimental
     // (experimental, vive detrás del CTA de /agents) se dejan fuera a propósito.
+    // 8-nov-2026: /manifesto sale (redirige a /docs); /build/niriumtober queda
+    // fuera porque la campaña cerró el 2-nov.
+    // 16-nov-2026: /marketplace sale (redirige a /treasury), igual que /labs/experimental
+    // (a /agents) y /workshop-audit-trail-october (al recap).
     const staticRoutes = [
         '',
         '/dashboard',
         '/docs',
-        '/marketplace',
+        '/verify',
+        '/ecosystem',
+        '/stats',
+        '/nirium-play',
         '/agents',
         '/analytics',
-        '/manifesto',
+        '/blog/audit-trail-verify-it-yourself',
+        '/blog/bbva-open-deal-room',
+        '/blog/codigo-402-agentes-que-pagan',
+        '/blog/treasury-node-verify-it-yourself',
+        '/blog/x402-outage-verify-it-yourself',
+        '/workshop-audit-trail-recap',
         '/privacy',
         '/terms',
         '/risk-disclosure',

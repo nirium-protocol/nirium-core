@@ -1,11 +1,12 @@
-/** Nirium Compliance — Audit trail + IPFS + audit-ready **/
+/** Nirium Audit Trail (/compliance): qué lleva cada registro y cómo se verifica.
+ *  8-nov-2026: sin cifras inventadas, sin JSON de muestra que no coincidía con el
+ *  export real, LCP marcado como no activo y CTA a la guía en vez de Niriumtober. **/
 'use client';
 
 import Link from "next/link";
 import {
-    FileCheck, FileText, ArrowRight, CheckCircle2, Database,
-    Sparkles, Layers, Building2, AlertTriangle, Hash, ShieldCheck, 
-    Download, ExternalLink, Fingerprint
+    FileCheck, ArrowRight, Database, Layers, Building2, AlertTriangle,
+    ShieldCheck, Download, Fingerprint, Search
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
@@ -13,7 +14,7 @@ import { motion } from "framer-motion";
 import { ComplianceBanner } from "@/components/ui/ComplianceBanner";
 
 export default function CompliancePage() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     return (
         <main className="min-h-screen bg-black text-white antialiased selection:bg-stellar-teal/30">
@@ -47,7 +48,7 @@ export default function CompliancePage() {
                             {t.compliance_page.hero.title}
                             <br />
                             <span className="bg-gradient-to-r from-stellar-teal via-white to-stellar-yellow bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(45,235,232,0.3)]">
-                                Verifiable by Design
+                                {t.compliance_page.hero.tagline}
                             </span>
                         </motion.h1>
                         <motion.p 
@@ -169,25 +170,25 @@ export default function CompliancePage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
-                                    <div className="text-3xl font-black text-stellar-teal mb-1">86</div>
+                                    <div className="text-3xl font-black text-stellar-teal mb-1">36</div>
                                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black leading-tight">
                                         {t.compliance_page.fintech_law.stats.fintechs}
                                     </div>
                                 </div>
                                 <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
-                                    <div className="text-3xl font-black text-stellar-teal mb-1">5 min</div>
+                                    <div className="text-3xl font-black text-stellar-teal mb-1">SHA-256</div>
                                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black leading-tight">
                                         {t.compliance_page.fintech_law.stats.integration}
                                     </div>
                                 </div>
                                 <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
-                                    <div className="text-3xl font-black text-white mb-1">$0</div>
+                                    <div className="text-3xl font-black text-white mb-1">ed25519</div>
                                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black leading-tight">
                                         {t.compliance_page.fintech_law.stats.cost}
                                     </div>
                                 </div>
                                 <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
-                                    <div className="text-3xl font-black text-stellar-yellow mb-1">100%</div>
+                                    <div className="text-3xl font-black text-stellar-yellow mb-1">IPFS</div>
                                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black leading-tight">
                                         {t.compliance_page.fintech_law.stats.automated}
                                     </div>
@@ -204,68 +205,30 @@ export default function CompliancePage() {
                             <h2 className="text-3xl sm:text-5xl font-black uppercase italic tracking-tighter mb-4">
                                 {t.compliance_page.preview.title}
                             </h2>
-                            <p className="text-gray-500 font-mono text-sm uppercase tracking-widest">audit-report-2026-07.json</p>
+                            <p className="text-gray-500 font-mono text-sm tracking-widest">anchors.csv</p>
                         </div>
 
+                        {/* Mismas columnas que GET /api/reporting/export?type=anchors (reportingRoutes.ts).
+                            Las filas son de ejemplo y van marcadas como tales. */}
                         <div className="rounded-3xl border border-white/10 bg-[#080808] shadow-2xl overflow-hidden group">
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-white/[0.02]">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex gap-1.5">
-                                        <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" />
-                                        <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
-                                        <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" />
-                                    </div>
-                                    <span className="text-[10px] text-gray-500 font-mono uppercase ml-4">Regulatory Data Stream // Secure</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] uppercase font-black tracking-widest text-emerald-400 flex items-center gap-1.5">
-                                        <CheckCircle2 size={12} />
-                                        {t.compliance_page.preview.integrity}
-                                    </span>
-                                </div>
+                            <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-white/5 bg-white/[0.02]">
+                                <span className="text-[10px] sm:text-xs text-gray-500 font-mono break-all">$ nirium report export anchors --csv anchors.csv</span>
+                                <span className="shrink-0 text-[10px] uppercase font-black tracking-widest text-amber-400 px-2 py-0.5 rounded border border-amber-400/30">
+                                    {t.compliance_page.preview.integrity}
+                                </span>
                             </div>
-                            <div className="p-8 font-mono text-xs sm:text-sm text-black dark:text-gray-400 overflow-x-auto leading-relaxed bg-[radial-gradient(circle_at_top_right,_rgba(45,235,232,0.03),transparent)]">
-<pre className="text-teal-950 dark:text-stellar-teal/80">
-{`{
-  "_comment": "EJEMPLO DE FORMATO — no son datos reales de ningún cliente",
-  "institution_id": "<tu-id>",
-  "report_type": "AGENT_TRANSACTIONS",
-  "period_start": "2026-07-01T00:00:00Z",
-  "period_end": "2026-07-31T23:59:59Z",
-  "record_count": "<n>",
-  "total_volume_usdc": "<suma del periodo>",
-  "chain_integrity": "VERIFIED",
-  "ipfs_cid": "ipfs://<cid>",
-  "lcp_bound": false,
-  "records": [`}
-</pre>
+                            <div className="p-8 font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed">
+<pre className="text-teal-950 dark:text-stellar-teal/80">anchored_at,source,network</pre>
 <pre className="text-black dark:text-white">
-{`    {
-      "folio": "<folio>",
-      "fecha_hora": "2026-07-05T14:30:00Z",
-      "tipo_operacion": "REBALANCE_USDC_TO_CETES",
-      "agente": "<agent-id>",
-      "monto_usdc": "<monto>",
-      "red_blockchain": "Stellar",
-      "hash_transaccion": "8bfca5c5a7909d75817a7ede963...",
-      "firma_hmac": "f4e2d9c1b8a7...",
-      "content_sha256": "a03d9cdd0d239e48e28e3b6978...",
-      "legal_context": {
-        "standard": "lcp",
-        "atr_hash": "sha-256:a03d9cdd0d239e48...9643ab1",
-        "terms": "nirium.xyz/legal/payroll-terms-v1.md",
-        "dispute_resolution": "AAA-ICDR"
-      },
-      "integridad": "VALIDA"
-    }`}
-</pre>
-<pre className="text-zinc-500 dark:text-gray-600">
-{`    // ...1246 items more
-  ]
-}`}
+{`2026-11-06T18:02:11.000Z,AUDIT_NODE,mainnet
+2026-11-05T21:40:37.000Z,AUDIT_NODE,mainnet
+2026-11-04T16:15:02.000Z,AUDIT_NODE,testnet`}
 </pre>
                             </div>
                         </div>
+                        <p className="mt-4 text-center text-xs font-mono text-zinc-500">
+                            {t.compliance_page.preview.note}
+                        </p>
                     </div>
                 </section>
 
@@ -278,6 +241,9 @@ export default function CompliancePage() {
                                 {t.compliance_page.disclaimer}
                             </p>
                         </div>
+                        <p className="text-sm font-mono text-zinc-500 mt-4">
+                            {language === 'es' ? 'Última actualización: 16 de noviembre de 2026' : 'Last updated: November 16, 2026'}
+                        </p>
                     </div>
                 </section>
 
@@ -291,15 +257,15 @@ export default function CompliancePage() {
                             {t.compliance_page.cta.subtitle}
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link href="/keys">
+                            <Link href="/docs#quickstart">
                                 <Button size="lg" variant="premium" className="px-10 py-8 text-lg rounded-2xl">
                                     {t.compliance_page.cta.try_testnet}
                                     <ArrowRight className="ml-2 w-5 h-5" />
                                 </Button>
                             </Link>
-                            <Link href="/docs">
+                            <Link href="/verify">
                                 <Button size="lg" variant="outline" className="px-10 py-8 text-lg rounded-2xl border-white/10 hover:bg-white/5">
-                                    <FileText className="mr-2 w-5 h-5" />
+                                    <Search className="mr-2 w-5 h-5" />
                                     {t.compliance_page.cta.docs}
                                 </Button>
                             </Link>

@@ -3,7 +3,12 @@ import { Inter, Inconsolata } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { Providers } from "./providers";
+import RefCapture from "@/components/analytics/RefCapture";
 import { Analytics } from "@vercel/analytics/next";
+import { OG_SECTIONS, ogImageUrl } from "@/lib/og/sections";
+
+// Tarjeta general (lib/og/sections.ts "/home"), la misma que usan las rutas sin tarjeta propia.
+const HOME_OG_IMAGE = ogImageUrl("/home") ?? "/og-image.png";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const inconsolata = Inconsolata({ subsets: ["latin"], variable: "--font-inconsolata" });
@@ -11,10 +16,10 @@ const inconsolata = Inconsolata({ subsets: ["latin"], variable: "--font-inconsol
 export const metadata: Metadata = {
     metadataBase: new URL('https://nirium.xyz'),
     title: {
-        default: "Nirium | Live on Stellar Mainnet — payment & audit rails for AI agents",
+        default: "Nirium | Payment, audit and execution rails on Stellar",
         template: "%s | Nirium"
     },
-    description: "Non-custodial payment & audit rails for the agent economy, live on Stellar mainnet. x402 per-request billing, immutable IPFS receipts and institutional reporting. npm install nirium. Not financial advice.",
+    description: "Non-custodial payment, audit and execution rails for apps, backends and AI agents on Stellar. x402 per-request billing, verifiable receipts on IPFS and reporting. Your keys, your funds. Not financial advice.",
     keywords: ["Stellar", "x402", "MPP", "AI agents", "agent economy", "machine payments", "Soroban", "Nirium", "audit trail", "non-custodial", "Stellar mainnet", "micropayments"],
     authors: [{ name: "Nirium Core" }],
     creator: "Nirium",
@@ -39,16 +44,16 @@ export const metadata: Metadata = {
         apple: "/brand/apple-icon.png",
     },
     openGraph: {
-        title: "Nirium | Live on Stellar Mainnet",
-        description: "Non-custodial payment & audit rails for AI agents — live on Stellar mainnet. Real x402 payments settled on-chain, immutable receipts, institutional reporting. The LLM proposes, the contract decides.",
+        title: "Nirium | Payment, audit and execution rails on Stellar",
+        description: "Non-custodial payment, audit and execution rails for apps, backends and AI agents on Stellar. x402 per-request billing, verifiable receipts on IPFS and reporting. Your keys, your funds. Not financial advice.",
         url: "https://nirium.xyz",
         siteName: "Nirium",
         images: [
             {
-                url: "/og-image.png",
+                url: HOME_OG_IMAGE,
                 width: 1200,
                 height: 630,
-                alt: "Nirium — payment & audit rails for AI agents, live on Stellar mainnet",
+                alt: OG_SECTIONS["/home"].alt,
             }
         ],
         locale: "en_US",
@@ -56,16 +61,17 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "Nirium | Live on Stellar Mainnet",
-        description: "Non-custodial payment & audit rails for AI agents, live on Stellar mainnet. Real x402 payments settled on-chain — verify it yourself. npm install nirium.",
+        title: "Nirium | Payment, audit and execution rails on Stellar",
+        description: "Non-custodial payment, audit and execution rails for apps, backends and AI agents on Stellar. x402 per-request billing, verifiable receipts on IPFS and reporting. Your keys, your funds. Not financial advice.",
         creator: "@Niriumstellar",
-        images: ["/og-image.png"],
+        images: [HOME_OG_IMAGE],
     },
 };
 
 import MarketTicker from "@/components/dashboard/MarketTicker";
 import TestnetBanner from "@/components/layout/TestnetBanner";
 import ChatBot from "@/components/ui/ChatBot";
+import TopChromeAutoHide from "@/components/layout/TopChromeAutoHide";
 import ChromeGate from "@/components/layout/ChromeGate";
 
 export default function RootLayout({
@@ -80,7 +86,7 @@ export default function RootLayout({
         "applicationCategory": "FinanceApplication",
         "operatingSystem": "Web",
         "url": "https://nirium.xyz",
-        "description": "Nirium provides non-custodial payment and audit rails for AI agents on Stellar — x402 per-request settlement, immutable IPFS receipts and reporting, live on mainnet. Software-only, not financial advice.",
+        "description": "Non-custodial payment, audit and execution rails for apps, backends and AI agents on Stellar. x402 per-request billing, verifiable receipts on IPFS and reporting. Your keys, your funds. Not financial advice.",
         "creator": {
             "@type": "Organization",
             "name": "Nirium Core"
@@ -114,6 +120,7 @@ export default function RootLayout({
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
                 />
                 <Providers>
+                    <RefCapture />
                     <ChromeGate>
                         <TestnetBanner />
                         <MarketTicker />
@@ -126,6 +133,7 @@ export default function RootLayout({
                     {children}
                     <ChromeGate>
                         <ChatBot />
+                        <TopChromeAutoHide />
                     </ChromeGate>
                     <Toaster position="bottom-right" theme="system" />
                 </Providers>

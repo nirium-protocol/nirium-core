@@ -1,208 +1,1153 @@
 "use client";
+import LiveReport from "@/components/shared/LiveReport";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-    ArrowLeft, Book, Code, Shield, Layers, Cpu, Database, Zap,
-    GitBranch, FileCode, Rocket, CheckCircle, AlertTriangle,
-    Terminal, Globe, Lock, TrendingUp, ChevronRight, ChevronLeft, ExternalLink,
-    Play, Settings, Users, Workflow, Key, Lightbulb, HardDrive, FileCheck, BookOpen, Activity, Heart, Clock,
-    Handshake, ShieldCheck, Package, Send
+    ArrowLeft, ArrowRight, ExternalLink, Shield, Terminal, Hash, CheckCircle2,
+    Lock, ShieldCheck, FileCheck, Code2, ListChecks, Scale, Map as MapIcon,
+    AlertTriangle, Copy, BarChart3,
 } from "lucide-react";
-import { SectionBrandLogo } from "@/components/ui/SectionBrandLogo";
 import { useLanguage } from "@/context/LanguageContext";
-import ApiKeyManager from "@/components/docs/ApiKeyManager";
-import { ComplianceBanner } from "@/components/ui/ComplianceBanner";
 
-type TabId = 'overview' | 'architecture' | 'contracts' | 'agent' | 'frontend' | 'api' | 'security' | 'blueprints' | 'builder' | 'payroll';
+// ═══════════════════════════════════════════════════════════════
+// /docs — Audit Trail: Verifiable Receipts
+// ═══════════════════════════════════════════════════════════════
+//
+// Rewritten 29-oct-2026 as a single-focus reference for SCF Build Award #46
+// reviewers: what a Nirium receipt is, how to get one, and how to check it
+// yourself without trusting Nirium. Every command, hash and CID below was
+// run live against nirium-agent.fly.dev (testnet) and
+// nirium-agent-mainnet.fly.dev (mainnet) on 29-oct-2026 - see the PR
+// description for the full transcript.
+//
+// Translated to Spanish 4-nov-2026, wired into the site's existing
+// LanguageContext/useLanguage() toggle (the one in the Navbar already
+// existed and worked everywhere except this page - it rendered but had
+// nothing to switch here). Commands, code blocks, hashes, CIDs and
+// filenames are left as-is in both languages on purpose.
+//
+// Treasury, Payouts and Vault are separate, invite-only modules and are
+// deliberately out of scope here (see the closing line of §10).
+// ═══════════════════════════════════════════════════════════════
+
+const TESTNET_BASE = "https://nirium-agent.fly.dev";
+const MAINNET_BASE = "https://nirium-agent-mainnet.fly.dev";
+
+const SECTIONS = [
+    { id: "what-it-is", en: "What Nirium Is", es: "Qué es Nirium" },
+    { id: "quickstart", en: "Quickstart (5 min)", es: "Inicio rápido (5 min)" },
+    { id: "receipt-format", en: "Receipt Format", es: "Formato del recibo" },
+    { id: "verifying", en: "Verifying a Receipt", es: "Verificar un recibo" },
+    { id: "reporting", en: "Reporting", es: "Reportes" },
+    { id: "x402-sellers", en: "x402 Sellers", es: "Vendedores x402" },
+    { id: "policy-hook", en: "Pre-Sign Policy Hook", es: "Hook de política antes de firmar" },
+    { id: "escrow-evidence", en: "Escrow Evidence", es: "Evidencia de escrow" },
+    { id: "evidence", en: "Evidence", es: "Evidencia" },
+    { id: "security-limits", en: "Security & Limits", es: "Seguridad y límites" },
+    { id: "roadmap", en: "Roadmap", es: "Hoja de ruta" },
+] as const;
+
+function CodeBlock({ children, label }: { children: string; label?: string }) {
+    const { language } = useLanguage();
+    const lang = (en: string, es: string) => (language === "es" ? es : en);
+    const [copied, setCopied] = useState(false);
+    const copy = () => {
+        navigator.clipboard.writeText(children.trim());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+    };
+    return (
+        <div className="bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden my-4">
+            {label && (
+                <div className="px-4 py-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                    <span className="text-[11px] font-mono text-gray-500 uppercase tracking-widest">{label}</span>
+                    <button onClick={copy} className="text-gray-500 hover:text-white transition-colors flex items-center gap-1 text-[11px]">
+                        {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copied ? lang("Copied", "Copiado") : lang("Copy", "Copiar")}
+                    </button>
+                </div>
+            )}
+            <pre className="p-4 text-xs sm:text-sm font-mono text-gray-300 overflow-x-auto whitespace-pre">{children.trim()}</pre>
+        </div>
+    );
+}
+
+function NetworkBadge({ network }: { network: "testnet" | "mainnet" }) {
+    return (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wide ${
+            network === "mainnet"
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+        }`}>
+            {network}
+        </span>
+    );
+}
+
+function ReceiptCard({
+    network, cid, hash, note,
+}: { network: "testnet" | "mainnet"; cid: string; hash: string; note: string }) {
+    const { language } = useLanguage();
+    const lang = (en: string, es: string) => (language === "es" ? es : en);
+    return (
+        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+                <NetworkBadge network={network} />
+                <a
+                    href={`https://nirium.xyz/verify?cid=${cid}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="text-[11px] text-stellar-teal hover:underline inline-flex items-center gap-1"
+                >
+                    {lang("Open in /verify", "Abrir en /verify")} <ExternalLink className="w-3 h-3" />
+                </a>
+            </div>
+            <div className="text-xs font-mono text-gray-300 break-all">{cid}</div>
+            <div className="text-[11px] font-mono text-gray-500 break-all">sha256: {hash}</div>
+            <p className="text-[11px] text-gray-500">{note}</p>
+        </div>
+    );
+}
+
+function EvidenceTable({ rows }: {
+    rows: { proves: string; ref: string; refLink?: string; date: string; link: string }[];
+}) {
+    const { language } = useLanguage();
+    const lang = (en: string, es: string) => (language === "es" ? es : en);
+    return (
+        <div className="not-prose overflow-x-auto my-4 rounded-xl border border-white/10">
+            <table className="w-full text-left text-xs sm:text-sm">
+                <thead>
+                    <tr className="bg-white/5 border-b border-white/10 text-gray-500">
+                        <th className="py-2.5 px-3 font-mono uppercase tracking-wider text-[10px]">{lang("What it proves", "Qué prueba")}</th>
+                        <th className="py-2.5 px-3 font-mono uppercase tracking-wider text-[10px]">Hash / CID</th>
+                        <th className="py-2.5 px-3 font-mono uppercase tracking-wider text-[10px]">{lang("Date", "Fecha")}</th>
+                        <th className="py-2.5 px-3 font-mono uppercase tracking-wider text-[10px]">{lang("Link", "Enlace")}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows.map((r, i) => (
+                        <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
+                            <td className="py-3 px-3 text-gray-300 align-top">{r.proves}</td>
+                            <td className="py-3 px-3 font-mono text-stellar-teal break-all align-top max-w-[220px]">{r.ref}</td>
+                            <td className="py-3 px-3 text-gray-500 whitespace-nowrap align-top">{r.date}</td>
+                            <td className="py-3 px-3 align-top">
+                                <a href={r.link} target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline inline-flex items-center gap-1 whitespace-nowrap">
+                                    {lang("View", "Ver")} <ExternalLink className="w-3 h-3" />
+                                </a>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+function Section({ id, title, kicker, icon: Icon, children }: {
+    id: string; title: string; kicker: string; icon: any; children: React.ReactNode;
+}) {
+    return (
+        <section id={id} className="scroll-mt-28 pb-16 mb-16 border-b border-white/5 last:border-0">
+            <p className="text-[11px] font-mono uppercase tracking-widest text-stellar-teal mb-2 flex items-center gap-2">
+                <Icon className="w-3.5 h-3.5" /> {kicker}
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-6">{title}</h2>
+            <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed space-y-4 [&_code]:text-stellar-teal [&_code]:bg-white/5 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_a]:text-stellar-teal [&_a:hover]:underline">
+                {children}
+            </div>
+        </section>
+    );
+}
 
 function DocsContent() {
-    const { t } = useLanguage();
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-    const tabs = [
-        { id: 'overview' as TabId, label: t.docs.nav.overview, icon: Book },
-        { id: 'api' as TabId, label: t.docs.nav.api_sandbox, icon: Terminal },
-        { id: 'blueprints' as TabId, label: "BLUEPRINTS", icon: Lightbulb },
-        { id: 'architecture' as TabId, label: t.docs.nav.architecture, icon: Layers },
-        { id: 'contracts' as TabId, label: t.docs.nav.contracts, icon: Code },
-        { id: 'agent' as TabId, label: t.docs.nav.agent, icon: Cpu },
-        { id: 'builder' as TabId, label: t.docs.nav.builder, icon: Workflow },
-        { id: 'frontend' as TabId, label: t.docs.nav.frontend, icon: Globe },
-        { id: 'security' as TabId, label: t.docs.nav.security, icon: Shield },
-        { id: 'payroll' as TabId, label: t.docs.nav.payroll, icon: Send },
-    ];
-    const isValidTab = (tab: string | null): tab is TabId => tabs.some(t => t.id === tab);
-
-    const [activeTab, setActiveTab] = useState<TabId>('overview');
+    const { language } = useLanguage();
+    const lang = (en: string, es: string) => (language === "es" ? es : en);
+    const [active, setActive] = useState<string>(SECTIONS[0].id);
+    const observedRef = useRef(false);
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const tab = params.get('tab');
-        if (isValidTab(tab)) {
-            setActiveTab(tab);
-        }
+        if (observedRef.current) return;
+        observedRef.current = true;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries
+                    .filter((e) => e.isIntersecting)
+                    .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+                if (visible[0]) setActive(visible[0].target.id);
+            },
+            { rootMargin: "-120px 0px -70% 0px", threshold: 0 }
+        );
+        SECTIONS.forEach(({ id }) => {
+            const el = document.getElementById(id);
+            if (el) observer.observe(el);
+        });
+        return () => observer.disconnect();
     }, []);
-
-    const scroll = (direction: 'left' | 'right') => {
-        if (scrollContainerRef.current) {
-            const scrollAmount = 300;
-            scrollContainerRef.current.scrollBy({
-                left: direction === 'left' ? -scrollAmount : scrollAmount,
-                behavior: 'smooth'
-            });
-        }
-    };
 
     return (
         <main className="min-h-screen bg-black text-white font-sans selection:bg-stellar-teal/30">
+            <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 pt-[100px] sm:pt-[130px] pb-8">
+                <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors text-sm">
+                    <ArrowLeft className="w-4 h-4" /> {lang("Back to Nirium", "Volver a Nirium")}
+                </Link>
 
-            <div className="relative z-10">
-                <div className="max-w-[1600px] w-full mx-auto px-6 pb-8 border-b border-white/10">
-                    <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
-                        <ArrowLeft className="w-4 h-4" />
-                        {t.docs.overview.back}
-                    </Link>
-
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12">
-                        <div className="flex flex-col lg:flex-row items-center lg:items-center gap-8">
-                            <SectionBrandLogo className="!justify-start mb-0" size="w-32 lg:w-48" />
-                            <div>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="bg-gradient-to-r from-stellar-teal to-stellar-yellow p-2 rounded-lg">
-                                        <Book className="w-6 h-6 text-white" />
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-black font-mono tracking-tighter uppercase leading-none">{t.docs.overview.title}</h1>
-                                        <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs font-mono rounded-full border border-green-500/30 animate-pulse">
-                                            v0.16.0
-                                        </span>
-                                    </div>
-                                </div>
-                                <p className="text-xl text-gray-400 max-w-2xl leading-relaxed">
-                                    {t.docs.overview.subtitle}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-3">
-                            <a href="https://stellar.expert/explorer/testnet" target="_blank" className="px-4 py-2 bg-stellar-teal/10 border border-stellar-teal/30 rounded-lg text-sm font-medium text-stellar-teal hover:bg-stellar-teal/20 transition-colors flex items-center gap-2">
-                                <ExternalLink className="w-4 h-4" />
-                                StellarExpert
-                            </a>
-                        </div>
+                <header className="mb-14 pb-10 border-b border-white/10">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stellar-teal/10 border border-stellar-teal/20 text-stellar-teal text-[10px] font-black uppercase tracking-widest mb-5">
+                        <Hash className="w-3 h-3" /> Audit Trail
                     </div>
-                </div>
+                    <h1 className="text-3xl sm:text-5xl font-black tracking-tighter mb-4 leading-[1.05]">
+                        {lang("Verifiable Receipts for Stellar Payments", "Recibos verificables para pagos en Stellar")}
+                    </h1>
+                    <p className="text-lg text-gray-400 max-w-2xl leading-relaxed mb-6">
+                        {lang(
+                            "Nirium anchors payment and audit evidence as cryptographic receipts anyone can check independently. Non-custodial: we only verify and record - you and your counterparties sign every transaction yourselves.",
+                            "Nirium ancla evidencia de pagos y auditoría como recibos criptográficos que cualquiera puede comprobar de forma independiente. No custodial: solo verificamos y registramos, tú y tus contrapartes firman cada transacción ustedes mismos."
+                        )}
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                        <a href="https://nirium.xyz/verify" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white text-black text-xs font-black uppercase tracking-widest rounded-lg hover:bg-stellar-teal transition-colors inline-flex items-center gap-2">
+                            {lang("Verify a receipt", "Verificar un recibo")} <ArrowRight className="w-3.5 h-3.5" />
+                        </a>
+                        <a href="https://github.com/nirium-protocol/nirium" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-white/10 transition-colors inline-flex items-center gap-2">
+                            GitHub <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                    </div>
+                </header>
 
-                <div className="max-w-[1600px] w-full mx-auto px-6 py-8">
-                    <ComplianceBanner />
-                </div>
-
-                <div className="sticky top-16 z-20 bg-black/80 backdrop-blur-xl border-b border-white/10 group/nav">
-                    {/* Navigation Arrows */}<button 
-                        onClick={() => scroll('left')}
-                        className="absolute left-0 top-0 bottom-0 z-30 w-10 bg-gradient-to-r from-black via-black/80 to-transparent items-center justify-start pl-2 opacity-0 group-hover/nav:opacity-100 transition-opacity hidden md:flex"
-                    >
-                        <ChevronLeft className="w-5 h-5 text-stellar-teal" />
-                    </button>
-                    <button 
-                        onClick={() => scroll('right')}
-                        className="absolute right-0 top-0 bottom-0 z-30 w-10 bg-gradient-to-l from-black via-black/80 to-transparent items-center justify-end pr-2 opacity-0 group-hover/nav:opacity-100 transition-opacity hidden md:flex"
-                    >
-                        <ChevronRight className="w-5 h-5 text-stellar-teal" />
-                    </button>
-
-                    <div
-                        ref={scrollContainerRef}
-                        className="overflow-x-auto scrollbar-none"
-                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
-                    >
-                        <div className="flex gap-1 py-2 px-10 min-w-max">
-                            {tabs.map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
-                                        ? 'bg-stellar-teal/20 text-stellar-teal border border-stellar-teal/30'
-                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                <div className="flex flex-col lg:flex-row gap-12">
+                    {/* Sidebar index. Not `position: sticky` on purpose - this page
+                        renders inside AppLayout's `<main class="overflow-auto">`,
+                        which formally qualifies as the nearest scroll container
+                        even though it never actually scrolls (the real scrollbar
+                        lives on <body> above it), which silently breaks sticky.
+                        A plain in-flow index avoided depending on that shared
+                        layout's internals. */}
+                    <nav className="lg:w-64 shrink-0 order-first">
+                        <p className="text-[10px] font-mono uppercase tracking-widest text-gray-600 mb-3 px-2">{lang("On this page", "En esta página")}</p>
+                        <ul className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 -mx-2 px-2 lg:mx-0 lg:px-0">
+                            {SECTIONS.map((s, i) => (
+                                <li key={s.id} className="shrink-0">
+                                    <a
+                                        href={`#${s.id}`}
+                                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs whitespace-nowrap transition-colors ${
+                                            active === s.id
+                                                ? "bg-stellar-teal/15 text-stellar-teal font-bold"
+                                                : "text-gray-500 hover:text-white hover:bg-white/5"
                                         }`}
-                                >
-                                    <tab.icon className="w-4 h-4" />
-                                    {tab.label}
-                                </button>
+                                    >
+                                        <span className="font-mono text-[10px] opacity-60 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                                        {lang(s.en, s.es)}
+                                    </a>
+                                </li>
                             ))}
-                        </div>
-                    </div>
-                </div>
+                        </ul>
+                    </nav>
 
-                <div className="max-w-[1600px] w-full mx-auto px-6 py-12">
-                    <div className="min-h-[60vh]">
-                        {activeTab === 'overview' && <OverviewSection />}
-                        {activeTab === 'blueprints' && <IdeasSection />}
-                        {activeTab === 'architecture' && <ArchitectureSection />}
-                        {activeTab === 'contracts' && <ContractsSection />}
-                        {activeTab === 'agent' && <AgentSection />}
-                        {activeTab === 'builder' && <BuilderSection />}
-                        {activeTab === 'frontend' && <FrontendSection />}
-                        {activeTab === 'api' && <ApiSection />}
-                        {activeTab === 'security' && <SecuritySection />}
-                        {activeTab === 'payroll' && <PayrollSection />}
-                    </div>
+                    {/* Content */}
+                    <div className="flex-1 min-w-0 max-w-3xl">
 
-                    {/* Sequential Navigation Footer */}
-                    <div className="mt-24 pt-12 border-t border-white/10 flex justify-between items-center gap-8">
-                        {(() => {
-                            const currentIndex = tabs.findIndex(t => t.id === activeTab);
-                            const prevTab = currentIndex > 0 ? tabs[currentIndex - 1] : null;
-                            const nextTab = currentIndex < tabs.length - 1 ? tabs[currentIndex + 1] : null;
+                        <Section id="what-it-is" kicker={lang("01 · Overview", "01 · Resumen")} title={lang("What Nirium Is", "Qué es Nirium")} icon={Shield}>
+                            <p>
+                                {lang(
+                                    "Nirium anchors evidence - a payment, an API response, a milestone decision - as a sha-256 hash pinned to IPFS, with an optional ed25519 signature attesting who produced it. The result is a ",
+                                    "Nirium ancla evidencia (un pago, la respuesta de una API, la decisión de un hito) como un hash sha-256 anclado en IPFS, con una firma ed25519 opcional que certifica quién lo produjo. El resultado es un "
+                                )}
+                                <strong className="text-white">{lang("receipt", "recibo")}</strong>
+                                {lang(
+                                    ": a CID anyone can resolve, recompute, and compare against the original evidence, with or without Nirium being online.",
+                                    ": un CID que cualquiera puede resolver, recalcular y comparar contra la evidencia original, con o sin que Nirium esté en línea."
+                                )}
+                            </p>
+                            <p>
+                                <strong className="text-white">{lang("Non-custodial by design.", "No custodial por diseño.")}</strong>{" "}
+                                {lang(
+                                    "Nirium never holds funds and never sees a private key: ",
+                                    "Nirium nunca sostiene fondos ni ve una llave privada: "
+                                )}
+                                <code>POST /api/audit/log</code>{" "}
+                                {lang(
+                                    "only ever receives a hash (or a small JSON record) and, optionally, a signature someone else already produced. Every payment, approval or release referenced anywhere in this document is signed by the party that owns the funds, not by Nirium.",
+                                    "solo recibe un hash (o un pequeño registro JSON) y, de forma opcional, una firma que alguien más ya produjo. Cada pago, aprobación o liberación mencionado en este documento lo firma quien es dueño de los fondos, nunca Nirium."
+                                )}
+                            </p>
+                            <p>
+                                {lang(
+                                    "A CID by itself proves a fact did not change after it was anchored - it does not prove who produced it. The optional agent signature closes that second gap. Both are explained in detail in §3 and §4 below.",
+                                    "Un CID por sí solo prueba que un hecho no cambió después de anclarse, no prueba quién lo produjo. La firma opcional del agente cierra ese segundo hueco. Ambas cosas se explican a detalle en el §3 y el §4 más abajo."
+                                )}
+                            </p>
+                        </Section>
 
-                            const handleTabChange = (id: TabId) => {
-                                setActiveTab(id);
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                            };
+                        <Section id="quickstart" kicker={lang("02 · Quickstart", "02 · Inicio rápido")} title={lang("Quickstart (5 min)", "Inicio rápido (5 min)")} icon={Terminal}>
+                            <p>
+                                {lang(
+                                    "Every command below ran against the live agent on 29-oct-2026. Swap the base URL to switch networks: ",
+                                    "Cada comando de abajo corrió contra el agente en vivo el 29-oct-2026. Cambia la URL base para cambiar de red: "
+                                )}
+                                <code>{TESTNET_BASE}</code>{" "}
+                                {lang("for testnet, ", "para testnet, ")}
+                                <code>{MAINNET_BASE}</code>{" "}
+                                {lang("for mainnet - both boxes expose the identical API.", "para mainnet, ambos servidores exponen la misma API.")}
+                            </p>
 
-                            return (
-                                <>
-                                    <div className="flex-1">
-                                        {prevTab ? (
-                                            <button
-                                                onClick={() => handleTabChange(prevTab.id)}
-                                                className="group flex flex-col items-start gap-2 max-w-[280px]"
-                                            >                                                <div className="flex items-center gap-2 text-xs font-mono text-gray-500 group-hover:text-stellar-teal transition-colors text-left">
-                                                    <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                                                    {t.docs.nav.previous}
-                                                </div>
-                                                <div className="text-lg font-bold text-gray-400 group-hover:text-white transition-colors text-left uppercase tracking-tight">
-                                                    {prevTab.label}
-                                                </div>
-                                            </button>
-                                        ) : <div />}
-                                    </div>
+                            <p className="!mb-2"><strong className="text-white">{lang("1. Get a free API key (optional today).", "1. Obtén una API key gratis (opcional por ahora).")}</strong></p>
+                            <p>
+                                {lang("Open ", "Entra a ")}<Link href="/keys">/keys</Link>
+                                {lang(
+                                    ", connect a Stellar wallet (Freighter, Pollar or any wallet-kit supported signer), and generate a free key. ",
+                                    ", conecta una wallet de Stellar (Freighter, Pollar o cualquier firmante compatible con wallet-kit), y genera una key gratis. "
+                                )}
+                                <code>POST /api/audit/log</code>{" "}
+                                {lang(
+                                    "currently accepts requests with no key at all during the open beta - rate-limited to 20 requests/minute per IP on each box - so this step is optional right now and will matter once audit pricing goes live. Payouts does require one. The x402 and MPP routes don't: the payment itself is the access.",
+                                    "hoy acepta solicitudes sin ninguna key durante la beta abierta (con límite de 20 solicitudes por minuto por IP en cada servidor), así que este paso es opcional por ahora y va a importar cuando el cobro del audit entre en vigor. Payouts sí la requiere. Las rutas x402 y MPP no: el pago mismo es el acceso."
+                                )}
+                            </p>
 
-                                    <div className="hidden sm:block w-px h-12 bg-white/5" />
+                            <p className="!mb-2"><strong className="text-white">{lang("2. Anchor a receipt.", "2. Ancla un recibo.")}</strong></p>
+                            <CodeBlock label="testnet">{`
+curl -X POST ${TESTNET_BASE}/api/audit/log \\
+  -H "Content-Type: application/json" \\
+  -d '{"record":{"doc_type":"invoice","amount_usd":42,"ref":"your-reference"},"tag":"demo"}'
+`}</CodeBlock>
+                            <CodeBlock label={lang("response, verbatim", "respuesta, textual")}>{`
+{
+  "cid": "Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX",
+  "gatewayUrl": "https://gateway.pinata.cloud/ipfs/Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX",
+  "content_sha256": "68117b8d5b9cad107ac9df653bc5fb23451696f97268facc6e049c89831650ac",
+  "anchoredAt": "2026-10-29T22:07:13.605Z",
+  "verify": "fetch the gatewayUrl and recompute sha-256 over your original evidence"
+}
+`}</CodeBlock>
 
-                                    <div className="flex-1 flex justify-end">
-                                        {nextTab ? (
-                                            <button
-                                                onClick={() => handleTabChange(nextTab.id)}
-                                                className="group flex flex-col items-end gap-2 max-w-[280px]"
-                                            >
-                                                <div className="flex items-center gap-2 text-xs font-mono text-gray-500 group-hover:text-stellar-teal transition-colors text-right">
-                                                    {t.docs.nav.next}
-                                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                                </div>
-                                                <div className="text-lg font-bold text-gray-400 group-hover:text-white transition-colors text-right uppercase tracking-tight">
-                                                    {nextTab.label}
-                                                </div>
+                            <p className="!mb-2"><strong className="text-white">{lang("3. Verify it in the browser.", "3. Verifícalo en el navegador.")}</strong></p>
+                            <p>
+                                {lang("Paste the CID at ", "Pega el CID en ")}
+                                <a href="https://nirium.xyz/verify" target="_blank" rel="noopener noreferrer">nirium.xyz/verify</a>{" "}
+                                {lang(
+                                    "(or open ",
+                                    "(o abre "
+                                )}
+                                <code>/verify?cid=&lt;CID&gt;</code>{" "}
+                                {lang(
+                                    "directly). It fetches the document from IPFS, recomputes the hash from the embedded ",
+                                    "directo). Trae el documento desde IPFS, recalcula el hash a partir del "
+                                )}
+                                <code>record</code>{" "}
+                                {lang(", and checks the agent signature if one is present.", "incluido, y revisa la firma del agente si hay una.")}
+                            </p>
 
-                                            </button>
-                                        ) : (
-                                            <div className="h-1" />
-                                        )}
-                                    </div>
-                                </>
-                            );
-                        })()}
+                            <p className="!mb-2"><strong className="text-white">{lang("4. Verify it independently, from the terminal.", "4. Verifícalo de forma independiente, desde la terminal.")}</strong></p>
+                            <CodeBlock label={lang("install once", "instala una vez")}>{`npm install -g nirium-cli`}</CodeBlock>
+                            <CodeBlock label={lang("real output", "salida real")}>{`
+$ npx nirium-cli verify Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX
+🔍 Nirium Audit Verifier
+CID:            Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX
+--------------------------------------------------
+✔ HASH:        MATCH (68117b8d5b9cad10...)
+ℹ SIGNATURE:   ABSENT (No agent attestation embedded)
+--------------------------------------------------
+✅ VERIFICATION PASSED
+`}</CodeBlock>
+                            <p>
+                                {lang(
+                                    "That output came from ",
+                                    "Esa salida vino de "
+                                )}
+                                <code>nirium-cli@3.1.1</code>{" "}
+                                {lang(
+                                    "installed fresh via ",
+                                    "instalado de cero vía "
+                                )}
+                                <code>npx</code>{" "}
+                                {lang(
+                                    "on 7 Nov 2026, not from a local build - it independently refetched the CID and recomputed the hash itself. With no flags it tries Filebase's dedicated gateway, then Pinata, ipfs.io and dweb.link, so one slow or rate-limited gateway doesn't fail the check. Pass ",
+                                    "el 7 de noviembre de 2026, no de una compilación local: volvió a traer el CID por su cuenta y recalculó el hash él mismo. Sin flags prueba el gateway dedicado de Filebase, luego Pinata, ipfs.io y dweb.link, así un gateway lento o con límite de uso no tumba la verificación. Usa "
+                                )}
+                                <code>--gateway</code>{" "}
+                                {lang(
+                                    "(repeatable) to use your own list.",
+                                    "(se puede repetir) para usar tu propia lista."
+                                )}
+                            </p>
+
+                            <p className="!mb-2"><strong className="text-white">{lang("5. Same thing, on mainnet.", "5. Lo mismo, en mainnet.")}</strong></p>
+                            <ReceiptCard
+                                network="mainnet"
+                                cid="QmcJymJiegpsQ6peU7djM31hwcYbH5VvjYqnuUH1UcaKLP"
+                                hash="fef2595c85078bc8471e30881a2cb8466aca4e27968a96661e6e5fc445dae6d9"
+                                note={lang(
+                                    'Anchored to the mainnet box while building this page. The document itself reports network: "stellar:pubnet" - that field is set by the box that anchored it, never by the request body.',
+                                    'Anclado al servidor de mainnet mientras se construía esta página. El documento mismo reporta network: "stellar:pubnet"; ese campo lo pone el servidor que lo ancla, nunca el cuerpo de la solicitud.'
+                                )}
+                            />
+                        </Section>
+
+                        <Section id="receipt-format" kicker={lang("03 · Reference", "03 · Referencia")} title={lang("Receipt Format", "Formato del recibo")} icon={FileCheck}>
+                            <p>{lang("The JSON document pinned to IPFS carries these fields:", "El documento JSON anclado en IPFS trae estos campos:")}</p>
+                            <CodeBlock label={lang("anchored document", "documento anclado")}>{`
+{
+  "version": "1.1.0",
+  "node": "audit-external",
+  "content_sha256": "<64-char lowercase hex>",
+  "agent": { "id": "optional", "key": "G...", "alg": "ed25519", "statement": "...", "signature": "..." },
+  "record": { "...": "your JSON object, if you sent one (up to 8KB)" },
+  "txHash": "optional, if you're pointing the receipt at an existing on-chain tx",
+  "network": "stellar:testnet | stellar:pubnet",
+  "tag": "optional label",
+  "anchoredAt": "ISO 8601 timestamp"
+}
+`}</CodeBlock>
+                            <p className="!mb-2"><strong className="text-white">{lang("How content_sha256 is computed:", "Cómo se calcula content_sha256:")}</strong></p>
+                            <ul className="list-disc pl-5 space-y-2">
+                                <li>
+                                    <strong className="text-white">{lang("Hash-only mode.", "Modo solo-hash.")}</strong>{" "}
+                                    {lang(
+                                        "You send ",
+                                        "Envías "
+                                    )}
+                                    <code>hash</code>
+                                    {lang(
+                                        ": a 64-char sha-256 hex string, optionally prefixed ",
+                                        ": una cadena hex sha-256 de 64 caracteres, opcionalmente con el prefijo "
+                                    )}
+                                    <code>sha-256:</code>
+                                    {lang(
+                                        ". The server stores it exactly (lowercased, prefix stripped) and never sees your original evidence.",
+                                        ". El servidor lo guarda tal cual (en minúsculas, sin el prefijo) y nunca ve tu evidencia original."
+                                    )}
+                                </li>
+                                <li>
+                                    <strong className="text-white">{lang("Record mode.", "Modo record.")}</strong>{" "}
+                                    {lang(
+                                        "You send ",
+                                        "Envías "
+                                    )}
+                                    <code>record</code>
+                                    {lang(
+                                        " (a plain JSON object, up to 8KB). The server computes ",
+                                        " (un objeto JSON plano, hasta 8KB). El servidor calcula "
+                                    )}
+                                    <code>content_sha256 = sha256(JSON.stringify(record))</code>
+                                    {lang(
+                                        " - standard ",
+                                        ", con el "
+                                    )}
+                                    <code> JSON.stringify</code>
+                                    {lang(
+                                        ", compact (no whitespace), in whatever key insertion order your object had. To recompute it yourself, stringify your object in the same key order and hash the UTF-8 bytes.",
+                                        " estándar, compacto (sin espacios), en el mismo orden de llaves que tenía tu objeto. Para recalcularlo tú mismo, convierte tu objeto a string en el mismo orden de llaves y saca el hash de los bytes UTF-8."
+                                    )}
+                                </li>
+                            </ul>
+                            <p className="!mb-2"><strong className="text-white">{lang("Agent attestation (optional):", "Atestación del agente (opcional):")}</strong></p>
+                            <p>
+                                {lang("Sign the string ", "Firma la cadena ")}
+                                <code>nirium-audit-v1:&lt;content_sha256&gt;</code>{" "}
+                                {lang(
+                                    "(lowercase hex, domain-prefixed so a signature made for something else - a wallet login, for example - can",
+                                    "(hex en minúsculas, con prefijo de dominio para que una firma hecha para otra cosa, como un login de wallet, no se pueda reutilizar aquí"
+                                )}
+                                {lang("'t be replayed here) with an ed25519 key. Any Stellar ", ") con una llave ed25519. Cualquier dirección ")}
+                                <code>G...</code>{" "}
+                                {lang(
+                                    "address works as the public key, since a Stellar address is already an ed25519 public key - no separate registration. Two signature encodings are accepted: raw bytes of the statement, or the SEP-53 digest",
+                                    "de Stellar funciona como llave pública, porque una dirección de Stellar ya es una llave pública ed25519, sin registro aparte. Se aceptan dos codificaciones de firma: los bytes crudos del mensaje, o el digest de SEP-53"
+                                )}
+                                {" "}(<code>sha256(&quot;Stellar Signed Message:\n&quot; + statement)</code>)
+                                {lang(
+                                    ", so a plain ",
+                                    ", así que tanto un "
+                                )}
+                                <code>Keypair.sign()</code>{" "}
+                                {lang("and a wallet's ", "plano como el ")}
+                                <code>signMessage</code>{" "}
+                                {lang("both work.", "de una wallet funcionan.")}
+                            </p>
+                        </Section>
+
+                        <Section id="verifying" kicker={lang("04 · Reference", "04 · Referencia")} title={lang("Verifying a Receipt", "Verificar un recibo")} icon={ShieldCheck}>
+                            <p>{lang("Three equally valid ways to check a receipt - none of them require trusting Nirium:", "Tres formas igual de válidas de comprobar un recibo, ninguna requiere confiar en Nirium:")}</p>
+                            <ul className="list-disc pl-5 space-y-2">
+                                <li><strong className="text-white">{lang("Browser", "Navegador")}</strong> - <a href="https://nirium.xyz/verify" target="_blank" rel="noopener noreferrer">nirium.xyz/verify</a>.</li>
+                                <li><strong className="text-white">CLI</strong> - <code>npx nirium-cli verify &lt;CID&gt;</code>.</li>
+                                <li>
+                                    <strong className="text-white">{lang("By hand", "A mano")}</strong>{" "}
+                                    {lang(
+                                        "- fetch the CID from any IPFS gateway, recompute sha-256 over ",
+                                        "- trae el CID desde cualquier gateway de IPFS, recalcula sha-256 sobre "
+                                    )}
+                                    <code>JSON.stringify(record)</code>{" "}
+                                    {lang(
+                                        "(or your original file, for hash-only anchors), and compare to ",
+                                        "(o tu archivo original, para anclajes solo-hash), y compáralo con "
+                                    )}
+                                    <code>content_sha256</code>
+                                    {lang(
+                                        ". For a signature: verify ed25519(",
+                                        ". Para una firma: verifica ed25519("
+                                    )}
+                                    <code>signature</code>
+                                    {lang(
+                                        ") over the UTF-8 bytes of ",
+                                        ") sobre los bytes UTF-8 de "
+                                    )}
+                                    <code>nirium-audit-v1:&lt;content_sha256&gt;</code>{" "}
+                                    {lang("against ", "contra ")}
+                                    <code>agent.key</code>.
+                                </li>
+                            </ul>
+
+                            <p className="!mb-2 !mt-6">
+                                <strong className="text-white">{lang("A known, deliberate behavior: hash-only anchors with no signature verify nothing.", "Un comportamiento conocido y deliberado: los anclajes solo-hash sin firma no verifican nada.")}</strong>
+                            </p>
+                            <p>
+                                {lang("If a receipt was anchored with ", "Si un recibo se ancló con ")}
+                                <code>hash</code>{" "}
+                                {lang("(not ", "(no con ")}
+                                <code>record</code>
+                                {lang(
+                                    ") and carries no agent signature, there is nothing embedded for the tool to recompute against - so the CLI refuses to call that a pass:",
+                                    ") y no trae firma del agente, no hay nada incluido contra qué recalcular, así que el CLI se niega a marcarlo como aprobado:"
+                                )}
+                            </p>
+                            <CodeBlock label={lang("hash-only, no evidence supplied", "solo-hash, sin evidencia")}>{`
+$ npx nirium-cli verify QmaofB6naeySxZsgA4R4p8YWzz3fujTitAa1ndJ1PQjbme
+🔍 Nirium Audit Verifier
+CID:            QmaofB6naeySxZsgA4R4p8YWzz3fujTitAa1ndJ1PQjbme
+--------------------------------------------------
+ℹ HASH:        NOT CHECKED (hash-only anchor: 0b2e5f91485badeb...)
+   Pass --hash <hex> or --evidence <file> to compare it with your original evidence.
+ℹ SIGNATURE:   ABSENT (No agent attestation embedded)
+--------------------------------------------------
+❌ NOTHING VERIFIED (pass --hash, --evidence, or anchor with an agent signature)
+`}</CodeBlock>
+                            <p>
+                                {lang(
+                                    "That refusal is the fix for",
+                                    "Esa negativa es el arreglo del"
+                                )}{" "}
+                                <a href="https://github.com/nirium-protocol/nirium/issues/149" target="_blank" rel="noopener noreferrer">issue #149</a>
+                                {lang(
+                                    ": earlier versions of the CLI printed VERIFICATION PASSED in exactly this situation - a hash-only anchor with nothing to compare it against and no signature attached. Supplying your original evidence turns it into a real check:",
+                                    ": versiones anteriores del CLI imprimían VERIFICATION PASSED justo en esta situación, un anclaje solo-hash sin nada contra qué comparar y sin firma. Dar tu evidencia original lo convierte en una verificación real:"
+                                )}
+                            </p>
+                            <CodeBlock label={lang("same CID, with --evidence", "mismo CID, con --evidence")}>{`
+$ npx nirium-cli verify QmaofB6naeySxZsgA4R4p8YWzz3fujTitAa1ndJ1PQjbme --evidence ./my-evidence.txt
+...
+✔ HASH:        MATCH (0b2e5f91485badeb...) [hash-only]
+ℹ SIGNATURE:   ABSENT (No agent attestation embedded)
+--------------------------------------------------
+✅ VERIFICATION PASSED
+`}</CodeBlock>
+                            <p>
+                                {lang(
+                                    "An attested, record-mode receipt verifies both the hash and the signature automatically, with no extra flags:",
+                                    "Un recibo en modo record y con firma verifica el hash y la firma automáticamente, sin flags extra:"
+                                )}
+                            </p>
+                            <ReceiptCard
+                                network="testnet"
+                                cid="Qmbhgu8U2Fz5eJdHakveorj4FUTx7hjVFFzUXgv6fzQNha"
+                                hash="dd8624889f541323551ba1167f5619ab87a8d418d5a342316b838671d761d6a3"
+                                note={lang(
+                                    "Signed with a throwaway testnet key generated for this page (GBJYCLT2AEWUTDKRETUTYHNNEH45QL4B6TFY6GKLKT4KQ57SHMSE7LFL). Run npx nirium-cli verify on this CID - no flags needed.",
+                                    "Firmado con una llave de testnet desechable generada para esta página (GBJYCLT2AEWUTDKRETUTYHNNEH45QL4B6TFY6GKLKT4KQ57SHMSE7LFL). Corre npx nirium-cli verify sobre este CID, sin flags."
+                                )}
+                            />
+
+                            <p className="!mb-2 !mt-8"><strong className="text-white">{lang("Anchor from the terminal (nirium-cli 3.1.0+).", "Anclar desde la terminal (nirium-cli 3.1.0 o más nuevo).")}</strong></p>
+                            <p>
+                                <code>nirium anchor</code>{" "}
+                                {lang(
+                                    "takes a hash (--hash), a file (--file, only its sha-256 is sent, never the file) or a small JSON record (--record, up to 8KB). Point it at a node with --url; there is no --network flag because the node decides its own network. Real run against testnet, 7 Nov 2026:",
+                                    "recibe un hash (--hash), un archivo (--file, solo se manda su sha-256, nunca el archivo) o un registro JSON chico (--record, hasta 8KB). Apúntalo a un nodo con --url; no hay flag --network porque el nodo decide su propia red. Corrida real contra testnet, 7 de noviembre de 2026:"
+                                )}
+                            </p>
+                            <CodeBlock label={lang("real output", "salida real")}>{`
+$ npx nirium-cli anchor --record '{"doc":"nirium-docs-example","date":"2026-11-07"}' \\
+    --tag docs-example-7nov --url ${TESTNET_BASE}
+✅ Anchored to IPFS
+   CID:            QmNNKGCx8i8zQZuCBsuRh9fbAiF7v2smQVszxkqdxpXx5J
+   Content sha256: 938c3fbff4c3cb484fc8e3944e8e3d5334bee6abcec1e726d16b6d5adfead23d
+   Gateway URL:    https://gateway.pinata.cloud/ipfs/QmNNKGCx8i8zQZuCBsuRh9fbAiF7v2smQVszxkqdxpXx5J
+   Anchored at:    2026-11-07T19:31:43.837Z
+
+   Verify independently: nirium verify QmNNKGCx8i8zQZuCBsuRh9fbAiF7v2smQVszxkqdxpXx5J
+`}</CodeBlock>
+                            <p>
+                                {lang(
+                                    "Add --sign to attach an ed25519 attestation. The secret key comes from an environment variable you name with --key-env (or the CLI config store); it signs locally and is never sent or printed. Same day, with a throwaway testnet key:",
+                                    "Agrega --sign para adjuntar una atestación ed25519. La llave secreta sale de una variable de entorno que nombras con --key-env (o del almacén de configuración del CLI); firma localmente y nunca se manda ni se imprime. Mismo día, con una llave de testnet desechable:"
+                                )}
+                            </p>
+                            <CodeBlock label={lang("real output", "salida real")}>{`
+$ npx nirium-cli anchor --hash 8d81e311646b8b84dab222401576f2211df704e53ebac732e3fcd4219cd2a883 \\
+    --sign --key-env MY_STELLAR_SECRET --tag docs-example-7nov --url ${TESTNET_BASE}
+✅ Anchored to IPFS
+   CID:            QmS1dJaMat4yWfMJ2HwYGkNMUxQD2fF7unUgFTnuLmRPfh
+   Content sha256: 8d81e311646b8b84dab222401576f2211df704e53ebac732e3fcd4219cd2a883
+   Attested by:    GBZSUF6WJ2M7HQ7B6ABBVHD7RJRK6FOMVKJMMSGO4C2F3RIKY2SVKN5A
+   Anchored at:    2026-11-07T19:31:48.425Z
+
+$ npx nirium-cli verify QmS1dJaMat4yWfMJ2HwYGkNMUxQD2fF7unUgFTnuLmRPfh \\
+    --hash 8d81e311646b8b84dab222401576f2211df704e53ebac732e3fcd4219cd2a883
+✔ HASH:        MATCH (8d81e311646b8b84...) [hash-only]
+✔ SIGNATURE:   VALID (Signed by GBZSUF6WJ2M7HQ7B6ABBVHD7RJRK6FOMVKJMMSGO4C2F3RIKY2SVKN5A)
+   Statement:  nirium-audit-v1:8d81e311646b8b84dab222401576f2211df704e53ebac732e3fcd4219cd2a883
+--------------------------------------------------
+✅ VERIFICATION PASSED
+`}</CodeBlock>
+                            <p>
+                                {lang(
+                                    "To pull many CIDs at once and verify them in bulk, use the Reporting node - see ",
+                                    "Para sacar muchos CIDs de una vez y verificarlos en bloque, usa el nodo de Reporting; ve el "
+                                )}
+                                <a href="#reporting">§5</a>.
+                            </p>
+                        </Section>
+
+                        <Section id="reporting" kicker={lang("05 · Reference", "05 · Referencia")} title={lang("Reporting", "Reportes")} icon={BarChart3}>
+                            <p>
+                                {lang(
+                                    "The Reporting node is a read-only summary of what the Nirium agent already records: Audit Trail anchors, payment receipts from Nirium's own x402 endpoint, and Payouts runs. It holds no funds and no keys, and it needs no API key. Requests are rate-limited.",
+                                    "El nodo de Reporting es un resumen de solo lectura de lo que el agente de Nirium ya registra: anclajes de Audit Trail, recibos de pago del endpoint x402 propio de Nirium y corridas de Payouts. No guarda fondos ni llaves, y no necesita API key. Las peticiones tienen límite de frecuencia."
+                                )}
+                            </p>
+                            <p>
+                                <strong className="text-white">{lang("What it is not.", "Lo que no es.")}</strong>{" "}
+                                {lang(
+                                    "It reports on the whole node, not on one account. Its counts include Nirium's own test anchors, so they are not a count of users - who anchored what is listed in Evidence (§9). It is not certified regulatory reporting: anything filed with an authority stays the client's responsibility, and every response says so in its disclaimer field.",
+                                    "Reporta sobre todo el nodo, no sobre una cuenta. Sus conteos incluyen los anclajes de prueba de Nirium, así que no son un conteo de usuarios; quién ancló qué está en Evidencia (§9). No es un reporte regulatorio certificado: lo que se presente ante una autoridad sigue siendo responsabilidad del cliente, y cada respuesta lo dice en su campo disclaimer."
+                                )}
+                            </p>
+
+                            {/* 9-nov-2026: un reporte real, no solo un ejemplo fijo. Sigue el switch. */}
+                            <p className="!mb-2"><strong className="text-white">{lang("A real report, right now", "Un reporte real, ahora mismo")}</strong></p>
+                            <LiveReport />
+
+                            <p className="!mb-2"><strong className="text-white">{lang("Endpoints", "Endpoints")}</strong></p>
+                            <ul>
+                                <li><code>GET /api/reporting/summary</code> - {lang("totals for a period: Payouts runs, payment receipts, anchors and when the last anchor happened.", "totales de un periodo: corridas de Payouts, recibos de pago, anclajes y cuándo fue el último anclaje.")}</li>
+                                <li><code>GET /api/reporting/export?type=anchors|payments|payroll&amp;format=csv|json</code> - {lang("the rows behind those totals, as CSV or JSON. No CIDs and no Payouts run ids: those belong to whoever anchored or paid.", "las filas detrás de esos totales, en CSV o JSON. Sin CIDs ni ids de corrida de Payouts: son de quien ancló o pagó.")}</li>
+                                <li><code>GET /api/reporting/info</code> - {lang("node metadata and the list of endpoints.", "metadatos del nodo y la lista de endpoints.")}</li>
+                            </ul>
+                            <p>
+                                <code>from</code> {lang("and", "y")} <code>to</code>{" "}
+                                {lang(
+                                    "take ISO dates and default to the full history (from the start of the Reporting node) if left out. ",
+                                    "reciben fechas ISO y, si no se mandan, por defecto cubren toda la historia (desde el arranque del nodo de Reportería). "
+                                )}
+                                <code>network</code>{" "}
+                                {lang("is ", "es ")}<code>mainnet</code> {lang("or", "o")} <code>testnet</code>
+                                {lang("; leave it out to get both. ", "; si no lo pones, trae las dos. ")}
+                                <code>limit</code>{" "}
+                                {lang("defaults to 500, maximum 1000.", "por defecto es 500, máximo 1000.")}
+                            </p>
+                            {/* El "problema conocido" de limit antes del filtro de red se arregló
+                                en reportingRoutes.ts el 9-nov-2026 (la red se filtra en la consulta). */}
+
+                            <p className="!mb-2"><strong className="text-white">{lang("From the CLI", "Desde el CLI")}</strong></p>
+                            <p>
+                                <code>nirium report</code>{" "}
+                                {lang("points at a local agent by default, so pass ", "apunta por defecto a un agente local, así que pasa ")}
+                                <code>--url</code>
+                                {lang(
+                                    ". One week on mainnet (counts as of 8 Nov 2026). The last-anchor date and the CID-free export need nirium-cli 3.2.0 or newer; older versions print the latest CID instead:",
+                                    ". Una semana en mainnet (conteos al 8 nov 2026). La fecha del último anclaje y el export sin CIDs necesitan nirium-cli 3.2.0 o más nuevo; las versiones anteriores muestran el último CID en su lugar:")}
+                            </p>
+                            {/* Hasta el 8-nov-2026 el summary traía el CID del último anclaje
+                                y el ejemplo lo mostraba. Ya no se publica (decisión 1B). */}
+                            <CodeBlock label={lang("example output", "salida de ejemplo")}>{`
+$ npx nirium-cli report summary --from 2026-11-01 --to 2026-11-07 \\
+    --network mainnet --url ${MAINNET_BASE}
+📊 Nirium Reporting Summary
+   Network:  mainnet
+   Period:   2026-11-01 -> 2026-11-07
+   Payroll:  0 settled run(s), 0 recipient(s) paid
+   Payments: 0 receipt(s), 0.00 USDC total
+   Anchors:  9 (last: 2026-11-06)
+`}</CodeBlock>
+                            <p>
+                                {lang(
+                                    "Payments is 0 for that week because the last mainnet payment receipt from Nirium's x402 endpoint is from 29 Sep 2026. ",
+                                    "Payments da 0 esa semana porque el último recibo de pago en mainnet del endpoint x402 de Nirium es del 29 sep 2026. "
+                                )}
+                                <code>export anchors</code>{" "}
+                                {lang(
+                                    "lists when and on which network each anchor happened, without CIDs: an anchor's CID stays with whoever made it, and they check it with nirium verify <cid> or on /verify.",
+                                    "lista cuándo y en qué red ocurrió cada anclaje, sin CIDs: el CID de un anclaje se queda con quien lo hizo, y lo revisa con nirium verify <cid> o en /verify."
+                                )}
+                            </p>
+                            <CodeBlock label={lang("usage", "uso")}>{`
+nirium report export anchors --network mainnet --url ${MAINNET_BASE} --csv anchors.csv
+`}</CodeBlock>
+                            <p className="!mb-2"><strong className="text-white">{lang("Without the CLI", "Sin el CLI")}</strong></p>
+                            <CodeBlock label="curl">{`
+curl "${MAINNET_BASE}/api/reporting/summary?network=mainnet&from=2026-11-01&to=2026-11-07"
+curl "${MAINNET_BASE}/api/reporting/export?type=anchors&format=csv&network=mainnet" -o anchors.csv
+`}</CodeBlock>
+                        </Section>
+
+                        <Section id="x402-sellers" kicker={lang("06 · Guide", "06 · Guía")} title={lang("x402 Sellers", "Vendedores x402")} icon={Code2}>
+                            <p>
+                                <code>x402Serve()</code>
+                                {lang(
+                                    ", part of the ",
+                                    ", parte del SDK de "
+                                )}
+                                <code>nirium</code>{" "}
+                                {lang(
+                                    "SDK, turns any Express route into a paid endpoint: nothing downstream runs until a payment settles on-chain. It works with any x402 facilitator - Nirium does not run one. The default is OpenZeppelin Channels; free, per-network keys are at ",
+                                    ", convierte cualquier ruta de Express en un endpoint de pago: nada corre después hasta que un pago liquida en cadena. Funciona con cualquier facilitador de x402, Nirium no opera uno. El default es OpenZeppelin Channels; las keys gratis por red están en "
+                                )}
+                                <code>channels.openzeppelin.com/testnet/gen</code>{" "}
+                                {lang("(testnet) and ", "(testnet) y ")}
+                                <code>channels.openzeppelin.com/gen</code>{" "}
+                                {lang(
+                                    "(mainnet) - a mainnet key returns 401 against testnet and vice versa.",
+                                    "(mainnet); una key de mainnet devuelve 401 contra testnet y viceversa."
+                                )}
+                            </p>
+                            <p>
+                                <code>x402Serve()</code>{" "}
+                                {lang(
+                                    "itself does not emit a receipt - it only collects payment. To anchor one per paid call, call ",
+                                    "por sí mismo no emite un recibo, solo cobra. Para anclar uno por cada llamada pagada, llama a "
+                                )}
+                                <code>agent.anchorAuditRecord()</code>{" "}
+                                {lang("(or ", "(o directo a ")}
+                                <code>POST /api/audit/log</code>{" "}
+                                {lang(
+                                    "directly) inside your own route handler, which only runs after the middleware has already settled the charge:",
+                                    ") dentro de tu propio manejador de ruta, que solo corre después de que el middleware ya liquidó el cobro:"
+                                )}
+                            </p>
+                            <CodeBlock label="server.ts">{`
+import express from 'express';
+import { Agent, x402Serve } from 'nirium';
+
+const app = express();
+const agent = new Agent({ apiKey: process.env.NIRIUM_API_KEY });
+
+app.use('/premium', x402Serve({
+  payTo: process.env.STELLAR_PAY_TO!,
+  facilitatorApiKey: process.env.X402_FACILITATOR_API_KEY!,
+  routes: { 'GET /report': '$0.02' },
+}));
+
+app.get('/premium/report', async (_req, res) => {
+  const report = { day: '2026-11-16', rows: 42 };
+  const receipt = await agent.anchorAuditRecord({
+    record: { route: '/premium/report', report },
+    tag: 'x402-sale',
+  });
+  res.json({ report, receipt: receipt.cid });
+});
+`}</CodeBlock>
+                            <p>
+                                {lang(
+                                    "A starting point for the server above, scaffolded by the published CLI (ran live while writing this page - exit code 0):",
+                                    "Un punto de partida para el servidor de arriba, generado por el CLI publicado (corrido en vivo mientras se escribía esta página, código de salida 0):"
+                                )}
+                            </p>
+                            <CodeBlock label={lang("real terminal output", "salida real de terminal")}>{`
+$ npx nirium-cli create x402 -n my-api
+
+💸 [Scaffold] Creating x402 paid API: my-api...
+
+✅ Project initialized in ./my-api
+
+🚀 Get started:
+   cd my-api
+   npm install
+   npm run dev
+`}</CodeBlock>
+
+                            <p className="!mb-2"><strong className="text-white">{lang("Getting listed in an x402 Bazaar (optional, nirium@0.18.0+).", "Aparecer en un Bazaar de x402 (opcional, nirium@0.18.0 o más nuevo).")}</strong></p>
+                            <p>
+                                {lang(
+                                    "Add ",
+                                    "Agrega "
+                                )}
+                                <code>input</code>, <code>inputSchema</code>{" "}
+                                {lang("and/or ", "y/o ")}
+                                <code>output</code>{" "}
+                                {lang(
+                                    "to a route and x402Serve() declares the Bazaar discovery extension for it. A facilitator that reads that extension catalogs the route the first time a payment for it settles, so agents can find it by searching instead of needing the URL hardcoded. Checked live against Rail402's facilitator on Stellar testnet before this shipped (",
+                                    "a una ruta y x402Serve() declara la extensión de descubrimiento de Bazaar. Un facilitador que lee esa extensión cataloga la ruta la primera vez que liquida un pago para ella, así los agentes la encuentran buscando en vez de necesitar la URL fija. Probado en vivo contra el facilitador de Rail402 en testnet de Stellar antes de publicarlo ("
+                                )}
+                                <a href="https://github.com/nirium-protocol/nirium/pull/262" target="_blank" rel="noopener noreferrer">#262</a>
+                                {lang(
+                                    "). Routes without these fields behave exactly as before.",
+                                    "). Las rutas sin estos campos se comportan igual que antes."
+                                )}
+                            </p>
+                            <CodeBlock label="server.ts">{`
+app.use('/premium', x402Serve({
+  payTo: process.env.STELLAR_PAY_TO!,
+  facilitatorApiKey: process.env.X402_FACILITATOR_API_KEY!,
+  routes: {
+    'GET /report': {
+      price: '$0.02',
+      description: 'Daily usage report',
+      input: { days: 7 },
+      inputSchema: { properties: { days: { type: 'integer', maximum: 30 } } },
+      output: { example: { report: { day: '2026-11-16', rows: 42 } } },
+    },
+  },
+}));
+`}</CodeBlock>
+
+                            <p className="!mb-2"><strong className="text-white">{lang("Try it as a buyer: Nirium's own test endpoint.", "Pruébalo como comprador: el endpoint de prueba de Nirium.")}</strong></p>
+                            <p>
+                                {lang("To test an x402 client against a real seller, point it at ", "Para probar un cliente x402 contra un vendedor real, apúntalo a ")}
+                                <code>GET /api/v1/premium/market</code>
+                                {lang(
+                                    ". It answers 402 for 0.05 USDC and, once paid, returns Stellar network state: the base fee, the Blend rate when the node can read it, and the fixed CETES reference (read 12 Nov 2026). It is a test target, not a data product: much of what it returns is fixed or public. On testnet it costs test USDC; on mainnet it charges real USDC. Who has paid it so far is in Evidence (§9). The other two premium routes answer 501 on mainnet without charging, because that box runs no signal loop and holds no signing key.",
+                                    ". Responde 402 por 0.05 USDC y, una vez pagado, devuelve el estado de la red Stellar: la comisión base, la tasa de Blend cuando el nodo puede leerla y la referencia fija de CETES (leída el 12 de noviembre de 2026). Es un endpoint de prueba, no un producto de datos: buena parte de lo que devuelve es fijo o público. En testnet cuesta USDC de prueba; en mainnet cobra USDC real. Quién lo ha pagado hasta hoy está en Evidencia (§9). Las otras dos rutas premium responden 501 en mainnet sin cobrar, porque ese servidor no corre el loop de señales ni tiene llave para firmar."
+                                )}
+                            </p>
+                            <CodeBlock label={lang("real output, testnet, 8 Nov 2026", "salida real, testnet, 8 nov 2026")}>{`
+$ curl -i ${TESTNET_BASE}/api/v1/premium/market
+HTTP/1.1 402 Payment Required
+payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
+
+# accepts[0], decoded from the base64 header:
+{
+  "scheme": "exact",
+  "network": "stellar:testnet",
+  "amount": "500000",
+  "asset": "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+  "payTo": "GC4Q5TWWXI7IHN6DYCBEKCOWJWCKY4JE2NLKLU5SE3YL44IUUFPKUOPC",
+  "maxTimeoutSeconds": 300,
+  "extra": { "areFeesSponsored": true }
+}
+`}</CodeBlock>
+                            <p>
+                                <code>amount</code>{" "}
+                                {lang("is in the token's 7-decimal units: ", "va en las unidades de 7 decimales del token: ")}
+                                <code>500000</code> = 0.05 USDC.{" "}
+                                {lang("The same route on ", "La misma ruta en ")}
+                                <code>{MAINNET_BASE}</code>{" "}
+                                {lang("uses ", "usa ")}
+                                <code>stellar:pubnet</code>{" "}
+                                {lang("and the mainnet USDC contract.", "y el contrato de USDC de mainnet.")}
+                            </p>
+                        </Section>
+
+                        <Section id="policy-hook" kicker={lang("07 · Advanced", "07 · Avanzado")} title={lang("Pre-Sign Policy Hook", "Hook de política antes de firmar")} icon={Lock}>
+                            <p>
+                                {lang(
+                                    "A pre-sign policy hook (",
+                                    "Un hook de política antes de firmar ("
+                                )}
+                                <a href="https://github.com/nirium-protocol/nirium/issues/96" target="_blank" rel="noopener noreferrer">#96</a>
+                                {lang(
+                                    ", shipped in ",
+                                    ", incluido en "
+                                )}
+                                <code>nirium@0.16.0</code>
+                                {lang(
+                                    ") lets your own code approve or refuse an x402 payment ",
+                                    ") deja que tu propio código apruebe o rechace un pago x402 "
+                                )}
+                                <strong className="text-white">{lang("before", "antes de que")}</strong>{" "}
+                                {lang(
+                                    "it is signed. It runs client-side, wraps your signer, and only lets a signature through when your policy function returns an ",
+                                    "se firme. Corre del lado del cliente, envuelve tu firmante, y solo deja pasar una firma cuando tu función de política devuelve un "
+                                )}
+                                <code>ALLOW</code>{" "}
+                                {lang(
+                                    "bound to the exact authorization about to be signed - same contract, destination, amount, and a short-lived expiry you control. A ",
+                                    "amarrado a la autorización exacta que está por firmarse (mismo contrato, destino, monto, y una expiración corta que tú controlas). Un "
+                                )}
+                                <code>DENY</code>
+                                {lang(", a ", ", un ")}
+                                <code>WAIT</code>
+                                {lang(
+                                    ", a timeout, a malformed answer, or no answer at all: nothing gets signed. It fails closed by construction, not by convention.",
+                                    ", un timeout, una respuesta mal formada o ninguna respuesta: nada se firma. Falla cerrado por construcción, no por convención."
+                                )}
+                            </p>
+                            <p>
+                                <strong className="text-white">{lang("This is not a spending limit.", "Esto no es un límite de gasto.")}</strong>{" "}
+                                {lang(
+                                    "It is a single yes/no gate your own policy function controls, evaluated once per payment, against that one specific authorization - not a running budget or cap Nirium tracks on your behalf.",
+                                    "Es una sola compuerta sí/no que controla tu propia función de política, evaluada una vez por pago, contra esa autorización específica, no un presupuesto corriente ni un tope que Nirium lleve por ti."
+                                )}
+                            </p>
+                            <p>
+                                <strong className="text-white">{lang("Status: exercised on testnet only so far.", "Estado: probado solo en testnet por ahora.")}</strong>{" "}
+                                {lang(
+                                    "Verified against a throwaway testnet key: an ",
+                                    "Verificado contra una llave de testnet desechable: una decisión "
+                                )}
+                                <code>ALLOW</code>{" "}
+                                {lang("decision settled on-chain, while ", "liquidó en cadena, mientras que un ")}
+                                <code>DENY</code>{" "}
+                                {lang(
+                                    "and an expired decision left the balance untouched. It has not yet been run against mainnet traffic.",
+                                    "y una decisión expirada dejaron el saldo intacto. Todavía no se ha corrido contra tráfico de mainnet."
+                                )}
+                            </p>
+                        </Section>
+
+                        <Section id="escrow-evidence" kicker={lang("08 · Pilot", "08 · Piloto")} title={lang("Escrow Evidence with Trustless Work", "Evidencia de escrow con Trustless Work")} icon={Scale}>
+                            <p>
+                                {lang(
+                                    'A testnet pilot with Trustless Work closes the gap between "evidence was anchored" and "the escrow actually paid because of it." A decision gate (',
+                                    'Un piloto en testnet con Trustless Work cierra la brecha entre "se ancló evidencia" y "el escrow de verdad pagó por eso." Una compuerta de decisión ('
+                                )}
+                                <code>POST /api/payroll/escrow/decision-gate/execute</code>
+                                {lang(
+                                    ") fetches a receipt by CID, recomputes its hash, and requires that the attestation on it be signed by the same key as the escrow's ",
+                                    ") trae un recibo por su CID, recalcula su hash, y exige que la atestación venga firmada con la misma llave del rol "
+                                )}
+                                <code>serviceProvider</code>{" "}
+                                {lang(
+                                    "role - not just any valid signature - before it calls the existing scoped signer that approves and releases a milestone.",
+                                    "del escrow (no cualquier firma válida) antes de llamar al firmante con alcance acotado que ya existe y que aprueba y libera un hito."
+                                )}
+                            </p>
+                            <p className="!mb-2"><strong className="text-white">{lang("Honest limits, stated plainly:", "Límites honestos, dichos de frente:")}</strong></p>
+                            <ul className="list-disc pl-5 space-y-2">
+                                <li>
+                                    {lang("This is a testnet-only pilot. Escrow contract: ", "Es un piloto solo en testnet. Contrato de escrow: ")}
+                                    <code className="break-all">CADMJSOMBSHUW2LMETBUOVH2CSVY3EDISY4V7UMH7TDU2LE5XRCEULAG</code>.
+                                </li>
+                                <li>
+                                    {lang("The on-chain release that was actually executed ran under the ", "La liberación en cadena que de verdad se ejecutó corrió bajo la ")}
+                                    <strong className="text-white">{lang("first", "primera")}</strong>{" "}
+                                    {lang(
+                                        "version of this rule - before the serviceProvider-key requirement above was added. It has not been re-run end-to-end under the current rule yet; the stricter check has only been exercised with real ",
+                                        "versión de esta regla, antes de que se agregara el requisito de la llave serviceProvider de arriba. Todavía no se ha vuelto a correr de punta a punta bajo la regla actual; la revisión más estricta solo se ha probado con casos reales de "
+                                    )}
+                                    <code>DENY</code>{" "}
+                                    {lang("cases against the live gate since then.", "contra la compuerta en vivo desde entonces.")}
+                                </li>
+                            </ul>
+                            <p>{lang("The approve and release transactions from that pilot, both confirmed successful on Horizon testnet:", "Las transacciones de aprobación y liberación de ese piloto, ambas confirmadas como exitosas en Horizon testnet:")}</p>
+                            <div className="grid sm:grid-cols-2 gap-3 not-prose my-4">
+                                <a href="https://stellar.expert/explorer/testnet/tx/e86861557ad2896452a0d9fc5590de341654ddc311d4bbcd5d8763e3f6961e7b" target="_blank" rel="noopener noreferrer" className="bg-white/[0.03] border border-white/10 rounded-xl p-4 hover:border-stellar-teal/30 transition-colors">
+                                    <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500 mb-1">approve-milestone</p>
+                                    <p className="text-xs font-mono text-stellar-teal break-all">e86861557ad2896452a0d9fc5590de341654ddc311d4bbcd5d8763e3f6961e7b</p>
+                                </a>
+                                <a href="https://stellar.expert/explorer/testnet/tx/429e550d2f05c6dd6316c8caab13605ee1f222d1ce40731d92c80f7f4bc5fc7c" target="_blank" rel="noopener noreferrer" className="bg-white/[0.03] border border-white/10 rounded-xl p-4 hover:border-stellar-teal/30 transition-colors">
+                                    <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500 mb-1">release-milestone</p>
+                                    <p className="text-xs font-mono text-stellar-teal break-all">429e550d2f05c6dd6316c8caab13605ee1f222d1ce40731d92c80f7f4bc5fc7c</p>
+                                </a>
+                            </div>
+                        </Section>
+
+                        <Section id="evidence" kicker={lang("09 · Evidence", "09 · Evidencia")} title={lang("Evidence", "Evidencia")} icon={ListChecks}>
+                            <p>
+                                {lang(
+                                    "Public transaction hashes and CIDs, organized by network. Every row was independently re-verified against Horizon, the IPFS gateway, or GitHub directly before being listed here - not copied from prior reports.",
+                                    "Hashes de transacciones públicas y CIDs, organizados por red. Cada fila se volvió a verificar de forma independiente contra Horizon, el gateway de IPFS o GitHub directamente antes de listarse aquí, no se copió de reportes anteriores."
+                                )}
+                            </p>
+
+                            <p className="!mb-2 !mt-6"><strong className="text-white">Mainnet</strong></p>
+                            <p>
+                                {lang("The x402 payment account ", "La cuenta de cobro x402 ")}
+                                <code className="break-all">GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP</code>{" "}
+                                {lang(
+                                    "shows 36 settled x402 payments between 9 Jul and 29 Sep 2026 (confirmed against Horizon: 37 successful ",
+                                    "muestra 36 pagos x402 liquidados entre el 9 de julio y el 29 de septiembre de 2026 (confirmado contra Horizon: 37 operaciones "
+                                )}
+                                <code>invoke_host_function</code>{" "}
+                                {lang(
+                                    "operations total, but one of those is the Trustless Work escrow release listed separately below, not an x402 payment; plus the account's own funding tx). ",
+                                    "exitosas en total, pero una de ellas es el release de escrow de Trustless Work listado por separado abajo, no un pago x402; más la transacción de fondeo de la propia cuenta). "
+                                )}
+                                <strong className="text-white">{lang(
+                                    "Stated honestly: these are our own tests and integration tests, not independent paying customers yet.",
+                                    "Dicho de frente: estas son nuestras propias pruebas y pruebas de integración, todavía no clientes independientes que paguen."
+                                )}</strong>{" "}
+                                {lang(
+                                    "The most recent batch, below, exercised the payment path through an external policy engine.",
+                                    "La tanda más reciente, abajo, probó el camino de pago a través de un motor de políticas externo."
+                                )}
+                            </p>
+                            <EvidenceTable rows={[
+                                { proves: lang("x402 payment, first of the 29 Sep integration-test batch", "Pago x402, el primero de la tanda de pruebas de integración del 29 de sep"), ref: "18f7dcab48087800cefb319a04c17291376df053805763fe3e952d472e32fb91", date: "2026-09-29", link: "https://stellar.expert/explorer/public/tx/18f7dcab48087800cefb319a04c17291376df053805763fe3e952d472e32fb91" },
+                                { proves: lang("x402 payment, last of the same batch - also the most recent of all 36 x402 payments", "Pago x402, el último de la misma tanda, también el más reciente de los 36 pagos x402"), ref: "b34630f6637d6773ad4f7378dac8690ae6d1809173ff9c9541d22165aeef5788", date: "2026-09-29", link: "https://stellar.expert/explorer/public/tx/b34630f6637d6773ad4f7378dac8690ae6d1809173ff9c9541d22165aeef5788" },
+                                { proves: lang("External integrator receipt: TIA anchors a signed exchange-rate quote (used with TIA's permission)", "Recibo de un integrador externo: TIA ancla una cotización de tipo de cambio firmada (usado con permiso de TIA)"), ref: "QmVWZM1i9qusiTfNAT9QdSFYJNEwQUXtnWuSkrCqRAnGEu", date: "2026-10-18", link: "https://gateway.pinata.cloud/ipfs/QmVWZM1i9qusiTfNAT9QdSFYJNEwQUXtnWuSkrCqRAnGEu" },
+                                { proves: lang("Same integration, second anchored quote", "Misma integración, segunda cotización anclada"), ref: "QmWnt7mQNYB6RgFW9AUPxHsw1B5GerR6bJPHiCZXQLKdCH", date: "2026-10-23", link: "https://gateway.pinata.cloud/ipfs/QmWnt7mQNYB6RgFW9AUPxHsw1B5GerR6bJPHiCZXQLKdCH" },
+                                { proves: lang("Same integration, third receipt - TIA's second key (GBMCX...), tag niriumtober", "Misma integración, tercer recibo - la segunda llave de TIA (GBMCX...), etiqueta niriumtober"), ref: "QmaueB7meg4yxUDfhbE3v6aJTStjNQ8zWgshxXrchReQJ2", date: "2026-11-02", link: "https://gateway.pinata.cloud/ipfs/QmaueB7meg4yxUDfhbE3v6aJTStjNQ8zWgshxXrchReQJ2" },
+                                { proves: lang("Same integration, fourth receipt - same call, 1.6 s later, tag tia-route", "Misma integración, cuarto recibo - misma llamada, 1.6 s después, etiqueta tia-route"), ref: "QmZ2wVJLAP3ygRog9ANojeBaschSrARegVJF4maku3CgyA", date: "2026-11-02", link: "https://gateway.pinata.cloud/ipfs/QmZ2wVJLAP3ygRog9ANojeBaschSrARegVJF4maku3CgyA" },
+                                { proves: lang("Same integration, fifth receipt - TIA's second key, tag niriumtober", "Misma integración, quinto recibo - la segunda llave de TIA, etiqueta niriumtober"), ref: "QmPS1snVHEzXaQe9YmXyDFrm5XfCXLWLAD6v59chSJqZby", date: "2026-11-06", link: "https://gateway.pinata.cloud/ipfs/QmPS1snVHEzXaQe9YmXyDFrm5XfCXLWLAD6v59chSJqZby" },
+                                { proves: lang("Same integration, sixth receipt - same call, 2 s later, tag tia-route", "Misma integración, sexto recibo - misma llamada, 2 s después, etiqueta tia-route"), ref: "QmXT33ZyUvwxzamEMeGYyUxpAWt86bsPpRkFFu4D1fPkso", date: "2026-11-06", link: "https://gateway.pinata.cloud/ipfs/QmXT33ZyUvwxzamEMeGYyUxpAWt86bsPpRkFFu4D1fPkso" },
+                                { proves: lang("Same integration, seventh anchored receipt", "Misma integración, séptimo recibo anclado"), ref: "QmZ9bQxXLqoCvAQ6AtRChd18MS9YkjBF6MbT9k5e84PTTv", date: "2026-11-12", link: "https://gateway.pinata.cloud/ipfs/QmZ9bQxXLqoCvAQ6AtRChd18MS9YkjBF6MbT9k5e84PTTv" },
+                                { proves: lang("Trustless Work escrow, full lifecycle, own-funds test (0.50 USDC)", "Escrow de Trustless Work, ciclo completo, prueba con fondos propios (0.50 USDC)"), ref: "0c533088ab6326a78b9f79c197b7636ca4662a0d72562968ddea37f370a8192b", date: "2026-09-03", link: "https://stellar.expert/explorer/public/tx/0c533088ab6326a78b9f79c197b7636ca4662a0d72562968ddea37f370a8192b" },
+                            ]} />
+                            <p className="text-sm">
+                                {lang("The seven TIA receipts are signed with two TIA keys: five by ", "Los siete recibos de TIA están firmados con dos llaves de TIA: cinco con ")}
+                                <code className="break-all">GATT3MOLOCTDOUGS3FDNZUYV3UKDLIQE4PN7JJ4JYZBYJOOXBVJV4KXI</code>{" "}
+                                {lang("(quotes and routes) and two by ", "(cotizaciones y rutas) y dos con ")}
+                                <code className="break-all">GBMCX53NIDNHE6WL3FJGROYWTSGOQMWD6R7Y2ORBWR2G2SCLEKM376DY</code>{" "}
+                                {lang("(tag niriumtober)", "(etiqueta niriumtober)")}
+                                {lang(
+                                    "- verified with ",
+                                    ", verificados con "
+                                )}
+                                <code>npx nirium-cli verify</code>{" "}
+                                {lang(
+                                    "against each CID above. Both wallets in the underlying payments belong to TIA (integration tests, not customer payments).",
+                                    "contra cada CID de arriba. Las dos wallets de los pagos de fondo pertenecen a TIA (pruebas de integración, no pagos de clientes)."
+                                )}
+                            </p>
+
+                            <p className="!mb-2 !mt-8"><strong className="text-white">Testnet</strong></p>
+                            <EvidenceTable rows={[
+                                { proves: lang("TIA's first anchored quote, testnet", "La primera cotización anclada de TIA, testnet"), ref: "QmQ71ruWPtEkDPmsPy1b3JNqJzwMJ1oGaZ3sdaXHWdUoDq", date: "2026-10-15", link: "https://gateway.pinata.cloud/ipfs/QmQ71ruWPtEkDPmsPy1b3JNqJzwMJ1oGaZ3sdaXHWdUoDq" },
+                                { proves: lang("Pre-sign policy hook (§7): ALLOW decision, payment settled (0.02 USDC)", "Hook de política antes de firmar (§7): decisión ALLOW, pago liquidado (0.02 USDC)"), ref: "eefd57995733c29fd1ba8244b783419015af642073e9c918a0d732a6bb81a6b3", date: "2026-10-01", link: "https://stellar.expert/explorer/testnet/tx/eefd57995733c29fd1ba8244b783419015af642073e9c918a0d732a6bb81a6b3" },
+                                { proves: lang("Trustless Work escrow pilot (§8): deploy", "Piloto de escrow de Trustless Work (§8): despliegue"), ref: "a0ed118a0a02ad87e09f0a743cc90d32199c931baf01b052cf49393e85719850", date: "2026-10-10", link: "https://stellar.expert/explorer/testnet/tx/a0ed118a0a02ad87e09f0a743cc90d32199c931baf01b052cf49393e85719850" },
+                                { proves: lang("Same pilot: fund", "Mismo piloto: fondeo"), ref: "8769aba1b652b01ee2aafc9083fd1a775722690757e560fb43bd49f98e4856cf", date: "2026-10-11", link: "https://stellar.expert/explorer/testnet/tx/8769aba1b652b01ee2aafc9083fd1a775722690757e560fb43bd49f98e4856cf" },
+                                { proves: lang("Same pilot: tampered evidence, decision gate refuses before touching the network", "Mismo piloto: evidencia alterada, la compuerta de decisión se niega antes de tocar la red"), ref: "Qmbwr5eYNex7pzvCSWVu8Q7h4bvfLzkukDu7XXtR7fnkYs", date: "2026-10-11", link: "https://gateway.pinata.cloud/ipfs/Qmbwr5eYNex7pzvCSWVu8Q7h4bvfLzkukDu7XXtR7fnkYs" },
+                                { proves: lang("Same pilot: valid evidence, decision gate authorizes - the approve+release in §8", "Mismo piloto: evidencia válida, la compuerta de decisión autoriza (el approve+release del §8)"), ref: "QmSpgUkiJnCfdALUtHXocKQ8GtGaG4LsxUWEoUDFDruWXN", date: "2026-10-11", link: "https://gateway.pinata.cloud/ipfs/QmSpgUkiJnCfdALUtHXocKQ8GtGaG4LsxUWEoUDFDruWXN" },
+                                { proves: lang("MPP Charge: settled payment", "MPP Charge: pago liquidado"), ref: "4d20d8648ce001c4e8e894725ad08a8dbcd3904e0024ca440728bc91e6c10236", date: "2026-10-15", link: "https://stellar.expert/explorer/testnet/tx/4d20d8648ce001c4e8e894725ad08a8dbcd3904e0024ca440728bc91e6c10236" },
+                                { proves: lang("MPP Charge: settled payment", "MPP Charge: pago liquidado"), ref: "e70cfcb884c17d946210a000a627b7a9c316737a61a66ad2e42d905df679f167", date: "2026-10-15", link: "https://stellar.expert/explorer/testnet/tx/e70cfcb884c17d946210a000a627b7a9c316737a61a66ad2e42d905df679f167" },
+                                { proves: lang("MPP Charge: settled payment", "MPP Charge: pago liquidado"), ref: "be7865f19b4daf9b60993eb4df900098663a55861a357fd7b67a059cc228ff03", date: "2026-10-15", link: "https://stellar.expert/explorer/testnet/tx/be7865f19b4daf9b60993eb4df900098663a55861a357fd7b67a059cc228ff03" },
+                            ]} />
+                            <p className="text-sm">
+                                {lang(
+                                    "Recap of the honest limit from §8: the valid-evidence release above ran under the ",
+                                    "Recordatorio del límite honesto del §8: la liberación con evidencia válida de arriba corrió bajo la "
+                                )}
+                                <strong className="text-white">{lang("first", "primera")}</strong>{" "}
+                                {lang(
+                                    "version of the decision-gate rule - hash and milestone match only, before the serviceProvider-key requirement existed.",
+                                    "versión de la regla de la compuerta de decisión, solo verificaba hash e hito, antes de que existiera el requisito de la llave serviceProvider."
+                                )}
+                            </p>
+
+                            {/* 9-nov-2026: antes la tabla de testnet mostraba los CIDs de 2 builders de
+                                Niriumtober sin constancia de permiso, y eran 6. Un anclaje es de quien lo
+                                hizo (mismo criterio que /verify y lib/privateAnchors.ts): se da el conteo,
+                                verificado en IPFS ese día, y los CIDs solo a petición. TIA va arriba, con
+                                permiso, y no se cuenta otra vez aquí. */}
+                            <p className="!mb-2 !mt-8"><strong className="text-white">{lang("External builders (Niriumtober)", "Builders externos (Niriumtober)")}</strong></p>
+                            <p className="text-sm">
+                                {lang(
+                                    "Six external builders anchored their own signed receipts with their own keys during Niriumtober (22 Oct - 3 Nov 2026) or right after it: four on testnet and two on mainnet, six different signing keys. Each receipt was re-checked on IPFS on 9 Nov 2026 (hash and signature). Their CIDs are theirs, so they are not listed here; we share them on request with each builder's permission. TIA, listed above, is counted as an integration, not again here.",
+                                    "Seis builders externos anclaron sus propios recibos firmados, con sus propias llaves, durante Niriumtober (22 oct - 3 nov 2026) o justo después: cuatro en testnet y dos en mainnet, seis llaves de firma distintas. Cada recibo se volvió a revisar en IPFS el 9 nov 2026 (hash y firma). Sus CIDs son suyos, así que no se listan aquí; los compartimos a petición, con permiso de cada builder. TIA, que aparece arriba, cuenta como integración y no se vuelve a contar aquí."
+                                )}
+                            </p>
+
+                            <p className="!mb-2 !mt-8"><strong className="text-white">{lang("Upstream contributions", "Contribuciones a proyectos externos")}</strong></p>
+                            <p>{lang(
+                                "Merged in repositories Nirium does not control - each confirmed via the GitHub API (re-checked 9 Nov 2026). All were merged by the repository's maintainers except stellar-dev-skill #150, which Stellar's triage bot reviewed and merged:",
+                                "Mergeadas en repositorios que Nirium no controla, cada una confirmada contra la API de GitHub (revisado otra vez el 9 nov 2026). Todas las mergearon los mantenedores del repositorio, salvo stellar-dev-skill #150, que revisó y mergeó el bot de triage de Stellar:")}</p>
+                            <ul className="list-disc pl-5 space-y-1.5 text-sm">
+                                <li><a href="https://github.com/stellar/stellar-dev-skill/pull/96" target="_blank" rel="noopener noreferrer">stellar/stellar-dev-skill #96</a> - {lang("Nirium added to the community skills catalog.", "Nirium se agregó al catálogo de skills de la comunidad.")}</li>
+                                <li><a href="https://github.com/stellar/stellar-dev-skill/pull/97" target="_blank" rel="noopener noreferrer">stellar/stellar-dev-skill #97</a> - {lang("production patterns for x402 + MPP.", "patrones de producción para x402 + MPP.")}</li>
+                                <li><a href="https://github.com/stellar/stellar-dev-skill/pull/150" target="_blank" rel="noopener noreferrer">stellar/stellar-dev-skill #150</a> - {lang("correction to a production claim in that same guide.", "corrección a un reclamo de producción en esa misma guía.")}</li>
+                                <li><a href="https://github.com/stellar/stellar-mpp-sdk/pull/69" target="_blank" rel="noopener noreferrer">stellar/stellar-mpp-sdk #69</a> - {lang("fixed two invalid mainnet SAC constants.", "corrigió dos constantes SAC de mainnet inválidas.")}</li>
+                                <li><a href="https://github.com/pollar-xyz/pollar-apps/pull/30" target="_blank" rel="noopener noreferrer">pollar-xyz/pollar-apps #30</a> - {lang("Nirium x402 adapter demo app.", "app de demo del adaptador x402 de Nirium.")}</li>
+                                <li>
+                                    <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/1" target="_blank" rel="noopener noreferrer">Trustless-Work/agentic-escrow-research #1</a>,{" "}
+                                    <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/2" target="_blank" rel="noopener noreferrer">#2</a>,{" "}
+                                    <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/3" target="_blank" rel="noopener noreferrer">#3</a>,{" "}
+                                    <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/4" target="_blank" rel="noopener noreferrer">#4</a>,{" "}
+                                    <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/9" target="_blank" rel="noopener noreferrer">#9</a>,{" "}
+                                    <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/10" target="_blank" rel="noopener noreferrer">#10</a>,{" "}
+                                    <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/11" target="_blank" rel="noopener noreferrer">#11</a>,{" "}
+                                    <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/12" target="_blank" rel="noopener noreferrer">#12</a>,{" "}
+                                    <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/13" target="_blank" rel="noopener noreferrer">#13</a>{" "}
+                                    - {lang("agent-escrow use cases and research notes from Nirium's mainnet and testnet evidence (#9-#13 merged 2-5 Nov 2026; #3, #12 and #13 by M0nsxx).", "casos de uso de agente-escrow y notas de investigación con evidencia de mainnet y testnet de Nirium (#9-#13 mergeadas del 2 al 5 nov 2026; #3, #12 y #13 de M0nsxx).")}
+                                </li>
+                            </ul>
+                            <p className="text-sm">
+                                {lang(
+                                    "Separately, shared work in the x402 core protocol itself - team-wide, not exclusive to Nirium:",
+                                    "Aparte, trabajo compartido en el protocolo central de x402 mismo, de todo el equipo, no exclusivo de Nirium:"
+                                )}{" "}
+                                <a href="https://github.com/x402-foundation/x402/pull/3138" target="_blank" rel="noopener noreferrer">#3138</a>,{" "}
+                                <a href="https://github.com/x402-foundation/x402/pull/3215" target="_blank" rel="noopener noreferrer">#3215</a>,{" "}
+                                <a href="https://github.com/x402-foundation/x402/pull/3338" target="_blank" rel="noopener noreferrer">#3338</a>,{" "}
+                                <a href="https://github.com/x402-foundation/x402/pull/3339" target="_blank" rel="noopener noreferrer">#3339</a>{" "}
+                                {lang("in ", "en ")}<code>x402-foundation/x402</code>.
+                            </p>
+                        </Section>
+
+                        <Section id="security-limits" kicker={lang("10 · Reference", "10 · Referencia")} title={lang("Security and Limits", "Seguridad y límites")} icon={AlertTriangle}>
+                            <p className="!mb-2"><strong className="text-white">{lang("What Nirium can and cannot do with your keys:", "Qué puede y qué no puede hacer Nirium con tus llaves:")}</strong></p>
+                            <ul className="list-disc pl-5 space-y-2">
+                                <li>
+                                    <code>POST /api/audit/log</code>{" "}
+                                    {lang(
+                                        "never receives a private key - only a hash, an optional small JSON record, and an optional signature someone else already produced.",
+                                        "nunca recibe una llave privada, solo un hash, un pequeño registro JSON opcional, y una firma opcional que alguien más ya produjo."
+                                    )}
+                                </li>
+                                <li>
+                                    {lang("A free key from ", "Una key gratis de ")}<Link href="/keys">/keys</Link>{" "}
+                                    {lang("is self-service and wallet-signed, scoped to the free tier by default.", "es de autoservicio y se firma con wallet, limitada al nivel gratis por default.")}
+                                </li>
+                                <li>
+                                    {lang(
+                                        "Free keys cannot trigger mainnet Payouts, or deploy, deposit into or rebalance a Treasury vault on mainnet - those stay invite-only (institutional/enterprise tier, assigned manually). Withdrawing from your own vault stays open to any key.",
+                                        "Las keys gratis no pueden disparar Payouts en mainnet, ni desplegar, depositar o rebalancear una bóveda de Treasury en mainnet: eso se queda por invitación (nivel institucional/enterprise, asignado a mano). Retirar de tu propia bóveda sigue abierto para cualquier key."
+                                    )}
+                                </li>
+                            </ul>
+                            <p className="!mb-2 !mt-6"><strong className="text-white">{lang("Known limits, stated plainly:", "Límites conocidos, dichos de frente:")}</strong></p>
+                            <ul className="list-disc pl-5 space-y-2">
+                                <li>
+                                    {lang(
+                                        "MPP Charge is wired on both networks, but has only been exercised with a settled payment on testnet so far - treat MPP on mainnet as unverified until a mainnet settlement hash exists.",
+                                        "MPP Charge está conectado en las dos redes, pero solo se ha probado con un pago liquidado en testnet hasta ahora: trata a MPP en mainnet como no verificado hasta que exista un hash de liquidación en mainnet."
+                                    )}
+                                </li>
+                                <li>{lang("The pre-sign policy hook (§7, #96) has likewise only been exercised on testnet.", "El hook de política antes de firmar (§7, #96) de igual forma solo se ha probado en testnet.")}</li>
+                                <li>
+                                    <code>/api/audit/log</code>{" "}
+                                    {lang(
+                                        "is free during the open beta, rate-limited to 20 requests/minute per IP on each box.",
+                                        "es gratis durante la beta abierta, con límite de 20 solicitudes por minuto por IP en cada servidor."
+                                    )}
+                                </li>
+                            </ul>
+                            <p className="!mt-8 text-sm text-gray-500">
+                                {lang("Treasury and Payouts are separate, invite-only modules, not covered here.", "Treasury y Payouts son módulos aparte, por invitación, que no se cubren aquí.")}
+                            </p>
+                        </Section>
+
+                        <Section id="roadmap" kicker={lang("11 · Roadmap", "11 · Hoja de ruta")} title={lang("Roadmap", "Hoja de ruta")} icon={MapIcon}>
+                            <p>
+                                <strong className="text-white">{lang("Planned, not live:", "Planeado, no en vivo:")}</strong>{" "}
+                                {lang(
+                                    "batching anchored receipts into a Soroban registry contract, so a receipt's existence can be checked on-chain directly instead of only via an IPFS CID. No date set yet.",
+                                    "agrupar recibos anclados en un contrato de registro en Soroban, para que la existencia de un recibo se pueda comprobar directo en cadena, no solo vía un CID de IPFS. Todavía sin fecha."
+                                )}
+                            </p>
+                            <p>
+                                {lang(
+                                    "A minimal ",
+                                    "Un prototipo mínimo de "
+                                )}
+                                <code>ReceiptRegistry</code>{" "}
+                                {lang(
+                                    "prototype was measured on testnet on 29 Oct 2026 - a cost check, not a launch: contract",
+                                    "se midió en testnet el 29 de octubre de 2026, una revisión de costo, no un lanzamiento: contrato"
+                                )}{" "}
+                                <a href="https://stellar.expert/explorer/testnet/contract/CBK7GBTO32ZFARQP4D2LVPLR3AOFZZJZXQSMZJWRUPPU7OYIDFPIWQBG" target="_blank" rel="noopener noreferrer" className="break-all">CBK7GBTO32ZFARQP4D2LVPLR3AOFZZJZXQSMZJWRUPPU7OYIDFPIWQBG</a>,{" "}
+                                {lang(
+                                    "each ",
+                                    "cada llamada a "
+                                )}
+                                <code>anchor_root</code>{" "}
+                                {lang(
+                                    "call costing 17,472 stroops (0.0017472 XLM), confirmed against Horizon.",
+                                    "cuesta 17,472 stroops (0.0017472 XLM), confirmado contra Horizon."
+                                )}
+                            </p>
+                        </Section>
+
                     </div>
                 </div>
             </div>
@@ -212,1528 +1157,4 @@ function DocsContent() {
 
 export default function DocsPage() {
     return <DocsContent />;
-}
-
-function OverviewSection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-12">
-            {/* Hero Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-                {[
-                    { label: t.docs.overview.hero.version, value: 'v0.16.0', color: 'text-stellar-teal' },
-                    { label: t.docs.overview.hero.contracts, value: '2 Testnet', color: 'text-green-400' },
-                    { label: t.docs.overview.hero.helpers, value: '6', color: 'text-purple-400' },
-                    { label: t.docs.overview.hero.fee, value: '$0.02–0.25', color: 'text-amber-400' },
-                    { label: t.docs.overview.hero.coins, value: 'XLM · USDC · CETES', color: 'text-blue-400' },
-                ].map((stat) => (
-                    <div key={stat.label} className="bg-white/5 border border-white/10 rounded-xl p-4">
-                        <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{stat.label}</div>
-                        <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Testnet Notice — PDD compliance */}
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-5 py-3 flex items-center gap-3 text-sm">
-                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                <span className="text-amber-200">
-                    {t.docs.overview.testnet_notice}
-                </span>
-            </div>
-
-            {/* Executive Summary */}
-            <section className="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-8">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <Shield className="text-stellar-yellow" />
-                    {t.docs.overview.summary_title}
-                </h2>
-                <div className="prose prose-invert max-w-none text-gray-300 space-y-4">
-                    <p className="text-lg leading-relaxed">
-                        {t.docs.overview.summary_p1}
-                    </p>
-                    <p>
-                        {t.docs.overview.summary_p2}
-                    </p>
-                    <div className="text-sm text-stellar-teal bg-stellar-teal/5 border border-stellar-teal/20 rounded-lg p-4 not-prose flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <span>{t.docs.overview.summary_who}</span>
-                        <div className="flex flex-wrap gap-3 shrink-0">
-                            <a href="https://www.npmjs.com/package/nirium" target="_blank" rel="noopener" className="flex items-center gap-2 px-3 py-1.5 bg-[#CB3837]/20 border border-[#CB3837]/30 rounded-lg text-[#CB3837] text-[10px] font-black uppercase hover:bg-[#CB3837]/30 transition-all">
-                                <Package className="w-3 h-3" />
-                                NPM: nirium
-                            </a>
-                            <a href="https://pypi.org/project/nirium/" target="_blank" rel="noopener" className="flex items-center gap-2 px-3 py-1.5 bg-[#3776AB]/20 border border-[#3776AB]/30 rounded-lg text-[#3776AB] text-[10px] font-black uppercase hover:bg-[#3776AB]/30 transition-all">
-                                <Terminal className="w-3 h-3" />
-                                PyPI: nirium
-                            </a>
-                        </div>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                        {t.docs.overview.summary_warning}
-                    </p>
-                </div>
-            </section>
-
-            {/* Progressive Automation */}
-            <section>
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <Cpu className="text-stellar-teal" />
-                    {t.docs.overview.progressive_title}
-                </h2>
-                <p className="text-gray-400 mb-6">
-                    {t.docs.overview.progressive_subtitle}
-                </p>
-                <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-black/40 p-6 rounded-xl border border-stellar-yellow/30 hover:border-stellar-yellow/50 transition-colors">
-                        <h3 className="text-xl font-bold text-stellar-yellow mb-4 flex items-center gap-2">
-                            <Shield className="w-5 h-5" />
-                            {t.docs.overview.control_approve.title}
-                        </h3>
-                        <ul className="space-y-3 text-gray-300">
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-400" /> {t.docs.overview.control_approve.item1}</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-400" /> {t.docs.overview.control_approve.item2}</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-400" /> {t.docs.overview.control_approve.item3}</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-400" /> {t.docs.overview.control_approve.item4}</li>
-                        </ul>
-                    </div>
-                    <div className="bg-black/40 p-6 rounded-xl border border-stellar-teal/30 hover:border-stellar-teal/50 transition-colors">
-                        <h3 className="text-xl font-bold text-stellar-teal mb-4 flex items-center gap-2">
-                            <Zap className="w-5 h-5" />
-                            {t.docs.overview.control_auto.title}
-                        </h3>
-                        <ul className="space-y-3 text-gray-300">
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-400" /> {t.docs.overview.control_auto.item1}</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-400" /> {t.docs.overview.control_auto.item2}</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-400" /> {t.docs.overview.control_auto.item3}</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-400" /> {t.docs.overview.control_auto.item4}</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            {/* Key Features */}
-            <section>
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <Rocket className="text-amber-400" />
-                    {t.docs.overview.features_title}
-                </h2>
-                <div className="grid md:grid-cols-3 gap-4">
-                    {[
-                        { icon: Workflow, title: t.docs.overview.features.builder.title, desc: t.docs.overview.features.builder.desc, color: 'text-purple-400' },
-                        { icon: BookOpen, title: t.docs.overview.features.guides.title, desc: t.docs.overview.features.guides.desc, color: 'text-stellar-teal' },
-                        { icon: Layers, title: t.docs.overview.features.marketplace.title, desc: t.docs.overview.features.marketplace.desc, color: 'text-blue-400' },
-                        { icon: TrendingUp, title: t.docs.overview.features.dashboard.title, desc: t.docs.overview.features.dashboard.desc, color: 'text-green-400' },
-                        { icon: Lock, title: t.docs.overview.features.wallets.title, desc: t.docs.overview.features.wallets.desc, color: 'text-amber-400' },
-                        { icon: HardDrive, title: t.docs.overview.features.ipfs.title, desc: t.docs.overview.features.ipfs.desc, color: 'text-pink-400' },
-                        { icon: Send, title: t.docs.overview.features.payroll.title, desc: t.docs.overview.features.payroll.desc, color: 'text-stellar-teal' },
-                    ].map((feature) => (
-                        <div key={feature.title} className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-colors">
-                            <feature.icon className={`w-6 h-6 ${feature.color} mb-3`} />
-                            <h3 className="font-bold text-white mb-1">{feature.title}</h3>
-                            <p className="text-sm text-gray-400">{feature.desc}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Verified Transactions */}
-            <section className="bg-green-500/5 border border-green-500/20 rounded-2xl p-8">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <CheckCircle className="text-green-400" />
-                    {t.docs.overview.transactions_title}
-                </h2>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b border-white/10 text-gray-400 text-sm">
-                                <th className="py-3 px-4">{t.docs.overview.tx_table.network}</th>
-                                <th className="py-3 px-4">{t.docs.overview.tx_table.tx}</th>
-                                <th className="py-3 px-4">{t.docs.overview.tx_table.amount}</th>
-                                <th className="py-3 px-4">{t.docs.overview.tx_table.fee}</th>
-                                <th className="py-3 px-4">{t.docs.overview.tx_table.status}</th>
-                                <th className="py-3 px-4">{t.docs.overview.tx_table.link}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                            {/* Cada fila etiquetada por red — regla de honestidad del copy:
-                                nunca mezclar métricas de mainnet y testnet sin decir cuál es cuál.
-                                Los tres hashes están verificados en Horizon (resuelven y son SUCCESS). */}
-                            {[
-                                { net: 'mainnet' as const, hash: '3134a51c66091fd7…cb7558bc', label: 'x402 · 0.02 USDC', fee: '0.0023579 XLM', link: 'https://stellar.expert/explorer/public/tx/3134a51c66091fd7fbd85b38a4a6ec6cd432bb92c2450eac84ea7855cb7558bc' },
-                                { net: 'mainnet' as const, hash: '4813645165d15af1…7c83795e', label: 'x402 · 0.02 USDC', fee: '0.0023579 XLM', link: 'https://stellar.expert/explorer/public/tx/4813645165d15af1e503d66ef84d826e83fff235d4f98c3f6eba8a4e7c83795e' },
-                                { net: 'testnet' as const, hash: 'c53d474658898af7…7552ed3', label: 'DeFindex vault · Invest firmado por el agente', fee: '0.0053800 XLM', link: 'https://stellar.expert/explorer/testnet/tx/c53d474658898af7ebbb84d17845902572147cfe1fb72965833e3d4cf7552ed3' },
-                            ].map((tx) => (
-                                <tr key={tx.hash} className="border-b border-white/5">
-                                    <td className="py-3 px-4">
-                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${tx.net === 'mainnet'
-                                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
-                                            {tx.net}
-                                        </span>
-                                    </td>
-                                    <td className="py-3 px-4 font-mono text-stellar-teal text-xs">{tx.hash}</td>
-                                    <td className="py-3 px-4 text-gray-300 text-xs font-mono">{tx.label}</td>
-                                    <td className="py-3 px-4 text-gray-400 text-xs">{tx.fee}</td>
-                                    <td className="py-3 px-4"><span className="text-green-400">✓ {t.docs.overview.tx_table.success}</span></td>
-                                    <td className="py-3 px-4">
-                                        <a href={tx.link} target="_blank" className="text-stellar-teal hover:underline flex items-center gap-1">
-                                            {t.docs.overview.tx_table.view} <ExternalLink className="w-3 h-3" />
-                                        </a>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div className="mt-5 space-y-2 text-sm text-gray-400">
-                    <div>
-                        <span className="text-emerald-400 font-bold text-xs uppercase font-mono">mainnet</span>{' '}
-                        <span className="text-xs">{t.docs.overview.mainnet_treasury}</span>{' '}
-                        <code className="text-stellar-teal text-xs">GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP</code>
-                    </div>
-                    <div>
-                        <span className="text-amber-400 font-bold text-xs uppercase font-mono">testnet</span>{' '}
-                        <span className="text-xs">{t.docs.overview.operator_wallet}</span>{' '}
-                        <code className="text-stellar-teal text-xs">GC4Q5TWWXI7IHN6DYCBEKCOWJWCKY4JE2NLKLU5SE3YL44IUUFPKUOPC</code>
-                    </div>
-                    <p className="text-xs text-gray-500 pt-1">{t.docs.overview.network_scope}</p>
-                </div>
-            </section>
-        </div>
-    );
-}
-
-function ArchitectureSection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-12">
-            {/* System Diagram */}
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.nav.architecture}</h2>
-                <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 font-mono text-sm overflow-x-auto">
-                    <pre className="text-gray-300 whitespace-pre">
-                        {`┌─────────────────────────────────────────────────────────────────────────┐
-│                           USER INTERFACE                                 │
-│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌────────┐ │
-│  │ Dashboard │  │Marketplace│  │ Analytics │  │ Treasury  │  │ Sandbox│ │
-│  │ XLM/USDC  │  │  Skills   │  │ (Charts)  │  │ Rules     │  │  API   │ │
-│  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └────┬───┘ │
-└────────┼──────────────┼──────────────┼──────────────┼──────────────┼────┘
-         │              │              │              │              │
-         ▼              ▼              ▼              ▼              ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        @stellar/freighter-api                           │
-│       (Wallet Connection, Auto-Reconnect, Transaction Signing)          │
-└───────────────────────────────┬─────────────────────────┬───────────────┘
-                                │                         │
-         ┌──────────────────────┼─────────────────────────┼───────┐
-         ▼                      ▼                         ▼       ▼
-┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐ ┌─────────┐
-│   PERSISTENCE    │  │ SETTLEMENT LAYER │  │ STRATEGIC FLEETS │ │ STELLAR │
-│   (Encrypted)    │  │  (x402 & MPP)    │  │ (Brain/Reasoner) │ │ SOROBAN │
-│ - identity_meta  │  │ - microbilling   │  │ - fleet_interf   │ │ SDK     │
-│ - protocol_intent│  │ - streams        │  │ - sys_intent     │ │         │
-│ - telemetry_vlt  │  │                  │  │                  │ │         │
-└────────┬─────────┘  └─────────┬────────┘  └─────────┬────────┘ └─────────┘
-         │                      │                     │
-         ▼                      ▼                     ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  PROTOCOL ARCHIVE (Decentralized IPFS Audit Logs & Strategy Schemas)      │
-└─────────────────────────────────────────────────────────────────────────┘`}
-                    </pre>
-                </div>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.architecture.layers_title}</h2>
-                <div className="space-y-4">
-                    {[
-                        {
-                            title: t.docs.architecture.layers.stellar.title,
-                            icon: Database,
-                            color: 'border-stellar-teal',
-                            items: t.docs.architecture.layers.stellar.items
-                        },
-                        {
-                            title: t.docs.architecture.layers.helper.title,
-                            icon: Cpu,
-                            color: 'border-stellar-yellow',
-                            items: t.docs.architecture.layers.helper.items
-                        },
-                        {
-                            title: t.docs.architecture.layers.storage.title,
-                            icon: Layers,
-                            color: 'border-amber-500',
-                            items: t.docs.architecture.layers.storage.items
-                        },
-                        {
-                            title: t.docs.architecture.layers.app.title,
-                            icon: Globe,
-                            color: 'border-green-500',
-                            items: t.docs.architecture.layers.app.items
-                        },
-                    ].map((layer) => (
-                        <div key={layer.title} className={`bg-white/5 border-l-4 ${layer.color} rounded-r-xl p-6`}>
-                            <h3 className="font-bold text-white mb-3 flex items-center gap-2">
-                                <layer.icon className="w-5 h-5" />
-                                {layer.title}
-                            </h3>
-                            <ul className="space-y-2 text-gray-400 text-sm">
-                                {layer.items.map((item: string, i: number) => (
-                                    <li key={i} className="flex items-center gap-2">
-                                        <ChevronRight className="w-3 h-3 text-gray-600" />
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section className="bg-white/5 border border-white/10 rounded-2xl p-8">
-                <h2 className="text-2xl font-bold mb-6">{t.docs.architecture.launch_title}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    {[
-                        { step: '01', title: t.docs.architecture.steps.step1.title, desc: t.docs.architecture.steps.step1.desc },
-                        { step: '02', title: t.docs.architecture.steps.step2.title, desc: t.docs.architecture.steps.step2.desc },
-                        { step: '03', title: t.docs.architecture.steps.step3.title, desc: t.docs.architecture.steps.step3.desc },
-                        { step: '04', title: t.docs.architecture.steps.step4.title, desc: t.docs.architecture.steps.step4.desc },
-                        { step: '05', title: t.docs.architecture.steps.step5.title, desc: t.docs.architecture.steps.step5.desc },
-                    ].map((item, i) => (
-                        <div key={item.step} className="relative">
-                            <div className="text-center">
-                                <div className="text-4xl font-black text-white/10 mb-2">{item.step}</div>
-                                <div className="w-3 h-3 rounded-full bg-stellar-teal mx-auto mb-3" />
-                                <h3 className="font-bold text-white mb-1">{item.title}</h3>
-                                <p className="text-xs text-gray-400">{item.desc}</p>
-                            </div>
-                            {i < 4 && (
-                                <div className="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-stellar-teal/50 to-transparent" />
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* SCF Roadmap */}
-            <section className="bg-gradient-to-br from-stellar-teal/10 to-transparent border border-stellar-teal/20 rounded-2xl p-8">
-                <div className="flex items-center gap-3 mb-8">
-                    <TrendingUp className="text-stellar-teal w-6 h-6" />
-                    <h2 className="text-2xl font-bold">{t.docs.contracts.milestones_title}</h2>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {Object.entries(t.docs.contracts.milestones).map(([key, value]) => (
-                        <div key={key} className="bg-black/40 border border-white/5 p-5 rounded-2xl flex items-start gap-4 transition-all hover:border-stellar-teal/30 hover:bg-stellar-teal/[0.02] group">
-                            <div className="w-2 h-2 rounded-full mt-2 shrink-0 bg-stellar-teal shadow-[0_0_8px_rgba(0,255,204,0.4)] group-hover:shadow-[0_0_12px_rgba(0,255,204,0.6)] transition-all" />
-                            <p className="text-sm text-gray-300 leading-relaxed group-hover:text-white transition-colors">{value as string}</p>
-                        </div>
-                    ))}
-                </div>
-                <div className="mt-8 pt-6 border-t border-white/5">
-                    <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
-                        <Heart className="text-pink-400 w-5 h-5" />
-                        {t.docs.contracts.ecosystem_impact_title}
-                    </h3>
-                    <p className="text-sm text-gray-400 leading-relaxed">
-                        {t.docs.contracts.ecosystem_impact_desc}
-                    </p>
-                </div>
-            </section>
-        </div>
-    );
-}
-
-function ContractsSection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-12">
-            {/* Deployed Contracts */}
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.api.contracts_title} (Testnet v0.16.0)</h2>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b border-white/10 text-gray-400 text-sm">
-                                <th className="py-3 px-4">{t.common.component}</th>
-                                <th className="py-3 px-4">{t.common.address}</th>
-                                <th className="py-3 px-4">{t.common.description}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm font-mono">
-                            {[
-                                { name: 'NiriumVault', id: 'CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU', color: 'text-stellar-teal', desc: t.docs.contracts.items.vault },
-                                { name: 'NiriumProtocol', id: 'CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5', color: 'text-purple-400', desc: t.docs.contracts.items.elo },
-                            ].map((c) => (
-                                <tr key={c.name} className="border-b border-white/5 hover:bg-white/5">
-                                    <td className="py-4 px-4 text-white font-bold font-sans">{c.name}</td>
-                                    <td className={`py-4 px-4 ${c.color} break-all text-xs`}>
-                                        <a href={`https://stellar.expert/explorer/testnet/contract/${c.id}`} target="_blank" className="hover:underline flex items-center gap-1">
-                                            {c.id.slice(0, 8)}…{c.id.slice(-6)} <ExternalLink className="w-3 h-3 inline" />
-                                        </a>
-                                    </td>
-                                    <td className="py-4 px-4 text-gray-400 font-sans">{c.desc}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.contracts.state_title}</h2>
-                <div className="space-y-6">
-                    <div className="bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden">
-                        <div className="px-4 py-2 bg-white/5 border-b border-white/10 flex items-center gap-2">
-                            <FileCode className="w-4 h-4 text-stellar-teal" />
-                            <span className="text-sm font-mono text-gray-400">VaultRecord</span>
-                        </div>
-                        <pre className="p-4 text-sm font-mono text-gray-300 overflow-x-auto">
-                            {`#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct VaultRecord {
-    pub owner: Address,
-    pub asset: Address,
-    pub balance: i128,
-}`}
-                        </pre>
-                    </div>
-
-                    <div className="bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden">
-                        <div className="px-4 py-2 bg-white/5 border-b border-white/10 flex items-center gap-2">
-                            <FileCode className="w-4 h-4 text-purple-500" />
-                            <span className="text-sm font-mono text-gray-400">EloScore</span>
-                        </div>
-                        <pre className="p-4 text-sm font-mono text-gray-300 overflow-x-auto">
-                            {`#[contracttype]
-pub struct EloScore {
-    pub agent_id: BytesN<32>,
-    pub wins: u32,
-    pub matches: u32,
-    pub rating: u32,
-}`}
-                        </pre>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.contracts.functions_title}</h2>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead>
-                            <tr className="border-b border-white/10 text-gray-400">
-                                <th className="py-3 px-4">Function</th>
-                                <th className="py-3 px-4">Signature</th>
-                                <th className="py-3 px-4">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody className="font-mono">
-                            {[
-                                { fn: 'create_vault', sig: 'pub fn create_vault(env, owner, token, name, xlm_asset) → Vault', desc: t.docs.contracts.functions.create_vault },
-                                { fn: 'deposit', sig: 'pub fn deposit(env, vault_id: u64, amount: i128)', desc: t.docs.contracts.functions.deposit },
-                                { fn: 'withdraw', sig: 'pub fn withdraw(env, vault_id: u64, amount: i128)', desc: t.docs.contracts.functions.withdraw },
-                                { fn: 'delegate_agent', sig: 'pub fn delegate_account(env, vault_id: u64, account: Address, max: i128)', desc: t.docs.contracts.functions.delegate_agent },
-                                { fn: 'revoke_agent', sig: 'pub fn revoke_account(env, vault_id: u64, account: Address)', desc: t.docs.contracts.functions.revoke_agent },
-                                { fn: 'close_vault', sig: 'pub fn close_vault(env, vault_id: u64)', desc: t.docs.contracts.functions.close_vault },
-                                { fn: 'publish_strategy', sig: 'pub fn publish_strategy(env, creator, name, ipfs_cid, fee: i128)', desc: t.docs.contracts.functions.publish_strategy },
-                                { fn: 'unlock_skill', sig: 'pub fn unlock_skill(env, caller, skill_id: String)', desc: t.docs.contracts.functions.unlock_skill },
-                            ].map((item) => (
-                                <tr key={item.fn} className="border-b border-white/5 hover:bg-white/5">
-                                    <td className="py-3 px-4 text-stellar-teal">{item.fn}</td>
-                                    <td className="py-3 px-4 text-gray-400 text-xs">{item.sig}</td>
-                                    <td className="py-3 px-4 text-gray-400 font-sans">{item.desc}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            {/* Test Results */}
-            <section className="bg-green-500/5 border border-green-500/20 rounded-xl p-6">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <CheckCircle className="text-green-400" />
-                    Integration Tests
-                </h2>
-                <div className="font-mono text-[10px] sm:text-sm space-y-2 overflow-x-hidden">
-                    {[
-                        'test_vault_deposit_withdraw',
-                        'test_marketplace_register',
-                        'test_elo_rating_update',
-                        'test_sentinel_emergency_pause',
-                        'test_hub_authorization'
-                    ].map((test) => (
-                        <div key={test} className="flex flex-col xs:flex-row xs:items-center gap-1 xs:gap-2 py-1 border-b border-white/5 xs:border-0">
-                            <span className="text-green-400 font-bold shrink-0">[PASS]</span>
-                            <span className="text-gray-400 break-all md:break-normal">test::{test}</span>
-                        </div>
-                    ))}
-                    <div className="mt-4 pt-4 border-t border-white/10 text-green-400">
-                        Test result: OK. Total tests: 67; passed: 67; failed: 0
-                    </div>
-                </div>
-            </section>
-        </div>
-    );
-}
-
-function AgentSection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-12">
-            {/* Overview */}
-            <section>
-                <h2 className="text-2xl font-bold mb-6">Helpers (x402 & MPP)</h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                        <h3 className="font-bold text-white mb-4">{t.docs.agent.use_title}</h3>
-                        <ul className="space-y-2 text-gray-400 text-sm">
-                            {t.docs.agent.use_items.map((item: string, i: number) => (
-                                <li key={i}>• {item}</li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                        <h3 className="font-bold text-white mb-4">{t.docs.agent.status_title}</h3>
-                        <div className="flex items-center gap-2 text-green-400">
-                            <CheckCircle className="w-5 h-5" />
-                            <span className="font-bold">{t.docs.agent.status_live}</span>
-                        </div>
-                        <p className="text-sm text-gray-400 mt-2">
-                            x402 service: <code className="text-stellar-teal">{t.docs.agent.status_running}</code><br/>
-                            MPP Charge: <code className="text-amber-500">experimental, not available on mainnet</code>
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.agent.layout_title}</h2>
-                <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-4 font-mono text-[10px] xs:text-xs sm:text-sm overflow-x-auto scrollbar-thin scrollbar-thumb-white/10">
-                    <pre className="text-gray-400 whitespace-pre">
-                        {`packages/
-├── mcp/                      # Model Context Protocol server (25 tools)
-├── sdk/                      # TypeScript SDK  (npm: nirium)
-├── sdk-python/               # Python SDK      (pip: nirium)
-└── agent/                    # Express 5 runtime — 102 endpoints
-
-packages/agent/src/scripts/
-├── master.ts                 # Orchestrator: proxy + agent + indexer
-├── nirium_indexer.ts         # Soroban events -> Supabase
-├── x402_buyer_agent.ts       # x402 client      (off by default)
-├── mpp_buyer_agent.ts        # MPP Charge client (off by default)
-└── smoke-test.ts             # End-to-end check`}
-                    </pre>
-                </div>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.agent.flow_title}</h2>
-                <div className="space-y-4">
-                    {t.docs.agent.flow_steps.map((item: any, i: number) => (
-                        <div key={i} className="flex items-start gap-4 bg-white/5 rounded-lg p-4">
-                            <div className="w-8 h-8 rounded-full bg-stellar-teal/20 text-stellar-teal flex items-center justify-center font-bold shrink-0">
-                                {i + 1}
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-white">{item.title}</h4>
-                                <p className="text-sm text-gray-400">{item.desc}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Usage */}
-            <section className="bg-black border border-white/10 rounded-xl overflow-hidden">
-                <div className="px-4 py-2 bg-white/5 border-b border-white/10 flex items-center gap-2">
-                    <Terminal className="w-4 h-4 text-green-400" />
-                    <span className="text-sm font-mono text-gray-400">Usage</span>
-                </div>
-                <pre className="p-4 text-sm font-mono text-gray-300">
-                    {`# El agente arranca completo con un solo proceso — x402 y MPP viven
-# dentro del servidor Express, no en subsistemas aparte.
-pnpm --filter @nirium/agent dev          # desarrollo
-pnpm --filter @nirium/agent start        # producción
-
-# Indexador de eventos Soroban (proceso aparte, opcional)
-pnpm --filter @nirium/agent start:indexer
-
-# Clientes compradores de referencia (apagados por defecto)
-pnpm --filter @nirium/agent x402:buy
-pnpm --filter @nirium/agent mpp:buy
-
-# Expected output (X402 Agent):
-[X402 Agent] Starting X402 payment flow...
-[X402 Agent] Found Token in storage!
-[X402 Agent] Requesting premium resource...
-✅ Transaction Successful
-[X402 Agent] Content: "CONFIDENTIAL REASONING..."`}
-                </pre>
-            </section>
-        </div>
-    );
-}
-
-function BuilderSection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-12">
-            <section>
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <Workflow className="text-stellar-yellow" />
-                    {t.docs.builder.title}
-                </h2>
-                <p className="text-gray-400 mb-8 leading-relaxed">
-                    {t.docs.builder.subtitle}
-                </p>
-
-                <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors">
-                        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                            <Layers className="w-5 h-5 text-stellar-teal" />
-                            {t.docs.builder.boxes_title}
-                        </h3>
-                        <ul className="space-y-2 text-sm text-gray-400">
-                            <li>• {t.docs.builder.categories.money_in}</li>
-                            <li>• {t.docs.builder.categories.timing}</li>
-                            <li>• {t.docs.builder.categories.brain}</li>
-                            <li>• {t.docs.builder.categories.work}</li>
-                            <li>• {t.docs.builder.categories.storage}</li>
-                            <li>• {t.docs.builder.categories.checks}</li>
-                        </ul>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors">
-                        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                            <Zap className="w-5 h-5 text-amber-500" />
-                            What "Run" Actually Does
-                        </h3>
-                        <p className="text-sm text-gray-400 mb-3">
-                            Click <strong className="text-white">Run</strong> and your boxes get turned into real Stellar transactions. Everything happens as one unit — if one step fails, nothing moves. No half-sent money.
-                        </p>
-                        <ul className="space-y-1 text-sm text-gray-400">
-                            <li className="flex items-center gap-2"><span className="text-stellar-teal">⬆</span> Your strategy gets saved to <strong className="text-white">IPFS</strong> — permanent audit trail</li>
-                            <li className="flex items-center gap-2"><span className="text-[#4ca2ff]">💾</span> <strong className="text-white">Export</strong> downloads the JSON if you want to inspect or share it</li>
-                            <li className="flex items-center gap-2"><span className="text-stellar-yellow">🏦</span> <strong className="text-white">SPEI / Crypto</strong> toggle picks the payment rail</li>
-                        </ul>
-                    </div>
-                </div>
-
-                {/* Node category color reference */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-                    {[
-                        { label: 'MONEY IN', color: 'from-cyan-400 to-blue-500' },
-                        { label: 'WHEN TO ACT', color: 'from-amber-400 to-orange-500' },
-                        { label: 'AI BRAIN', color: 'from-purple-500 to-indigo-600' },
-                        { label: 'PUT TO WORK', color: 'from-blue-400 to-cyan-500' },
-                        { label: 'SAFE STORAGE', color: 'from-emerald-500 to-green-600' },
-                        { label: 'CHECKS', color: 'from-pink-500 to-rose-600' },
-                    ].map(c => (
-                        <div key={c.label} className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
-                            <div className={`w-1 h-8 rounded-full bg-gradient-to-b ${c.color} shrink-0`} />
-                            <span className="text-[9px] font-mono text-gray-400 uppercase leading-tight">{c.label}</span>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section className="bg-stellar-yellow/5 border border-stellar-yellow/20 rounded-2xl p-8">
-                <h3 className="text-xl font-bold mb-4">Why This Matters</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-                    <div>
-                        <div className="text-stellar-yellow font-bold mb-1">No Code</div>
-                        <p className="text-xs text-gray-500">Build without writing a single line. Drag, connect, run.</p>
-                    </div>
-                    <div>
-                        <div className="text-stellar-yellow font-bold mb-1">Real Transactions</div>
-                        <p className="text-xs text-gray-500">Your boxes become real Stellar operations behind the scenes.</p>
-                    </div>
-                    <div>
-                        <div className="text-stellar-yellow font-bold mb-1">Always Auditable</div>
-                        <p className="text-xs text-gray-500">Every run saved on IPFS, where any later change shows.</p>
-                    </div>
-                    <div>
-                        <div className="text-stellar-yellow font-bold mb-1">Multi-Coin</div>
-                        <p className="text-xs text-gray-500">XLM, USDC, and Mexican pesos via SPEI.</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-    );
-}
-
-function FrontendSection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-12">
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.frontend.stack_title}</h2>
-                <div className="grid md:grid-cols-4 gap-4">
-                    {[
-                        { label: 'Framework', value: 'Next.js 15' },
-                        { label: 'React', value: 'v19' },
-                        { label: 'Styling', value: 'Tailwind CSS' },
-                        { label: 'Wallet', value: '@stellar/freighter-api' },
-                    ].map((item) => (
-                        <div key={item.label} className="bg-white/5 border border-white/10 rounded-lg p-4 text-center">
-                            <div className="text-xs text-gray-500 uppercase">{item.label}</div>
-                            <div className="text-lg font-bold text-white">{item.value}</div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.frontend.pages_title}</h2>
-                <div className="space-y-4">
-                    {[
-                        { path: '/', name: t.docs.frontend.pages.home.name, desc: t.docs.frontend.pages.home.desc, lines: 330 },
-                        { path: '/how-to-use', name: t.docs.frontend.pages.how_to_use.name, desc: t.docs.frontend.pages.how_to_use.desc, lines: 180 },
-                        { path: '/dashboard', name: t.docs.frontend.pages.dashboard.name, desc: t.docs.frontend.pages.dashboard.desc, lines: 2384 },
-                        { path: '/treasury', name: t.docs.frontend.pages.treasury.name, desc: t.docs.frontend.pages.treasury.desc, lines: 572 },
-                        { path: '/marketplace', name: t.docs.frontend.pages.marketplace.name, desc: t.docs.frontend.pages.marketplace.desc, lines: 835 },
-                        { path: '/agents', name: t.docs.frontend.pages.agents.name, desc: t.docs.frontend.pages.agents.desc, lines: 280 },
-                        { path: '/sandbox', name: t.docs.frontend.pages.sandbox.name, desc: t.docs.frontend.pages.sandbox.desc, lines: 310 },
-                        { path: '/analytics', name: t.docs.frontend.pages.analytics.name, desc: t.docs.frontend.pages.analytics.desc, lines: 200 },
-                        { path: '/docs', name: t.docs.frontend.pages.docs.name, desc: t.docs.frontend.pages.docs.desc, lines: 1173 },
-                    ].map((page) => (
-                        <Link key={page.path} href={page.path} className="bg-white/5 border border-white/10 rounded-lg p-4 flex items-center justify-between hover:bg-white/10 hover:border-white/20 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <code className="text-stellar-teal text-sm">{page.path}</code>
-                                <span className="text-white font-medium">{page.name}</span>
-                                <span className="text-gray-500 text-sm hidden md:block">{page.desc}</span>
-                            </div>
-                            <span className="text-xs text-gray-500 font-mono">{page.lines} lines</span>
-                        </Link>
-                    ))}
-                </div>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.frontend.blocks_title}</h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                            <Settings className="w-5 h-5 text-stellar-yellow" />
-                            Wallet Provider
-                        </h3>
-                        <pre className="text-xs font-mono text-gray-400 bg-black/40 p-3 rounded-lg overflow-x-auto">
-                            {`<WalletProvider autoConnect>
-  {children}
-</WalletProvider>`}
-                        </pre>
-                        <p className="text-sm text-gray-400 mt-3">
-                            {t.docs.frontend.wallet_desc}
-                        </p>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                            <Database className="w-5 h-5 text-amber-500" />
-                            Strategy Service
-                        </h3>
-                        <pre className="text-xs font-mono text-gray-400 bg-black/40 p-3 rounded-lg overflow-x-auto">
-                            {`StrategyService.deployStrategy(
-  walletAddress: string,
-  strategy: ActiveStrategy
-) // Upsert pattern`}
-                        </pre>
-                        <p className="text-sm text-gray-400 mt-3">
-                            {t.docs.frontend.strategy_desc}
-                        </p>
-                    </div>
-                </div>
-            </section>
-        </div>
-    );
-}
-
-function ApiSection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-16">
-            {/* Header / Intro */}
-            <section className="bg-gradient-to-br from-stellar-teal/10 via-[#0A0A0A] to-transparent border border-stellar-teal/20 rounded-3xl p-8 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-stellar-teal/5 blur-[120px] rounded-full pointer-events-none group-hover:bg-stellar-teal/10 transition-colors duration-700" />
-                <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-stellar-teal/20 rounded-lg">
-                            <Terminal className="text-stellar-teal w-6 h-6" />
-                        </div>
-                        <h2 className="text-4xl font-black tracking-tight">NIRIUM API</h2>
-                    </div>
-                    <p className="text-gray-400 text-lg max-w-3xl leading-relaxed mb-8">
-                        {t.docs.api.subtitle}
-                    </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {[
-                            // Sin SLA publicado: no hay contrato de nivel de servicio con nadie,
-                            // y prometer 99.5% sin instrumentación que lo mida es una cifra inventada.
-                            // Lo que sí se puede afirmar es lo que se puede verificar.
-                            { label: 'Redes', val: 'Testnet + Mainnet', icon: Activity, color: 'text-stellar-teal' },
-                            { label: 'Latencia', val: 'medida en /health', icon: Clock, color: 'text-stellar-yellow' },
-                            { label: 'Endpoints', val: '102', icon: Layers, color: 'text-purple-400' },
-                            { label: 'Custodia', val: 'Ninguna', icon: Shield, color: 'text-green-400' },
-                        ].map((stat) => (
-                            <div key={stat.label} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <stat.icon className={`w-3 h-3 ${stat.color}`} />
-                                    <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">{stat.label}</span>
-                                </div>
-                                <div className="text-xl font-black text-white">{stat.val}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Authentication & Access */}
-            <section>
-                <div className="flex items-center gap-3 mb-8">
-                    <Key className="text-stellar-yellow w-6 h-6" />
-                    <h3 className="text-2xl font-bold">{t.docs.api.auth_title}</h3>
-                </div>
-                <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                        <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
-                            <h4 className="text-white font-bold mb-4 flex items-center gap-2">
-                                <Shield className="w-4 h-4 text-stellar-teal" /> API Key (x-api-key header)
-                            </h4>
-                            <p className="text-sm text-gray-400 mb-4">Use this for servers, bots, or any app that needs steady access. Send the key in a header on every request.</p>
-                            <div className="bg-black/50 p-4 rounded-lg font-mono text-xs text-stellar-teal border border-stellar-teal/20 mb-4">
-                                curl -H "x-api-key: sk_inst_[TU_KEY]" \ <br />
-                                &nbsp;&nbsp;https://nirium-agent.fly.dev/api/market
-                            </div>
-                            <p className="text-[10px] text-gray-500">Your key starts with one of these: <span className="text-gray-400 font-mono">sk_free_</span> · <span className="text-gray-400 font-mono">sk_sbox_</span> · <span className="text-gray-400 font-mono">sk_inst_</span> · <span className="text-gray-400 font-mono">sk_ent_</span></p>
-                        </div>
-
-                        <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
-                            <h4 className="text-white font-bold mb-4 flex items-center gap-2">
-                                <Lock className="w-4 h-4 text-stellar-yellow" /> Short-Lived Token (JWT)
-                            </h4>
-                            <p className="text-sm text-gray-400 mb-4">Use this for browser apps. Sign in with your wallet once and get a 24-hour token you send on every request.</p>
-                            <div className="bg-black/50 p-4 rounded-lg font-mono text-xs text-stellar-yellow border border-stellar-yellow/20">
-                                Authorization: Bearer eyJhbGciOi...
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-stellar-teal/5 to-transparent border border-white/10 rounded-2xl p-8">
-                        <h4 className="text-white font-bold mb-6">{t.docs.api.pricing_title}</h4>
-                        <div className="space-y-4">
-                            {[
-                                { tier: 'Free', req: '100 calls/day', speed: '10 per min', prefix: 'sk_free_' },
-                                { tier: 'Sandbox', req: '1,000 calls/day', speed: '60 per min', prefix: 'sk_sbox_' },
-                                { tier: 'Pro', req: '10,000 calls/day', speed: '300 per min', prefix: 'sk_inst_' },
-                                { tier: 'Enterprise', req: '100,000+ calls/day', speed: '1,000+ per min', prefix: 'sk_ent_' },
-                            ].map((tier, idx) => (
-                                <div key={tier.tier} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
-                                    <div>
-                                        <div className="text-sm font-bold text-white">{tier.tier}</div>
-                                        <div className="text-xs text-gray-500">{tier.speed} · <span className="font-mono text-gray-600">{(tier as any).prefix}</span></div>
-                                    </div>
-                                    <div className="text-stellar-teal font-mono text-sm">{tier.req}</div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="mt-6 p-3 bg-stellar-yellow/5 border border-stellar-yellow/20 rounded-lg">
-                            <p className="text-[10px] text-stellar-yellow/80 font-mono">
-                                🔒 {t.docs.api.pricing_warning}
-                            </p>
-                            <p className="text-[10px] text-gray-500 mt-1">
-                                {t.docs.api.pricing_desc}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Smart Contracts Directory */}
-            <section>
-                <div className="flex items-center gap-3 mb-8">
-                    <Database className="text-purple-400 w-6 h-6" />
-                    <h3 className="text-2xl font-bold">{t.docs.api.contracts_title} (Testnet)</h3>
-                </div>
-                <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="bg-white/5 border-b border-white/10 text-xs font-mono text-gray-500">
-                                <th className="py-4 px-6 uppercase tracking-widest">Contract / Asset</th>
-                                <th className="py-4 px-6 uppercase tracking-widest">On-Chain Address</th>
-                                <th className="py-4 px-6 text-right uppercase tracking-widest">Network</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                            {[
-                                { name: 'NiriumVault', id: 'CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU', short: 'CBTWMZ...WSZU', type: 'Treasury' },
-                                { name: 'NiriumProtocol', id: 'CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5', short: 'CC2TU5...NR5', type: 'Registry' },
-                                { name: 'CETES (Mexican Bonds)', id: 'CC72F57YTPX76HAA64JQOEGHQAPSADQWSY5DWVBR66JINPFDLNCQYHIC', short: 'CC72F5...YHIC', type: 'Asset SAC' },
-                            ].map((c) => (
-                                <tr key={c.name} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                                    <td className="py-4 px-6">
-                                        <div className="text-white font-bold">{c.name}</div>
-                                        <div className="text-[10px] text-gray-500 uppercase">{c.type}</div>
-                                    </td>
-                                    <td className="py-2 px-6">
-                                        <a 
-                                            href={`https://stellar.expert/explorer/testnet/contract/${c.id}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex bg-black/40 px-3 py-1.5 rounded-lg border border-white/5 font-mono text-xs text-stellar-teal hover:bg-stellar-teal/10 hover:border-stellar-teal/30 transition-all items-center gap-2"
-                                        >
-                                            {c.short}
-                                            <ExternalLink size={10} className="text-gray-600 group-hover:text-stellar-teal transition-colors" />
-                                        </a>
-                                    </td>
-                                    <td className="py-4 px-6 text-right text-gray-400 font-mono text-xs">Soroban Testnet</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            {/* Integration Examples Hub */}
-            <section className="space-y-8">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Code className="text-stellar-teal w-6 h-6" />
-                        <h3 className="text-2xl font-bold">{t.docs.api.examples_title}</h3>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* REST API Python */}
-                    <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden flex flex-col">
-                        <div className="px-5 py-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-6 bg-stellar-teal rounded-full" />
-                                <span className="text-xs font-mono text-gray-400">PYTHON — CHECK YOUR STATUS</span>
-                                <a href="https://pypi.org/project/nirium/" target="_blank" rel="noreferrer" className="bg-black/40 px-2 py-0.5 rounded text-[10px] font-mono text-stellar-teal border border-stellar-teal/20 hover:bg-stellar-teal/10 transition-colors">
-                                    pip install nirium
-                                </a>
-                            </div>
-                        </div>
-                        <pre className="p-6 text-xs font-mono text-gray-300 overflow-x-auto leading-relaxed bg-black/40 flex-grow">
-                            {`import os
-import requests
-
-# Inicialización institucional
-API_KEY = os.getenv("NIRIUM_API_KEY")
-URL = "https://nirium-agent.fly.dev/api/sandbox/status"
-
-headers = {
-    "x-api-key": API_KEY,
-    "Content-Type": "application/json"
-}
-
-def get_compliance_status():
-    res = requests.get(URL, headers=headers)
-    if res.status_code == 200:
-        data = res.json()
-        tier = data['account']['tier']
-        used = data['usage']['dailyRequests']
-        limit = data['quotas']['requestsPerDay']
-        remaining = data['usage']['remainingToday']
-        print(f"✅ Tier: {tier}")
-        print(f"📊 Daily: {used}/{limit} ({remaining} remaining)")
-
-get_compliance_status()`}
-                        </pre>
-                    </div>
-
-                    {/* WebSocket Node.js */}
-                    <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden flex flex-col">
-                        <div className="px-5 py-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-6 bg-purple-500 rounded-full" />
-                                <span className="text-xs font-mono text-gray-400">NODE.JS — LISTEN FOR LIVE SIGNALS</span>
-                                <a href="https://www.npmjs.com/package/nirium" target="_blank" rel="noreferrer" className="bg-black/40 px-2 py-0.5 rounded text-[10px] font-mono text-purple-400 border border-purple-500/20 hover:bg-purple-500/10 transition-colors">
-                                    npm install nirium
-                                </a>
-                            </div>
-                        </div>
-                        <pre className="p-6 text-xs font-mono text-gray-300 overflow-x-auto leading-relaxed bg-black/40 flex-grow">
-                            {`const WebSocket = require('ws');
-const API_KEY = process.env.NIRIUM_API_KEY;
-
-const ws = new WebSocket('wss://nirium-agent.fly.dev/ws/signals', {
-  headers: { 'x-api-key': API_KEY }
-});
-
-ws.on('open', () => {
-  console.log('📡 Connected to Nirium live feed');
-});
-
-ws.on('message', (payload) => {
-  const msg = JSON.parse(payload);
-  if (msg.type === 'signal') {
-    console.log('📡 EVENT:', msg.signal_type);
-    console.log('   Pair:', msg.pair);
-    console.log('   Details:', msg.data?.details ?? '(see docs for schema)');
-    // Factual event data, not a recommendation — decide your own thresholds.
-  }
-});`}
-                        </pre>
-                    </div>
-                </div>
-            </section>
-
-            {/* Full Endpoint Directory */}
-            <section id="endpoints-directory">
-                <div className="flex items-center gap-3 mb-8">
-                    <Workflow className="text-stellar-teal w-6 h-6" />
-                    <h3 className="text-2xl font-bold uppercase tracking-tighter">{t.docs.api.explorer_title} (102)</h3>
-                </div>
-
-                <EndpointExplorer />
-            </section>
-
-            {/* SLA & Reliability Section */}
-            <section className="bg-gradient-to-r from-stellar-teal/5 to-stellar-yellow/5 border border-white/10 rounded-3xl p-8">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12">
-                    <div>
-                        <h3 className="text-3xl font-black text-white mb-2">{t.docs.api.sla_title}</h3>
-                        <p className="text-gray-400">{t.docs.api.sla_subtitle}</p>
-                    </div>
-                    <Link href="/status" className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all group">
-                        <Activity className="w-4 h-4 text-stellar-teal group-hover:animate-pulse" />
-                        <span className="text-sm font-bold text-white">{t.docs.api.status_button}</span>
-                    </Link>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {[
-                        t.docs.api.sla_items.uptime,
-                        t.docs.api.sla_items.speed,
-                        t.docs.api.sla_items.support,
-                    ].map((item: any, idx: number) => {
-                        const icons = [Globe, Zap, Heart];
-                        const Icon = icons[idx];
-                        return (
-                        <div key={item.title} className="space-y-3">
-                            <div className="flex items-center gap-2">
-                                <Icon className="w-4 h-4 text-stellar-teal" />
-                                <span className="text-sm text-gray-400 font-bold uppercase tracking-widest">{item.title}</span>
-                            </div>
-                            <div className="text-4xl font-black text-white">{item.target}</div>
-                            <p className="text-xs text-gray-500 leading-relaxed">{item.detail}</p>
-                        </div>
-                        );
-                    })}
-                </div>
-
-                {/* Health Checklist Final */}
-                <div className="mt-12 bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-wrap gap-x-12 gap-y-4">
-                    <div className="flex items-center gap-2">
-                        <CheckCircle size={14} className="text-stellar-teal" />
-                        <span className="text-xs text-gray-400">{t.docs.api.security_checklist.ssl}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <CheckCircle size={14} className="text-stellar-teal" />
-                        <span className="text-xs text-gray-400">{t.docs.api.security_checklist.encryption}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <CheckCircle size={14} className="text-stellar-teal" />
-                        <span className="text-xs text-gray-400">{t.docs.api.security_checklist.ipfs}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <CheckCircle size={14} className="text-stellar-teal" />
-                        <span className="text-xs text-gray-400">{t.docs.api.security_checklist.soc2}</span>
-                    </div>
-                </div>
-            </section>
-        </div>
-    );
-}
-
-function EndpointExplorer() {
-    const { t } = useLanguage();
-    const [activeCat, setActiveCat] = useState('auth');
-
-    const categories = [
-        { id: 'auth', label: t.docs.api.categories.auth, icon: Lock },
-        { id: 'market', label: t.docs.api.categories.market, icon: TrendingUp },
-        { id: 'exec', label: t.docs.api.categories.exec, icon: Cpu },
-        { id: 'sandbox', label: t.docs.api.categories.sandbox, icon: Shield },
-        { id: 'skills', label: t.docs.api.categories.skills, icon: Layers },
-        { id: 'events', label: t.docs.api.categories.events, icon: Zap },
-        { id: 'compliance', label: t.docs.api.categories.compliance, icon: ShieldCheck },
-        { id: 'premium', label: t.docs.api.categories.premium, icon: Zap },
-    ];
-
-    const endpoints: Record<string, any[]> = {
-        auth: t.docs.api.endpoints.auth.map((e: any, i: number) => ({
-            method: ['GET', 'GET', 'GET', 'GET', 'GET', 'POST', 'POST', 'POST', 'POST', 'GET', 'DELETE'][i],
-            path: ['/health', '/api/info', '/api/public/market-snapshot', '/api/public/quickstart', '/api/public/examples', '/api/public/authenticate', '/api/public/demo-auth', '/api/auth/token', '/api/auth/keys', '/api/auth/keys', '/api/auth/keys/:id'][i],
-            desc: e.desc,
-            isPremium: false
-        })),
-        market: t.docs.api.endpoints.market.map((e: any, i: number) => ({
-            method: ['GET', 'GET', 'GET', 'GET'][i],
-            path: ['/api/market', '/api/signals/recent', '/api/tickers', '/api/stats/global'][i],
-            desc: e.desc,
-            isPremium: false
-        })),
-        exec: t.docs.api.endpoints.exec.map((e: any, i: number) => ({
-            method: ['POST', 'POST', 'POST', 'POST', 'GET', 'POST'][i],
-            path: ['/api/execute', '/api/execute-demo', '/api/loop/start', '/api/loop/stop', '/api/loop/status', '/api/loop/scan'][i],
-            desc: e.desc,
-            isPremium: [true, false, true, true, false, true][i]
-        })),
-        sandbox: t.docs.api.endpoints.sandbox.map((e: any, i: number) => ({
-            method: ['POST', 'GET', 'GET', 'GET', 'DELETE'][i],
-            path: ['/api/sandbox/request', '/api/sandbox/info', '/api/sandbox/status', '/api/sandbox/accounts', '/api/sandbox/accounts/:id'][i],
-            desc: e.desc,
-            isPremium: false
-        })),
-        skills: t.docs.api.endpoints.skills.map((e: any, i: number) => ({
-            method: ['GET', 'GET', 'POST', 'DELETE', 'POST', 'GET'][i],
-            path: ['/api/skills', '/api/skills/marketplace', '/api/skills/install', '/api/skills/:slug', '/api/skills/:slug/actions/:action', '/api/strategies'][i],
-            desc: e.desc,
-            isPremium: false
-        })),
-        events: t.docs.api.endpoints.events.map((e: any, i: number) => ({
-            method: ['POST', 'GET', 'POST', 'DELETE', 'POST', 'GET', 'DELETE', 'GET', 'WS'][i],
-            path: ['/api/webhooks', '/api/webhooks', '/api/webhooks/:id/test', '/api/webhooks/:id', '/api/subscriptions', '/api/subscriptions', '/api/subscriptions/:id', '/api/subscriptions/stats', 'wss://nirium-agent.fly.dev/ws/signals'][i],
-            desc: e.desc,
-            isPremium: false
-        })),
-        compliance: t.docs.api.endpoints.compliance.map((e: any, i: number) => ({
-            method: ['POST', 'GET', 'GET', 'GET', 'GET'][i],
-            path: ['/api/audit/log', '/api/audit/info', '/api/reporting/summary', '/api/reporting/export', '/api/reporting/info'][i],
-            desc: e.desc,
-            isPremium: false
-        })),
-        premium: t.docs.api.endpoints.premium.map((e: any, i: number) => ({
-            method: ['GET', 'GET', 'GET', 'GET'][i],
-            path: ['/api/v1/premium/signals', '/api/v1/premium/market', '/api/v1/mpp/signals', '/api/v1/mpp/market'][i],
-            desc: e.desc,
-            isPremium: true
-        }))
-    };
-
-    return (
-        <div className="bg-[#0A0A0A] border border-white/10 rounded-3xl overflow-hidden">
-            <div className="flex overflow-x-auto border-b border-white/10 bg-white/5 scrollbar-hide">
-                {categories.map((cat) => (
-                    <button
-                        key={cat.id}
-                        onClick={() => setActiveCat(cat.id)}
-                        className={`flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all border-b-2 ${activeCat === cat.id
-                                ? 'border-stellar-teal text-stellar-teal bg-stellar-teal/5'
-                                : 'border-transparent text-gray-500 hover:text-white'
-                            }`}
-                    >
-                        <cat.icon size={14} />
-                        {cat.label}
-                    </button>
-                ))}
-            </div>
-
-            <div className="p-2 sm:p-6 space-y-2">
-                {endpoints[activeCat].map((ep, idx) => (
-                    <div key={idx} className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl hover:bg-white/5 transition-all border border-transparent hover:border-white/10">
-                        <div className={`px-2 py-1 rounded font-mono text-[10px] font-black w-14 text-center shrink-0 ${ep.method === 'GET' ? 'bg-blue-500/20 text-blue-400' :
-                                ep.method === 'POST' ? 'bg-green-500/20 text-green-400' :
-                                    ep.method === 'WS' ? 'bg-purple-500/20 text-purple-400' :
-                                        'bg-red-500/20 text-red-400'
-                            }`}>
-                            {ep.method}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                                <code className="font-mono text-xs text-stellar-teal tracking-tighter truncate">
-                                    {ep.path}
-                                </code>
-                                {ep.isPremium && (
-                                    <span className="px-1.5 py-0.5 rounded-full bg-stellar-yellow/10 border border-stellar-yellow/20 text-stellar-yellow text-[8px] font-black uppercase tracking-widest leading-none">
-                                        Premium
-                                    </span>
-                                )}
-                            </div>
-                            <div className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors line-clamp-1">
-                                {ep.desc}
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <div className="bg-white/5 px-6 py-4 flex items-center justify-between">
-                <span className="text-[10px] text-gray-500 font-mono italic">
-                    Referencia completa: <a href="/nirium-api.yaml" className="underline hover:text-stellar-teal transition-colors">nirium-api.yaml</a> (OpenAPI 3.1.0)
-                </span>
-                <a
-                    href="/nirium-api.yaml"
-                    download="nirium-api-spec.yaml"
-                    className="text-[10px] text-stellar-teal font-black hover:underline uppercase tracking-widest flex items-center gap-2 group"
-                >
-                    <FileCode size={12} className="group-hover:rotate-12 transition-transform" />
-                    {t.docs.api.download_postman} →
-                </a>
-            </div>
-        </div>
-    );
-}
-
-function SecuritySection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-12">
-            {/* Atomic Operations */}
-            <section>
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-white">
-                    <Lock className="text-stellar-teal" />
-                    {t.docs.security.atomic_enforcement}
-                </h2>
-                <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6">
-                    <p className="text-gray-300 mb-4">
-                        {t.docs.security.atomic_subtitle}
-                    </p>
-                    <ul className="space-y-3">
-                        {t.docs.security.atomic_items.map((item: any) => (
-                            <li key={item.text} className="flex items-center gap-3 text-gray-300">
-                                <span className="text-xl">{item.icon}</span>
-                                {item.text}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </section>
-
-            {/* Attack Prevention */}
-            <section>
-                <h2 className="text-2xl font-bold mb-6 text-white">{t.docs.security.framework_title}</h2>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b border-white/10 text-gray-400 text-sm">
-                                <th className="py-3 px-4">{t.common.threat || 'Threat'}</th>
-                                <th className="py-3 px-4">{t.common.protection || 'How We Stop It'}</th>
-                                <th className="py-3 px-4">{t.common.status || 'Status'}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                            {t.docs.security.threats.map((item: any) => (
-                                <tr key={item.attack} className="border-b border-white/5 hover:bg-white/5">
-                                    <td className="py-3 px-4 text-red-400">{item.attack}</td>
-                                    <td className="py-3 px-4 text-gray-300">{item.protection}</td>
-                                    <td className="py-3 px-4 text-green-400 font-bold">✓</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            {/* RLS */}
-            <section className="bg-white/5 border border-white/10 rounded-xl p-6">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Users className="text-stellar-yellow" />
-                    {t.docs.security.data_privacy.title}
-                </h2>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead>
-                            <tr className="border-b border-white/10 text-gray-400">
-                                <th className="py-2 px-3">{t.common.component || 'What'}</th>
-                                <th className="py-2 px-3">{t.common.protection || 'Who Can See It'}</th>
-                            </tr>
-                        </thead>
-                        <tbody className="font-mono">
-                            <tr className="border-b border-white/5">
-                                <td className="py-2 px-3 text-stellar-teal">{t.docs.security.data_privacy.profile.label}</td>
-                                <td className="py-2 px-3 text-gray-400">{t.docs.security.data_privacy.profile.desc}</td>
-                            </tr>
-                            <tr className="border-b border-white/5">
-                                <td className="py-2 px-3 text-stellar-teal">{t.docs.security.data_privacy.strategies.label}</td>
-                                <td className="py-2 px-3 text-gray-400">{t.docs.security.data_privacy.strategies.desc}</td>
-                            </tr>
-                            <tr className="border-b border-white/5">
-                                <td className="py-2 px-3 text-stellar-teal">{t.docs.security.data_privacy.logs.label}</td>
-                                <td className="py-2 px-3 text-gray-400">{t.docs.security.data_privacy.logs.desc}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            {/* Verification & Compliance */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-6">
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                        <FileCheck className="text-green-400" />
-                        {t.docs.security.recording.title}
-                    </h2>
-                    <div className="space-y-4 text-sm text-gray-300">
-                        <p>
-                            {t.docs.security.recording.desc}
-                        </p>
-                        <div className="bg-black/40 p-3 rounded font-mono text-xs text-green-300 border border-green-500/10">
-                            verify_tx(agent_id, tx_hash) {'{'}<br />
-                            &nbsp;&nbsp;return stellar::verify_sig(id.pubkey, tx.hash);<br />
-                            {'}'}
-                        </div>
-                        <div className="flex items-center gap-2 text-green-400 font-bold">
-                            <CheckCircle size={16} /> {t.docs.security.recording.proof}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-pink-500/5 border border-pink-500/20 rounded-xl p-6">
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                        <HardDrive className="text-pink-400" />
-                        {t.docs.security.ipfs.title}
-                    </h2>
-                    <div className="space-y-4 text-sm text-gray-300">
-                        <p>
-                            {t.docs.security.ipfs.desc}
-                        </p>
-                        <ul className="space-y-2">
-                            {t.docs.security.ipfs.items.map((item: string) => (
-                                <li key={item} className="flex items-center gap-2 op-70"><CheckCircle size={14} /> {item}</li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            {/* Stellar Code of Conduct */}
-            <section className="bg-gradient-to-br from-stellar-teal/5 to-stellar-yellow/5 border border-white/10 rounded-2xl p-8">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <Activity className="text-stellar-teal" />
-                    {t.docs.security.stellar_coc.title}
-                </h2>
-                <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                        {t.docs.security.stellar_coc.principles.map((p: string, i: number) => (
-                            <div key={i} className="flex items-start gap-3 bg-black/40 p-4 rounded-xl border border-white/5">
-                                <CheckCircle className="w-5 h-5 text-stellar-teal shrink-0 mt-0.5" />
-                                <p className="text-sm text-gray-300 leading-relaxed">{p}</p>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="bg-stellar-teal/10 p-6 rounded-2xl border border-stellar-teal/20 flex flex-col justify-center">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 bg-stellar-teal/20 rounded-full flex items-center justify-center">
-                                <Shield className="w-5 h-5 text-stellar-teal" />
-                            </div>
-                            <h3 className="font-bold text-white">Compliance Standard</h3>
-                        </div>
-                        <p className="text-sm text-gray-400 mb-6">
-                            {t.docs.security.stellar_coc.compliance}
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            {/* Audit Trail & audit-readiness */}
-            <section className="space-y-8">
-                <div className="bg-stellar-teal/5 border border-stellar-teal/20 rounded-3xl p-8">
-                    <div className="max-w-3xl mb-12">
-                        <h2 className="text-3xl font-black text-white mb-4">{(t.docs.security as any).stellar_coc.audit_trail.title}</h2>
-                        <p className="text-gray-400 text-lg leading-relaxed">
-                            {(t.docs.security as any).stellar_coc.audit_trail.subtitle}
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {(t.docs.security as any).stellar_coc.audit_trail.layers.map((layer: any) => (
-                            <div key={layer.id} className="bg-black/40 border border-white/10 rounded-2xl p-6 hover:border-stellar-teal/30 transition-all group">
-                                <div className="text-stellar-teal font-mono text-xs mb-2 opacity-50">{layer.id}</div>
-                                <h3 className="text-white font-bold mb-3 flex items-center gap-2">
-                                    <div className="w-1.5 h-4 bg-stellar-teal rounded-full" />
-                                    {layer.name}
-                                </h3>
-                                <p className="text-xs text-gray-500 leading-relaxed group-hover:text-gray-400 transition-colors">
-                                    {layer.desc}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="mt-8 p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4">
-                        <div className="p-2 bg-stellar-yellow/20 rounded-lg">
-                            <ShieldCheck className="text-stellar-yellow w-5 h-5" />
-                        </div>
-                        <p className="text-xs text-gray-400 italic">
-                            {(t.docs.security as any).stellar_coc.audit_trail.fintech_law}
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            {/* Institutional Compliance & Code of Conduct Footer */}
-            <section className="bg-stellar-teal/5 border border-stellar-teal/20 rounded-2xl p-8">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                    <div className="flex-1">
-                        <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
-                            <Shield className="text-stellar-teal" />
-                            Institutional Integrity & Governance
-                        </h2>
-                        <p className="text-gray-400 leading-relaxed mb-6">
-                            Every action can be logged, hashed and anchored to IPFS, so anyone can check it later without trusting us.
-                        </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="bg-black/40 p-4 rounded-xl border border-white/5">
-                                <div className="text-stellar-teal font-bold text-xs uppercase mb-1">Stellar Foundation Standards</div>
-                                <p className="text-[11px] text-gray-500 text-balance">Full alignment with SDF guidelines for transparency, security, and professional conduct across the public network.</p>
-                            </div>
-                            <div className="bg-black/40 p-4 rounded-xl border border-white/5">
-                                <div className="text-stellar-teal font-bold text-xs uppercase mb-1">Trustline Onboarding</div>
-                                <p className="text-[11px] text-gray-500 text-balance">Self-signed USDC trustline setup for new recipients — no custodial identity provider in the loop.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-stellar-teal/10 p-6 rounded-2xl border border-stellar-teal/30 flex flex-col items-center justify-center text-center max-w-xs w-full">
-                        <div className="w-16 h-16 bg-stellar-teal/20 rounded-full flex items-center justify-center mb-4">
-                            <Shield className="w-8 h-8 text-stellar-teal" />
-                        </div>
-                        <div className="text-white font-bold mb-1">Cryptographically Verifiable</div>
-                        <p className="text-[10px] text-gray-400 leading-tight">Every byte of telemetry is cryptographically signed and independently verifiable.</p>
-                        <div className="mt-4 px-3 py-1 bg-stellar-teal text-[#0b0b0b] text-[10px] font-black rounded-full uppercase tracking-tighter">
-                            SCF INSTAWARD · ECOSISTEMA SDF
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    );
-}
-
-function IdeasSection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-12">
-            <section className="text-center max-w-3xl mx-auto mb-16">
-                <h2 className="text-4xl font-black mb-6 text-white">{t.docs.ideas.title}</h2>
-                <p className="text-xl text-gray-400">
-                    {t.docs.ideas.subtitle}
-                </p>
-            </section>
-
-            <div className="grid md:grid-cols-2 gap-8">
-                {t.docs.ideas.items.map((idea: any, idx: number) => {
-                    const icons = [Shield, Zap, Globe, Users, TrendingUp, Zap, Globe, Shield, Code, Database, Handshake, Cpu];
-                    const borders = [
-                        'hover:border-yellow-500/50',
-                        'hover:border-stellar-teal/50',
-                        'hover:border-purple-500/50',
-                        'hover:border-green-500/50',
-                        'hover:border-blue-500/50',
-                        'hover:border-rose-500/50',
-                        'hover:border-amber-500/50',
-                        'hover:border-violet-500/50',
-                        'hover:border-teal-500/50',
-                        'hover:border-cyan-500/50',
-                        'hover:border-indigo-500/50',
-                        'hover:border-emerald-500/50'
-                    ];
-                    const bgIcons = [
-                        'bg-yellow-500/10 text-yellow-500',
-                        'bg-stellar-teal/10 text-stellar-teal',
-                        'bg-purple-500/10 text-purple-500',
-                        'bg-green-500/10 text-green-500',
-                        'bg-blue-500/10 text-blue-400',
-                        'bg-rose-500/10 text-rose-400',
-                        'bg-amber-500/10 text-amber-400',
-                        'bg-violet-500/10 text-violet-400',
-                        'bg-teal-500/10 text-teal-400',
-                        'bg-cyan-500/10 text-stellar-teal',
-                        'bg-indigo-500/10 text-indigo-400',
-                        'bg-emerald-500/10 text-emerald-400'
-                    ];
-                    const Icon = icons[idx] || Code;
-
-                    return (
-                        <div key={idea.name} className={`bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 sm:p-8 transition-colors group ${borders[idx]}`}>
-                            <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4 mb-6">
-                                <div className={`p-3 rounded-xl shrink-0 ${bgIcons[idx]}`}>
-                                    <Icon size={32} />
-                                </div>
-                                <span className="px-3 py-1 rounded-full bg-white/5 text-[10px] sm:text-xs font-mono text-gray-400 self-start xs:self-center">
-                                    {t.docs.ideas.difficulty}: {idea.diff === 'Standard' ? t.docs.ideas.easy : idea.diff === 'Intermediate' ? t.docs.ideas.medium : t.docs.ideas.hard}
-                                </span>
-                            </div>
-                            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">{idea.name}</h3>
-                            <p className="text-gray-400 mb-6 sm:min-h-[60px] text-sm sm:text-base leading-relaxed">
-                                {idea.desc}
-                            </p>
-                            <div className="bg-black/50 rounded-lg p-4 font-mono text-[10px] sm:text-sm text-stellar-teal/80 overflow-x-auto scrollbar-thin">
-                                {idea.code.split('\n').map((line: string, lIdx: number) => (
-                                    <div key={lIdx}>
-                                        {line.startsWith('#') || line.startsWith('//') ? (
-                                            <span className="text-gray-500">{line}</span>
-                                        ) : (
-                                            line
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-}
-
-function PayrollSection() {
-    const { t } = useLanguage();
-    return (
-        <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div>
-                <h1 className="text-3xl sm:text-5xl font-black uppercase italic tracking-tighter mb-4">{t.docs.payroll?.title || 'Payroll Integration'}</h1>
-                <p className="text-lg text-gray-400">{t.docs.payroll?.desc || 'Non-custodial batch disbursement on Stellar, signed with your own wallet.'}</p>
-            </div>
-
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.payroll?.endpoints_title || 'Payroll Endpoints'}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                        { m: 'POST', p: '/api/payroll/run', d: 'Build a batch payout (unsigned XDR)' },
-                        { m: 'POST', p: '/api/payroll/submit', d: 'Broadcast company-signed payout' },
-                        { m: 'POST', p: '/api/payroll/onboard', d: 'Add a USDC trustline (self-signed)' },
-                        { m: 'POST', p: '/api/payroll/onboard/submit', d: 'Broadcast self-signed trustline XDR' },
-                        { m: 'GET',  p: '/api/payroll/runs', d: 'Payout history + IPFS/LCP receipts' },
-                        { m: 'GET',  p: '/api/payroll/terms', d: 'Payouts Terms v1.1 + acknowledgement requirement' },
-                        { m: 'GET',  p: '/api/payroll/info', d: 'Node metadata: capacity-banded monthly licence, mainnet access' },
-                    ].map((ep, i) => (
-                        <div key={i} className="p-4 rounded-xl border border-white/5 bg-[#0A0A0A] hover:border-stellar-teal/30 transition-all min-w-0">
-                            <div className="flex items-center gap-3 mb-2 min-w-0">
-                                <span className={`text-[10px] font-black px-2 py-0.5 rounded shrink-0 ${ep.m === 'GET' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-stellar-blue/10 text-stellar-blue'}`}>
-                                    {ep.m}
-                                </span>
-                                <code className="text-xs text-white font-mono truncate">{ep.p}</code>
-                            </div>
-                            <p className="text-sm text-gray-500">{ep.d}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section>
-                <h2 className="text-2xl font-bold mb-6">{t.docs.payroll?.flow_title || 'Disbursement Flow'}</h2>
-                <div className="relative rounded-2xl border border-white/10 bg-[#080808] overflow-hidden w-full">
-                    <div className="flex items-center px-4 py-2.5 border-b border-white/5 bg-white/[0.02]">
-                        <div className="flex gap-1.5">
-                            <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/40" />
-                            <div className="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/40" />
-                        </div>
-                    </div>
-                    <div className="p-4 sm:p-6 font-mono text-xs sm:text-sm leading-relaxed overflow-x-auto text-gray-300">
-                        <pre>
-                            {t.docs.payroll?.code_example || `// Initialize the Payroll Batch Node
-const result = await agent.post('/api/payroll/run', {
-  recipients: payroll_list,
-  asset: 'USDC'
-});`}
-                        </pre>
-                    </div>
-                </div>
-            </section>
-        </div>
-    );
 }

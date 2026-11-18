@@ -1,10 +1,10 @@
-/** Nirium — Brand Assets Pack (nirium.xyz/branding-nirium)
+/** Nirium - Brand Assets Pack (nirium.xyz/branding-nirium)
  * Standalone download page, same shape as kumply.xyz/branding-kumply:
  * a ZIP with everything, plus every individual SVG/PNG variant browsable
  * and downloadable on its own. Built with the `branding-pack` skill
  * (audit -> concept -> real headless-browser screenshot QA -> pack).
  *
- * Concept: the N reduced to a single continuous stroke (one pen motion —
+ * Concept: the N reduced to a single continuous stroke (one pen motion -
  * up, diagonal, up) with 3 accent dots marking payment / audit / agent
  * rails as waypoints on one gesture, not three competing texture zones.
  * Chosen over an earlier textured rail-tie monogram after that concept
@@ -62,7 +62,7 @@ export default function BrandingNiriumPage() {
             </div>
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-24 pt-10">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-1">NIRIUM — Brand Assets Pack</h1>
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-1">NIRIUM - Brand Assets Pack</h1>
                 <p className="text-black/60 text-sm max-w-2xl mb-8">
                     Todo lo necesario para redes, eventos y prensa: vectorial (SVG) y PNG a máxima
                     resolución. Arrastra el ZIP completo a Drive o descarga solo lo que necesites.
@@ -79,7 +79,7 @@ export default function BrandingNiriumPage() {
                 </div>
 
                 <h2 className="text-xs uppercase tracking-widest text-black/50 mt-11 mb-4 pt-6 border-t border-black/10">
-                    Vector (SVG) — usar siempre que se pueda, escala sin perder calidad
+                    Vector (SVG) - usar siempre que se pueda, escala sin perder calidad
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
                     <SvgCard src="icon.svg" label="Ícono" sub="fondo claro" />
@@ -148,7 +148,7 @@ export default function BrandingNiriumPage() {
                     cualquiera sin contexto técnico. Pendiente honesto: la tipografía de la palabra
                     &quot;NIRIUM&quot; en los lockups sigue en Arial de sistema (placeholder, no una
                     versión final de imprenta), y este pack no se probó todavía contra el ancho real
-                    de la barra de navegación de nirium.xyz — se validó la legibilidad del ícono a
+                    de la barra de navegación de nirium.xyz - se validó la legibilidad del ícono a
                     16px de forma aislada, en su propio lienzo.
                 </p>
             </div>

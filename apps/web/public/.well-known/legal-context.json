@@ -1,13 +1,13 @@
 {
-  "x-status": "interim — governing law (§6) and arbitration seat/language (§7) filled with ICDR-recommended defaults, pending final confirmation by outside counsel",
+  "x-status": "governing law (§6, Mexico) and dispute resolution (§7, courts of Mexico City; arbitration only by written agreement) match Terms §5 product-wide; §2 says \"independent\" third-party operators since 2026-11-16",
   "terms": "https://nirium.xyz/legal/payroll-terms-v1.md",
   "termsFormat": "text/markdown",
-  "atrHash": "sha-256:fd4e544542501193fb04565b06ad14dcdc0fdead61e74b9da67e05ccea294faf",
+  "atrHash": "sha-256:c84c949791d17a7a1e850d6b5d59cafbddcdfdd93f2ec0a613e00c462302ee11",
   "acceptanceRequired": false,
   "disputeResolution": {
-    "clauseId": "ICDR-INTL-STANDARD",
-    "source": "AAA-ICDR",
-    "catalog": "https://www.icdr.org/clauses"
+    "clauseId": "NIRIUM-TERMS-S5",
+    "source": "Courts of Mexico City (arbitration only by written agreement)",
+    "catalog": "https://nirium.xyz/terms"
   },
   "contact": "niriumprotocol@gmail.com"
 }

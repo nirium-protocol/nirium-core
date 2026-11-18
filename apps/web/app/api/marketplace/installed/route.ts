@@ -5,7 +5,7 @@ const DEFAULT_INSTALLED: any[] = [];
 
 export async function GET() {
     try {
-        const agentUrl = process.env.AGENT_API_URL || (process.env.NODE_ENV === 'production' ? 'https://nirium-agent.fly.dev' : 'http://localhost:3002');
+        const agentUrl = process.env.AGENT_API_URL || (process.env.NODE_ENV === 'production' ? 'https://nirium-agent.fly.dev' : 'http://localhost:3001');
         const res = await fetch(`${agentUrl}/api/skills`, {
             headers: { 'Authorization': `Bearer ${process.env.AGENT_API_KEY || ''}` },
             signal: AbortSignal.timeout(2500)
@@ -22,7 +22,7 @@ export async function GET() {
             return NextResponse.json({ success: true, skills: merged });
         }
     } catch {
-        // Agent offline — return defaults so UI is not empty
+        // Agent offline - return defaults so UI is not empty
     }
 
     return NextResponse.json({ success: true, skills: DEFAULT_INSTALLED });

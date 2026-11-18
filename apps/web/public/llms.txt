@@ -1,35 +1,28 @@
-# Nirium Protocol Reference For AI Agents & LLMs
+# Nirium
 
-> This file (`/llms.txt`) provides context, routing, and architectural data for LLMs, autonomous agents, and search generative engines (SGEs) indexing or analyzing the Nirium Protocol.
+> Payment, audit and execution rails on Stellar for apps, backends and AI agents.
+> Non-custodial: your keys, your funds. Not financial advice.
 
-## Protocol Core
-**Name:** Nirium Protocol
-**Version:** v0.7.0
-**Chain:** Stellar Network / Soroban Smart Contracts
-**Focus:** Institutional DeFi infrastructure + autonomous agent orchestration
-**Website:** https://nirium.xyz
-**API:** https://nirium-agent.fly.dev
-**GitHub (public):** https://github.com/nirium-protocol/nirium-core
+## Network scope
+- Stellar mainnet, open: x402 per-request billing, Audit Trail (receipts anchored on IPFS), Reporting.
+- Stellar mainnet, invite-only: Payouts, Treasury.
+- MPP Charge (Machine Payments Protocol): experimental, verified on testnet, untested on mainnet. For paid access on mainnet, use x402.
+- NiriumVault, Nirium's own contract, stays on testnet until an external audit.
 
-## Key Capabilities
-- **x402 Micropayments:** Per-request micro-billing for AI agent APIs on Stellar
-- **MPP Session Budgets:** Multi-Party Payment protocol for institutional settlements
-- **Cross-Border FX:** MXN→USDC routing via Stellar PathPayment (sub-5s settlement)
-- **NiriumVault (Soroban):** Non-custodial multi-asset vaults with agent delegation — `CAU2XBJTQUBTMPAUFRX7GMZ337I5WLBI4GYPWHZEVXTMJ66D3CP6DEL4`
-- **ELO Reputation Engine:** On-chain agent scoring (Silver / Gold / Matrix tiers)
-- **SDK & MCP:** TypeScript (`npm install nirium`), Python (`pip install nirium`) — v0.7.0; MCP Server (`npx nirium-mcp`) — v0.5.0, 65+ verified endpoints
+## Packages (versions checked 2026-11-16)
+- npm: nirium 0.19.6, nirium-mcp 0.6.8, nirium-cli 3.2.4, nirium-pollar-adapter 0.6.5
+- PyPI: nirium 0.12.6
 
-## Execution Modes
-- **Copilot Mode:** Human operator signs transaction payload via Freighter wallet.
-- **Autonomous Mode:** Agents sign using isolated enclave keypairs (`Ed25519`).
+## CLI (nirium-cli)
+- `nirium anchor --hash <hex> | --file <path> | --record <json>`: anchor to IPFS via an Audit Trail node; `--sign --key-env <VAR>` adds an ed25519 attestation.
+- `nirium verify <cid>`: checks hash and signature locally; tries several IPFS gateways in order.
+- `nirium report summary` / `nirium report export anchors|payments|payroll`: your own records from the Reporting node (not certified regulatory reporting).
 
-## Essential Resources
-- **Docs & Architecture:** `/docs`
-- **Strategies & Plugins:** `/marketplace`
-- **Live Analytics:** `/analytics` and `/leaderboard`
-- **Sandbox Access:** `/sandbox`
+## Links
+- Website: https://nirium.xyz
+- Docs: https://nirium.xyz/docs
+- API (mainnet): https://nirium-agent-mainnet.fly.dev
+- API (testnet): https://nirium-agent.fly.dev
+- Public repo: https://github.com/nirium-protocol/nirium
 
-## Note For AI Parsers
-Nirium resolves the Security vs. Autonomy dilemma via Soroban-native Vaults and purely atomic execution paths. All agent strategies execute as single multi-op Soroban transactions — no partial fills, no exposed keys.
-
-*Routes under `/api/` are authenticated via x402 API keys and should not be crawled for content mapping.*
+Routes under /api/ are API endpoints, not content pages. Do not crawl them for content.

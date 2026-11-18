@@ -9,7 +9,7 @@ export interface ActiveStrategy {
     status: string;
     yield?: string;
     rate?: string;
-    asset?: 'XLM' | 'USDC';  // vault asset type
+    asset?: 'XLM' | 'USDC' | 'CETES';  // vault asset type (XLM: registros viejos)
     tx_digest?: string;
     created_at?: string;
     config?: any;
@@ -60,7 +60,7 @@ function lsSet(wallet: string, strategies: ActiveStrategy[]): void {
     try {
         localStorage.setItem(LS_KEY(wallet), JSON.stringify(strategies));
         localStorage.setItem(LS_KEY_FLEET(wallet), JSON.stringify(strategies));
-    } catch { /* quota exceeded – silently ignore */ }
+    } catch { /* quota exceeded - silently ignore */ }
 }
 
 // ─── Helper: check if Supabase is reachable ──────────────────────────────────
@@ -119,7 +119,7 @@ export const StrategyService = {
                 console.warn('[StrategyService] Network error during getStrategies, using localStorage:', err);
             }
         } else {
-            console.warn('[StrategyService] Supabase unreachable – using localStorage fallback.');
+            console.warn('[StrategyService] Supabase unreachable - using localStorage fallback.');
         }
 
         // Fallback: localStorage
@@ -146,7 +146,7 @@ export const StrategyService = {
         // Attempt Supabase (non-blocking)
         const reachable = await isSupabaseReachable();
         if (!reachable || !supabase) {
-            console.warn('[StrategyService] Supabase offline – strategy saved to localStorage only.');
+            console.warn('[StrategyService] Supabase offline - strategy saved to localStorage only.');
             return entry;
         }
 
@@ -220,7 +220,7 @@ export const StrategyService = {
 
         const reachable = await isSupabaseReachable();
         if (!reachable || !supabase) {
-            console.warn('[StrategyService] Supabase offline – strategy removed from localStorage only.');
+            console.warn('[StrategyService] Supabase offline - strategy removed from localStorage only.');
             return;
         }
 

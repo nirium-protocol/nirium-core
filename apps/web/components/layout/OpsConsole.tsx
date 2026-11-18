@@ -5,7 +5,7 @@ import { Terminal, Maximize2, Brain, CreditCard, Shield, Cpu, Zap } from 'lucide
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
 
-// El loop escribe el mismo pensamiento cada ~30s ("REBALANCE (95%) — CETES 5.57%
+// El loop escribe el mismo pensamiento cada ~30s ("REBALANCE (95%) - CETES 5.57%
 // excede el umbral de 2.5%"), así que el feed se veía como un disco rayado: veinte
 // renglones idénticos leídos como "está atorado" en lugar de "está trabajando".
 // Se pliegan los consecutivos equivalentes en uno con contador ×N.
@@ -41,9 +41,19 @@ function collapseRepeats<T extends { agent_id?: string; message?: string }>(logs
     return out.map(({ log, repeat }) => ({ log, repeat }));
 }
 
+// Red de una línea del feed, según lo que el agente escribe en el mensaje:
+// `network=mainnet` (x402, Audit Node, rebalanceador, AUTO-EXIT), `stellar:pubnet`,
+// o la URL del explorador (/explorer/public/, Payouts). Sin pista, testnet: las
+// liquidaciones que /api/logs lee de Horizon son de la tesorería de testnet.
+function explorerNetwork(rawMessage: string): 'public' | 'testnet' {
+    return /network=mainnet|stellar:pubnet|\/explorer\/public\//i.test(rawMessage) ? 'public' : 'testnet';
+}
+
 // Render a feed message, turning verifiable identifiers into clickable links:
-// 64-char Stellar tx hashes → stellar.expert testnet, IPFS CIDs (Qm…) → Pinata gateway.
-function renderMessageWithTxLink(text: string) {
+// 64-char Stellar tx hashes → stellar.expert on the line's own network, IPFS CIDs
+// (Qm…) → /verify, which recomputes the hash and checks the signature (before:
+// raw JSON on Pinata, and every tx hash went to the testnet explorer).
+function renderMessageWithTxLink(text: string, network: 'public' | 'testnet' = 'testnet') {
     const re = /\b([a-f0-9]{64})\b|\b(Qm[1-9A-HJ-NP-Za-km-z]{44})\b/g;
     const parts: React.ReactNode[] = [];
     let last = 0;
@@ -51,8 +61,8 @@ function renderMessageWithTxLink(text: string) {
     while ((m = re.exec(text)) !== null) {
         const token = m[0];
         const href = m[1]
-            ? `https://stellar.expert/explorer/testnet/tx/${token}`
-            : `https://gateway.pinata.cloud/ipfs/${token}`;
+            ? `https://stellar.expert/explorer/${network}/tx/${token}`
+            : `/verify?cid=${token}`;
         parts.push(text.slice(last, m.index));
         parts.push(
             <a
@@ -73,12 +83,6 @@ function renderMessageWithTxLink(text: string) {
     return <>{parts}</>;
 }
 
-const DEMO_LOGS = [
-    { agent_id: 'Protocol', message: 'System connection established. Execution network broadcasting on-chain...', level: 'system', created_at: new Date().toISOString() },
-    { agent_id: 'Titan', message: 'Vault architecture synchronized — 3 asset classes active', level: 'info', created_at: new Date().toISOString() },
-    { agent_id: 'Astra', message: 'Liquidity route optimized for USDC — Spread minimized', level: 'success', created_at: new Date().toISOString() },
-];
-
 function formatTime(ts: string) {
     const d = new Date(ts);
     return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
@@ -88,12 +92,15 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
     
-    const [logs, setLogs] = useState<any[]>(DEMO_LOGS);
+    // Empieza vacío. Antes arrancaba con tres líneas de demo ("Execution network
+    // broadcasting on-chain...", "Vault architecture synchronized") que se veían
+    // como logs reales y se quedaban en pantalla si /api/logs fallaba.
+    const [logs, setLogs] = useState<any[]>([]);
     const [status, setStatus] = useState<'connecting' | 'online' | 'unavailable'>('connecting');
     // El feed escribe ~2 líneas por segundo (scans, señales, corredores) y una
     // ejecución real ocurre cada ~10 minutos. Los hashes existen y confirman,
     // pero quedan enterrados bajo el parloteo. Este filtro deja solo las líneas
-    // que traen un hash — lo único que alguien puede verificar por su cuenta.
+    // que traen un hash - lo único que alguien puede verificar por su cuenta.
     const [onlyTx, setOnlyTx] = useState(false);
     const logContainerRef = useRef<HTMLDivElement>(null);
     const lastIdRef = useRef<string | null>(null);
@@ -155,8 +162,9 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
     };
     const s = statusColors[status];
 
-    const { t } = useLanguage();
-    
+    const { t, language } = useLanguage();
+    const lang = (en: string, es: string) => (language === 'es' ? es : en);
+
     return (
         <motion.div
             layout
@@ -174,14 +182,14 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setOnlyTx((v) => !v)}
-                        title="Mostrar solo ejecuciones con hash verificable"
+                        title={lang('Show only executions with a verifiable hash', 'Mostrar solo ejecuciones con hash verificable')}
                         className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-widest border transition-colors ${
                             onlyTx
                                 ? 'bg-stellar-teal/15 text-stellar-teal border-stellar-teal/40'
                                 : 'text-gray-600 border-white/10 hover:text-gray-300'
                         }`}
                     >
-                        solo tx
+                        {lang('tx only', 'solo tx')}
                     </button>
                 <button onClick={onToggleExpand} className="text-gray-500 hover:text-white transition-colors">
                     {isExpanded ? <Maximize2 size={16} /> : <Maximize2 size={16} />}
@@ -189,26 +197,36 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
                 </div>
             </div>
 
+            <p className="shrink-0 px-4 py-1.5 border-b border-white/5 text-[9px] font-mono text-white/40">
+                {lang(
+                    'Testnet and mainnet events mixed, each line tagged. Includes our own agent paying our own testnet endpoint.',
+                    'Eventos de testnet y mainnet mezclados, cada línea con su red. Incluye a nuestro agente pagando nuestro propio endpoint de testnet.')}
+            </p>
             <div ref={logContainerRef} className="flex-1 bg-black/50 p-4 font-mono text-[10px] overflow-y-auto custom-scrollbar min-h-0">
                 <div className="space-y-1.5">
                     {status === 'unavailable' && (
-                        <div className="text-yellow-600 italic">No database connection.</div>
+                        <div className="text-yellow-600 italic">{lang("Can't reach the log feed right now.", 'No se pudo leer el feed de logs.')}</div>
                     )}
+                    {!onlyTx && collapsedLogs.length === 0 && status === 'online' && (
+                        <div className="text-gray-600 italic">{lang('No log entries yet.', 'Todavía no hay entradas.')}</div>
+                    )}
+                    {/* Sin la promesa anterior de "cada ~10 minutos": el ritmo depende del
+                        agente y de la red, y en mainnet no ha habido rebalanceos desde el 6-ago. */}
                     {onlyTx && collapsedLogs.length === 0 && status !== 'unavailable' && (
                         <div className="text-gray-600 italic">
-                            Sin ejecuciones confirmadas en esta ventana. El rebalanceo alterna un activo por ciclo, cada ~10 minutos.
+                            {lang('No confirmed executions in this window.', 'Sin ejecuciones confirmadas en esta ventana.')}
                         </div>
                     )}
                     <AnimatePresence mode="popLayout">
                     {collapsedLogs.map(({ log, repeat }, i) => {
                         const rawMsg = (log.message || '');
                         let mainMsg = (rawMsg.split('|')[0] || '').replace(/IPFS:\s*\S+/gi, '').replace(/\s{2,}/g, ' ').trim();
-                        // El recorte en '|' oculta el CID de los batches IPFS — re-adjuntarlo para que salga clickeable.
+                        // El recorte en '|' oculta el CID de los batches IPFS - re-adjuntarlo para que salga clickeable.
                         const cidMatch = rawMsg.match(/\b(Qm[1-9A-HJ-NP-Za-km-z]{44})\b/);
-                        if (cidMatch && !mainMsg.includes(cidMatch[1])) mainMsg += ` — CID: ${cidMatch[1]}`;
+                        if (cidMatch && !mainMsg.includes(cidMatch[1])) mainMsg += ` - CID: ${cidMatch[1]}`;
                         // Igual para el TX hash: la línea "✅ On-chain execution confirmed" lo lleva tras un '|'.
                         const txMatch = rawMsg.match(/\b([a-f0-9]{64})\b/);
-                        if (txMatch && !mainMsg.includes(txMatch[1])) mainMsg += ` — TX: ${txMatch[1]}`;
+                        if (txMatch && !mainMsg.includes(txMatch[1])) mainMsg += ` - TX: ${txMatch[1]}`;
 
                         // Detect agent type for branding
                         const isIntelligence = log.agent_id === 'INTELLIGENCE';
@@ -238,7 +256,7 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
 
                                         {repeat > 1 && (
                                             <span
-                                                title={`${repeat} eventos equivalentes plegados`}
+                                                title={lang(`${repeat} equivalent events folded`, `${repeat} eventos equivalentes plegados`)}
                                                 className="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-white/10 text-gray-400 shrink-0"
                                             >
                                                 ×{repeat}
@@ -259,6 +277,14 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
                                             }`}>
                                                 {log.agent_id}
                                             </span>
+                                            {/* 12-nov-2026: el mensaje se corta en el primer '|', y ahí iba
+                                                network=testnet. Sin esto, "x402 payment received" (nuestro agente
+                                                de testnet pagándose a sí mismo) se leía como cobro en mainnet. */}
+                                            <span className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded uppercase tracking-tighter ${
+                                                explorerNetwork(rawMsg) === 'public' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'
+                                            }`}>
+                                                {explorerNetwork(rawMsg) === 'public' ? 'mainnet' : 'testnet'}
+                                            </span>
                                         </div>
                                     </div>
 
@@ -277,7 +303,7 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
                                     <span className={`leading-relaxed text-[10px] ${
                                         isSettlement ? 'text-stellar-teal font-medium' : 'text-gray-300'
                                     }`}>
-                                        {renderMessageWithTxLink(mainMsg.replace(/Soroban Intelligence: /i, ''))}
+                                        {renderMessageWithTxLink(mainMsg.replace(/Soroban Intelligence: /i, ''), explorerNetwork(rawMsg))}
                                     </span>
                                 </div>
                             </motion.div>
@@ -291,23 +317,25 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
                 <span className="text-[7px] font-mono text-white/20 uppercase tracking-[0.2em]">Soroban Testnet</span>
                 <div className="h-2 w-px bg-white/10 hidden sm:block" />
                 <a
-                    href="https://stellar.expert/explorer/testnet/contract/CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU"
+                    href="https://stellar.expert/explorer/testnet/contract/CDMFURE6MYROTA2A6DLD4TN2S4QTN64L2FZ2I2RY2AREONX6DUQOI2S2"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 group"
                 >
+                    {/* La etiqueta decía CBTWMZ…AWSZU y CC2TU5…L5NR5, que no son los
+                        contratos a los que llevan estos enlaces (los de lib/sorobanContracts). */}
                     <span className="text-[7px] font-mono text-white/20 group-hover:text-stellar-teal/60 transition-colors">NiriumVault</span>
-                    <span className="text-[7px] font-mono text-stellar-teal/40 group-hover:text-stellar-teal transition-colors tracking-wider">CBTWMZ…AWSZU</span>
+                    <span className="text-[7px] font-mono text-stellar-teal/40 group-hover:text-stellar-teal transition-colors tracking-wider">CDMFUR…QOI2S2</span>
                 </a>
                 <div className="h-2 w-px bg-white/10 hidden sm:block" />
                 <a
-                    href="https://stellar.expert/explorer/testnet/contract/CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5"
+                    href="https://stellar.expert/explorer/testnet/contract/CBKCTMTCCZQIPEESLHHEZKXYSPWNO24NEG33T2XSAAAHPISBND5CNSXX"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 group"
                 >
                     <span className="text-[7px] font-mono text-white/20 group-hover:text-stellar-teal/60 transition-colors">NiriumProtocol</span>
-                    <span className="text-[7px] font-mono text-stellar-teal/40 group-hover:text-stellar-teal transition-colors tracking-wider">CC2TU5…L5NR5</span>
+                    <span className="text-[7px] font-mono text-stellar-teal/40 group-hover:text-stellar-teal transition-colors tracking-wider">CBKCTM…D5CNSXX</span>
                 </a>
             </div>
         </motion.div>

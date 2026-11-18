@@ -1,11 +1,11 @@
-/** Nirium Play — Brand Assets Pack (nirium.xyz/branding-nirium-play)
+/** Nirium Play - Brand Assets Pack (nirium.xyz/branding-nirium-play)
  * Same pattern as /branding-nirium: standalone download page, ZIP with
  * everything, every SVG/PNG variant browsable and downloadable on its own.
  * Built with the `branding-pack` skill.
  *
  * Concept, v2 (revised after a first pass that was just a generic capsule):
- * a real gamepad silhouette — curved grips, the notch between them, two
- * shoulder triggers on top — not an abstract pill. The D-pad position holds
+ * a real gamepad silhouette - curved grips, the notch between them, two
+ * shoulder triggers on top - not an abstract pill. The D-pad position holds
  * the exact official Nirium N stroke (same path as branding-nirium/svg/
  * icon.svg, diffed byte-for-byte against the live production copy before
  * shipping this). The face-button position holds the two payment/audit dots
@@ -15,7 +15,7 @@
  * (not eyeballed): the hero icon (stroke, with the trigger/notch detail)
  * reads well to ~48px; below that a separate filled-silhouette favicon
  * variant (detail dropped, N and star knocked out in negative space) takes
- * over — the same technique the core Nirium favicon.svg does not need,
+ * over - the same technique the core Nirium favicon.svg does not need,
  * because this mark carries more fine detail than a bare N.
  */
 'use client';
@@ -67,7 +67,7 @@ export default function BrandingNiriumPlayPage() {
             </div>
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-24 pt-10">
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-1">NIRIUM PLAY — Logo Pack</h1>
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-1">NIRIUM PLAY - Logo Pack</h1>
                 <p className="text-black/60 text-sm max-w-2xl mb-3">
                     Variante del mark de Nirium para el sub-brand &quot;Play&quot;: silueta real de
                     control de videojuegos, con la N oficial de Nirium y un acento de Stellar.
@@ -75,12 +75,12 @@ export default function BrandingNiriumPlayPage() {
                 </p>
                 <p className="text-black/45 text-xs max-w-2xl mb-8 leading-relaxed">
                     Cuerpo con las dos empuñaduras curvas, el corte central entre ellas y los
-                    gatillos L/R arriba — reconocible como control de inmediato. A la izquierda,
+                    gatillos L/R arriba - reconocible como control de inmediato. A la izquierda,
                     en el lugar del D-pad, el trazo de la N es exactamente el mismo path que{" "}
                     <code className="bg-black/5 px-1 rounded">branding-nirium/svg/icon.svg</code>{" "}
-                    — diff byte a byte contra la copia real en producción antes de publicar esto.
+                    - diff byte a byte contra la copia real en producción antes de publicar esto.
                     A la derecha, los dos puntos de pago/auditoría del mark original se completan
-                    con una estrella de 4 puntas — Stellar, en el lugar de un botón de acción.
+                    con una estrella de 4 puntas - Stellar, en el lugar de un botón de acción.
                 </p>
 
                 <div className="flex items-center justify-between gap-4 flex-wrap bg-black text-white rounded-2xl px-7 py-6 mb-10">
@@ -138,7 +138,7 @@ export default function BrandingNiriumPlayPage() {
                     El README.txt dentro del ZIP explica qué archivo usar en cada caso. Pendientes
                     honestos: no hay wordmark (&quot;NIRIUM PLAY&quot; en texto) ni lockup todavía,
                     tampoco variantes mono de un solo color. No se corrió una búsqueda formal de
-                    marca registrada contra este ícono — es una variante interna para HackMeridian,
+                    marca registrada contra este ícono - es una variante interna para HackMeridian,
                     no un mark que se vaya a registrar. Tampoco se probó contra el ancho real de
                     ningún navbar. Verificado sí, con captura de navegador real: la legibilidad del
                     ícono hero hasta ~48px y de la silueta de favicon hasta 16px, en fondo oscuro y

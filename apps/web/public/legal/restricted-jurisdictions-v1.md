@@ -1,6 +1,6 @@
-# Nirium - Restricted Jurisdictions & Sanctions Policy (v1.0)
+# Nirium - Restricted Jurisdictions & Sanctions Policy (v1.3)
 
-**Effective:** August 6, 2026 · **Issuer:** Nirium Protocol Team (Mexico) · **Applies to:** every Nirium service, on every network
+**Effective:** August 6, 2026 · **Last updated:** November 16, 2026 (v1.3) · **Issuer:** Nirium Protocol Team (Mexico) · **Applies to:** every Nirium service, on every network
 
 This policy governs **who may use Nirium and from where**. It applies on top of, and together with, the [Payouts Terms of Use](/legal/payouts-terms-v1.md) and the site Terms. Where this policy is stricter, this policy prevails.
 
@@ -12,8 +12,8 @@ Nirium is a **software provider established in Mexico**. It is not a financial i
 
 | Tier | What it means | Who is in it |
 |---|---|---|
-| **A. Prohibited** | No access to any Nirium service, testnet or mainnet, paid or free. | Comprehensively sanctioned jurisdictions, sanctioned persons, and the People's Republic of China (§2, §3) |
-| **B. Restricted** | Informational access only. **Payouts and the Treasury node are not offered.** Settlement, Audit and Reporting remain available. | European Economic Area, United Kingdom, United States (§4) |
+| **A. Prohibited** | No access to any Nirium service, testnet or mainnet, paid or free. | Comprehensively sanctioned jurisdictions, FATF call-for-action jurisdictions, jurisdictions under prudential restriction pending review, sanctioned persons, and the People's Republic of China (§2, §3) |
+| **B. Restricted** | Informational access only. **Payouts is not offered on any network. The Treasury node is not offered on mainnet;** on testnet, where test tokens have no value, it remains available as a demonstration. Settlement, Audit and Reporting remain available. | European Economic Area, United Kingdom, United States (§4) |
 | **C. Available** | All services offered, subject to the applicable terms and any invite-only gate. | Everywhere else, including Mexico and the rest of Latin America (§5) |
 
 Tier B is **not a statement that those services are unlawful there.** It is a statement that Nirium has not yet obtained the legal opinion it considers necessary before offering them into those markets, and will not offer them until it does. This document will be revised when that opinion is issued.
@@ -29,11 +29,13 @@ Nirium does not offer, sell, or provide any service to any person located in, or
 - **North Korea (DPRK)**
 - **Syria**
 - **The Crimea, Donetsk, Luhansk, Kherson and Zaporizhzhia regions of Ukraine**
-- **Afghanistan** and **Myanmar** (Financial Action Task Force call-for-action / high-risk jurisdictions)
-- **Russia** and **Belarus** (prudential restriction, pending review)
+- **Myanmar** (Financial Action Task Force call-for-action jurisdiction)
+- **Russia**, **Belarus** and **Afghanistan** (prudential restriction, pending review)
 - **The People's Republic of China** (see §3)
 
-The first six reflect comprehensive sanctions programmes administered by the U.S. Office of Foreign Assets Control (OFAC) and mirrored, in substance, by the European Union and the United Nations Security Council. Mexico applies UN Security Council resolutions and its own asset-freeze regime under the LFPIORPI. Nirium applies the broadest of these standards rather than the narrowest.
+**Cuba, Iran, North Korea, Syria,** and the listed **regions of Ukraine** reflect comprehensive sanctions programmes administered by the U.S. Office of Foreign Assets Control (OFAC) and mirrored, in substance, by the European Union and the United Nations Security Council. Mexico applies UN Security Council resolutions and its own asset-freeze regime under the LFPIORPI. Nirium applies the broadest of these standards rather than the narrowest.
+
+**Myanmar** rests on a different basis: FATF has issued a public call for action against it (as of the June 2026 plenary, the list is the DPRK, Iran and Myanmar), not OFAC sanctions. **Russia, Belarus and Afghanistan** rest on a third, narrower basis: a prudential restriction pending Nirium's own review, not a sanctions programme or FATF listing. Nirium treats all three bases the same way operationally - no access to any service - but the legal basis for each differs, and this policy will revise the weaker two independently of the first if that review concludes differently.
 
 ## 3. The People's Republic of China - a distinct basis
 
@@ -43,7 +45,9 @@ That extraterritorial reach is why Nirium does not serve mainland China, and why
 
 ## 4. Tier B - Restricted, pending legal opinion
 
-In these jurisdictions Nirium offers **Settlement (x402 / MPP Charge)**, **Audit anchoring** and **Reporting**, which involve no movement of third-party assets. Nirium does **not** offer **Payouts** or the **Treasury node**.
+In these jurisdictions Nirium offers **Settlement (x402)**, **Audit anchoring** and **Reporting**, which involve no movement of third-party assets. Nirium does **not** offer **Payouts** on any network, nor the **Treasury node on mainnet**.
+
+The Treasury node on **testnet** remains available in these jurisdictions as a demonstration: testnet tokens have no monetary value and cannot be exchanged for anything that does, so no crypto-asset or third-party funds are moved. Payouts on testnet stays unavailable here because accepting the Payouts Terms of Use, which every run requires, includes the representation that the user is not in a Tier B jurisdiction. Withdrawing from a vault you already own is never restricted outside Tier A: returning your own funds to you is not a service offered into that market.
 
 ### 4.1 European Economic Area
 
@@ -100,9 +104,9 @@ Nirium never holds user funds. Termination therefore never strands assets: a cli
 
 ## 8. Sanctions screening
 
-Nirium does not currently perform automated sanctions screening of counterparty wallet addresses, because it neither holds nor transmits funds and is not an Obligated Subject under the LFPIORPI. It relies on the representations in §6 and on geographic restriction.
+Nirium does not currently perform automated sanctions screening of counterparty wallet addresses, because it neither holds nor transmits funds and has not concluded that it is an Obligated Subject under the LFPIORPI - a question that still awaits a written legal opinion (see §2 of the Payouts Terms of Use). It relies on the representations in §6 and on geographic restriction.
 
-This will change if Nirium's activity ever falls within Article 17, Section XVI of the LFPIORPI, which takes effect on **17 January 2027**. Nirium already collects client identification for mainnet Payouts ahead of that date.
+This will change if Nirium's activity ever falls within Article 17, Section XVI of the LFPIORPI, which has been **in force since September 2019** (amended by decree published in the DOF on 16 July 2025) - not a future date. Nirium already collects client identification for mainnet Payouts in anticipation of a possible finding that it applies.
 
 ## 9. Changes
 
@@ -114,4 +118,4 @@ This policy is governed by the laws of the United Mexican States. Any dispute sh
 
 ---
 
-*Version 1.0 - 6 August 2026. This document is versioned and its SHA-256 hash may be referenced in audit receipts. It is a statement of Nirium's own operating policy and is not legal advice to any user; each user should consult its own counsel on the law applicable to it.*
+*Version 1.3 - 16 November 2026. Changes from 1.2: §8 no longer describes the Obligated Subject question as "under external legal review"; no lawyer has been engaged yet, and the question awaits a written legal opinion. Version 1.2 - 9 November 2026. Changes from 1.1: Afghanistan moved from the FATF basis to the prudential basis, since FATF's call-for-action list is the DPRK, Iran and Myanmar (§2); MPP Charge removed from the Tier B offer, which is x402 settlement only (§4); §8 aligned with the Payouts Terms, which treat Obligated Subject status as an open question rather than a settled one; in-force date stated without "approximately". Version 1.1 - 8 November 2026: in Tier B, the Treasury node on testnet is available as a demonstration, and withdrawing from your own vault is not restricted (§1, §4). Version 1.0 - 6 August 2026. This document is versioned and its SHA-256 hash may be referenced in audit receipts. It is a statement of Nirium's own operating policy and is not legal advice to any user; each user should consult its own counsel on the law applicable to it.*

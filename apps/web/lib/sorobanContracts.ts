@@ -1,15 +1,16 @@
 /**
  * ═══════════════════════════════════════════════════════
- * Nirium — Soroban Contract Layer (Freighter-signed)
+ * Nirium - Soroban Contract Layer (Freighter-signed)
  * ═══════════════════════════════════════════════════════
  *
  * Two-contract architecture (simplified for auditing):
  *
- *  - NiriumVault:    CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU
+ *  - NiriumVault:    CDMFURE6MYROTA2A6DLD4TN2S4QTN64L2FZ2I2RY2AREONX6DUQOI2S2
  *    Core treasury: vault CRUD, agent delegation, strategy execution,
- *    flash loans, 2-of-3 cosigner multisig, emergency pause.
+ *    flash loans, emergency pause (2-of-3 once cosigners are registered;
+ *    none are yet). Source-verified on Stellar Expert since 9 Nov 2026.
  *
- *  - NiriumProtocol: CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5
+ *  - NiriumProtocol: CBKCTMTCCZQIPEESLHHEZKXYSPWNO24NEG33T2XSAAAHPISBND5CNSXX
  *    Unified registry: ELO reputation, strategy marketplace,
  *    agent performance scoring, skill gate (x402 proof-of-payment).
  *
@@ -38,9 +39,15 @@ const HORIZON_URL = process.env.NEXT_PUBLIC_HORIZON_URL || 'https://horizon-test
 
 export const CONTRACT_IDS = {
     // Core treasury: vaults, agent delegation, strategy execution, multisig
-    VAULT: process.env.NEXT_PUBLIC_CONTRACT_VAULT || 'CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU',
+    // 9-nov-2026: build verificado (SEP-0055). GitHub lo compiló desde nirium-protocol/nirium-core
+    // en el commit 8489481 (release nirium-vault-v0.1.0, WASM d317ac7b…) y se desplegó ese archivo
+    // exacto; Stellar Expert lo marca "verified". Mismo admin/treasury (GCQ2…GUC64), 0 bóvedas al
+    // empezar. Antes: CBTWMZCG…AWSZU (15-may, lo que de verdad usaba el sitio vía la variable de
+    // Vercel, 180 bóvedas) y CARTJIAS…5SICV (25-oct, fix FZN-2026-NIR-02, nunca conectado).
+    // Los dos siguen en testnet; ver /security.
+    VAULT: process.env.NEXT_PUBLIC_CONTRACT_VAULT || 'CDMFURE6MYROTA2A6DLD4TN2S4QTN64L2FZ2I2RY2AREONX6DUQOI2S2',
     // Unified registry: ELO, strategy marketplace, agent scoring, skill gate
-    PROTOCOL: process.env.NEXT_PUBLIC_CONTRACT_PROTOCOL || 'CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5',
+    PROTOCOL: process.env.NEXT_PUBLIC_CONTRACT_PROTOCOL || 'CBKCTMTCCZQIPEESLHHEZKXYSPWNO24NEG33T2XSAAAHPISBND5CNSXX',
 } as const;
 
 // Soroban Native Token Address (XLM) on Stellar Testnet
@@ -49,7 +56,7 @@ export const NATIVE_ASSET_ID = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU
 // USDC Asset ID on Stellar Testnet (GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5)
 export const USDC_ASSET_ID = 'CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA';
 
-// ─── CETES Asset — Etherfuse Stablebonds on Stellar ──────────────────
+// ─── CETES Asset - Etherfuse Stablebonds on Stellar ──────────────────
 // CETES = Mexican Federal Treasury Certificates, tokenized by Etherfuse
 // This issuer EXISTS on Stellar TESTNET (confirmed via Horizon)
 // Reference: https://github.com/ElliotFriend/regional-starter-pack
@@ -206,7 +213,7 @@ export async function simulateContractRead({
 }
 
 // ═══════════════════════════════════════════════════════
-// VAULT CONTRACT — NiriumVault
+// VAULT CONTRACT - NiriumVault
 // ═══════════════════════════════════════════════════════
 
 /**
@@ -340,7 +347,7 @@ export async function vaultClose(callerAddress: string, vaultId: number) {
 }
 
 // ═══════════════════════════════════════════════════════
-// ELO CONTRACT — Reputation System
+// ELO CONTRACT - Reputation System
 // ═══════════════════════════════════════════════════════
 
 /**
@@ -406,7 +413,7 @@ export async function eloRegisterSentinel(callerAddress: string) {
 }
 
 // ═══════════════════════════════════════════════════════
-// MARKETPLACE CONTRACT — Strategy Registry
+// MARKETPLACE CONTRACT - Strategy Registry
 // ═══════════════════════════════════════════════════════
 
 /**
@@ -496,7 +503,7 @@ export async function marketplaceSubscribe(
 }
 
 // ═══════════════════════════════════════════════════════
-// CETES INTEGRATION — Etherfuse Ramp Support
+// CETES INTEGRATION - Etherfuse Ramp Support
 // ═══════════════════════════════════════════════════════
 
 
@@ -546,7 +553,7 @@ export async function hasCETESTrustline(walletAddress: string): Promise<boolean>
 }
 
 // ═══════════════════════════════════════════════════════
-// COMPLIANCE SENTINEL — Performance Scoring
+// COMPLIANCE SENTINEL - Performance Scoring
 // ═══════════════════════════════════════════════════════
 
 /**
@@ -574,7 +581,7 @@ export async function sentinelGetRecord(agentAddress: string): Promise<any> {
 }
 
 // ═══════════════════════════════════════════════════════
-// SETTLEMENT HUB — x402 & MPP
+// SETTLEMENT HUB - x402 & MPP
 // ═══════════════════════════════════════════════════════
 
 /**
@@ -623,7 +630,7 @@ export async function hubCloseSession(callerAddress: string) {
 }
 
 // ═══════════════════════════════════════════════════════
-// SKILL VAULT — x402 Payment Gate
+// SKILL VAULT - x402 Payment Gate
 // ═══════════════════════════════════════════════════════
 
 /**

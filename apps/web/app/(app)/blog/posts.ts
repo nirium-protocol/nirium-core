@@ -1,4 +1,4 @@
-// Blog post registry — ordering + non-translatable metadata only.
+// Blog post registry - ordering + non-translatable metadata only.
 // Translatable text (title, excerpt, tag, body) lives in dictionaries under
 // `blog.posts.<slug>` so it switches with the language selector.
 // To publish: add an entry here + the matching `blog.posts.<slug>` block in
@@ -6,11 +6,16 @@
 
 export interface BlogPostMeta {
     slug: string;
-    date: string;        // ISO date — formatted per-locale at render time
+    date: string;        // ISO date - formatted per-locale at render time
     readMinutes: number;
 }
 
 export const posts: BlogPostMeta[] = [
+    {
+        slug: "codigo-402-agentes-que-pagan",
+        date: "2026-11-06",
+        readMinutes: 4,
+    },
     {
         slug: "audit-trail-verify-it-yourself",
         date: "2026-10-13",

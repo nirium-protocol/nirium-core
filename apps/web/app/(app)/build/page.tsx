@@ -38,12 +38,14 @@ const API_ENDPOINTS = [
     { id: "market",   icon: LineChart,    path: "/api/market",              method: "GET"  },
     { id: "exec",     icon: TerminalIcon, path: "/api/execute",             method: "POST" },
     { id: "skills",   icon: Brain,        path: "/api/skills",              method: "GET"  },
-    { id: "billing",  icon: Coins,        path: "/api/v1/premium/signals",  method: "GET"  },
-    { id: "settle",   icon: Send,         path: "/api/v1/mpp/execute",      method: "POST" },
+    // market es el único endpoint x402 que cobra en mainnet; signals es solo testnet.
+    { id: "billing",  icon: Coins,        path: "/api/v1/premium/market",   method: "GET"  },
+    { id: "settle",   icon: Send,         path: "/api/v1/mpp/signals",      method: "GET"  },
     { id: "vault",    icon: Landmark,     path: "/api/treasury/vaults",     method: "GET"  },
     { id: "audit",    icon: ScrollText,   path: "/api/audit/log",           method: "POST" },
     { id: "payroll",  icon: Wallet,       path: "/api/payroll/run",         method: "POST" },
     { id: "webhooks", icon: Webhook,      path: "/api/webhooks",            method: "POST" },
+    // Las 10 rutas comprobadas contra packages/agent/src el 9-nov-2026.
 ];
 
 const SDK_ICONS: Record<string, any> = {
@@ -58,7 +60,7 @@ const SDK_HREFS: Record<string, string> = {
 };
 
 export default function BuildPage() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const si = t.home.institutional_use_cases.startup_ideas;
     const ah = t.home.institutional_use_cases.api_hub;
 
@@ -114,14 +116,67 @@ export default function BuildPage() {
                                 {si.cta_button}
                             </a>
                             <Link
-                                href="/keys"
+                                href="/docs#quickstart"
                                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-tight hover:bg-white/10 transition-all"
                             >
                                 <TerminalIcon className="w-4 h-4" />
-                                {ah.cta_sandbox}
+                                {ah.cta_start}
                             </Link>
                         </div>
                     </motion.div>
+                </div>
+            </section>
+
+            {/* ── NIRIUMTOBER BANNER ────────────────────────────────────────── */}
+            <section className="pb-4">
+                <div className="container mx-auto px-4 max-w-5xl">
+                    <Link
+                        href="/build/niriumtober"
+                        className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-orange-400/30 bg-gradient-to-r from-orange-500/10 via-amber-400/5 to-fuchsia-500/10 px-5 py-4 hover:border-orange-400/60 transition-all"
+                    >
+                        <div>
+                            <div className="text-[10px] font-mono font-black uppercase tracking-[0.25em] text-orange-300">
+                                {language === "es" ? "Cerró el 2 nov 2026 · testnet" : "Closed Nov 2, 2026 · testnet"}
+                            </div>
+                            <div className="text-lg sm:text-xl font-black tracking-tight text-white">
+                                {language === "es" ? "Niriumtober terminó: mira lo que se construyó" : "Niriumtober is over: see what was built"}
+                            </div>
+                        </div>
+                        <span className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-orange-300">
+                            {language === "es" ? "Ver issues y resultados" : "See issues and results"}
+                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </span>
+                    </Link>
+                </div>
+            </section>
+
+            {/* ── POLLAR GUIDE ─────────────────────────────────────────────────
+                Pollar's own x402 guide uses Nirium as its "Try it" example
+                (checked 2026-11-14). A documentation reference, not a claim
+                that Pollar uses Nirium in its product. */}
+            <section className="pb-4">
+                <div className="container mx-auto px-4 max-w-5xl">
+                    <a
+                        href="https://docs.pollar.xyz/docs/guides/x402-payments"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-stellar-teal/25 bg-stellar-teal/[0.04] px-5 py-4 hover:border-stellar-teal/50 transition-all"
+                    >
+                        <div>
+                            <div className="text-[10px] font-mono font-black uppercase tracking-[0.25em] text-stellar-teal/80">
+                                {language === "es" ? "¿Tu app usa Pollar?" : "Does your app use Pollar?"}
+                            </div>
+                            <div className="text-lg sm:text-xl font-black tracking-tight text-white">
+                                {language === "es"
+                                    ? "La guía oficial de x402 de Pollar usa Nirium como ejemplo para pagar por uso"
+                                    : "Pollar's official x402 guide uses Nirium as its pay-per-use example"}
+                            </div>
+                        </div>
+                        <span className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-stellar-teal/80">
+                            {language === "es" ? "Abrir la guía de Pollar" : "Open Pollar's guide"}
+                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </span>
+                    </a>
                 </div>
             </section>
 
@@ -187,7 +242,7 @@ export default function BuildPage() {
 
                                         {/* Blueprint link */}
                                         <Link
-                                            href="/docs?tab=blueprints"
+                                            href="/docs"
                                             className="flex items-center justify-between pt-8 group/lnk"
                                         >
                                             <span className="text-[11px] font-black uppercase tracking-wider transition-colors" style={{ color: card.accent }}>
@@ -224,7 +279,7 @@ export default function BuildPage() {
                     <motion.div {...fadeUp()} className="text-center mb-12 space-y-4 max-w-2xl mx-auto">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-stellar-teal/10 border border-stellar-teal/30 text-stellar-teal text-[10px] font-black uppercase tracking-widest">
                             <Code2 className="w-3 h-3" />
-                            <span>{ah.badge} // OPEN SOURCE & VERIFIED IMPACT</span>
+                            <span>{ah.badge} // OPEN SOURCE</span>
                         </div>
                         <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter uppercase italic leading-[0.9]">
                             {ah.title}
@@ -312,17 +367,22 @@ export default function BuildPage() {
                             <pre className="p-4 sm:p-6 text-[11px] sm:text-[13px] font-mono leading-relaxed overflow-x-auto text-gray-300">
 <code>
 <span className="text-purple-400">import</span> {"{"} <span className="text-stellar-teal">Agent</span> {"}"} <span className="text-purple-400">from</span> <span className="text-green-400">'nirium'</span>;{"\n\n"}
-<span className="text-blue-400">const</span> nirium = <span className="text-blue-400">new</span> <span className="text-stellar-teal">Agent</span>({"{"} apiKey: <span className="text-yellow-300">'sk_free_...'</span> {"}"});{"\n\n"}
-<span className="text-gray-500">// 1. Deploy a treasury vault — this returns an UNSIGNED xdr.</span>{"\n"}
+{/* Sin baseUrl el SDK publicado (nirium 0.18.0) apunta a http://localhost:3002. */}
+<span className="text-blue-400">const</span> nirium = <span className="text-blue-400">new</span> <span className="text-stellar-teal">Agent</span>({"{"}{"\n"}
+{"  "}apiKey: <span className="text-yellow-300">'sk_free_...'</span>,{"\n"}
+{"  "}baseUrl: <span className="text-green-400">'https://nirium-agent.fly.dev'</span>, <span className="text-gray-500">// testnet node</span>{"\n"}
+{"}"});{"\n\n"}
+<span className="text-gray-500">// 1. Deploy a treasury vault. This returns an UNSIGNED xdr.</span>{"\n"}
 <span className="text-gray-500">//    You sign it with YOUR OWN key; Nirium never holds it.</span>{"\n"}
 <span className="text-blue-400">const</span> vault = <span className="text-purple-400">await</span> nirium.<span className="text-cyan-400">deployTreasuryVault</span>({"{"}{"\n"}
 {"  "}caller: <span className="text-green-400">'G...'</span>, manager: <span className="text-green-400">'G...'</span>,{"\n"}
 {"}"});{"\n"}
-<span className="text-gray-500">// vault.xdr — sign with `caller`, then submitTreasuryTx(signedXdr)</span>{"\n\n"}
-<span className="text-gray-500">// 2. Charge for your own API with x402 micro-billing</span>{"\n"}
+<span className="text-gray-500">// vault.xdr: sign with `caller`, then submitTreasuryTx(signedXdr)</span>{"\n\n"}
+<span className="text-gray-500">// 2. Pay for an x402-protected API from your own wallet</span>{"\n"}
+<span className="text-gray-500">//    (to charge for YOUR API, see x402Serve() in the docs)</span>{"\n"}
 nirium.<span className="text-cyan-400">initX402</span>({"{"} secretKey: process.env.STELLAR_SECRET_KEY {"}"});{"\n"}
 <span className="text-blue-400">const</span> res = <span className="text-purple-400">await</span> nirium.<span className="text-cyan-400">x402Fetch</span>(<span className="text-green-400">'https://your-api.com/paid-endpoint'</span>);{"\n\n"}
-<span className="text-gray-500">// 3. Subscribe to live signals over WebSocket</span>{"\n"}
+<span className="text-gray-500">// 3. Subscribe to the testnet loop's signals over WebSocket</span>{"\n"}
 nirium.<span className="text-cyan-400">subscribe</span>((signal) =&gt; {"{"}{"\n"}
 {"  "}console.<span className="text-cyan-400">log</span>(<span className="text-green-400">'Signal:'</span>, signal);{"\n"}
 {"}"});
@@ -404,12 +464,12 @@ nirium.<span className="text-cyan-400">subscribe</span>((signal) =&gt; {"{"}{"\n
                             <Code2 className="w-4 h-4" />
                             {ah.cta_docs}
                         </a>
-                        <Link href="/keys" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white font-bold text-xs sm:text-sm uppercase tracking-tight hover:bg-white/10 transition-all">
+                        <Link href="/docs#quickstart" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white font-bold text-xs sm:text-sm uppercase tracking-tight hover:bg-white/10 transition-all">
                             <TerminalIcon className="w-4 h-4" />
-                            {ah.cta_sandbox}
+                            {ah.cta_start}
                         </Link>
                         <a
-                            href="https://github.com/nirium-protocol/nirium-sdk"
+                            href="https://github.com/nirium-protocol/nirium"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white font-bold text-xs sm:text-sm uppercase tracking-tight hover:bg-white/10 transition-all"
@@ -449,14 +509,16 @@ nirium.<span className="text-cyan-400">subscribe</span>((signal) =&gt; {"{"}{"\n
 
                             <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto shrink-0">
                                 <Link
-                                    href="/docs?tab=blueprints"
+                                    href="/docs"
                                     className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-stellar-yellow text-[#0b0b0b] font-black text-sm uppercase tracking-tight hover:bg-stellar-yellow/90 transition-all shadow-[0_10px_30px_rgba(255,215,0,0.2)]"
                                 >
                                     <Code2 className="w-4 h-4" />
                                     {si.cta_button}
                                 </Link>
                                 <a
-                                    href="mailto:niriumprotocol@gmail.com"
+                                    href="https://discord.gg/gAAznKrSQZ"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-tight hover:bg-white/10 transition-all"
                                 >
                                     {si.cta_discord}
@@ -470,14 +532,19 @@ nirium.<span className="text-cyan-400">subscribe</span>((signal) =&gt; {"{"}{"\n
                             <div className="flex items-center gap-3">
                                 <Shield className="w-5 h-5 text-stellar-teal" />
                                 <div className="text-left">
-                                    <div className="text-[10px] font-black uppercase tracking-widest text-stellar-teal">Developer Ethics & Conduct</div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-stellar-teal">{language === "es" ? "Conducta" : "Conduct"}</div>
                                     <p className="text-[9px] text-gray-500 max-w-sm leading-tight mt-0.5">
-                                        All products built with the Nirium SDK must adhere to the Stellar Community Code of Conduct. We enforce zero-tolerance for malicious agents, financial spam, or deceptive practices.
+                                        {/* Antes: "zero-tolerance" que no se aplica con nada concreto. Lo real es
+                                            lo que dicen los términos (sección 9): se pueden limitar o suspender
+                                            llaves de API por abuso. */}
+                                        {language === "es"
+                                            ? "Lo que construyas sobre Nirium debe seguir el Código de Conducta de Stellar. Podemos limitar o suspender las llaves de API que se usen para abuso, spam o engaño."
+                                            : "Whatever you build on Nirium should follow the Stellar Code of Conduct. We can limit or suspend API keys used for abuse, spam or deception."}
                                     </p>
                                 </div>
                             </div>
-                            <Link href="/terms" className="text-[10px] font-bold text-white/50 hover:text-stellar-teal transition-colors underline underline-offset-4 decoration-white/10">
-                                Read Full Conduct Guidelines
+                            <Link href="/coc" className="text-[10px] font-bold text-white/50 hover:text-stellar-teal transition-colors underline underline-offset-4 decoration-white/10">
+                                {language === "es" ? "Leer el código de conducta" : "Read the code of conduct"}
                             </Link>
                         </div>
                     </motion.div>

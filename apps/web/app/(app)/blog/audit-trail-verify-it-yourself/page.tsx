@@ -171,7 +171,7 @@ export default function AuditTrailVerifyItYourselfPost() {
                                     >
                                         <span className="flex items-center gap-2 min-w-0">
                                             <ExternalLink className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-stellar-teal transition-colors" />
-                                            <span className="truncate">{meta[item.key]}</span>
+                                            <span className="break-words">{meta[item.key]}</span>
                                         </span>
                                         <span className="shrink-0 font-mono text-xs text-white/40 group-hover:text-stellar-teal/80 transition-colors">
                                             {item.mono}
@@ -205,7 +205,7 @@ export default function AuditTrailVerifyItYourselfPost() {
                         >
                             <span className="flex items-center gap-2 min-w-0">
                                 <ExternalLink className="w-3.5 h-3.5 shrink-0 text-white/30 group-hover:text-stellar-teal transition-colors" />
-                                <span className="truncate">{meta.mainnet_evidence_label}</span>
+                                <span className="break-words">{meta.mainnet_evidence_label}</span>
                             </span>
                             <span className="shrink-0 font-mono text-xs text-white/40 group-hover:text-stellar-teal/80 transition-colors">
                                 {MAINNET_CID.slice(0, 8)}…{MAINNET_CID.slice(-6)}

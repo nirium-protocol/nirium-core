@@ -37,37 +37,5 @@ export async function GET() {
     }
 }
 
-export async function POST(req: Request) {
-    if (!SUPABASE_URL || !SUPABASE_KEY) return NextResponse.json({ error: 'Config missing' });
-
-    try {
-        const { agent, thought, protocol } = await req.json();
-        console.log(`📡 [TelemetryFeed] Attempting to save log from ${agent}...`);
-
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/agent_logs`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify({
-                agent_id: agent,
-                message: `⚙️ [LOG] ${thought}`,
-                level: 'info',
-            }),
-        });
-        
-        if (res.ok) {
-            console.log(`✅ [TelemetryFeed] Log saved to Supabase.`);
-        } else {
-            console.warn(`❌ [TelemetryFeed] Supabase rejected log:`, res.status, await res.text());
-        }
-
-        return NextResponse.json({ success: res.ok });
-    } catch (e: any) {
-        console.error(`🚨 [TelemetryFeed] API Crash:`, e.message);
-        return NextResponse.json({ error: 'Invalid thought' }, { status: 400 });
-    }
-}
+// POST se quitó el 8-nov-2026: escribía en agent_logs con la llave pública y sin
+// autenticación. Nada en el sitio lo llamaba.

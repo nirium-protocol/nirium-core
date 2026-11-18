@@ -30,6 +30,10 @@ import AuditTrailViewer from "@/components/dashboard/AuditTrailViewer";
 import ProtocolKernel from "@/components/dashboard/ProtocolKernel";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { useLanguage } from "@/context/LanguageContext";
+import NodeActivity from "@/components/analytics/NodeActivity";
+import ReceiptsSettlements from "@/components/analytics/ReceiptsSettlements";
+import { useNetwork } from "@/context/NetworkContext";
+import NetworkScopeNote from "@/components/shared/NetworkScopeNote";
 import { useSecurityKillSwitch } from "@/lib/securityHooks";
 
 import { ComplianceBanner } from "@/components/ui/ComplianceBanner";
@@ -75,6 +79,8 @@ function ProtocolKernelSmall() {
 
 function DashboardContent() {
     const { t, language } = useLanguage();
+    // Textos fijos del panel en el idioma elegido.
+    const L = (en: string, es: string) => (language === 'es' ? es : en);
     const router = useRouter();
     const searchParams = useSearchParams();
     const { isLocked } = useSecurityKillSwitch();
@@ -155,11 +161,10 @@ function DashboardContent() {
     const [onChainTotalFees, setOnChainTotalFees] = useState<number | null>(null);
     const [onChainElo, setOnChainElo] = useState<number | null>(null);
     const [globalActiveAgents, setGlobalActiveAgents] = useState<number | null>(null);
-    const [thoughts, setThoughts] = useState<any[]>([
-        { id: 'demo-1', agent: 'CORE', content: 'Strategic execution network online — broadcasting on-chain...', timestamp: new Date().toISOString(), type: 'execution' },
-        { id: 'demo-2', agent: 'VAULT', content: 'Vault architecture synchronized — asset classes active', timestamp: new Date(Date.now() - 15000).toISOString(), type: 'execution' },
-        { id: 'demo-3', agent: 'ROUTER', content: 'Liquidity route optimized for USDC — spread minimized', timestamp: new Date(Date.now() - 45000).toISOString(), type: 'execution' },
-    ]);
+    // Empieza vacío: antes traía tres mensajes de demo ("Strategic execution
+    // network online...") que se veían igual que logs reales y se quedaban si
+    // /api/logs fallaba. TelemetryFeed ya tiene su propio estado vacío.
+    const [thoughts, setThoughts] = useState<any[]>([]);
     const vault = useVault();
     const elo = useEloReputation();
 
@@ -219,7 +224,7 @@ function DashboardContent() {
                     type: (d.level === 'error' || d.level === 'warn') ? 'security' : 'execution',
                 })));
             } catch {
-                // silently ignore — empty state handles it
+                // silently ignore - empty state handles it
             }
         };
         fetchThoughts();
@@ -229,6 +234,10 @@ function DashboardContent() {
 
     const [vaultBalance, setVaultBalance] = useState<number>(0);
     const [vaultId, setVaultId] = useState<number | null>(null);
+    // 16-nov-2026: Treasury (bóveda de testnet) va plegado debajo de recibos y cobros.
+    // Se abre solo si ya tienes bóveda o si llegas desde el builder con una estrategia.
+    const { network: uiNet } = useNetwork();
+    const [treasuryOpen, setTreasuryOpen] = useState(false);
     const [autoRebalance, setAutoRebalance] = useState<boolean>(false);
     const [autoRebalanceLoading, setAutoRebalanceLoading] = useState<boolean>(false);
     const [delegationId, setDelegationId] = useState<string | null>(null);
@@ -359,7 +368,7 @@ function DashboardContent() {
                 // const market = await blend.queryMarket();
                 // setBlendData(market.stellar.apy);
 
-                // Blend/Phoenix rates not used in main stats — CETES rate from Etherfuse is the reference
+                // Blend/Phoenix rates not used in main stats - CETES rate from Etherfuse is the reference
                 // These remain available for the Strategy Builder internal calculations
                 setBlendData({ supplyApy: 0, borrowApy: 0 });
                 setPhoenixData({ supplyApy: 0, borrowApy: 0 });
@@ -426,7 +435,7 @@ function DashboardContent() {
     const handleUninstallSkill = async (slug: string) => {
         if (!selectedStrategy?.id) return;
 
-        const toastId = toast.loading(`Uninstalling ${slug}...`);
+        const toastId = toast.loading(L(`Uninstalling ${slug}...`, `Desinstalando ${slug}...`));
         try {
             // Remove from localStorage (per-agent)
             const agentId = selectedStrategy.id;
@@ -441,13 +450,13 @@ function DashboardContent() {
 
             // Update state
             setInstalledSkills(prev => prev.filter(s => s.slug !== slug));
-            toast.success("Skill uninstalled", { id: toastId });
+            toast.success(L("Skill uninstalled", "Skill desinstalada"), { id: toastId });
 
             // Log to Ops Console
             const skillName = installedSkills.find(s => s.slug === slug)?.name || slug;
-            writeLog(`PLUGIN REMOVED: ${skillName} — uninstalled from agent ${agentId}`, 'warn', account?.address);
+            writeLog(`PLUGIN REMOVED: ${skillName} - uninstalled from agent ${agentId}`, 'warn', account?.address);
         } catch (error) {
-            toast.error(`Failed to uninstall: ${String(error)}`, { id: toastId });
+            toast.error(L(`Failed to uninstall: ${String(error)}`, `No se pudo desinstalar: ${String(error)}`), { id: toastId });
         }
     };
 
@@ -534,6 +543,13 @@ function DashboardContent() {
         return STRATEGIES["nirium-usdc-loop"] || { name: "Nirium Loop", logPrefix: "CORE", emoji: "🧬" };
     }, [strategyId, activeStrategies, account, strategyNameParam, STRATEGIES]);
 
+    // Treasury plegado: se abre con bóveda propia o al llegar con una estrategia/activo en la URL.
+    useEffect(() => {
+        if (vaultId !== null || searchParams.get('strategy') || searchParams.get('asset') || strategyNameParam) {
+            setTreasuryOpen(true);
+        }
+    }, [vaultId, searchParams, strategyNameParam]);
+
     // Auto-deploy logic for Navbar CTA
     useEffect(() => {
         const assetParam = searchParams.get('asset');
@@ -542,6 +558,7 @@ function DashboardContent() {
         }
 
         if (searchParams.get('autostart') === 'true' && account) {
+            setTreasuryOpen(true);
             // Preserve name param if it exists
             const nameParam = strategyNameParam ? `&name=${encodeURIComponent(strategyNameParam)}` : '';
             router.replace(`/dashboard?strategy=${strategyId}${nameParam}`);
@@ -657,13 +674,13 @@ function DashboardContent() {
 
     const handleDeploy = () => {
         if (!account) {
-            toast.error("Please connect your Stellar Wallet first");
+            toast.error(L("Please connect your Stellar wallet first", "Primero conecta tu wallet de Stellar"));
             return;
         }
 
         // Check duplicates
         if (activeStrategies.find(s => s.strategy_id === strategyId)) {
-            toast.warning(`${currentStrategy.emoji} ${currentStrategy.name} is already active!`);
+            toast.warning(L(`${currentStrategy.emoji} ${currentStrategy.name} is already active`, `${currentStrategy.emoji} ${currentStrategy.name} ya está activa`));
             return;
         }
 
@@ -673,7 +690,7 @@ function DashboardContent() {
     const executeDeploy = async () => {
         if (!account) return;
 
-        const toastId = toast.loading(`🤖 AI Agent: Initializing ${currentStrategy.name}...`);
+        const toastId = toast.loading(L(`Starting ${currentStrategy.name}...`, `Iniciando ${currentStrategy.name}...`));
 
         // determine Mode: V2 (AgentCap) or V1 (Script)
         const useAgentCap = !!(vaultId && ownerCapId);
@@ -682,8 +699,8 @@ function DashboardContent() {
 
         // Network Check (Strict)
         if (account.chains?.[0] && account.chains[0] !== 'stellar:testnet') {
-            toast.error("Wrong Network Detected", {
-                description: "This dApp runs on Stellar Testnet. Please switch your wallet network."
+            toast.error(L("Wrong network", "Red equivocada"), {
+                description: L("This dashboard runs on Stellar testnet. Switch your wallet's network.", "Este panel corre en Stellar testnet. Cambia la red de tu wallet.")
             });
             return;
         }
@@ -698,7 +715,7 @@ function DashboardContent() {
 
             if (nativeBalance < REQUIRED_BALANCE) {
                 toast.error(t.dashboard.toasts.insufficient_balance.replace('{amount}', REQUIRED_BALANCE.toString()), {
-                    description: `Detected: ${nativeBalance.toFixed(4)} XLM.`
+                    description: L(`Detected: ${nativeBalance.toFixed(4)} XLM.`, `Detectado: ${nativeBalance.toFixed(4)} XLM.`)
                 });
                 return;
             }
@@ -734,8 +751,8 @@ function DashboardContent() {
             }
 
             toast.dismiss(toastId);
-            toast.success(`${currentStrategy.emoji} ${currentStrategy.name} Active!`, {
-                description: "Institutional Soroban Vault created.",
+            toast.success(L(`${currentStrategy.emoji} ${currentStrategy.name} active`, `${currentStrategy.emoji} ${currentStrategy.name} activa`), {
+                description: L("Vault created on Soroban.", "Bóveda creada en Soroban."),
                 action: {
                     label: "Verify on Explorer",
                     onClick: () => window.open(`https://stellar.expert/explorer/testnet/tx/${txHash}`, "_blank")
@@ -797,7 +814,7 @@ function DashboardContent() {
 
     const stopStrategy = (dbId: string) => {
         if (!account) {
-            toast.error("Please connect your Stellar Wallet first");
+            toast.error(L("Please connect your Stellar wallet first", "Primero conecta tu wallet de Stellar"));
             return;
         }
         const foundStrategy = activeStrategies.find(s => s.id === dbId || s.strategy_id === dbId);
@@ -805,19 +822,19 @@ function DashboardContent() {
 
         setConfirmConfig({
             isOpen: true,
-            title: "Terminate Agent?",
+            title: L("Stop this agent?", "¿Detener este agente?"),
             description: (
                 <div className="space-y-3">
-                    <p className="text-xs text-gray-400">You are about to disconnect the autonomous logic for <span className="text-white font-bold">{foundStrategy.name}</span>.</p>
+                    <p className="text-xs text-gray-400">{L('You are about to stop the agent for ', 'Vas a detener el agente de ')}<span className="text-white font-bold">{foundStrategy.name}</span>.</p>
                     <div className="bg-red-500/5 border border-red-500/10 p-3 rounded-xl text-left">
                         <div className="flex items-center gap-2 mb-1.5">
                             <AlertTriangle size={14} className="text-red-500" />
-                            <span className="text-[10px] font-bold text-red-200 uppercase tracking-wider">Protocol Warning</span>
+                            <span className="text-[10px] font-bold text-red-200 uppercase tracking-wider">{L('What happens', 'Qué pasa')}</span>
                         </div>
                         <p className="text-[10px] text-gray-400 leading-relaxed font-mono">
-                            • Active positions will be frozen<br />
-                            • On-chain signature required<br />
-                            • Yield generation will cease immediately
+                            {L('• The agent stops acting on this strategy', '• El agente deja de actuar en esta estrategia')}<br />
+                            {L('• If it has a vault, it is closed on-chain (balance must be 0)', '• Si tiene bóveda, se cierra en la cadena (el saldo debe ser 0)')}<br />
+                            {L('• Needs your signature in Freighter', '• Requiere tu firma en Freighter')}
                         </p>
                     </div>
                 </div>
@@ -826,7 +843,7 @@ function DashboardContent() {
                 <Shield size={32} className="text-red-500/50" />
                 <X size={16} className="absolute inset-0 m-auto text-red-500" />
             </div>,
-            confirmText: "STOP EXECUTION",
+            confirmText: L("STOP AGENT", "DETENER AGENTE"),
             type: 'danger',
             onConfirm: () => {
                 setConfirmConfig(prev => ({ ...prev, isOpen: false }));
@@ -840,13 +857,13 @@ function DashboardContent() {
 
         // Network Check (Strict)
         if (account.chains?.[0] && account.chains[0] !== 'stellar:testnet') {
-            toast.error("Wrong Network Detected", {
-                description: "This dApp runs on Stellar Testnet. Please switch your wallet network."
+            toast.error(L("Wrong network", "Red equivocada"), {
+                description: L("This dashboard runs on Stellar testnet. Switch your wallet's network.", "Este panel corre en Stellar testnet. Cambia la red de tu wallet.")
             });
             return;
         }
 
-        const toastId = toast.loading("Sending Termination Signal...");
+        const toastId = toast.loading(L("Stopping the agent...", "Deteniendo el agente..."));
 
         try {
             // Resolve vaultId: state → localStorage → Supabase config
@@ -874,7 +891,7 @@ function DashboardContent() {
                 }
             }
 
-            // Close vault on-chain — proper Soroban invocation, 1 Freighter signature
+            // Close vault on-chain - proper Soroban invocation, 1 Freighter signature
             const localVaultId = resolvedVaultId;
             const closeResult = localVaultId !== null
                 ? await vaultClose(account.address, localVaultId)
@@ -882,8 +899,8 @@ function DashboardContent() {
 
             toast.dismiss(toastId);
             if (closeResult?.success && closeResult?.txHash) {
-                toast.success("Vault Closed", {
-                    description: `Vault #${localVaultId} terminated on Stellar Testnet.`,
+                toast.success(L("Vault closed", "Bóveda cerrada"), {
+                    description: L(`Vault #${localVaultId} closed on Stellar testnet.`, `Bóveda #${localVaultId} cerrada en Stellar testnet.`),
                     action: {
                         label: "View Tx",
                         onClick: () => window.open(`https://stellar.expert/explorer/testnet/tx/${closeResult.txHash}`, "_blank")
@@ -902,8 +919,8 @@ function DashboardContent() {
                 })).addMemo(Memo.text(`NIRIUM:STOP:${stratName.slice(0, 16)}`));
                 const builtTx = tx.build();
                 const result = await signAndSubmitTransaction({ transaction: builtTx });
-                toast.success("Agent Terminated", {
-                    description: "Termination logged on Stellar Testnet.",
+                toast.success(L("Agent stopped", "Agente detenido"), {
+                    description: L("Stop recorded on Stellar testnet.", "Detención registrada en Stellar testnet."),
                     action: {
                         label: "View Tx",
                         onClick: () => window.open(`https://stellar.expert/explorer/testnet/tx/${result.hash}`, "_blank")
@@ -941,8 +958,8 @@ function DashboardContent() {
             if (msg.includes("Rejected")) return;
 
             // If it's a network error (502) or the object doesn't exist, offer "Force Remove"
-            toast.error("Protocol Sync Failed", {
-                description: `Code: ${msg.slice(0, 30)}...`,
+            toast.error(L("Sync failed", "Falló la sincronización"), {
+                description: L(`Code: ${msg.slice(0, 30)}...`, `Código: ${msg.slice(0, 30)}...`),
                 action: {
                     label: "FORCE REMOVE",
                     onClick: () => {
@@ -963,7 +980,7 @@ function DashboardContent() {
                                 localStorage.setItem(localKey, JSON.stringify(filtered));
                             } catch (err) { }
                         }
-                        toast.success("Agent forced out of fleet and database cleaned");
+                        toast.success(L("Agent removed from the list and its record cleared", "Agente quitado de la lista y su registro borrado"));
                         writeLog(`AGENT TERMINATED: Force cleaned from logic gates.`, 'error', account?.address);
                     }
                 }
@@ -993,7 +1010,7 @@ function DashboardContent() {
 
             // If the saved delegation ID is a fake demo-del-xxx (created when the agent was unreachable),
             // re-register in Supabase now that CORS + service role key are configured.
-            // The Soroban delegation already exists on-chain — no Freighter signature needed.
+            // The Soroban delegation already exists on-chain - no Freighter signature needed.
             if (ar && di && (di.startsWith('demo-del-') || !di.includes('-'))) {
                 const savedVaultId = (() => {
                     for (const asset of ['USDC', 'XLM', 'CETES']) {
@@ -1027,7 +1044,7 @@ function DashboardContent() {
                                 localStorage.setItem(`nirium-autorebalance-${account.address}`, JSON.stringify(updated));
                             }
                         }
-                    }).catch(() => { /* silent — agent may be starting up */ });
+                    }).catch(() => { /* silent - agent may be starting up */ });
                 }
             }
         } catch { /* ignore */ }
@@ -1121,7 +1138,7 @@ function DashboardContent() {
                     setDelegationTxHash(null);
                     localStorage.removeItem(`nirium-autorebalance-${wallet}`);
                 }
-            } catch { /* timeout o offline — conserva estado actual */ }
+            } catch { /* timeout o offline - conserva estado actual */ }
             finally { clearTimeout(t); }
         };
 
@@ -1182,7 +1199,7 @@ function DashboardContent() {
                             writeLog(`🤖 ${message}`, 'info', data.agent_id || 'UI_CLIENT');
 
                             if (data.status === 'success' && data.txHash) {
-                                toast.success("Strategy Executed!", {
+                                toast.success(L("Strategy executed", "Estrategia ejecutada"), {
                                     description: `Tx: ${data.txHash.slice(0, 8)}...`,
                                     action: {
                                         label: "View",
@@ -1241,7 +1258,7 @@ function DashboardContent() {
         const testConn = async () => {
             const hasTested = sessionStorage.getItem('nirium_diag_v1');
             if (!hasTested) {
-                console.log('🧪 [Diag] Dashboard session initialized — keeping diagnostics off the public feed.');
+                console.log('🧪 [Diag] Dashboard session initialized - keeping diagnostics off the public feed.');
                 sessionStorage.setItem('nirium_diag_v1', 'true');
             }
         };
@@ -1257,14 +1274,14 @@ function DashboardContent() {
     // Load Vault & OwnerCap from LocalStorage on mount
     useEffect(() => {
         if (account?.address) {
-            const CURRENT_VAULT_CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_VAULT || 'CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU';
+            const CURRENT_VAULT_CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_VAULT || 'CDMFURE6MYROTA2A6DLD4TN2S4QTN64L2FZ2I2RY2AREONX6DUQOI2S2';
             const savedData = localStorage.getItem(`nirium-vault-v2-${baseAsset}-${account.address}`);
             if (savedData) {
                 try {
                     const vaultData = JSON.parse(savedData);
-                    // If vault was created on a different contract, clear it — it's an orphaned vault
+                    // If vault was created on a different contract, clear it - it's an orphaned vault
                     if (vaultData.contractId && vaultData.contractId !== CURRENT_VAULT_CONTRACT) {
-                        console.warn('[Vault] Orphaned vault detected — contract changed. Clearing cache.');
+                        console.warn('[Vault] Orphaned vault detected - contract changed. Clearing cache.');
                         localStorage.removeItem(`nirium-vault-v2-${baseAsset}-${account.address}`);
                         localStorage.removeItem(`nirium-autorebalance-${account.address}`);
                         setVaultId(null);
@@ -1302,10 +1319,10 @@ function DashboardContent() {
 
         setConfirmConfig({
             isOpen: true,
-            title: "Deposit to Vault",
+            title: L("Deposit to your vault", "Depositar en tu bóveda"),
             description: (
                 <div className="space-y-4">
-                    <p className="text-xs text-gray-400">Transfer {baseAsset} from your wallet to the secure vault.</p>
+                    <p className="text-xs text-gray-400">{L(`Move ${baseAsset} from your wallet to your vault.`, `Mueve ${baseAsset} de tu wallet a tu bóveda.`)}</p>
                     <div className="relative">
                         <input
                             id="depositInput"
@@ -1321,7 +1338,7 @@ function DashboardContent() {
                 </div>
             ),
             icon: <RefreshCw size={32} className="text-stellar-teal" />,
-            confirmText: "CONFIRM DEPOSIT",
+            confirmText: L("CONFIRM DEPOSIT", "CONFIRMAR DEPÓSITO"),
             type: 'info',
             onConfirm: () => {
                 const val = (document.getElementById('depositInput') as HTMLInputElement)?.value || "0";
@@ -1334,21 +1351,21 @@ function DashboardContent() {
 
     const executeDeposit = async (amount: string) => {
         if (!account) {
-            toast.error("Please connect your wallet");
+            toast.error(L("Please connect your wallet", "Conecta tu wallet"));
             return;
         }
 
         if (!vaultId || typeof vaultId !== 'number') {
-            toast.error("No vault found", {
-                description: "Please create a vault first before depositing"
+            toast.error(L("No vault found", "No se encontró la bóveda"), {
+                description: L("Create a vault before depositing", "Crea una bóveda antes de depositar")
             });
             return;
         }
 
         // Network Check (Strict)
         if (account.chains?.[0] && account.chains[0] !== 'stellar:testnet') {
-            toast.error("Wrong Network Detected", {
-                description: "This dApp runs on Stellar Testnet. Please switch your wallet network."
+            toast.error(L("Wrong network", "Red equivocada"), {
+                description: L("This dashboard runs on Stellar testnet. Switch your wallet's network.", "Este panel corre en Stellar testnet. Cambia la red de tu wallet.")
             });
             return;
         }
@@ -1358,13 +1375,13 @@ function DashboardContent() {
         const currentBalance = baseAsset === 'CETES' ? parseFloat(cetesBalance) : walletBalance;
 
         if (depositAmount > currentBalance) {
-            toast.error("Insufficient Balance", {
-                description: `You only have ${currentBalance.toFixed(2)} ${baseAsset}. Cannot deposit ${depositAmount} ${baseAsset}.`
+            toast.error(L("Insufficient balance", "Saldo insuficiente"), {
+                description: L(`You only have ${currentBalance.toFixed(2)} ${baseAsset}. You can't deposit ${depositAmount} ${baseAsset}.`, `Solo tienes ${currentBalance.toFixed(2)} ${baseAsset}. No puedes depositar ${depositAmount} ${baseAsset}.`)
             });
             return;
         }
 
-        const toastId = toast.loading(`Executing Deposit of ${amount} ${baseAsset}...`);
+        const toastId = toast.loading(L(`Depositing ${amount} ${baseAsset}...`, `Depositando ${amount} ${baseAsset}...`));
         try {
             // Convert amount to stroops (1 XLM/USDC/CETES = 10^7 stroops)
             const amountInStroops = BigInt(Math.floor(parseFloat(amount) * 10_000_000));
@@ -1397,7 +1414,7 @@ function DashboardContent() {
         } catch (e: any) {
             console.error('Deposit error:', e);
             toast.dismiss(toastId);
-            toast.error("Deposit Failed", {
+            toast.error(L("Deposit failed", "Falló el depósito"), {
                 description: e.message || "Failed to deposit to vault contract"
             });
             writeLog(`VAULT DEPOSIT FAILED: ${e.message}`, 'error');
@@ -1406,16 +1423,16 @@ function DashboardContent() {
 
     const handleWithdraw = () => {
         if (!vaultId || !ownerCapId) {
-            toast.error("OwnerCap not found. Only the vault owner can withdraw.");
+            toast.error(L("Only the vault owner can withdraw.", "Solo el dueño de la bóveda puede retirar."));
             return;
         }
 
         setConfirmConfig({
             isOpen: true,
-            title: "Withdraw from Vault",
+            title: L("Withdraw from your vault", "Retirar de tu bóveda"),
             description: (
                 <div className="space-y-4">
-                    <p className="text-xs text-gray-400">Transfer {baseAsset} from the vault back to your wallet address.</p>
+                    <p className="text-xs text-gray-400">{L(`Move ${baseAsset} from your vault back to your wallet.`, `Regresa ${baseAsset} de tu bóveda a tu wallet.`)}</p>
                     <div className="relative">
                         <input
                             id="withdrawInput"
@@ -1431,7 +1448,7 @@ function DashboardContent() {
                 </div>
             ),
             icon: <div className="rotate-180"><ChevronRight size={32} className="text-white" /></div>,
-            confirmText: "CONFIRM WITHDRAW",
+            confirmText: L("CONFIRM WITHDRAWAL", "CONFIRMAR RETIRO"),
             type: 'info',
             onConfirm: () => {
                 const val = (document.getElementById('withdrawInput') as HTMLInputElement)?.value || "0";
@@ -1446,28 +1463,28 @@ function DashboardContent() {
         const MAX_RETRIES = 3;
 
         if (!account) {
-            toast.error("Please connect your wallet");
+            toast.error(L("Please connect your wallet", "Conecta tu wallet"));
             return;
         }
 
         if (!vaultId || typeof vaultId !== 'number') {
-            toast.error("No vault found", {
-                description: "Please create a vault first"
+            toast.error(L("No vault found", "No se encontró la bóveda"), {
+                description: L("Create a vault first", "Primero crea una bóveda")
             });
             return;
         }
 
         if (!ownerCapId) {
-            toast.error("Owner capability not found", {
-                description: "Only the vault owner can withdraw"
+            toast.error(L("This wallet isn't the vault owner", "Esta wallet no es la dueña de la bóveda"), {
+                description: L("Only the vault owner can withdraw", "Solo el dueño de la bóveda puede retirar")
             });
             return;
         }
 
         // Network Check (Strict)
         if (account.chains?.[0] && account.chains[0] !== 'stellar:testnet') {
-            toast.error("Wrong Network Detected", {
-                description: "This dApp runs on Stellar Testnet. Please switch your wallet network."
+            toast.error(L("Wrong network", "Red equivocada"), {
+                description: L("This dashboard runs on Stellar testnet. Switch your wallet's network.", "Este panel corre en Stellar testnet. Cambia la red de tu wallet.")
             });
             return;
         }
@@ -1475,16 +1492,16 @@ function DashboardContent() {
         // Validate withdrawal amount
         const withdrawAmount = parseFloat(amount);
         if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
-            toast.error("Invalid Amount", {
-                description: "Please enter a positive number to withdraw."
+            toast.error(L("Invalid amount", "Monto inválido"), {
+                description: L("Enter a positive number to withdraw.", "Escribe un número positivo para retirar.")
             });
             return;
         }
 
         // Check vault has sufficient balance
         if (withdrawAmount > vaultBalance) {
-            toast.error(`Insufficient ${baseAsset} in Vault`, {
-                description: `Vault balance: ${vaultBalance.toFixed(7)} ${baseAsset}. You requested ${withdrawAmount} ${baseAsset}.`
+            toast.error(L(`Not enough ${baseAsset} in the vault`, `No hay suficiente ${baseAsset} en la bóveda`), {
+                description: L(`Vault balance: ${vaultBalance.toFixed(7)} ${baseAsset}. You asked for ${withdrawAmount} ${baseAsset}.`, `Saldo de la bóveda: ${vaultBalance.toFixed(7)} ${baseAsset}. Pediste ${withdrawAmount} ${baseAsset}.`)
             });
             return;
         }
@@ -1492,8 +1509,8 @@ function DashboardContent() {
         // CETES trustline pre-check (Stellar requires trustline before receiving non-native assets)
         // Reference: https://developers.stellar.org/docs/build/guides/basics/verify-trustlines
         if (baseAsset === 'CETES' && !hasCetesTrust) {
-            toast.error("CETES Trustline Not Found", {
-                description: "Your wallet needs a CETES trustline to receive this asset. Add the trustline in Freighter first.",
+            toast.error(L("CETES trustline not found", "No se encontró la trustline de CETES"), {
+                description: L("Your wallet needs a CETES trustline to receive this asset. Add it in Freighter first.", "Tu wallet necesita una trustline de CETES para recibir este activo. Agrégala primero en Freighter."),
                 action: {
                     label: "Add via Etherfuse",
                     onClick: () => window.open('https://devnet.etherfuse.com', '_blank')
@@ -1512,13 +1529,13 @@ function DashboardContent() {
                     (b: any) => b.asset_type !== 'native' && b.asset_code === 'USDC'
                 );
                 if (!hasUSDC) {
-                    toast.error("USDC Trustline Not Found", {
-                        description: "Your wallet needs a USDC trustline to receive this asset. Add it in Freighter settings."
+                    toast.error(L("USDC trustline not found", "No se encontró la trustline de USDC"), {
+                        description: L("Your wallet needs a USDC trustline to receive this asset. Add it in Freighter's settings.", "Tu wallet necesita una trustline de USDC para recibir este activo. Agrégala en la configuración de Freighter.")
                     });
                     return;
                 }
             } catch {
-                // If Horizon is unreachable, proceed — the contract will catch it
+                // If Horizon is unreachable, proceed - the contract will catch it
             }
         }
 
@@ -1530,7 +1547,7 @@ function DashboardContent() {
         );
 
         try {
-            // Convert amount to stroops (1 XLM/USDC/CETES = 10^7 stroops — Stellar 7-decimal precision)
+            // Convert amount to stroops (1 XLM/USDC/CETES = 10^7 stroops - Stellar 7-decimal precision)
             const amountInStroops = BigInt(Math.floor(withdrawAmount * 10_000_000));
 
             const result = await vaultWithdraw(account.address, vaultId, amountInStroops);
@@ -1557,20 +1574,20 @@ function DashboardContent() {
                 const err = result.error || 'Withdrawal failed';
 
                 if (err.includes('insufficient vault balance') || err.includes('balance')) {
-                    toast.error(`Insufficient ${baseAsset} in Vault`, {
-                        description: `The vault does not have enough ${baseAsset}. Current balance: ${vaultBalance.toFixed(7)} ${baseAsset}.`
+                    toast.error(L(`Not enough ${baseAsset} in the vault`, `No hay suficiente ${baseAsset} en la bóveda`), {
+                        description: L(`The vault doesn't have enough ${baseAsset}. Current balance: ${vaultBalance.toFixed(7)} ${baseAsset}.`, `La bóveda no tiene suficiente ${baseAsset}. Saldo actual: ${vaultBalance.toFixed(7)} ${baseAsset}.`)
                     });
                 } else if (err.includes('vault not found')) {
-                    toast.error("Vault Not Found", {
-                        description: "This vault may have been closed or the contract was redeployed. Clear cache and reconnect."
+                    toast.error(L("Vault not found", "No se encontró la bóveda"), {
+                        description: L("This vault may have been closed or the contract redeployed. Clear the cache and reconnect.", "Puede que la bóveda se haya cerrado o que el contrato se haya vuelto a desplegar. Borra la caché y vuelve a conectar.")
                     });
                 } else if (err.includes('not_paused') || err.includes('paused')) {
-                    toast.error("Contract Paused", {
-                        description: "The NiriumVault contract is temporarily paused for maintenance."
+                    toast.error(L("Contract paused", "Contrato en pausa"), {
+                        description: L("The NiriumVault contract is paused for now.", "El contrato NiriumVault está en pausa por ahora.")
                     });
                 } else if (result.isSimulationError) {
-                    toast.error("Transaction Simulation Failed", {
-                        description: "The Soroban RPC rejected this transaction during simulation. This usually means the contract state changed. Try again."
+                    toast.error(L("Transaction simulation failed", "Falló la simulación de la transacción"), {
+                        description: L("Soroban RPC rejected this transaction during simulation. It usually means the contract state changed. Try again.", "El RPC de Soroban rechazó la transacción al simularla. Suele significar que cambió el estado del contrato. Intenta de nuevo.")
                     });
                 } else {
                     throw new Error(err);
@@ -1594,23 +1611,23 @@ function DashboardContent() {
 
             if (isTransient && retryCount < MAX_RETRIES) {
                 const delay = Math.pow(2, retryCount + 1) * 1000; // 2s, 4s, 8s
-                toast.info(`Network issue detected. Retrying in ${delay / 1000}s...`, {
-                    description: `Attempt ${retryCount + 1} of ${MAX_RETRIES}`
+                toast.info(L(`Network issue. Retrying in ${delay / 1000}s...`, `Problema de red. Reintentando en ${delay / 1000}s...`), {
+                    description: L(`Attempt ${retryCount + 1} of ${MAX_RETRIES}`, `Intento ${retryCount + 1} de ${MAX_RETRIES}`)
                 });
                 setTimeout(() => executeWithdraw(amount, retryCount + 1), delay);
                 return;
             }
 
             if (isTransient) {
-                toast.error("Network Unavailable", {
-                    description: "Could not reach the Stellar network after 3 attempts. Please check your connection and try again."
+                toast.error(L("Network unavailable", "Red no disponible"), {
+                    description: L("Couldn't reach the Stellar network after 3 attempts. Check your connection and try again.", "No se pudo llegar a la red de Stellar tras 3 intentos. Revisa tu conexión e intenta de nuevo.")
                 });
             } else if (errorMsg.includes('User declined')) {
-                toast.error("Transaction Cancelled", {
-                    description: "You declined the transaction in Freighter."
+                toast.error(L("Transaction cancelled", "Transacción cancelada"), {
+                    description: L("You declined the transaction in Freighter.", "Rechazaste la transacción en Freighter.")
                 });
             } else {
-                toast.error("Withdrawal Failed", {
+                toast.error(L("Withdrawal failed", "Falló el retiro"), {
                     description: errorMsg
                 });
             }
@@ -1619,13 +1636,13 @@ function DashboardContent() {
         }
     };
 
-    // Nirium agent public key — receives delegation to execute on user vaults
+    // Nirium agent public key - receives delegation to execute on user vaults
     const NIRIUM_AGENT_KEY = 'GAVU2GH5RZUIQKLHM4FTVGTUY2V4XNVGWNGO2T6LVU7U74IYJGGYZ667';
     const AGENT_API = process.env.NEXT_PUBLIC_AGENT_URL || 'https://nirium-agent.fly.dev';
 
     const handleAutoRebalanceToggle = async () => {
         if (!account || !vaultId) {
-            toast.error("Connect wallet and create a vault first");
+            toast.error(L("Connect your wallet and create a vault first", "Conecta tu wallet y crea una bóveda primero"));
             return;
         }
         setAutoRebalanceLoading(true);
@@ -1633,18 +1650,18 @@ function DashboardContent() {
             if (!autoRebalance) {
                 // Preflight: verifica que la wallet conectada sea el owner on-chain del vault.
                 // Sin esto, delegate_agent fallaría en vault.owner.require_auth() después de
-                // que el usuario firme con Freighter — y el auto-recovery dispararía 2 firmas
+                // que el usuario firme con Freighter - y el auto-recovery dispararía 2 firmas
                 // adicionales que también fallan.
                 try {
                     const vData = await vault.getVault(Number(vaultId));
                     const onChainOwner = (vData as any)?.owner;
                     if (onChainOwner && onChainOwner !== account.address) {
-                        toast.error(`Esta bóveda pertenece a otra wallet (${String(onChainOwner).slice(0, 8)}…). Conecta esa wallet en Freighter o crea una nueva bóveda.`);
+                        toast.error(L(`This vault belongs to another wallet (${String(onChainOwner).slice(0, 8)}…). Connect that wallet in Freighter or create a new vault.`, `Esta bóveda pertenece a otra wallet (${String(onChainOwner).slice(0, 8)}…). Conecta esa wallet en Freighter o crea una nueva bóveda.`));
                         return;
                     }
-                } catch { /* si la lectura falla, dejamos que el flujo siga — peor caso, falla la tx */ }
+                } catch { /* si la lectura falla, dejamos que el flujo siga - peor caso, falla la tx */ }
 
-                // 1. Delegate vault to Nirium's agent key on Soroban — capture TX hash
+                // 1. Delegate vault to Nirium's agent key on Soroban - capture TX hash
                 const delegateResult = await vaultDelegateAgent(account.address, vaultId, NIRIUM_AGENT_KEY);
                 const txHash = (delegateResult as any)?.txHash;
                 const txSuccess = (delegateResult as any)?.success;
@@ -1658,16 +1675,16 @@ function DashboardContent() {
                             await vaultRevokeAgent(account.address, vaultId, NIRIUM_AGENT_KEY, true);
                             const retry = await vaultDelegateAgent(account.address, vaultId, NIRIUM_AGENT_KEY);
                             if ((retry as any)?.success === false) {
-                                toast.error(`Soroban rechazó la delegación: ${(retry as any)?.error ?? 'unknown'}`);
+                                toast.error(L(`Soroban rejected the delegation: ${(retry as any)?.error ?? 'unknown'}`, `Soroban rechazó la delegación: ${(retry as any)?.error ?? 'unknown'}`));
                                 return;
                             }
                             (delegateResult as any).txHash = (retry as any).txHash;
                         } catch (e: any) {
-                            toast.error(`No se pudo delegar on-chain: ${e?.message ?? txError}`);
+                            toast.error(L(`Couldn't delegate on-chain: ${e?.message ?? txError}`, `No se pudo delegar on-chain: ${e?.message ?? txError}`));
                             return;
                         }
                     } else {
-                        toast.error(`Soroban rechazó la delegación: ${txError ?? 'unknown'}`);
+                        toast.error(L(`Soroban rejected the delegation: ${txError ?? 'unknown'}`, `Soroban rechazó la delegación: ${txError ?? 'unknown'}`));
                         return;
                     }
                 }
@@ -1690,7 +1707,7 @@ function DashboardContent() {
                     reverseThreshold,
                 }));
 
-                // 2. Register delegation in agent backend — reintenta hasta 3 veces si la red Fly→Supabase está degradada
+                // 2. Register delegation in agent backend - reintenta hasta 3 veces si la red Fly→Supabase está degradada
                 const token = localStorage.getItem('nirium-token') || 'demo-token';
                 let newDelegationId: string | null = null;
                 for (let attempt = 0; attempt < 3 && !newDelegationId; attempt++) {
@@ -1709,9 +1726,9 @@ function DashboardContent() {
                 }
 
                 if (!newDelegationId) {
-                    // El registro en Supabase falló — el reconcile sync re-intentará en el próximo tick
+                    // El registro en Supabase falló - el reconcile sync re-intentará en el próximo tick
                     // (usa el placeholder demo-del-* para detectar que la fila aún no está sincronizada).
-                    toast.warning('Delegación on-chain confirmada — sincronizando con backend en segundo plano…', {
+                    toast.warning(L("On-chain delegation confirmed - syncing with the backend in the background…", "Delegación on-chain confirmada - sincronizando con backend en segundo plano…"), {
                         action: finalTxHash ? {
                             label: t.dashboard.toasts.view_tx,
                             onClick: () => window.open(`https://stellar.expert/explorer/testnet/tx/${finalTxHash}`, '_blank'),
@@ -1730,7 +1747,7 @@ function DashboardContent() {
                     } : undefined,
                 });
             } else {
-                // 1. Mark inactive in backend FIRST — para detener el loop incluso si el usuario cancela la firma Freighter
+                // 1. Mark inactive in backend FIRST - para detener el loop incluso si el usuario cancela la firma Freighter
                 {
                     const token = localStorage.getItem('nirium-token');
                     await fetch(`${AGENT_API}/api/vault/delegate/${delegationId ?? 'none'}`, {
@@ -1740,19 +1757,19 @@ function DashboardContent() {
                     }).catch(() => {});
                 }
 
-                // 2. Update UI state inmediatamente — el toggle/nodo desaparece sin esperar Freighter
+                // 2. Update UI state inmediatamente - el toggle/nodo desaparece sin esperar Freighter
                 setAutoRebalance(false);
                 setAutoExit(false);
                 setDelegationId(null);
                 setDelegationTxHash(null);
                 localStorage.removeItem(`nirium-autorebalance-${account.address}`);
 
-                // 3. Revocar delegación on-chain en Soroban (best-effort — si el usuario cancela, el loop ya está detenido)
+                // 3. Revocar delegación on-chain en Soroban (best-effort - si el usuario cancela, el loop ya está detenido)
                 let revokeTxHash: string | undefined;
                 try {
                     const revokeResult = await vaultRevokeAgent(account.address, vaultId, NIRIUM_AGENT_KEY);
                     revokeTxHash = (revokeResult as any)?.txHash;
-                } catch { /* el usuario canceló o falló la firma — la DB ya está inactiva */ }
+                } catch { /* el usuario canceló o falló la firma - la DB ya está inactiva */ }
 
                 toast.success(t.dashboard.auto_rebalance.toast_disabled, {
                     action: revokeTxHash ? {
@@ -1770,7 +1787,7 @@ function DashboardContent() {
 
     const handleAutoExitToggle = async () => {
         if (!account || !vaultId) {
-            toast.error("Connect wallet and create a vault first");
+            toast.error(L("Connect your wallet and create a vault first", "Conecta tu wallet y crea una bóveda primero"));
             return;
         }
         if (!delegationId) {
@@ -1781,7 +1798,7 @@ function DashboardContent() {
         try {
             const newAutoExit = !autoExit;
             const token = localStorage.getItem('nirium-token') || 'demo-token';
-            // Optimistic update — persist locally first, then try backend
+            // Optimistic update - persist locally first, then try backend
             setAutoExit(newAutoExit);
             localStorage.setItem(`nirium-autorebalance-${account.address}`, JSON.stringify({ autoRebalance: true, delegationId, autoExit: newAutoExit, txHash: delegationTxHash }));
             try {
@@ -1791,7 +1808,7 @@ function DashboardContent() {
                     body: JSON.stringify({ enabled: newAutoExit, reverse_threshold: reverseThreshold }),
                 });
                 if (!res.ok) console.warn('[Auto-Exit] Backend update failed silently:', await res.text().catch(() => ''));
-            } catch { /* API unreachable — state already saved locally */ }
+            } catch { /* API unreachable - state already saved locally */ }
             toast.success(autoExit ? t.dashboard.auto_exit.toast_disabled : t.dashboard.auto_exit.toast_enabled);
         } catch (e: any) {
             toast.error(`${t.dashboard.auto_exit.toast_error}: ${e.message}`);
@@ -1802,28 +1819,42 @@ function DashboardContent() {
 
     const handleCreateVault = () => {
         if (!account) {
-            toast.error("Please connect your Stellar Wallet first");
+            toast.error(L("Please connect your Stellar wallet first", "Primero conecta tu wallet de Stellar"));
             return;
         }
 
         setConfirmConfig({
             isOpen: true,
-            title: "Initialize Secure Vault?",
+            // Lo que de verdad hace create_vault en nirium_vault.rs. El texto anterior
+            // hablaba de "OwnerCap" y "Hot Potato" (patrones de Move/Sui, no de
+            // Soroban) y de una "pequeña comisión de gas", cuando el contrato cobra
+            // 12.5 XLM.
+            title: language === 'es' ? '¿Crear tu bóveda?' : 'Create your vault?',
             description: (
                 <div className="space-y-3">
-                    <p className="text-xs text-gray-400">Deploying a non-custodial <span className="text-stellar-teal">{baseAsset} Vault</span> on-chain.</p>
+                    <p className="text-xs text-gray-400">
+                        {language === 'es' ? 'Crea una ' : 'Creates a '}
+                        <span className="text-stellar-teal">NiriumVault {baseAsset}</span>
+                        {language === 'es' ? ' en Stellar testnet.' : ' on Stellar testnet.'}
+                    </p>
                     <div className="bg-stellar-teal/5 border border-stellar-teal/20 p-3 rounded-xl text-left">
                         <p className="text-[10px] text-gray-400 leading-relaxed font-mono">
-                            • Generates unique <span className="text-white">OwnerCap</span><br />
-                            • Enables automated agent trading<br />
-                            • Hot Potato security pattern active
+                            {language === 'es' ? (
+                                <>• Tú quedas como dueño: retirar a tu wallet requiere tu firma (require_auth)<br />• Si delegas al agente, opera solo hasta el tope acumulado que tú fijes, y lo puedes revocar cuando quieras</>
+                            ) : (
+                                <>• You are the owner: withdrawing to your wallet requires your signature (require_auth)<br />• If you delegate to the agent, it can only act up to the cumulative cap you set, and you can revoke it anytime</>
+                            )}
                         </p>
                     </div>
-                    <p className="text-[9px] text-gray-500 italic">This transaction requires a small gas fee on Testnet.</p>
+                    <p className="text-[10px] text-amber-400/90">
+                        {language === 'es'
+                            ? 'El contrato cobra 12.5 XLM de testnet por crear la bóveda (van a la tesorería de Nirium), más el fee de red.'
+                            : 'The contract charges 12.5 testnet XLM to create the vault (sent to the Nirium treasury), plus the network fee.'}
+                    </p>
                 </div>
             ),
             icon: <Shield size={32} className="text-stellar-teal" />,
-            confirmText: "DEPLOY VAULT",
+            confirmText: L("CREATE VAULT", "CREAR BÓVEDA"),
             type: 'info',
             onConfirm: () => {
                 setConfirmConfig(prev => ({ ...prev, isOpen: false }));
@@ -1837,13 +1868,13 @@ function DashboardContent() {
 
         // Network Check (Strict)
         if (account.chains?.[0] && account.chains[0] !== 'stellar:testnet') {
-            toast.error("Wrong Network Detected", {
-                description: "This dApp runs on Stellar Testnet. Please switch your wallet network."
+            toast.error(L("Wrong network", "Red equivocada"), {
+                description: L("This dashboard runs on Stellar testnet. Switch your wallet's network.", "Este panel corre en Stellar testnet. Cambia la red de tu wallet.")
             });
             return;
         }
 
-        const toastId = toast.loading("Creating Vault on Soroban...");
+        const toastId = toast.loading(L("Creating your vault on Soroban...", "Creando tu bóveda en Soroban..."));
 
         try {
             // Call the actual Soroban vault contract create_vault function
@@ -1872,7 +1903,7 @@ function DashboardContent() {
                     ownerCapId: `cap_${numericVaultId}_${Date.now()}`,
                     createdAt: Date.now(),
                     txHash: result.txHash,
-                    contractId: process.env.NEXT_PUBLIC_CONTRACT_VAULT || 'CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU',
+                    contractId: process.env.NEXT_PUBLIC_CONTRACT_VAULT || 'CDMFURE6MYROTA2A6DLD4TN2S4QTN64L2FZ2I2RY2AREONX6DUQOI2S2',
                 };
 
                 localStorage.setItem(
@@ -1883,8 +1914,8 @@ function DashboardContent() {
                 setVaultId(numericVaultId);
                 setOwnerCapId(storageData.ownerCapId);
 
-                toast.success("Vault Created Successfully!", {
-                    description: `Vault ID: ${numericVaultId} | On-chain`,
+                toast.success(L("Vault created", "Bóveda creada"), {
+                    description: L(`Vault ID: ${numericVaultId} | on-chain`, `ID de bóveda: ${numericVaultId} | en la cadena`),
                     action: result.txHash ? {
                         label: "View Tx",
                         onClick: () => window.open(
@@ -1905,7 +1936,7 @@ function DashboardContent() {
         } catch (e: any) {
             toast.dismiss(toastId);
             console.error("Vault Creation Error:", e);
-            toast.error("Vault Creation Failed", {
+            toast.error(L("Vault creation failed", "No se pudo crear la bóveda"), {
                 description: e.message || "Failed to create vault on-chain"
             });
             writeLog(`VAULT CREATE FAILED: ${e.message}`, 'error', account?.address);
@@ -1913,16 +1944,16 @@ function DashboardContent() {
     };
 
     // ═══════════════════════════════════════════════════════
-    // MXNE RAMP INTEGRATION — Etherfuse
+    // MXNE RAMP INTEGRATION - Etherfuse
     // ═══════════════════════════════════════════════════════
 
     const handleAddCETESTrustline = async () => {
         if (!account) {
-            toast.error("Please connect your wallet first");
+            toast.error(L("Please connect your wallet first", "Primero conecta tu wallet"));
             return;
         }
 
-        const toastId = toast.loading("Adding CETES trustline...");
+        const toastId = toast.loading(L("Adding the CETES trustline...", "Agregando la trustline de CETES..."));
         try {
             const { signTransaction } = await import("@stellar/freighter-api");
             const { Horizon, Networks, TransactionBuilder, Asset, Operation } = await import("@stellar/stellar-sdk");
@@ -1944,8 +1975,8 @@ function DashboardContent() {
                 .setTimeout(300)
                 .build();
 
-            // 3. Sign with Freighter — MUST specify address to avoid tx_bad_auth
-            toast.loading("Sign the trustline in your wallet...", { id: toastId });
+            // 3. Sign with Freighter - MUST specify address to avoid tx_bad_auth
+            toast.loading(L("Sign the trustline in your wallet...", "Firma la trustline en tu wallet..."), { id: toastId });
             const txXdr = transaction.toXDR();
             const signedResult = await signTransaction(txXdr, {
                 networkPassphrase: Networks.TESTNET,
@@ -1962,7 +1993,7 @@ function DashboardContent() {
             }
 
             // 4. Submit signed transaction to Horizon
-            toast.loading("Submitting to Stellar network...", { id: toastId });
+            toast.loading(L("Sending to the Stellar network...", "Enviando a la red de Stellar..."), { id: toastId });
             const signedTx = TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET);
             const result = await horizonServer.submitTransaction(signedTx as any);
 
@@ -1970,8 +2001,8 @@ function DashboardContent() {
 
             if (result.successful) {
                 setHasCetesTrust(true);
-                toast.success("CETES Trustline Added!", {
-                    description: "You can now receive CETES (Mexican Treasury Bonds) on Stellar",
+                toast.success(L("CETES trustline added", "Trustline de CETES agregada"), {
+                    description: L("You can now receive CETES (Mexican treasury bonds) on Stellar", "Ya puedes recibir CETES (bonos del gobierno de México) en Stellar"),
                     action: {
                         label: "View Tx",
                         onClick: () => window.open(`https://stellar.expert/explorer/testnet/tx/${result.hash}`, "_blank")
@@ -1990,25 +2021,25 @@ function DashboardContent() {
                 errorMsg = `Horizon: tx=${codes.transaction}, ops=${codes.operations?.join(', ')}`;
             }
 
-            toast.error("Trustline Failed", { description: errorMsg });
+            toast.error(L("Trustline failed", "Falló la trustline"), { description: errorMsg });
             writeLog(`CETES TRUSTLINE FAILED: ${errorMsg}`, 'error', account?.address);
         }
     };
 
     const handleOpenRamp = async () => {
         if (!account) {
-            toast.error("Please connect your wallet first");
+            toast.error(L("Please connect your wallet first", "Primero conecta tu wallet"));
             return;
         }
 
         if (!hasCetesTrust) {
-            toast.error("Add CETES Trustline First", {
-                description: "You need the CETES trustline before buying"
+            toast.error(L("Add the CETES trustline first", "Primero agrega la trustline de CETES"), {
+                description: L("You need the CETES trustline before buying", "Necesitas la trustline de CETES antes de comprar")
             });
             return;
         }
 
-        const toastId = toast.loading("Opening Etherfuse ramp...");
+        const toastId = toast.loading(L("Opening the Etherfuse ramp...", "Abriendo la rampa de Etherfuse..."));
 
         try {
             // Get or create persistent customer IDs for this wallet
@@ -2028,8 +2059,8 @@ function DashboardContent() {
                 // Open the presigned URL in new tab
                 window.open(result.data.url, '_blank');
 
-                toast.success("Etherfuse Ramp Opened", {
-                    description: "Complete KYC to buy CETES with SPEI. URL expires in 15 minutes."
+                toast.success(L("Etherfuse ramp opened (test environment)", "Rampa de Etherfuse abierta (entorno de pruebas)"), {
+                    description: L("Complete KYC to buy CETES with SPEI. The link expires in 15 minutes.", "Completa el KYC para comprar CETES con SPEI. El enlace vence en 15 minutos.")
                 });
 
                 writeLog(`ETHERFUSE RAMP: Opened for customer ${customerId}`, 'info', account.address);
@@ -2037,7 +2068,7 @@ function DashboardContent() {
                 // Fallback: open devnet directly
                 const fallbackUrl = 'https://devnet.etherfuse.com';
                 window.open(fallbackUrl, '_blank');
-                toast.info("Opened Etherfuse Directly", {
+                toast.info(L("Opened Etherfuse directly", "Se abrió Etherfuse directamente"), {
                     description: result.error || "Opened Etherfuse devnet portal."
                 });
                 writeLog(`ETHERFUSE RAMP: API issue, opened devnet directly. ${result.error}`, 'warn', account?.address);
@@ -2045,8 +2076,8 @@ function DashboardContent() {
         } catch (e: any) {
             toast.dismiss(toastId);
             window.open('https://devnet.etherfuse.com', '_blank');
-            toast.info("Opened Etherfuse Directly", {
-                description: "Could not generate presigned URL — opened portal directly."
+            toast.info(L("Opened Etherfuse directly", "Se abrió Etherfuse directamente"), {
+                description: L("Couldn't create a signed link, so the portal opened directly.", "No se pudo generar el enlace firmado; se abrió el portal directamente.")
             });
             writeLog(`ETHERFUSE RAMP FALLBACK: ${e.message}`, 'warn', account?.address);
         }
@@ -2054,7 +2085,7 @@ function DashboardContent() {
 
     const handleDestroyVault = async () => {
         if (!account) {
-            toast.error("Please connect your Stellar Wallet first");
+            toast.error(L("Please connect your Stellar wallet first", "Primero conecta tu wallet de Stellar"));
             return;
         }
         if (!vaultId) return;
@@ -2062,7 +2093,7 @@ function DashboardContent() {
         // Load vault data from localStorage
         const savedData = localStorage.getItem(`nirium-vault-v2-${baseAsset}-${account.address}`);
         if (!savedData) {
-            toast.error("Cannot find vault data");
+            toast.error(L("Can't find the vault data", "No se encuentran los datos de la bóveda"));
             return;
         }
 
@@ -2073,28 +2104,27 @@ function DashboardContent() {
             // Old format without OwnerCap ID - allow force reset
             setConfirmConfig({
                 isOpen: true,
-                title: "Old Format Detected",
+                title: L("Old vault format", "Formato de bóveda antiguo"),
                 description: (
                     <div className="space-y-3">
-                        <p className="text-xs text-gray-400">This vault uses an legacy version and requires a local cache reset.</p>
+                        <p className="text-xs text-gray-400">{L('This vault was saved in an older format. Resetting this view clears it from this browser only.', 'Esta bóveda se guardó en un formato anterior. Reiniciar la vista la quita solo de este navegador.')}</p>
                         <div className="bg-white/5 border border-white/10 p-3 rounded-xl text-left">
                             <p className="text-[10px] text-gray-500 font-mono leading-relaxed">
-                                • Disconnect local view<br />
-                                • Clean start protocol<br />
-                                • On-chain assets safe
+                                {L('• Clears the saved vault from this browser', '• Borra la bóveda guardada en este navegador')}<br />
+                                {L('• Nothing changes on-chain', '• No cambia nada en la cadena')}
                             </p>
                         </div>
                     </div>
                 ),
                 icon: <RefreshCw size={32} className="text-stellar-teal animate-spin-slow" />,
-                confirmText: "LOCAL RESET",
+                confirmText: L("RESET LOCAL VIEW", "REINICIAR VISTA LOCAL"),
                 type: 'info',
                 onConfirm: () => {
                     localStorage.removeItem(`nirium-vault-v2-${baseAsset}-${account.address}`);
                     setVaultId(null);
                     setConfirmConfig(prev => ({ ...prev, isOpen: false }));
-                    toast.info("Vault Disconnected (Format Updated)", {
-                        description: "You can now create a new, fully compatible Vault."
+                    toast.info(L("Vault disconnected from this view", "Bóveda desconectada de esta vista"), {
+                        description: L("You can now create a new vault.", "Ya puedes crear una bóveda nueva.")
                     });
                 }
             });
@@ -2103,31 +2133,31 @@ function DashboardContent() {
 
         setConfirmConfig({
             isOpen: true,
-            title: "Destroy Secure Vault?",
+            title: L("Close your vault?", "¿Cerrar tu bóveda?"),
             description: (
                 <div className="space-y-3">
-                    <p className="text-gray-400 text-xs">This action will execute a terminal cleanup protocol on your active vault.</p>
+                    <p className="text-gray-400 text-xs">{L('This closes your vault on the NiriumVault contract.', 'Esto cierra tu bóveda en el contrato NiriumVault.')}</p>
                     <div className="grid grid-cols-1 gap-1.5 text-left">
                         <div className="bg-red-500/5 border border-red-500/10 p-2 rounded-lg flex items-center gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                            <span className="text-[10px] font-mono text-red-200 uppercase">Destroy Vault On-Chain</span>
+                            <span className="text-[10px] font-mono text-red-200 uppercase">{L('Closes the vault on-chain', 'Cierra la bóveda en la cadena')}</span>
                         </div>
                         <div className="bg-red-500/5 border border-red-500/10 p-2 rounded-lg flex items-center gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-red-400 opacity-50" />
-                            <span className="text-[10px] font-mono text-gray-400 uppercase">Burn OwnerCap Registry</span>
+                            <span className="text-[10px] font-mono text-gray-400 uppercase">{L('Needs your signature (vault owner)', 'Requiere tu firma (dueño de la bóveda)')}</span>
                         </div>
                         <div className="bg-green-500/5 border border-green-500/10 p-2 rounded-lg flex items-center gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            <span className="text-[10px] font-mono text-green-200 uppercase">Return XLM to Wallet</span>
+                            <span className="text-[10px] font-mono text-green-200 uppercase">{L('Balance must be 0: withdraw first', 'El saldo debe ser 0: retira primero')}</span>
                         </div>
                     </div>
                     <p className="text-[9px] text-gray-500 uppercase tracking-tighter pt-1.5 border-t border-white/5">
-                        WARNING: Irreversible operation. Gas required.
+                        {L("Can't be undone. Network fee applies.", 'No se puede deshacer. Aplica el fee de red.')}
                     </p>
                 </div>
             ),
             icon: <Trash2 size={32} className="text-red-500" />,
-            confirmText: "CONFIRM TERMINAL",
+            confirmText: L("CLOSE VAULT", "CERRAR BÓVEDA"),
             type: 'danger',
             onConfirm: async () => {
                 setConfirmConfig(prev => ({ ...prev, isOpen: false }));
@@ -2139,16 +2169,16 @@ function DashboardContent() {
     const executeVaultDestruction = async (vaultData: any) => {
         if (!account) return;
 
-        // Block close if vault still has balance — user must withdraw first
+        // Block close if vault still has balance - user must withdraw first
         if (vaultBalance > 0) {
-            toast.error("Withdraw your funds first", {
-                description: `Vault #${vaultData.vaultId} still has balance. Withdraw all funds before closing.`,
+            toast.error(L("Withdraw your funds first", "Primero retira tus fondos"), {
+                description: L(`Vault #${vaultData.vaultId} still has a balance. Withdraw everything before closing.`, `La bóveda #${vaultData.vaultId} todavía tiene saldo. Retira todo antes de cerrarla.`),
                 duration: 6000,
             });
             return;
         }
 
-        const toastId = toast.loading("Closing Vault On-Chain...");
+        const toastId = toast.loading(L("Closing the vault on-chain...", "Cerrando la bóveda en la cadena..."));
 
         try {
             const result = await vaultClose(account.address, vaultData.vaultId);
@@ -2156,24 +2186,24 @@ function DashboardContent() {
             if (!result.success) {
                 toast.dismiss(toastId);
                 const errorMsg = result.error || "";
-                // Legacy vault from old contract — can't be closed on-chain, just remove from UI
+                // Legacy vault from old contract - can't be closed on-chain, just remove from UI
                 if (errorMsg.includes("UnreachableCodeReached") || errorMsg.includes("E_VAULT_NOT_FOUND") || errorMsg.includes("InvalidAction")) {
                     localStorage.removeItem(`nirium-vault-v2-${baseAsset}-${account.address}`);
                     localStorage.removeItem(`nirium-vault-balance-${vaultData.vaultId}-${baseAsset}`);
                     setVaultId(null);
                     setOwnerCapId(null);
                     setVaultBalance(0);
-                    toast.success("Legacy Vault Removed", {
-                        description: `Vault #${vaultData.vaultId} was created on a previous contract version and has been removed from your dashboard. No on-chain action required (vault had 0 balance).`,
+                    toast.success(L("Old vault removed", "Bóveda antigua quitada"), {
+                        description: L(`Vault #${vaultData.vaultId} was created on an earlier contract version and was removed from your dashboard. Nothing to do on-chain (it had a 0 balance).`, `La bóveda #${vaultData.vaultId} se creó con una versión anterior del contrato y se quitó de tu panel. No hay nada que hacer en la cadena (tenía saldo 0).`),
                         duration: 8000,
                     });
                 } else if (errorMsg.includes("0 balance") || errorMsg.includes("withdraw")) {
-                    toast.error("Withdraw your funds first", {
-                        description: "The contract requires the vault balance to be 0 before closing.",
+                    toast.error(L("Withdraw your funds first", "Primero retira tus fondos"), {
+                        description: L("The contract requires a 0 balance before closing.", "El contrato exige saldo 0 antes de cerrar."),
                         duration: 6000,
                     });
                 } else {
-                    toast.error("Failed to close vault", {
+                    toast.error(L("Couldn't close the vault", "No se pudo cerrar la bóveda"), {
                         description: errorMsg,
                         duration: 6000,
                     });
@@ -2192,8 +2222,8 @@ function DashboardContent() {
             setVaultBalance(0);
 
             toast.dismiss(toastId);
-            toast.success("Vault Closed Successfully", {
-                description: `Vault ID ${vaultData.vaultId} closed on-chain. Tx: ${txHash.slice(0, 8)}...`,
+            toast.success(L("Vault closed", "Bóveda cerrada"), {
+                description: L(`Vault ${vaultData.vaultId} closed on-chain. Tx: ${txHash.slice(0, 8)}...`, `Bóveda ${vaultData.vaultId} cerrada en la cadena. Tx: ${txHash.slice(0, 8)}...`),
                 duration: 6000,
                 action: {
                     label: "View Tx",
@@ -2216,8 +2246,8 @@ function DashboardContent() {
                 setVaultId(null);
                 setOwnerCapId(null);
                 setVaultBalance(0);
-                toast.success("Legacy Vault Removed", {
-                    description: `Vault #${vaultData.vaultId} was created on a previous contract version and has been removed from your dashboard.`,
+                toast.success(L("Old vault removed", "Bóveda antigua quitada"), {
+                    description: L(`Vault #${vaultData.vaultId} was created on an earlier contract version and was removed from your dashboard.`, `La bóveda #${vaultData.vaultId} se creó con una versión anterior del contrato y se quitó de tu panel.`),
                     duration: 8000,
                 });
             } else {
@@ -2229,8 +2259,8 @@ function DashboardContent() {
     const handleRevokeAgent = async (agentCapId?: string) => {
         if (!account) return;
 
-        toast.error("Revoke Agent requires the AgentCap object ID. Feature coming soon!", {
-            description: "For now, stop agents using the toggle or Clear All button.",
+        toast.error(L("Revoking an agent from here isn't available yet.", "Revocar un agente desde aquí todavía no está disponible."), {
+            description: L("For now, stop agents with the toggle.", "Por ahora, detén los agentes con el interruptor."),
             duration: 5000
         });
 
@@ -2246,7 +2276,7 @@ function DashboardContent() {
         // 
         // signAndSubmitTransaction({ transaction: tx }, {
         //     onSuccess: () => {
-        //         toast.success("Agent Permission Revoked!");
+        //         toast.success(L("Agent permission revoked", "Permiso del agente revocado"));
         //     }
         // });
     };
@@ -2260,7 +2290,7 @@ function DashboardContent() {
                 <div className="flex flex-col">
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight uppercase italic" style={{ fontFamily: 'Orbitron, sans-serif' }}>{t.dashboard.title}</h1>
                     <div className="flex items-center gap-3">
-                        <div className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-[8px] font-black text-amber-500 uppercase tracking-widest">{t.dashboard.version_live}</div>
+                        <div className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-[8px] font-black text-amber-500 uppercase tracking-widest">{uiNet === 'mainnet' ? 'STELLAR MAINNET' : 'STELLAR TESTNET'} · {t.dashboard.version_live}</div>
                         <div className="flex gap-1">
                             <div className="w-1.5 h-1.5 rounded-full bg-stellar-teal animate-pulse" />
                             <div className="w-1.5 h-1.5 rounded-full bg-stellar-yellow animate-pulse delay-75" />
@@ -2270,6 +2300,20 @@ function DashboardContent() {
             </div>
 
             <ComplianceBanner />
+
+            {/* 9-nov-2026: el dashboard solo mostraba la bóveda de testnet. La fila de
+                nodos sigue el switch TEST/MAIN; las herramientas de bóveda de abajo son
+                de NiriumVault, que solo existe en testnet, y lo dicen. */}
+            <div className="max-w-[1600px] mx-auto px-4 md:px-8 mt-8">
+                <NodeActivity language={language} breakdownBelow />
+                {/* 16-nov-2026: recibos, cobros y reporting van antes que Treasury. */}
+                <ReceiptsSettlements language={language}>
+                    <div className="max-w-3xl">
+                        <AuditTrailViewer />
+                    </div>
+                </ReceiptsSettlements>
+            </div>
+
 
             {/* Auto-Start Confirmation Modal */}
             <AnimatePresence>
@@ -2298,8 +2342,10 @@ function DashboardContent() {
                                     <span>{t.dashboard.modals.fee_label}</span>
                                     <span>{t.dashboard.modals.fee_approved}</span>
                                 </div>
+                                {/* create_vault (nirium_vault.rs) transfiere DEPLOYMENT_FEE = 12.5 XLM
+                                    del dueño a la tesorería; antes aquí decía 0.10. */}
                                 <p className="text-stellar-teal font-mono text-base font-bold flex justify-between items-baseline">
-                                    <span>0.10</span>
+                                    <span>12.5</span>
                                     <span className="text-[10px] ml-1 opacity-70 font-sans">XLM TESTNET</span>
                                 </p>
                             </div>
@@ -2371,19 +2417,18 @@ function DashboardContent() {
                             {/* Content Scrollable */}
                             <div className="p-6 overflow-y-auto custom-scrollbar space-y-6 flex-1 min-h-0">
 
-                                {/* Key Metrics Grid */}
-                                <div className="grid grid-cols-3 gap-3">
+                                {/* Key Metrics Grid. Solo lo que trae el registro de la estrategia:
+                                    antes había "Profit 24h" fijo en +0.24 XLM y "Uptime" con
+                                    Math.random(), presentados como métricas reales. */}
+                                <div className="grid grid-cols-2 gap-3">
                                     <div className="bg-white/5 border border-white/10 p-3 rounded-xl">
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">FX Execution Rate</p>
-                                        <p className="text-stellar-teal font-mono font-bold text-lg">{selectedStrategy.yield}</p>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">{language === 'es' ? 'Tasa objetivo' : 'Target rate'}</p>
+                                        <p className="text-stellar-teal font-mono font-bold text-lg">{selectedStrategy.yield ?? '-'}</p>
+                                        <p className="text-[9px] text-gray-600 mt-0.5">{language === 'es' ? 'No garantizada' : 'Not guaranteed'}</p>
                                     </div>
                                     <div className="bg-white/5 border border-white/10 p-3 rounded-xl">
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Profit 24h</p>
-                                        <p className="text-green-400 font-mono font-bold text-lg">+{(0.24).toFixed(2)} XLM</p>
-                                    </div>
-                                    <div className="bg-white/5 border border-white/10 p-3 rounded-xl">
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Uptime</p>
-                                        <p className="text-white font-mono font-bold text-lg">{(Math.random() * 24).toFixed(1)}h</p>
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">{language === 'es' ? 'Red' : 'Network'}</p>
+                                        <p className="text-white font-mono font-bold text-lg">Testnet</p>
                                     </div>
                                 </div>
 
@@ -2391,14 +2436,14 @@ function DashboardContent() {
                                 <div className="space-y-2">
                                     <h3 className="text-xs text-gray-400 uppercase tracking-widest font-bold flex items-center gap-2">
                                         <Zap size={12} className="text-stellar-teal" />
-                                        Latest Execution
+                                        {L('Latest execution', 'Última ejecución')}
                                     </h3>
 
                                     <div className="bg-black/40 border border-white/10 rounded-xl p-4 space-y-3 relative overflow-hidden group">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-stellar-teal/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-stellar-teal/10 transition-colors"></div>
 
                                         <div className="relative z-10 flex justify-between items-center pb-3 border-b border-white/5">
-                                            <span className="text-xs text-gray-400">Transaction Hash</span>
+                                            <span className="text-xs text-gray-400">{L('Transaction hash', 'Hash de la transacción')}</span>
                                             {selectedStrategy.tx_digest ? (
                                                 <a
                                                     href={`https://stellar.expert/explorer/testnet/tx/${selectedStrategy.tx_digest}`}
@@ -2410,25 +2455,23 @@ function DashboardContent() {
                                                     <ExternalLink size={10} />
                                                 </a>
                                             ) : (
-                                                <span className="text-xs text-gray-600 font-mono italic">Pending...</span>
+                                                <span className="text-xs text-gray-600 font-mono italic">{L('Pending...', 'Pendiente...')}</span>
                                             )}
                                         </div>
 
                                         <div className="relative z-10 grid grid-cols-2 gap-4 pt-1">
                                             <div>
-                                                <p className="text-[9px] text-gray-500 uppercase mb-0.5">Network</p>
+                                                <p className="text-[9px] text-gray-500 uppercase mb-0.5">{L('Network', 'Red')}</p>
                                                 <p className="text-xs text-white font-mono">Stellar Testnet</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-[9px] text-gray-500 uppercase mb-0.5">Protocol</p>
-                                                <p className="text-xs text-white font-mono">
-                                                    {selectedStrategy?.strategy_id?.includes('lending') || selectedStrategy?.strategy_id?.includes('loop') ? 'Blend / Phoenix' :
-                                                        selectedStrategy?.strategy_id?.includes('soroswap') ? 'Soroswap / Phoenix' :
-                                                            selectedStrategy?.strategy_id?.includes('bluefin') ? 'Bluefin Perps' :
-                                                                selectedStrategy?.strategy_id?.includes('sdex') ? 'SDEX Orderbook' :
-                                                                    selectedStrategy?.strategy_id?.includes('bridge') ? 'Wormhole' :
-                                                                        selectedStrategy?.strategy_id?.includes('mev') ? 'Atomic Engine' :
-                                                                            'Blend / Soroswap'}
+                                                {/* El id tal cual. Antes se adivinaba un protocolo por
+                                                    substring, con nombres que no son de Stellar
+                                                    (Bluefin Perps, Wormhole) y "Blend / Soroswap" por
+                                                    defecto para cualquier otro id. */}
+                                                <p className="text-[9px] text-gray-500 uppercase mb-0.5">{language === 'es' ? 'Estrategia' : 'Strategy'}</p>
+                                                <p className="text-xs text-white font-mono truncate">
+                                                    {selectedStrategy?.strategy_id ?? '-'}
                                                 </p>
                                             </div>
                                         </div>
@@ -2439,7 +2482,7 @@ function DashboardContent() {
                                 <div className="space-y-3">
                                     <h3 className="text-xs text-gray-400 uppercase tracking-widest font-bold flex items-center gap-2">
                                         <Cpu size={12} className="text-purple-400" />
-                                        Installed Plugins
+                                        {L('Installed plugins', 'Plugins instalados')}
                                     </h3>
 
                                     {isSkillsLoading ? (
@@ -2470,7 +2513,7 @@ function DashboardContent() {
                                                     <button
                                                         onClick={() => handleUninstallSkill(skill.slug)}
                                                         className="p-2 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover/skill:opacity-100 transition-all"
-                                                        title="Uninstall"
+                                                        title={L('Uninstall', 'Desinstalar')}
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>
@@ -2479,7 +2522,7 @@ function DashboardContent() {
                                         </div>
                                     ) : (
                                         <div className="text-center py-4 bg-white/5 rounded-xl border border-dashed border-white/10">
-                                            <p className="text-[10px] text-gray-500 italic">No plugins installed on this unit.</p>
+                                            <p className="text-[10px] text-gray-500 italic">{L('No plugins installed.', 'No hay plugins instalados.')}</p>
                                         </div>
                                     )}
                                 </div>
@@ -2488,7 +2531,7 @@ function DashboardContent() {
                                 <div className="space-y-3">
                                     <h3 className="text-xs text-gray-400 uppercase tracking-widest font-bold flex items-center gap-2">
                                         <Code size={12} className="text-stellar-teal" />
-                                        Installed Skills
+                                        {L('Installed skills', 'Skills instaladas')}
                                     </h3>
 
                                     {isSkillsLoading ? (
@@ -2519,7 +2562,7 @@ function DashboardContent() {
                                                     <button
                                                         onClick={() => handleUninstallSkill(skill.slug)}
                                                         className="p-2 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover/skill:opacity-100 transition-all"
-                                                        title="Uninstall"
+                                                        title={L('Uninstall', 'Desinstalar')}
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>
@@ -2528,7 +2571,7 @@ function DashboardContent() {
                                         </div>
                                     ) : (
                                         <div className="text-center py-4 bg-white/5 rounded-xl border border-dashed border-white/10">
-                                            <p className="text-[10px] text-gray-500 italic">No skills installed on this unit.</p>
+                                            <p className="text-[10px] text-gray-500 italic">{L('No skills installed.', 'No hay skills instaladas.')}</p>
                                         </div>
                                     )}
                                 </div>
@@ -2538,17 +2581,17 @@ function DashboardContent() {
                                     <div className="space-y-2">
                                         <h3 className="text-xs text-gray-400 uppercase tracking-widest font-bold flex items-center gap-2">
                                             <Shield size={12} className="text-purple-400" />
-                                            Security Context
+                                            {L('Agent', 'Agente')}
                                         </h3>
                                         <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center justify-between">
                                             <div>
-                                                <p className="text-[10px] text-gray-400 uppercase">Agent Capability ID</p>
+                                                <p className="text-[10px] text-gray-400 uppercase">{L('Agent ID', 'ID del agente')}</p>
                                                 <p className="text-xs font-mono text-gray-300 truncate max-w-[200px]">{selectedStrategy.agentCapId}</p>
                                             </div>
                                             <button
                                                 onClick={() => {
                                                     navigator.clipboard.writeText(selectedStrategy.agentCapId);
-                                                    toast.success("Copied Agent Cap ID");
+                                                    toast.success(L("Agent ID copied", "ID del agente copiado"));
                                                 }}
                                                 className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-500 hover:text-white"
                                             >
@@ -2565,7 +2608,7 @@ function DashboardContent() {
                                     onClick={() => setSelectedStrategy(null)}
                                     className="flex-1 px-4 py-3 rounded-xl font-bold text-xs bg-white/5 hover:bg-white/10 text-gray-300 transition-colors border border-white/5"
                                 >
-                                    CLOSE
+                                    {L('CLOSE', 'CERRAR')}
                                 </button>
                                 <button
                                     onClick={() => {
@@ -2575,7 +2618,7 @@ function DashboardContent() {
                                     className="flex-1 px-4 py-3 rounded-xl font-bold text-xs bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 transition-colors flex items-center justify-center gap-2 group"
                                 >
                                     <Trash2 size={14} className="group-hover:scale-110 transition-transform" />
-                                    STOP HELPER
+                                    {L('STOP AGENT', 'DETENER AGENTE')}
                                 </button>
                             </div>
                         </motion.div>
@@ -2642,6 +2685,39 @@ function DashboardContent() {
                 )}
             </AnimatePresence>
 
+            {/* Treasury: herramientas de NiriumVault en testnet, plegadas por defecto. */}
+            <details
+                open={treasuryOpen}
+                onToggle={(e) => setTreasuryOpen((e.currentTarget as HTMLDetailsElement).open)}
+                className="max-w-[1600px] mx-auto px-4 md:px-8 mb-8 relative z-10 group/treasury"
+            >
+                <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden select-none flex items-center justify-between gap-4 p-5 bg-[#121212] border border-white/5 rounded-3xl hover:border-stellar-teal/20 transition-colors">
+                    <div>
+                        <h2 className="text-sm font-black uppercase tracking-[0.3em] text-white">
+                            {L('Treasury · testnet vault tools', 'Treasury · herramientas de bóveda en testnet')}
+                        </h2>
+                        <p className="text-[11px] text-gray-500 mt-1">
+                            {L('Create and fund a NiriumVault, delegate the agent and watch its feed. Testnet only, no real value.', 'Crea y fondea una NiriumVault, delega al agente y mira su feed. Solo testnet, sin valor real.')}
+                        </p>
+                        <p className="text-[11px] text-stellar-yellow/80 mt-1">
+                            {L('On mainnet, Treasury is invite-only until we have a written legal opinion.', 'En mainnet, Treasury es solo por invitación hasta tener una opinión legal por escrito.')}
+                        </p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-500 shrink-0 transition-transform group-open/treasury:rotate-90" />
+                </summary>
+                <div className="pt-6">
+                <NetworkScopeNote
+                    className="mb-8"
+                    testnet={{
+                        en: "These vault tools use NiriumVault on testnet: no real value.",
+                        es: "Estas herramientas de bóveda usan NiriumVault en testnet: sin valor real.",
+                    }}
+                    mainnet={{
+                        en: "These vault tools still run on testnet: NiriumVault is not on mainnet. Treasury on mainnet is a DeFindex vault you own, invite-only - see /security.",
+                        es: "Estas herramientas de bóveda siguen en testnet: NiriumVault no está en mainnet. La tesorería en mainnet es una bóveda de DeFindex que es tuya, solo por invitación; ve /security.",
+                    }}
+                />
+
             {/* On-Chain Soroban Verifiable Stats */}
             <div className="w-full max-w-[1600px] mx-auto grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 mb-4 relative z-10">
                 <div className="glass-panel p-4 rounded-xl border border-stellar-teal/20 bg-stellar-teal/5 relative overflow-hidden group">
@@ -2651,8 +2727,12 @@ function DashboardContent() {
                         {t.dashboard.stats.reputation}
                     </h3>
                     <div className="text-xl font-mono text-stellar-teal font-black flex items-baseline gap-2 relative z-10">
-                        {onChainElo !== null ? onChainElo : '...'}
-                        <span className="text-[10px] text-stellar-teal/60">SCORE</span>
+                        {onChainElo !== null
+                            ? onChainElo
+                            : !accountStr
+                                ? <span className="text-xs font-bold">{language === 'es' ? 'Conecta tu wallet' : 'Connect your wallet'}</span>
+                                : '-'}
+                        {onChainElo !== null && <span className="text-[10px] text-stellar-teal/60">SCORE</span>}
                     </div>
                     <div className="text-[10px] text-gray-500 mt-1 font-mono flex items-center gap-1.5 relative z-10">
                         <div className="w-1.5 h-1.5 rounded-full bg-stellar-teal animate-pulse" />
@@ -2666,7 +2746,7 @@ function DashboardContent() {
                     </h3>
                     <div className="text-xl font-mono text-white font-bold flex items-baseline gap-2">
                         {onChainVaultCount !== null ? onChainVaultCount : '--'}
-                        <span className="text-[10px] text-gray-600">DEPLOYS</span>
+                        <span className="text-[10px] text-gray-600">{language === 'es' ? 'DESPLIEGUES' : 'DEPLOYS'}</span>
                     </div>
                 </div>
                 <div className="glass-panel p-4 rounded-xl border border-white/5">
@@ -2676,7 +2756,7 @@ function DashboardContent() {
                     </h3>
                     <div className="text-xl font-mono text-white font-bold flex items-baseline gap-2">
                         {activeStrategies.length + (autoRebalance ? 1 : 0) + (autoExit ? 1 : 0)}
-                        <span className="text-[10px] text-gray-600">NODES</span>
+                        <span className="text-[10px] text-gray-600">{language === 'es' ? 'NODOS' : 'NODES'}</span>
                     </div>
                 </div>
                 <div className="glass-panel p-4 rounded-xl border border-stellar-yellow/20 bg-stellar-yellow/5 relative overflow-hidden group">
@@ -2687,7 +2767,7 @@ function DashboardContent() {
                         <span className="text-[8px] font-mono text-stellar-yellow/50 border border-stellar-yellow/20 px-1 py-0.5 rounded">TESTNET</span>
                     </h3>
                     <div className="text-xl font-mono text-stellar-yellow font-black flex items-baseline gap-2 relative z-10">
-                        {onChainTotalFees !== null ? onChainTotalFees.toFixed(4) : '0.0000'}
+                        {onChainTotalFees !== null ? onChainTotalFees.toFixed(4) : '-'}
                         <span className="text-[10px] text-stellar-yellow/60">XLM</span>
                     </div>
                 </div>
@@ -2707,7 +2787,7 @@ function DashboardContent() {
                 </div>
                 <div className="glass-panel p-4 rounded-xl border border-green-500/20 hover:border-green-500/40 transition-all cursor-pointer" onClick={handleOpenRamp}>
                     <h3 className="text-xs text-green-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                        <span className="text-base">🇲🇽</span> CETES (MXN Bonds)
+                        <span className="text-base">🇲🇽</span> {L('CETES (MXN bonds)', 'CETES (bonos en MXN)')}
                     </h3>
                     <div className="text-xl font-mono text-green-400 font-bold">
                         {parseFloat(cetesBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-xs text-gray-500">CETES</span>
@@ -2716,11 +2796,13 @@ function DashboardContent() {
                         {hasCetesTrust ? (
                             <>
                                 <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                                Click to Buy CETES via SPEI
+                                {language === 'es'
+                                    ? 'Comprar CETES vía SPEI (entorno de pruebas de Etherfuse)'
+                                    : 'Buy CETES via SPEI (Etherfuse test environment)'}
                             </>
                         ) : (
                             <button onClick={(e) => { e.stopPropagation(); handleAddCETESTrustline(); }} className="text-yellow-400 hover:text-yellow-300 underline">
-                                Add Trustline First
+                                {language === 'es' ? 'Primero agrega la trustline' : 'Add Trustline First'}
                             </button>
                         )}
                     </div>
@@ -2735,20 +2817,22 @@ function DashboardContent() {
                             : '...'}
                     </div>
                     <div className="text-[10px] text-gray-500 mt-1 font-mono">
-                        {t.dashboard.payment_streams.cetes_fixed_ref} · Etherfuse · NON-FINANCIAL ADVICE
+                        {t.dashboard.payment_streams.cetes_fixed_ref} · Etherfuse · {language === 'es' ? 'SIN ASESORÍA FINANCIERA' : 'NON-FINANCIAL ADVICE'}
                     </div>
                 </div>
                 <div className="glass-panel p-4 rounded-xl border border-white/5">
                     <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-1">{t.dashboard.payment_streams.network_fee}</h3>
+                    {/* Sin dato, "-". Antes caía a 100 stroops y convertía a USD con un
+                        precio de XLM fijo (0.155) que no se actualizaba. */}
                     <div className="text-xl font-mono text-white font-bold">
-                        {currentMarketState?.baseFee ?? 100} <span className="text-xs text-gray-500">stroops</span>
+                        {currentMarketState?.baseFee ?? '-'} <span className="text-xs text-gray-500">stroops</span>
                     </div>
-                    <div className="text-[10px] text-gray-500 mt-1 font-mono">~${((currentMarketState?.baseFee ?? 100) * 0.0000001 * 0.155).toFixed(6)} USD</div>
+                    <div className="text-[10px] text-gray-500 mt-1 font-mono">{language === 'es' ? 'Fee base de la red' : 'Network base fee'}</div>
                 </div>
                 <div className="glass-panel p-4 rounded-xl border border-white/5">
                     <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-1">{t.dashboard.stats.helpers}</h3>
                     <div className="text-xl font-mono text-purple-400 font-bold">
-                        {activeStrategies.length + (autoRebalance ? 1 : 0) + (autoExit ? 1 : 0)} <span className="text-xs text-gray-500">AGENTS</span>
+                        {activeStrategies.length + (autoRebalance ? 1 : 0) + (autoExit ? 1 : 0)} <span className="text-xs text-gray-500">{language === 'es' ? 'AGENTES' : 'AGENTS'}</span>
                     </div>
                 </div>
             </div>
@@ -2793,14 +2877,14 @@ function DashboardContent() {
                                             <button
                                                 onClick={() => setBaseAsset('CETES')}
                                                 className={`flex-1 sm:flex-none px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold transition-colors ${baseAsset === 'CETES' ? 'bg-green-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
-                                                title="Mexican Treasury Bonds (Etherfuse)"
+                                                title={L('Mexican treasury bonds (Etherfuse)', 'Bonos del gobierno de México (Etherfuse)')}
                                             >
                                                 🇲🇽 CETES
                                             </button>
                                         </div>
                                     </div>
                                     <p className="text-[10px] sm:text-xs text-gray-500 font-mono mt-1">
-                                        {vaultId ? `ID: ${vaultId}` : 'Vault ID: Not Created'} • {vaultBalance.toFixed(2)} {baseAsset} Locked
+                                        {vaultId ? `ID: ${vaultId}` : L('Vault ID: not created', 'ID de bóveda: sin crear')} • {vaultBalance.toFixed(2)} {baseAsset} {L('in the vault', 'en la bóveda')}
                                     </p>
                                     <div className="flex flex-wrap items-center gap-2 pt-1">
                                         {vaultId ? (
@@ -2818,7 +2902,7 @@ function DashboardContent() {
                                             <button
                                                 onClick={handleDestroyVault}
                                                 className="text-gray-600 hover:text-red-500 transition-all p-1"
-                                                title="Destroy Vault"
+                                                title={L('Close vault', 'Cerrar bóveda')}
                                             >
                                                 <Trash2 size={12} />
                                             </button>
@@ -2854,10 +2938,10 @@ function DashboardContent() {
                             </div>
                         </div>
 
-                        {/* Auto-Rebalance Toggle — only for USDC vaults */}
+                        {/* Auto-Rebalance Toggle - only for USDC vaults */}
                         {vaultId && baseAsset === 'USDC' && (
                             <div className="relative z-10 mt-4 pt-4 border-t border-white/5 space-y-3">
-                                {/* Threshold config — visible only when toggle is OFF */}
+                                {/* Threshold config - visible only when toggle is OFF */}
                                 {!autoRebalance && (
                                     <div className="bg-white/[0.03] rounded-xl p-3 border border-white/5">
                                         <div className="flex items-center justify-between mb-2">
@@ -2877,7 +2961,7 @@ function DashboardContent() {
                                             <span>2%</span>
                                             {(currentMarketState?.etherfuseApy ?? 0) > 0 ? (
                                                 <span className="text-stellar-teal/60">
-                                                    {language === 'es' ? 'Ref. fija (jun-2026)' : 'Fixed ref. (Jun 2026)'}: {currentMarketState!.etherfuseApy.toFixed(2)}%
+                                                    {language === 'es' ? 'Ref. fija (12-nov-2026)' : 'Fixed ref. (12 Nov 2026)'}: {currentMarketState!.etherfuseApy.toFixed(2)}%
                                                 </span>
                                             ) : null}
                                             <span>8%</span>
@@ -2892,7 +2976,7 @@ function DashboardContent() {
                                         </p>
                                         <p className="text-[10px] text-gray-500 mt-0.5 font-mono">
                                             {autoRebalance
-                                                ? `CETES > ${rebalanceThreshold.toFixed(1)}% — ${t.dashboard.auto_rebalance.enabled_desc}`
+                                                ? `CETES > ${rebalanceThreshold.toFixed(1)}% - ${t.dashboard.auto_rebalance.enabled_desc}`
                                                 : t.dashboard.auto_rebalance.disabled_desc}
                                         </p>
                                     </div>
@@ -2929,7 +3013,7 @@ function DashboardContent() {
                                             <span>1%</span>
                                             {(currentMarketState?.etherfuseApy ?? 0) > 0 ? (
                                                 <span className="text-amber-400/60">
-                                                    {language === 'es' ? 'Ref. fija (jun-2026)' : 'Fixed ref. (Jun 2026)'}: {currentMarketState!.etherfuseApy.toFixed(2)}%
+                                                    {language === 'es' ? 'Ref. fija (12-nov-2026)' : 'Fixed ref. (12 Nov 2026)'}: {currentMarketState!.etherfuseApy.toFixed(2)}%
                                                 </span>
                                             ) : null}
                                             <span>6%</span>
@@ -2944,7 +3028,7 @@ function DashboardContent() {
                                         </p>
                                         <p className="text-[10px] text-gray-500 mt-0.5 font-mono">
                                             {autoExit
-                                                ? `CETES < ${reverseThreshold.toFixed(1)}% — ${t.dashboard.auto_exit.enabled_desc}`
+                                                ? `CETES < ${reverseThreshold.toFixed(1)}% - ${t.dashboard.auto_exit.enabled_desc}`
                                                 : t.dashboard.auto_exit.disabled_desc}
                                         </p>
                                     </div>
@@ -3038,7 +3122,7 @@ function DashboardContent() {
                                                 onClick={handleAutoRebalanceToggle}
                                                 className="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] px-2.5 py-1.5 rounded-lg border border-red-500/10 transition-colors"
                                             >
-                                                STOP
+                                                {L('STOP', 'DETENER')}
                                             </button>
                                         </div>
                                     </motion.div>
@@ -3079,16 +3163,15 @@ function DashboardContent() {
                                                 onClick={handleAutoExitToggle}
                                                 className="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] px-2.5 py-1.5 rounded-lg border border-red-500/10 transition-colors"
                                             >
-                                                STOP
+                                                {L('STOP', 'DETENER')}
                                             </button>
                                         </div>
                                     </motion.div>
                                 )}
                                 {activeStrategies.slice(0, 10).map((strat, i) => {
-                                    const baseApy = blendData ? blendData.supplyApy : 0;
-                                    const boost = 0.5 + (strat.id.charCodeAt(0) % 30) / 10;
-                                    const dynamicYield = (baseApy + boost).toFixed(2) + '%';
-
+                                    // Se muestra la tasa objetivo del registro. Antes era la APY de
+                                    // Blend + un "boost" sacado del primer carácter del id, con
+                                    // etiqueta "est.", y una curva SVG decorativa debajo.
                                     return (
                                         <motion.div
                                             key={`strategy-grid-${i}`}
@@ -3108,25 +3191,12 @@ function DashboardContent() {
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className="text-stellar-teal font-mono font-bold animate-pulse-slow">{dynamicYield} <span className="text-[9px] font-normal text-gray-500">est.</span></div>
-                                                    <div className="text-[9px] text-gray-500">{t.dashboard.stats.efficiency}</div>
+                                                    <div className="text-stellar-teal font-mono font-bold">{strat.yield ?? '-'}</div>
+                                                    <div className="text-[9px] text-gray-500">{language === 'es' ? 'Tasa objetivo, no garantizada' : 'Target rate, not guaranteed'}</div>
                                                 </div>
                                             </div>
 
-                                            {/* Mini Agent Chart */}
-                                            <div className="flex-1 relative mt-2 min-h-[60px]">
-                                                <svg className="w-full h-full overflow-visible" preserveAspectRatio="none">
-                                                    <path
-                                                        d={`M0,${30 + (i * 5)} Q${50 + (i * 10)},${10 + (i * 2)} 100,${40 - (i * 2)} T200,${20 + (i * 5)}`}
-                                                        fill="none"
-                                                        stroke={i % 2 === 0 ? "#2DEBE8" : "#FFC800"}
-                                                        strokeWidth="2"
-                                                        vectorEffect="non-scaling-stroke"
-                                                        className="drop-shadow-[0_0_5px_rgba(0,243,255,0.4)]"
-                                                    />
-                                                    <circle cx="200" cy={`${20 + (i * 5)}`} r="2.5" fill="#fff" className="animate-pulse" />
-                                                </svg>
-                                            </div>
+                                            <div className="flex-1 min-h-[24px]" />
 
                                             <div className="mt-auto pt-3 border-t border-white/5 flex gap-2 relative z-10 items-center justify-between">
                                                 {strat.tx_digest ? (
@@ -3140,14 +3210,14 @@ function DashboardContent() {
                                                         <ExternalLink size={10} />
                                                     </a>
                                                 ) : (
-                                                    <span className="text-[10px] font-mono text-gray-500">Starting up...</span>
+                                                    <span className="text-[10px] font-mono text-gray-500">{L('Starting...', 'Iniciando...')}</span>
                                                 )}
 
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); stopStrategy(strat.id); }}
                                                     className="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] px-2.5 py-1.5 rounded-lg border border-red-500/10 transition-colors"
                                                 >
-                                                    STOP
+                                                    {L('STOP', 'DETENER')}
                                                 </button>
                                             </div>
                                         </motion.div>
@@ -3168,7 +3238,7 @@ function DashboardContent() {
                         )}
                     </div>
 
-                    {/* x402 / MPP institutional settlement panels hidden for now — the
+                    {/* x402 / MPP institutional settlement panels hidden for now - the
                         capability is live but has no real settlement traffic yet (buyers
                         disabled for stability), so they showed empty $0.00 / "Awaiting
                         corporate routing". Re-enable once a separate buyer agent feeds them.
@@ -3194,7 +3264,7 @@ function DashboardContent() {
 
                         <h3 className="text-sm text-gray-400 uppercase tracking-widest mb-4 flex items-center justify-between">
                             {t.dashboard.your_helpers}
-                            <span className="text-stellar-teal font-mono text-xs">{activeStrategies.length + (autoRebalance ? 1 : 0) + (autoExit ? 1 : 0)} ACTIVE</span>
+                            <span className="text-stellar-teal font-mono text-xs">{activeStrategies.length + (autoRebalance ? 1 : 0) + (autoExit ? 1 : 0)} {language === 'es' ? 'ACTIVOS' : 'ACTIVE'}</span>
                         </h3>
 
                         {activeStrategies.length === 0 && !autoRebalance && !autoExit ? (
@@ -3237,19 +3307,13 @@ function DashboardContent() {
                                                 onClick={(e) => { e.stopPropagation(); setSelectedStrategy(strat); }}
                                                 className="flex-1 min-w-[70px] py-1.5 rounded bg-white/5 border border-white/10 text-[9px] font-bold text-gray-400 hover:text-white transition-colors"
                                             >
-                                                DETAILS
+                                                {L('DETAILS', 'DETALLES')}
                                             </button>
-                                            <div className="flex-1 min-w-[120px] flex items-center justify-center gap-1.5 px-2 py-1 rounded bg-stellar-blue/5 border border-stellar-blue/20">
-                                                <Shield size={10} className="text-stellar-blue" />
-                                                <span className="text-[8px] font-bold text-stellar-blue whitespace-nowrap uppercase tracking-tighter">
-                                                    {t.common.atomic_execution} — VERIFIED
-                                                </span>
-                                            </div>
                                             <button
                                                 onClick={() => stopStrategy(strat.id)}
                                                 className="flex-none px-3 bg-red-500/10 hover:bg-red-500/20 text-[10px] py-1.5 rounded transition-colors text-red-400 border border-red-500/20"
                                             >
-                                                STOP
+                                                {L('STOP', 'DETENER')}
                                             </button>
                                         </div>
                                     </div>
@@ -3305,31 +3369,26 @@ function DashboardContent() {
                                         : '...'}
                                 </span>
                             </div>
-                            <p className="text-[9px] text-gray-600 mt-1 font-mono">NON-FINANCIAL ADVICE · {t.dashboard.payment_streams.cetes_fixed_ref}</p>
+                            <p className="text-[9px] text-gray-600 mt-1 font-mono">{language === 'es' ? 'SIN ASESORÍA FINANCIERA' : 'NON-FINANCIAL ADVICE'} · {t.dashboard.payment_streams.cetes_fixed_ref}</p>
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 gap-2">
                             <div className="bg-white/[0.03] p-2 rounded border border-white/5">
                                 <p className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">{t.dashboard.payment_streams.network_fee}</p>
                                 <p className="text-xs font-mono text-white/70">
-                                    {currentMarketState?.baseFee ? `${currentMarketState.baseFee} stroops` : '100 stroops'}
+                                    {currentMarketState?.baseFee ? `${currentMarketState.baseFee} stroops` : '-'}
                                 </p>
                             </div>
-                            <div className="bg-white/[0.03] p-2 rounded border border-white/5">
-                                <p className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">{t.dashboard.payment_streams.corridors}</p>
-                                <p className="text-xs font-mono text-white/70">
-                                    {currentMarketState?.pathPaymentRoutes?.length ?? 0} XLM→USDC
-                                </p>
-                            </div>
+                            {/* 12-nov-2026: aquí iba "Active corridors", siempre en 0: /api/market nunca recibe rutas del agente. */}
                         </div>
                     </motion.div>
 
                     {/* Telemetry Network Thought Process */}
                     <TelemetryFeed thoughts={thoughts} />
-
-                    {/* Immutable IPFS Audit Trail — Deliverable 3 Instaward #1 */}
-                    <AuditTrailViewer />
+                    {/* El Audit Trail subió a la sección de recibos (16-nov-2026). */}
                 </div>
             </div>
+                </div>
+            </details>
 
             {/* Background Elements */}
             <div className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none">

@@ -3,6 +3,20 @@ import crypto from 'crypto';
 
 const API_KEY = process.env.ETHERFUSE_API_KEY || '';
 const BASE_URL = process.env.ETHERFUSE_API_URL || 'https://api.sand.etherfuse.com';
+
+// ── Solo sandbox (decidido el 8-nov-2026, opción A) ──────────────────────────
+// Este flujo pide la cotización y la orden con la cuenta de ORGANIZACIÓN de Nirium
+// en Etherfuse: la wallet del usuario se registra bajo esa organización y la orden
+// usa la cuenta bancaria de la organización. El KYC del usuario crea un cliente
+// aparte que la orden no usa. En el sandbox es una demo sin dinero real; con llaves
+// de producción, Nirium quedaría como quien ordena fiat→cripto por terceros, que es
+// justo lo que la postura legal dice que nunca hace ("solo muestra instrucciones y
+// lee el saldo", ver legal/ARQUITECTURA-LEGAL.md). Por eso las acciones que crean
+// algo en Etherfuse se niegan si la URL no es de sandbox. `lookup` (precio público)
+// sigue disponible. Para producción: rehacer con la cuenta propia de cada usuario en
+// Etherfuse o mandarlo a la app de Etherfuse.
+const IS_SANDBOX = /\bsand\b|sandbox|devnet/i.test(BASE_URL);
+const SANDBOX_ONLY_ACTIONS = new Set(['onboarding', 'quote', 'order', 'simulate_fiat']);
 const headers = {
     'Authorization': API_KEY,
     'Content-Type': 'application/json'
@@ -18,21 +32,56 @@ async function getOrgId(): Promise<string> {
     return ORG_ID as string;
 }
 
-export async function OPTIONS() {
-    return new NextResponse(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': '*',
-        },
-    });
+// Hallazgo real (2026-11-03, barrido de seguridad): esta ruta no tenía NINGÚN
+// auth y el OPTIONS respondía `Access-Control-Allow-Origin: *` — cualquier
+// sitio de terceros podía hacer un POST cross-origin con `action: 'list_orders'`
+// y leer las últimas 10 órdenes de rampa reales (direcciones de wallet, datos
+// de la orden). El widget de /ramp (`FiatRamp.tsx`) sí llama a este endpoint
+// sin credenciales — por diseño: onboarding/quote/order/simulate_fiat/lookup
+// son el flujo público de autoservicio y no deben requerir login. `list_orders`
+// es la excepción: un endpoint de debug que ningún componente del frontend usa
+// (confirmado con grep) y que no debería ser legible por cualquiera.
+//
+// Mismo patrón que el PR #99 (apps/web/app/api/config/llm/route.ts): en vez de
+// duplicar `ADMIN_API_KEY` como variable de Vercel, se verifica el admin
+// llamando al propio endpoint ya gateado del agente.
+const AGENT_URL = (process.env.AGENT_INTERNAL_URL ?? 'https://nirium-agent.fly.dev').replace(/\/$/, '');
+
+async function requireAdmin(req: Request): Promise<boolean> {
+    const apiKey = req.headers.get('x-api-key');
+    const authHeader = req.headers.get('authorization');
+    if (!apiKey && !authHeader) return false;
+    try {
+        const h: Record<string, string> = {};
+        if (apiKey) h['x-api-key'] = apiKey;
+        if (authHeader) h['Authorization'] = authHeader;
+        const res = await fetch(`${AGENT_URL}/api/system/health`, {
+            headers: h,
+            signal: AbortSignal.timeout(5000),
+        });
+        return res.ok;
+    } catch {
+        // Un agente inalcanzable nunca debe leerse como "admin confirmado".
+        return false;
+    }
 }
+
+// Sin handler de OPTIONS: esta ruta nunca tuvo un caller legítimo cross-origin
+// (el widget de /ramp llama a `/api/etherfuse` como ruta relativa, mismo
+// origen). Sin OPTIONS, Next.js responde 405 a un preflight — un sitio de
+// terceros no puede completar un POST cross-origin contra esta ruta.
 
 export async function POST(req: Request) {
     try {
         const body = await req.json();
         const { action } = body;
+
+        if (SANDBOX_ONLY_ACTIONS.has(action) && !IS_SANDBOX) {
+            return NextResponse.json(
+                { error: 'This demo only runs against the Etherfuse sandbox. To get real CETES, open your own account at Etherfuse.' },
+                { status: 403 },
+            );
+        }
 
         // ── ONBOARDING ─────────────────────────────────────────────────────
         if (action === 'onboarding') {
@@ -124,7 +173,7 @@ export async function POST(req: Request) {
             let cryptoWalletId = walletData?.walletId || walletData?.id || walletData?.cryptoWalletId;
 
             if (!cryptoWalletId) {
-                // 409 or missing id — fetch existing wallets and match by publicKey
+                // 409 or missing id - fetch existing wallets and match by publicKey
                 const listRes = await fetch(`${BASE_URL}/ramp/wallets?customerId=${orgId}&limit=50`, { headers });
                 const listData = await listRes.json().catch(() => ({})) as any;
                 const wallets = listData?.items || listData?.wallets || [];
@@ -158,7 +207,7 @@ export async function POST(req: Request) {
 
             if (!res.ok) {
                 console.error('[etherfuse] order failed:', res.status, JSON.stringify(data));
-                // 409 = quoteId already used — tell the client to re-quote
+                // 409 = quoteId already used - tell the client to re-quote
                 if (res.status === 409) {
                     return NextResponse.json({ error: 'Quote expired or already used. Please generate a new quote.', code: 'QUOTE_EXPIRED' }, { status: 409 });
                 }
@@ -170,6 +219,8 @@ export async function POST(req: Request) {
 
         // ── SIMULATE FIAT ──────────────────────────────────────────────────
         if (action === 'simulate_fiat') {
+            // Solo sandbox: marca una orden como "SPEI recibido" sin dinero real. El candado
+            // general de arriba (SANDBOX_ONLY_ACTIONS) ya la cubre.
             const { orderId } = body;
             const res = await fetch(`${BASE_URL}/ramp/order/fiat_received`, {
                 method: 'POST',
@@ -185,16 +236,19 @@ export async function POST(req: Request) {
 
         // ── DEBUG: LIST ORDERS ─────────────────────────────────────────────
         if (action === 'list_orders') {
+            if (!(await requireAdmin(req))) {
+                return NextResponse.json({ error: 'Admin permissions required' }, { status: 403 });
+            }
             const res = await fetch(`${BASE_URL}/ramp/orders?limit=10`, { headers });
             const data = await res.json().catch(() => ({}));
             return NextResponse.json(data);
         }
 
         // Live price/TVL for the reference card on /ramp. Public endpoint, no
-        // auth needed — but it MUST hit the same BASE_URL (sandbox today) the
+        // auth needed - but it MUST hit the same BASE_URL (sandbox today) the
         // rest of this route uses, not the production API: sandbox and
         // production report genuinely different numbers (verified live,
-        // 26-ago-2026 — sandbox CETES price 1.142034 / TVL ~734M vs.
+        // 26-ago-2026 - sandbox CETES price 1.142034 / TVL ~734M vs.
         // production 1.178212 / TVL ~87.9M), and quoting production while
         // orders execute against sandbox would just trade one mismatch for
         // another. Replaces a hardcoded snapshot that had drifted from both.

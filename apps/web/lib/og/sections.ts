@@ -20,6 +20,18 @@ export type OgSection =
 const legal = (document: string): OgSection => ({ kind: "legal", document, alt: `Nirium - ${document}` });
 
 export const OG_SECTIONS: Record<string, OgSection> = {
+    // Tarjeta general del sitio: la usa la home y cualquier ruta sin tarjeta
+    // propia (ver DEFAULT_OG_IMAGE en lib/pageMetadata.ts). "/home" no es una
+    // página; solo existe para servir /og/home. Texto tomado del hero de la home.
+    "/home": {
+        kind: "section",
+        kicker: "x402 on Stellar",
+        headline: "Payment, audit and execution rails on Stellar.",
+        support: "For apps, backends and AI agents. Charge per request, prove every move.",
+        chips: ["Non-custodial: your keys, your funds", "Testnet + mainnet"],
+        accent: "yellow",
+        alt: "Nirium - payment, audit and execution rails on Stellar for apps, backends and AI agents",
+    },
     "/verify": {
         kind: "section",
         kicker: "Audit Trail",
@@ -43,7 +55,7 @@ export const OG_SECTIONS: Record<string, OgSection> = {
         kicker: "Pricing",
         headline: "No surprises. No fine print.",
         support: "Start free. On mainnet, pay per request in USDC on Stellar.",
-        chips: ["No card", "No subscription"],
+        chips: ["No card", "Free tier: 10 requests/min"],
         accent: "yellow",
         alt: "Nirium pricing: start free, pay per request in USDC on mainnet",
     },
@@ -59,17 +71,17 @@ export const OG_SECTIONS: Record<string, OgSection> = {
     "/docs": {
         kind: "section",
         kicker: "Documentation",
-        headline: "Verifiable receipts on Stellar",
-        support: "Reference for the API, execution nodes, x402 payments and the Audit Trail.",
-        chips: ["Non-custodial", "You sign every transaction"],
+        headline: "Verifiable receipts for Stellar payments",
+        support: "Audit Trail receipts, Reporting, x402 sellers and the pre-sign policy hook.",
+        chips: ["Non-custodial", "Verify it yourself"],
         accent: "sky",
-        alt: "Nirium documentation: verifiable receipts on Stellar",
+        alt: "Nirium documentation: verifiable receipts for Stellar payments",
     },
     "/how-to-use": {
         kind: "section",
         kicker: "How to use",
-        headline: "Connect a wallet, set a strategy, run it.",
-        support: "Step by step, with a Stellar wallet.",
+        headline: "Getting started with Nirium.",
+        support: "An API key, x402 payments, the invite-only Treasury rebalancer and Audit Trail receipts.",
         accent: "sky",
         alt: "How to use Nirium, step by step",
     },
@@ -109,11 +121,11 @@ export const OG_SECTIONS: Record<string, OgSection> = {
     },
     "/analytics": {
         kind: "section",
-        kicker: "Treasury Telemetry",
+        kicker: "Network Telemetry",
         headline: "Agent activity, linked to its transactions.",
         support: "Panels with sample data are labeled.",
         accent: "sky",
-        alt: "Nirium treasury telemetry: agent activity linked to transactions",
+        alt: "Nirium network telemetry: receipts, settlements and agent activity linked to transactions",
     },
     "/dashboard": {
         kind: "section",
@@ -136,7 +148,7 @@ export const OG_SECTIONS: Record<string, OgSection> = {
         kind: "section",
         kicker: "Treasury",
         headline: "Treasury Node",
-        support: "USDC and CETES inside a DeFindex vault you own.",
+        support: "USDC and CETES inside a DeFindex vault structured for you to own.",
         chips: ["Autonomous rebalancing on mainnet: invite-only"],
         accent: "amber",
         alt: "Nirium Treasury Node",
@@ -189,18 +201,10 @@ export const OG_SECTIONS: Record<string, OgSection> = {
         kind: "section",
         kicker: "Audit Trail",
         headline: "Hashed, anchored on IPFS, exported as JSON.",
-        support: "Every node execution, so anyone can check it.",
-        chips: ["SHA-256", "IPFS"],
+        support: "Records you choose to anchor, so anyone can check them.",
+        chips: ["SHA-256", "IPFS", "Opt-in per call"],
         accent: "emerald",
         alt: "Nirium Audit Trail: hashed, anchored on IPFS, exported as JSON",
-    },
-    "/manifesto": {
-        kind: "section",
-        kicker: "Manifesto",
-        headline: "Why agents need payment, audit and execution rails.",
-        support: "And why we build them on Stellar.",
-        accent: "yellow",
-        alt: "The Nirium manifesto",
     },
     "/pollar-adapter-documentation": {
         kind: "section",
@@ -251,6 +255,14 @@ export const OG_SECTIONS: Record<string, OgSection> = {
         accent: "amber",
         alt: "The Treasury Node on mainnet: verify the contract",
     },
+    "/blog/codigo-402-agentes-que-pagan": {
+        kind: "section",
+        kicker: "Blog · Nov 6, 2026",
+        headline: "Build an API that charges. An agent that pays.",
+        support: "Free, 5-session Stellar bootcamp with BAF. Nov 10-27, 100% online.",
+        accent: "teal",
+        alt: "Codigo 402: free Stellar x402 bootcamp with BAF and Nirium",
+    },
     "/terms": legal("Terms of Service"),
     "/privacy": legal("Privacy Policy"),
     "/disclaimers": legal("Legal Disclaimers"),
@@ -261,7 +273,7 @@ export const OG_SECTIONS: Record<string, OgSection> = {
 // URL de la imagen de una ruta, o undefined si la ruta no tiene tarjeta propia.
 // El ?v= cambia la URL cuando cambia el diseño, para que Discord/X no sirvan la
 // tarjeta vieja desde su caché.
-export const OG_VERSION = "1";
+export const OG_VERSION = "2";
 export function ogImageUrl(path: string): string | undefined {
     return OG_SECTIONS[path] ? `/og${path}?v=${OG_VERSION}` : undefined;
 }

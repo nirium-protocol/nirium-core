@@ -7,11 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     LayoutDashboard, BarChart2,
     Shield, ShieldCheck, Code2, BookOpen,
-    Menu, X, ChevronRight, Activity, Zap, Globe,
-    Layers, Cpu, Send, Building2
+    Menu, X, ChevronRight, ChevronDown, Activity, Zap, Globe, Mail,
+    Cpu, Send, Building2
 , KeyRound, Home, FileCheck
 } from "lucide-react";
 import { useFreighter } from "@/hooks/useFreighter";
+import { usePollarBridge } from "@/context/PollarBridge";
 import { useLanguage } from "@/context/LanguageContext";
 import { useNetwork } from "@/context/NetworkContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -20,6 +21,11 @@ import Footer from "@/components/layout/Footer";
 export function AppSidebar({ onClose }: { onClose?: () => void }) {
     const pathname = usePathname();
     const { address, isConnected, connect, disconnect } = useFreighter();
+    // 9-nov-2026: el botón del menú lateral abría directo el selector de Stellar
+    // Wallets Kit; ahora ofrece lo mismo que el navbar: wallet de navegador o Pollar.
+    const pollar = usePollarBridge();
+    const activeAddress = address ?? pollar.address;
+    const [walletOpen, setWalletOpen] = useState(false);
     const { language, setLanguage, t } = useLanguage();
     const { network, setNetwork } = useNetwork();
 
@@ -29,6 +35,7 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
             items: [
                 { href: "/",                 label: t.nav.home,        icon: Home,            accent: "#3B82F6" },
                 { href: "/dashboard",        label: t.nav.dashboard,   icon: LayoutDashboard, accent: "#2DEBE8" },
+                { href: "/analytics",        label: t.nav.analytics,   icon: BarChart2,       accent: "#2DEBE8", badge: "BETA" },
                 { href: "/agents",           label: t.nav.agents,      icon: Cpu,             accent: "#FFD700" },
                 { href: "/payouts",          label: t.nav.payroll,     icon: Send,            accent: "#2DEBE8" },
                 { href: "/security",         label: t.nav.security,    icon: ShieldCheck,     accent: "#10B981" },
@@ -53,11 +60,6 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                 { href: "/verify",           label: t.nav.verifyAudit, icon: FileCheck,       accent: "#10B981" },
             ]
         }
-    ];
-
-    const soonNav = [
-        { href: "/analytics",   label: t.nav.analytics,   icon: BarChart2, badge: "BETA"  },
-        { href: "/marketplace", label: t.nav.marketplace, icon: Layers,    badge: "SOON"  },
     ];
 
     return (
@@ -124,84 +126,16 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                         </ul>
                     </div>
                 ))}
-                {/* SOON section */}
-                <div>
-                    <p className="px-3 mb-2 text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
-                        {t.nav.coming_soon_nav}
-                    </p>
-                    <ul className="space-y-0.5">
-                        {soonNav.map(({ href, label, icon: Icon, badge }) => (
-                            <li key={href}>
-                                <Link
-                                    href={href}
-                                    onClick={onClose}
-                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group relative text-white/25 hover:text-white/40 hover:bg-white/[0.02]"
-                                >
-                                    <Icon size={15} className="shrink-0" />
-                                    <span className="truncate text-[13px]">{label}</span>
-                                    <span className="ml-auto text-[8px] font-black px-1.5 py-0.5 rounded border border-white/10 text-white/30 uppercase tracking-widest">
-                                        {badge}
-                                    </span>
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
             </nav>
 
-            {/* Status pill — dual red: settlement/audit en mainnet, vault en testnet */}
+            {/* 9-nov-2026: aquí había una lista de qué corre en cada red. El aviso de red de
+                arriba ya lo dice completo (Payouts y Treasury por invitación), así que
+                queda solo el selector de red. */}
             <div className="px-3 pb-3 shrink-0">
                 <div className="flex flex-col gap-1.5 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                    {/* Los cuatro nodos non-custodial de mainnet, no dos: el resto
-                        del sitio (home, disclaimer legal) ya listaba los cuatro.
-                        Treasury va aquí, no en la línea de testnet: el rebalanceo
-                        (DeFindex, bóveda del cliente) ya corre en mainnet, invite-only
-                        hasta tener una opinión legal por escrito. Solo NiriumVault -- el
-                        contrato propio de Nirium -- sigue en testnet, audit-gated.
-                        Calificador por ítem, no uno solo al final de la línea: en
-                        una lista corrida "TREASURY (INVITE-ONLY)" al cierre se leía
-                        como si aplicara a toda la lista.
-                        Segunda pasada: red no es lo único que varía dentro de
-                        mainnet -- nivel de acceso también. Settlement/Audit/Reporting
-                        son de uso abierto; Payouts (early access, términos que
-                        aceptar) y Treasury (beta, invite-only mientras cierra la
-                        revisión legal) no lo son. Antes las seis palabras vivían en
-                        una sola línea del mismo color -- igualaba visualmente algo
-                        de acceso general con algo que sigue siendo limitado. Ahora
-                        son dos líneas dentro de mainnet: abierto arriba, acceso
-                        limitado abajo. */}
-                    <div className="flex items-start gap-2">
-                        <span className="relative flex h-1.5 w-1.5 shrink-0 mt-[3px]">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" />
-                        </span>
-                        <span className="text-[9px] font-mono font-bold text-green-400 uppercase tracking-widest leading-[1.5]">
-                            MAINNET · SETTLEMENT · AUDIT · REPORTING
-                        </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                        <span className="relative flex h-1.5 w-1.5 shrink-0 mt-[3px]">
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500/50" />
-                        </span>
-                        <span className="text-[9px] font-mono font-bold text-green-400/60 uppercase tracking-widest leading-[1.5]">
-                            MAINNET · PAYOUTS (INVITE-ONLY) · TREASURY (BETA)
-                        </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                        <span className="relative flex h-1.5 w-1.5 shrink-0 mt-[3px]">
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-400" />
-                        </span>
-                        <span className="text-[9px] font-mono font-bold text-amber-400/80 uppercase tracking-widest leading-[1.5]">
-                            TESTNET · NIRIUMVAULT
-                        </span>
-                    </div>
-
-                    {/* El interruptor vive pegado a la píldora a propósito: lo que
-                        corre en cada red y en cuál estás parado son la misma
-                        pregunta, y separarlos fue lo que hizo firmar contra la red
-                        equivocada. Pasar a mainnet abre la confirmación
-                        (la puerta está en NetworkContext, no aquí). */}
-                    <div className="flex items-center gap-1 mt-1 pt-2 border-t border-white/[0.06]">
+                    {/* Pasar a mainnet abre la confirmación (la puerta está en
+                        NetworkContext, no aquí). */}
+                    <div className="flex items-center gap-1">
                         {(['testnet', 'mainnet'] as const).map((n) => {
                             const on = network === n;
                             return (
@@ -209,7 +143,8 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                                     key={n}
                                     onClick={() => setNetwork(n)}
                                     aria-pressed={on}
-                                    className={`flex-1 px-2 py-1 rounded-lg text-[9px] font-mono font-bold uppercase tracking-widest transition-all ${
+                                    data-net={n}
+                                    className={`net-toggle flex-1 px-2 py-1 rounded-lg text-[9px] font-mono font-bold uppercase tracking-widest transition-all ${
                                         on
                                             ? n === 'mainnet'
                                                 ? 'bg-emerald-400/20 text-emerald-400 border border-emerald-400/30'
@@ -241,30 +176,63 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                 <ThemeToggle />
             </div>
 
-            {/* Wallet — último elemento del panel ahora que el link redundante
+            {/* Wallet - último elemento del panel ahora que el link redundante
                 "Inicio" de hasta abajo se quitó (CORE ya lo tiene arriba) */}
             <div className="px-3 pb-6 shrink-0 border-t border-white/[0.06] pt-3">
-                {isConnected && address ? (
+                {activeAddress ? (
                     <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-stellar-teal/5 border border-stellar-teal/20">
                         <Activity size={13} className="text-stellar-teal shrink-0 animate-pulse" />
                         <span className="text-[10px] font-mono text-white/60 truncate">
-                            {address.slice(0, 6)}…{address.slice(-4)}
+                            {activeAddress.slice(0, 6)}…{activeAddress.slice(-4)}
                         </span>
                         <button
-                            onClick={() => disconnect()}
+                            onClick={() => (isConnected ? disconnect() : pollar.logout())}
                             className="ml-auto text-[9px] text-red-400/60 hover:text-red-400 font-bold uppercase transition-colors"
                         >
                             {t.nav.disconnect.split(' ')[0]}
                         </button>
                     </div>
                 ) : (
-                    <button
-                        onClick={() => connect()}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-stellar-yellow text-[#0b0b0b] text-xs font-black uppercase tracking-tight hover:bg-stellar-yellow/90 transition-all active:scale-95"
-                    >
-                        <Zap size={13} />
-                        {t.nav.auth_session}
-                    </button>
+                    <div className="space-y-1.5">
+                        {walletOpen && (
+                            <div className="p-1.5 rounded-xl bg-[#0a0a0a] border border-white/10">
+                                <p className="px-2.5 pt-1 pb-1 text-[9px] font-black uppercase tracking-[0.2em] text-white/25">
+                                    {t.nav.wallet_menu_label}
+                                </p>
+                                <button
+                                    onClick={() => { connect(); setWalletOpen(false); }}
+                                    className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-left hover:bg-white/5 transition-colors"
+                                >
+                                    <Zap className="w-3.5 h-3.5 text-white/50 shrink-0" />
+                                    <span>
+                                        <span className="block text-[12px] font-semibold text-white">{t.nav.wallet_option_browser}</span>
+                                        <span className="block text-[10px] text-white/40">{t.nav.wallet_option_browser_hint}</span>
+                                    </span>
+                                </button>
+                                {pollar.available && (
+                                    <button
+                                        onClick={() => { pollar.openLogin(); setWalletOpen(false); }}
+                                        className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-left hover:bg-white/5 transition-colors"
+                                    >
+                                        <Mail className="w-3.5 h-3.5 text-white/50 shrink-0" />
+                                        <span>
+                                            <span className="block text-[12px] font-semibold text-white">{t.nav.wallet_option_pollar}</span>
+                                            <span className="block text-[10px] text-white/40">{t.nav.wallet_option_pollar_hint}</span>
+                                        </span>
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                        <button
+                            onClick={() => setWalletOpen((o) => !o)}
+                            aria-expanded={walletOpen}
+                            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-stellar-yellow text-[#0b0b0b] text-xs font-black uppercase tracking-tight hover:bg-stellar-yellow/90 transition-all active:scale-95"
+                        >
+                            <Zap size={13} />
+                            {t.nav.auth_session}
+                            <ChevronDown size={13} className={`transition-transform ${walletOpen ? "rotate-180" : ""}`} />
+                        </button>
+                    </div>
                 )}
             </div>
         </aside>
@@ -282,8 +250,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="min-h-screen bg-black text-white flex">
-            {/* Desktop sidebar */}
-            <div className="hidden lg:block w-64 shrink-0 sticky top-9 h-[calc(100vh-36px)]">
+            {/* Desktop sidebar. --banner-h = altura del aviso de red (TestnetBanner),
+                0 si está cerrado; sin sumarla, el aviso tapaba el logo al hacer scroll. */}
+            <div className="hidden lg:block w-64 shrink-0 sticky top-[calc(2.25rem_+_var(--banner-h,0px))] h-[calc(100vh_-_36px_-_var(--banner-h,0px))]">
                 <AppSidebar />
             </div>
 
@@ -303,7 +272,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             animate={{ x: 0 }}
                             exit={{ x: -256 }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="fixed top-9 bottom-0 left-0 z-40 lg:hidden"
+                            className="fixed top-[var(--top-chrome)] bottom-0 left-0 z-40 lg:hidden"
                         >
                             <AppSidebar onClose={() => setMobileSidebarOpen(false)} />
                         </motion.div>
@@ -311,10 +280,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 )}
             </AnimatePresence>
 
-            {/* Content */}
-            <div className="flex-1 flex flex-col min-w-0">
+            {/* Content. pt-9 = la barra de mercado (fixed, 2.25rem); el body ya baja
+                --banner-h, pero no esa barra, y tapaba el borde de arriba de cada página. */}
+            <div className="flex-1 flex flex-col min-w-0 pt-9">
                 {/* Mobile top bar */}
-                <header className="lg:hidden sticky top-9 z-20 flex items-center gap-3 px-4 py-3 bg-black/90 backdrop-blur-xl border-b border-white/[0.06]">
+                <header className="lg:hidden sticky top-[var(--top-chrome)] z-20 flex items-center gap-3 px-4 py-3 bg-black/90 backdrop-blur-xl border-b border-white/[0.06]">
                     <button
                         onClick={() => setMobileSidebarOpen(true)}
                         className="p-1.5 rounded-lg bg-white/5 text-white/50 hover:text-white transition-colors"

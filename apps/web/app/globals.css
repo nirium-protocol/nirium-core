@@ -126,6 +126,53 @@
   opacity: 0.12 !important;
 }
 
+/* 7.1) Legal disclaimer banner: bg-black -> white via theme vars made it
+   blend into the white page, with only a 20%-opacity red border left to
+   separate it. Give it a visible warning-tinted surface in light mode
+   instead, so the red text/icon/links sit on a distinct background rather
+   than near-white-on-white. */
+:root[data-theme="light"] .disclaimer-banner {
+  background-color: #fef2f2 !important; /* red-50 */
+  border-color: #fecaca !important; /* red-200 */
+}
+
+/* 7.2) Buttons and badges on bright brand fills (teal, yellow, amber, green,
+   gradients) use text-black, but `black` maps to --nx-black, which is white
+   in light mode, so their labels turned white-on-teal/yellow and unreadable.
+   Keep them dark on those fills. bg-white/bg-black are excluded: they flip
+   with the theme too, and a hover:bg-stellar-* on them would otherwise match. */
+:root[data-theme="light"] :is(
+  [class*="bg-stellar-"],
+  [class*="bg-amber-"],
+  [class*="bg-yellow-"],
+  [class*="bg-emerald-"],
+  [class*="bg-green-"],
+  [class*="bg-teal-"],
+  [class*="bg-cyan-"],
+  [class*="bg-gradient-"]
+)[class*="text-black"]:not([class*="bg-white"]):not([class*="bg-black"]) {
+  color: #0b0b0b !important;
+}
+
+/* 7.3) Sidebar network switch (TEST / MAIN). Rule 3 above paints every
+   font-mono + rounded element the same gray, so in light mode the active
+   network looked identical to the inactive one. Restore the state here. */
+:root[data-theme="light"] .net-toggle[aria-pressed="true"][data-net="mainnet"] {
+  background-color: #d1fae5 !important; /* emerald-100 */
+  color: #065f46 !important;            /* emerald-800 */
+  border-color: #6ee7b7 !important;     /* emerald-300 */
+}
+:root[data-theme="light"] .net-toggle[aria-pressed="true"][data-net="testnet"] {
+  background-color: #fef3c7 !important; /* amber-100 */
+  color: #92400e !important;            /* amber-800 */
+  border-color: #fcd34d !important;     /* amber-300 */
+}
+:root[data-theme="light"] .net-toggle[aria-pressed="false"] {
+  background-color: transparent !important;
+  color: rgba(24, 24, 27, 0.45) !important;
+  border-color: transparent !important;
+}
+
 /* 8) Overrides specifically for the strategy detail dialogs which have hardcoded #0f0a1f */
 :root[data-theme="light"] [class*="bg-[#0f0a1f]"] {
   background-color: #ffffff !important;
@@ -155,6 +202,8 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  /* Altura del aviso de red (TestnetBanner); 0 cuando está cerrado. */
+  padding-top: var(--banner-h, 0px);
 }
 
 /* State of Art Glassmorphism Class */
@@ -310,4 +359,33 @@ body {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* 15-nov-2026: the chat button sat on top of the open mobile menu and hid its items.
+   Navbar sets <html data-mobile-menu="open"> only while that menu is open (below lg). */
+html[data-mobile-menu="open"] .nirium-chat {
+  display: none !important;
+}
+
+/* 15-nov-2026 (option c): height of the fixed bars above the navbar (market ticker 2.25rem +
+   network notice --banner-h). Same value as before by default, so desktop is unchanged.
+   Below lg, once the page is scrolled (TopChromeAutoHide sets data-chrome="collapsed"), both
+   bars slide away and the navbar moves to the top. */
+:root {
+  --top-chrome: calc(2.25rem + var(--banner-h, 0px));
+}
+.nirium-ticker,
+.nirium-netbanner {
+  transition: transform 200ms ease;
+}
+@media (max-width: 1023.98px) {
+  html[data-chrome="collapsed"] {
+    --top-chrome: 0px;
+  }
+  html[data-chrome="collapsed"] .nirium-ticker {
+    transform: translateY(-100%);
+  }
+  html[data-chrome="collapsed"] .nirium-netbanner {
+    transform: translateY(calc(-100% - 2.25rem));
+  }
 }

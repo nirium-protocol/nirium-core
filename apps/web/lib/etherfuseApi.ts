@@ -1,5 +1,5 @@
 /**
- * Etherfuse client — thin wrapper around our server-side proxy at /api/etherfuse.
+ * Etherfuse client - thin wrapper around our server-side proxy at /api/etherfuse.
  *
  * The Etherfuse API key is server-only (ETHERFUSE_API_KEY). This file runs in the
  * browser and must NEVER hold the key directly. All requests go through the proxy.
@@ -11,7 +11,7 @@ export const CETES_ASSET = {
     code: 'CETES',
     name: 'Etherfuse CETES',
     issuer: 'GC3CW7EDYRTWQ635VDIGY6S4ZUF5L6TQ7AA4MWS7LEQDBLUSZXV7UPS4',
-    description: 'Mexican Federal Treasury Certificates — short-term government bonds tokenized by Etherfuse.',
+    description: 'Mexican Federal Treasury Certificates - short-term government bonds tokenized by Etherfuse.',
 } as const;
 
 interface GenerateOnboardingUrlParams {

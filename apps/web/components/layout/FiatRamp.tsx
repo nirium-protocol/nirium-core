@@ -4,20 +4,26 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, DollarSign, Wallet, CheckCircle, Loader2, ArrowDown, ExternalLink, Shield } from 'lucide-react';
 import { useLanguage } from "@/context/LanguageContext";
 
+// 8-nov-2026: todo este flujo corre contra el SANDBOX de Etherfuse (precio y TVL en
+// vivo coinciden con api.sand.etherfuse.com, no con producción). Los textos lo dicen
+// y ya no prometen lo que el sandbox no hace: nada se "firma", no hay "bóveda" de
+// destino (los CETES van a la dirección que se escribe) y el "éxito" solo aparece si
+// el simulador de Etherfuse de verdad respondió bien.
+const STELLAR_ACCOUNT = /^G[A-Z2-7]{55}$/;
+
 export default function FiatRamp() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const lang = (en: string, es: string) => (language === 'es' ? es : en);
     const [amount, setAmount] = useState<string>('500');
     const [walletAddress, setWalletAddress] = useState<string>('');
     const [selectedBond, setSelectedBond] = useState<string>('CETES');
     const [status, setStatus] = useState<'idle' | 'onboarding' | 'kyc_pending' | 'quoting' | 'quoted' | 'ordering' | 'wiring' | 'success'>('idle');
 
-    // ref_rate/fiat son datos aparte: ref_rate es una referencia FIJA de jun-2026
-    // (app.etherfuse.com/b/cetes), no una lectura en vivo — tvl/cost eran un snapshot fijo que se quedó congelado y
-    // terminó desalineado ~5.4x contra el TVL real. Se reemplazan con el
-    // fetch en vivo de abajo; nunca mostrar un número fijo con pinta de dato
-    // en vivo.
+    // Sin tasa fija: la referencia de jun-2026 (5.57%) se quitó el 8-nov-2026, igual que
+    // en /treasury. Lo que se muestra es el precio y el TVL que Etherfuse devuelve en
+    // vivo desde el mismo ambiente donde se ejecutan las órdenes (sandbox hoy).
     const BONDS = [
-        { id: 'CETES', name: 'CETES', ref_rate: '5.57%', fiat: 'MXN' }
+        { id: 'CETES', name: 'CETES', fiat: 'MXN' }
     ];
     const [liveLookup, setLiveLookup] = useState<Record<string, { tvl: string; cost: string }>>({});
     useEffect(() => {
@@ -39,7 +45,7 @@ export default function FiatRamp() {
                     },
                 }));
             } catch {
-                // Sandbox/red caída — se deja sin dato en vez de mostrar un número viejo.
+                // Entorno de pruebas o red caída - se deja sin dato en vez de mostrar un número viejo.
             }
         });
         return () => { cancelled = true; };
@@ -55,11 +61,11 @@ export default function FiatRamp() {
     const [depositAccountHolder, setDepositAccountHolder] = useState<string>('');
 
     const handleGetQuote = async (_overrideCustomerId?: string) => {
-        if (!amount || isNaN(Number(amount)) || Number(amount) > 10000) {
+        if (!amount || isNaN(Number(amount)) || Number(amount) < 1 || Number(amount) > 10000) {
             setError(t.ramp.component.errors.amount);
             return;
         }
-        if (!walletAddress) {
+        if (!STELLAR_ACCOUNT.test(walletAddress.trim())) {
             setError(t.ramp.component.errors.wallet);
             return;
         }
@@ -94,7 +100,11 @@ export default function FiatRamp() {
                 return;
             }
 
-            if (data.error) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
+            if (data.error) {
+                const detail = data.details?.error || data.details?.message;
+                const code = data.status ?? res.status;
+                throw new Error(`${typeof data.error === 'string' ? data.error : JSON.stringify(data.error)} (HTTP ${code})${detail ? `: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}` : ''}`);
+            }
 
             setQuote(data);
             setStatus('quoted');
@@ -132,16 +142,21 @@ export default function FiatRamp() {
             setDepositAccountHolder(onramp.depositAccountHolder || onramp.accountHolder || '');
             setStatus('wiring');
 
+            // Antes marcaba "éxito" aunque la simulación fallara (también en el catch).
             setTimeout(async () => {
                 try {
-                    await fetch('/api/etherfuse', {
+                    const sim = await fetch('/api/etherfuse', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action: 'simulate_fiat', orderId: data.orderId || data.id || data.order_id })
                     });
+                    if (!sim.ok) throw new Error(String(sim.status));
                     setStatus('success');
-                } catch (simErr) {
-                    setStatus('success');
+                } catch {
+                    setError(lang(
+                        "Etherfuse's sandbox did not confirm the simulated transfer. The order exists at Etherfuse; try a new quote.",
+                        'El sandbox de Etherfuse no confirmó la transferencia simulada. La orden existe en Etherfuse; pide una nueva cotización.'));
+                    setStatus('idle');
                 }
             }, 3000);
 
@@ -164,12 +179,17 @@ export default function FiatRamp() {
                         <h2 className="text-xl font-black bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent uppercase italic tracking-tighter">{t.ramp.component.title}</h2>
                         <div className="flex items-center gap-2 mt-1">
                             <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">{t.ramp.component.powered_by}</p>
-                            <div className="pl-2 border-l border-white/10 flex items-center gap-1.5">
-                                <Shield size={10} className="text-emerald-500/50" />
-                                <span className="text-[8px] font-mono text-emerald-500/50 uppercase tracking-widest">{t.ramp.component.legal.ethics_aligned}</span>
-                            </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Opción A (8-nov-2026): la demo ordena con la cuenta de pruebas de Nirium en
+                    Etherfuse; se dice aquí, antes de que alguien escriba nada. La ruta
+                    /api/etherfuse se niega a cotizar u ordenar fuera del sandbox. */}
+                <div className="mb-5 rounded-lg border border-amber-400/25 bg-amber-400/[0.05] px-3 py-2.5 text-[11px] leading-relaxed text-amber-300/90">
+                    {lang(
+                        "Demo on Etherfuse's sandbox: in this test the quote and the order are placed with Nirium's test account at Etherfuse, and no real money moves. In real use, each person opens their own account at Etherfuse and orders there; Nirium only shows the instructions and reads the resulting balance.",
+                        'Demo en el sandbox de Etherfuse: en esta prueba la cotización y la orden se hacen con la cuenta de pruebas de Nirium en Etherfuse, y no se mueve dinero real. En uso real, cada persona abre su propia cuenta en Etherfuse y ordena ahí; Nirium solo muestra las instrucciones y lee el saldo que llega.')}
                 </div>
 
                 {error && (
@@ -192,10 +212,12 @@ export default function FiatRamp() {
                                         >
                                             <div className="flex justify-between items-start mb-1">
                                                 <span className={`font-black text-sm ${selectedBond === b.id ? 'text-emerald-400' : 'text-white'}`}>{b.name}</span>
-                                                <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-1.5 py-0.5 rounded">{b.ref_rate} fixed ref. (Jun 2026)</span>
+                                                <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-1.5 py-0.5 rounded">{lang('Etherfuse sandbox', 'Sandbox de Etherfuse')}</span>
                                             </div>
-                                            <div className="text-[10px] text-gray-500 font-mono mb-1" title="Etherfuse market TVL, not Nirium's">Etherfuse market TVL: {liveLookup[b.id]?.tvl ?? '…'}</div>
-                                            <div className="text-[10px] text-gray-400 font-mono">Cost: {liveLookup[b.id]?.cost ?? '…'}</div>
+                                            <div className="text-[10px] text-gray-400 font-mono mb-1">{lang('Token price in the sandbox', 'Precio del token en el sandbox')}: {liveLookup[b.id]?.cost ?? '…'}</div>
+                                            <div className="text-[10px] text-gray-500 font-mono">{/* 12-nov-2026: este TVL es el que devuelve api.sand.etherfuse.com, no el mercado real de
+                                                Etherfuse (el precio de producción ese día era MX$1.19107, el del sandbox MX$1.14907). */}
+                                            {lang("TVL in Etherfuse's test environment - not real money, not Nirium's", 'TVL en el ambiente de pruebas de Etherfuse - no es dinero real ni de Nirium')}: {liveLookup[b.id]?.tvl ?? '…'}</div>
                                         </button>
                                     ))}
                                 </div>
@@ -287,7 +309,10 @@ export default function FiatRamp() {
                                 </div>
                                 <div className="pt-2 mt-2 border-t border-white/10 flex justify-between">
                                     <span className="text-xs text-gray-500">{t.ramp.component.quote.rate}: 1 {selectedBond} = {(parseFloat(quote.exchangeRate) || 1).toFixed(4)} {BONDS.find(b => b.id === selectedBond)?.fiat}</span>
-                                    <span className="text-xs text-gray-500">{t.ramp.component.quote.expires}</span>
+                                    {/* Antes decía siempre "expira en 2m", sin dato que lo respaldara. */}
+                                    {quote.expiresAt && (
+                                        <span className="text-xs text-gray-500">{lang('Expires', 'Expira')}: {new Date(quote.expiresAt).toLocaleTimeString()}</span>
+                                    )}
                                 </div>
                             </div>
 
@@ -320,15 +345,15 @@ export default function FiatRamp() {
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
                                         <span className="text-xs text-gray-500">{t.ramp.component.wiring.clabe}</span>
-                                        <span className="font-mono text-sm text-white font-bold tracking-wider">{depositClabe || '—'}</span>
+                                        <span className="font-mono text-sm text-white font-bold tracking-wider">{depositClabe || '-'}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-xs text-gray-500">{t.ramp.component.wiring.bank}</span>
-                                        <span className="text-sm text-gray-300">{depositBankName || '—'}</span>
+                                        <span className="text-sm text-gray-300">{depositBankName || '-'}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-xs text-gray-500">{t.ramp.component.wiring.beneficiary}</span>
-                                        <span className="text-sm text-gray-300">{depositAccountHolder || '—'}</span>
+                                        <span className="text-sm text-gray-300">{depositAccountHolder || '-'}</span>
                                     </div>
                                     <div className="flex justify-between items-center pt-2 border-t border-white/10">
                                         <span className="text-xs text-gray-500">{t.ramp.component.wiring.amount}</span>
@@ -357,7 +382,7 @@ export default function FiatRamp() {
                 </AnimatePresence>
             </div>
 
-            {/* Institutional Compliance & Legal Footer */}
+            {/* Enlaces de Etherfuse: es su KYC, su custodia y sus términos, no los de Nirium. */}
             <div className="mt-12 pt-8 border-t border-white/5 grid grid-cols-2 lg:grid-cols-4 gap-8 text-[10px] text-gray-500 max-w-3xl mx-auto px-4">
                 <div className="flex flex-col space-y-2.5">
                     <span className="font-black text-gray-400 mb-2 uppercase tracking-widest">{t.ramp.component.legal.infrastructure}</span>

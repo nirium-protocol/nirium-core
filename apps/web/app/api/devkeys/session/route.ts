@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 }
 
-// GET → estado de la sesión para la UI (no valida la firma del JWT — eso lo
+// GET → estado de la sesión para la UI (no valida la firma del JWT - eso lo
 // hace el agente en cada uso; aquí solo se lee identidad y expiración).
 export async function GET(req: NextRequest) {
     const token = req.cookies.get(SESSION_COOKIE)?.value;

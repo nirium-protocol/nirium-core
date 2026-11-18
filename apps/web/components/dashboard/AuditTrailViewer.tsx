@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ExternalLink, Search, RefreshCw, FileCheck, Clock, Hash, ChevronDown, ChevronUp } from 'lucide-react';
+import Link from 'next/link';
+import { Shield, ExternalLink, Search, RefreshCw, FileCheck, Clock, Hash, ChevronDown, ChevronUp, ShieldCheck } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { rawGatewayUrl } from '@/lib/auditVerify';
 
 interface AuditEntry {
     id: string;
@@ -29,6 +32,8 @@ interface ExpandedPayload {
 }
 
 export default function AuditTrailViewer() {
+    const { language } = useLanguage();
+    const lang = (en: string, es: string) => (language === 'es' ? es : en);
     const [entries, setEntries] = useState<AuditEntry[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -83,12 +88,13 @@ export default function AuditTrailViewer() {
 
         try {
             // Read through our server-side proxy (the public gateway sends no CORS headers).
-            const res = await fetch(`/api/ipfs?cid=${encodeURIComponent(cid)}`, { signal: AbortSignal.timeout(12_000) });
+            // 25s: /api/ipfs prueba Filebase, Pinata, ipfs.io y dweb.link (6s cada uno) antes de rendirse.
+            const res = await fetch(`/api/ipfs?cid=${encodeURIComponent(cid)}`, { signal: AbortSignal.timeout(25_000) });
             if (!res.ok) throw new Error(`Gateway returned ${res.status}`);
             const data = await res.json();
             setExpandedCid({ cid, loading: false, data, error: null });
         } catch (err: any) {
-            setExpandedCid({ cid, loading: false, data: null, error: err.message || 'Failed to fetch from IPFS gateway' });
+            setExpandedCid({ cid, loading: false, data: null, error: err.message || lang('Could not read it from IPFS', 'No se pudo leer desde IPFS') });
         }
     };
 
@@ -105,7 +111,7 @@ export default function AuditTrailViewer() {
                         <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                             <span className="text-[10px] text-emerald-500/80 font-mono font-medium tracking-wide">
-                                IPFS_PINATA // {total} RECORDS
+                                IPFS_PINATA // {total} {lang("NIRIUM'S OWN", 'PROPIOS DE NIRIUM')}
                             </span>
                         </div>
                     </div>
@@ -127,7 +133,7 @@ export default function AuditTrailViewer() {
                         type="text"
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        placeholder="Search by CID, agent, or message..."
+                        placeholder={lang('Search by CID, agent, or message...', 'Busca por CID, agente o mensaje...')}
                         className="w-full bg-black/40 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-white font-mono placeholder:text-white/20 focus:border-emerald-500/40 outline-none transition-colors"
                     />
                 </div>
@@ -149,7 +155,7 @@ export default function AuditTrailViewer() {
                             className="flex flex-col items-center justify-center py-16 space-y-3"
                         >
                             <RefreshCw className="w-8 h-8 text-white/20 animate-spin" />
-                            <p className="text-[11px] font-mono text-white/40 uppercase tracking-widest">Loading audit records...</p>
+                            <p className="text-[11px] font-mono text-white/40 uppercase tracking-widest">{lang('Loading audit records...', 'Cargando registros...')}</p>
                         </motion.div>
                     ) : filteredEntries.length === 0 ? (
                         <motion.div
@@ -160,9 +166,16 @@ export default function AuditTrailViewer() {
                             <div className="w-12 h-12 rounded-full border border-dashed border-white/20 flex items-center justify-center">
                                 <FileCheck className="w-5 h-5 text-white/30" />
                             </div>
-                            <p className="text-[11px] font-mono text-white/40 uppercase tracking-widest">No audit records found</p>
-                            <p className="text-[10px] text-white/20 max-w-[240px] text-center">
-                                IPFS audit logs are generated every 5 minutes by the autonomous agent.
+                            <p className="text-[11px] font-mono text-white/40 uppercase tracking-widest">{lang('No public anchors to list', 'No hay anclajes públicos que listar')}</p>
+                            {/* Desde el 8-nov-2026 /api/audit ya no lista anclajes de socios ni
+                                recibos de Payouts (lib/privateAnchors), así que hoy este estado es
+                                lo normal, no un error. */}
+                            <p className="text-[10px] text-white/30 max-w-[280px] text-center leading-relaxed">
+                                {lang(
+                                    "Only Nirium's own anchors are listed here. Anchors made for partners or clients stay private: whoever anchored one keeps its CID and can check it at ",
+                                    'Aquí solo se listan los anclajes propios de Nirium. Los que se hacen para socios o clientes son privados: quien ancló guarda su CID y lo puede revisar en ',
+                                )}
+                                <Link href="/verify" className="text-emerald-400/80 hover:text-emerald-300 underline">/verify</Link>.
                             </p>
                         </motion.div>
                     ) : (
@@ -187,12 +200,12 @@ export default function AuditTrailViewer() {
                                                     {entry.cid}
                                                 </span>
                                                 <a
-                                                    href={entry.gateway_url}
+                                                    href={rawGatewayUrl(entry.cid)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     onClick={e => e.stopPropagation()}
                                                     className="flex-shrink-0 p-1 rounded hover:bg-emerald-500/10 transition-colors"
-                                                    title="View on IPFS Gateway"
+                                                    title={lang('Open the raw JSON on IPFS', 'Abrir el JSON en IPFS')}
                                                 >
                                                     <ExternalLink className="w-3 h-3 text-emerald-400/60" />
                                                 </a>
@@ -248,7 +261,7 @@ export default function AuditTrailViewer() {
                                                     {expandedCid.loading ? (
                                                         <div className="flex items-center gap-2 py-2">
                                                             <RefreshCw className="w-3 h-3 text-emerald-400 animate-spin" />
-                                                            <span className="text-[10px] font-mono text-white/40">Fetching from IPFS gateway...</span>
+                                                            <span className="text-[10px] font-mono text-white/40">{lang('Reading from IPFS...', 'Leyendo desde IPFS...')}</span>
                                                         </div>
                                                     ) : expandedCid.error ? (
                                                         <div className="text-[10px] font-mono text-red-400/80 py-1">
@@ -260,17 +273,24 @@ export default function AuditTrailViewer() {
                                                         </pre>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center justify-between mt-2">
-                                                    <span className="text-[9px] font-mono text-white/20">
-                                                        SHA-256 verified // Pinata Gateway
-                                                    </span>
+                                                {/* Antes: "SHA-256 verified // Pinata Gateway". Este panel solo muestra
+                                                    el JSON: no recalcula ningún hash ni revisa la firma, y ya no lee
+                                                    primero de Pinata. Esa revisión la hace /verify. */}
+                                                <div className="flex items-center justify-between gap-3 mt-2 flex-wrap">
+                                                    <Link
+                                                        href={`/verify?cid=${encodeURIComponent(entry.cid)}`}
+                                                        className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                                                    >
+                                                        <ShieldCheck className="w-3 h-3" />
+                                                        {lang('Verify this CID', 'Verificar este CID')} →
+                                                    </Link>
                                                     <a
-                                                        href={entry.gateway_url}
+                                                        href={rawGatewayUrl(entry.cid)}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-[9px] font-mono text-emerald-400/60 hover:text-emerald-400 transition-colors"
                                                     >
-                                                        Open in new tab
+                                                        {lang('Open in new tab', 'Abrir en otra pestaña')}
                                                     </a>
                                                 </div>
                                             </div>
@@ -287,10 +307,12 @@ export default function AuditTrailViewer() {
             {filteredEntries.length > 0 && (
                 <div className="px-5 py-3 border-t border-white/5 bg-white/[0.02] flex items-center justify-between">
                     <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">
-                        Showing {filteredEntries.length} of {total} records
+                        {lang(`Showing ${filteredEntries.length} of ${total} records`, `Mostrando ${filteredEntries.length} de ${total} registros`)}
                     </span>
+                    {/* Antes: "Daily digest // one anchored document per UTC day". La lista es cualquier
+                        anclaje que aparezca en los logs, de testnet y mainnet; la red va dentro del JSON. */}
                     <span className="text-[9px] font-mono text-white/20">
-                        Daily digest // one anchored document per UTC day, covering the day confirmed executions
+                        {lang("Only Nirium's own anchors are listed. Anchors made by others stay with whoever made them - look one up at /verify.", 'Solo se listan los anclajes propios de Nirium. Los que hacen otros se quedan con quien los hizo: búscalos en /verify.')}
                     </span>
                 </div>
             )}

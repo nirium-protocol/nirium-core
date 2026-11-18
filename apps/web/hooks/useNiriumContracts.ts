@@ -2,7 +2,7 @@
 
 /**
  * ═══════════════════════════════════════════════════════
- * Nirium — React Hook: useNiriumContracts
+ * Nirium - React Hook: useNiriumContracts
  * ═══════════════════════════════════════════════════════
  *
  * Provides easy access to all 3 Soroban contracts from

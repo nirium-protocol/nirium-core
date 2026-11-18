@@ -42,7 +42,7 @@ export async function uploadToStorage(data: any): Promise<StorageResult> {
         } else if (result.alreadyCertified?.blobId) {
             blobId = result.alreadyCertified.blobId;
         } else {
-            // Protocol Archive testnet may be unstable — use deterministic mock ID
+            // Protocol Archive testnet may be unstable - use deterministic mock ID
             console.warn('[storage] Could not parse Protocol Archive response, using simulated blob ID.');
             const simId = `blob_${Math.random().toString(36).substring(2, 9)}`;
             return { blobId: simId, url: '#', simulated: true };

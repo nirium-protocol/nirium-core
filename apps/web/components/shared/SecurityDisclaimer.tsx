@@ -20,14 +20,14 @@ export default function SecurityDisclaimer() {
                     </h3>
                     <p className="text-white/50 text-xs leading-relaxed max-w-3xl">
                         {lang(
-                            "Non-custodial nodes (settlement, audit, reporting) run on mainnet without holding funds. Payouts also runs on mainnet, invite-only until we have a written legal opinion. The treasury vault has not yet undergone a formal third-party audit and remains testnet-only until one is completed.",
-                            "Los nodos non-custodial (liquidación, auditoría, reportería) corren en mainnet sin custodiar fondos. Payouts también corre en mainnet, solo por invitación hasta tener una opinión legal por escrito. El vault de tesorería todavía no ha sido sometido a una auditoría formal de un tercero y permanece solo-testnet hasta que se complete una."
+                            "Non-custodial nodes (settlement, audit, reporting) run on mainnet without holding funds. Payouts also runs on mainnet, invite-only until we have a written legal opinion. Treasury rebalancing runs on mainnet over DeFindex vaults (third-party, already audited), invite-only. NiriumVault, Nirium's own vault contract, has not yet undergone a formal third-party audit and stays on testnet until one is completed.",
+                            "Los nodos no custodiales (liquidación, auditoría, reportes) corren en mainnet sin custodiar fondos. Payouts también corre en mainnet, solo por invitación hasta tener una opinión legal por escrito. El rebalanceo de tesorería corre en mainnet sobre bóvedas de DeFindex (de terceros, ya auditadas), solo por invitación. NiriumVault, el contrato de bóveda propio de Nirium, todavía no tiene una auditoría formal de un tercero y sigue solo en testnet hasta que se complete una."
                         )}
                     </p>
                 </div>
                 <div className="flex items-center gap-2 text-[10px] font-mono text-white/30 whitespace-nowrap">
                     <AlertCircle className="w-3 h-3" />
-                    {lang("VAULT: TESTNET ONLY", "VAULT: SOLO TESTNET")}
+                    {lang("NIRIUMVAULT: TESTNET ONLY", "NIRIUMVAULT: SOLO TESTNET")}
                 </div>
             </div>
         </div>

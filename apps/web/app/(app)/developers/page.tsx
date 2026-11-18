@@ -1,6 +1,7 @@
-/** Nirium Developers — SDK + x402 + MPP + MCP server **/
+/** Nirium Developers - SDK + x402 + MPP + MCP server **/
 'use client';
 
+import { trackFunnel } from "@/lib/attribution";
 import Link from "next/link";
 import {
     Code2, Terminal, Zap, ArrowRight, CheckCircle2,
@@ -12,6 +13,8 @@ import { ComplianceBanner } from "@/components/ui/ComplianceBanner";
 import { PollarPayCard } from "@/components/shared/PollarPayCard";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
+import { useNetwork } from "@/context/NetworkContext";
+import NetworkScopeNote from "@/components/shared/NetworkScopeNote";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
@@ -28,7 +31,7 @@ function CodeBlock({ code, lang: langLabel = "typescript" }: { code: string; lan
                 <div className="flex items-center gap-4">
                     <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">{langLabel}</span>
                     <button
-                        onClick={() => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                        onClick={() => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); trackFunnel("docs_copy", { source: "developers", lang: langLabel }); }}
                         className="flex items-center gap-1.5 text-[10px] text-stellar-teal opacity-50 group-hover:opacity-100 transition-opacity"
                     >
                         <Copy className="w-3 h-3" />
@@ -52,7 +55,7 @@ const agent = new Agent({
   baseUrl: "https://nirium-agent.fly.dev",
 });
 
-// Live market data — rates attributed to their source
+// Live market data - rates attributed to their source
 const market = await agent.getMarket();
 
 // The node catalog: what runs, on which network
@@ -63,25 +66,27 @@ const { cid } = await agent.anchorAuditRecord({ hash: "<sha256>" });`;
 
 const X402_CODE = `import { Agent } from "nirium";
 
-const agent = new Agent({ baseUrl: "https://nirium-agent-mainnet.fly.dev" });
+const agent = new Agent({ baseUrl: "https://nirium-agent.fly.dev" });
 
-// PAY for someone else's API. The 402, the signature and the retry
-// happen underneath — you just await a fetch.
+// PAY for an x402 API. The 402, the signature and the retry
+// happen underneath - you just await a fetch.
 agent.initX402({
-  secretKey: process.env.STELLAR_SECRET_KEY,   // or { signer } from a wallet
-  network: "stellar:pubnet",
+  secretKey: process.env.STELLAR_SECRET_KEY,   // testnet key with test USDC
+  network: "stellar:testnet",
 });
 
+// Nirium's own test endpoint: 0.05 test USDC on testnet.
 const res = await agent.x402Fetch(
-  "https://nirium-agent-mainnet.fly.dev/api/v1/premium/market",   // $0.05 USDC
+  "https://nirium-agent.fly.dev/api/v1/premium/market",
 );
 const data = await res.json();
 
 // ─────────────────────────────────────────────────────────────
 // CHARGE for YOUR OWN API. Same rail, other side of the counter.
 // Funds go payer → you. They never touch Nirium.
-// Third-party facilitator use is invite-only until we have a written legal opinion —
-// same gate as Treasury and Payouts. Request access before integrating.
+// Start on testnet. Third-party mainnet use is not something we promote
+// until we have a written legal opinion; compliance is the integrator's own
+// responsibility.
 import { x402Serve } from "nirium";
 
 app.use("/premium", x402Serve({
@@ -94,30 +99,39 @@ const MPP_CODE = `import { Agent } from "nirium";
 
 // MPP Charge client (experimental): the server answers 402 with a challenge,
 // the client signs a full USDC transfer and retries. No external facilitator.
-// Nirium's hosted endpoints are not accepting MPP payments right now, so point
-// this at your own MPP Charge server. For paid access to Nirium, use x402.
+// Nirium's hosted testnet endpoint accepts MPP Charge (verified 15 Oct 2026).
+// Mainnet is not tested; for paid access on mainnet, use x402.
 const agent = new Agent({ apiKey: "unused" });
-agent.initMpp({ secretKey: process.env.STELLAR_SECRET_KEY, mode: "pull" });
+agent.initMpp({ secretKey: process.env.STELLAR_SECRET_KEY, mode: "pull" }); // testnet key with USDC
 
-const res = await agent.mppFetch("https://your-mpp-server.example/resource");
+const res = await agent.mppFetch("https://nirium-agent.fly.dev/api/v1/mpp/signals");
 `;
 
-const MCP_CODE = `// Claude Desktop config (~/.claude/claude_desktop_config.json)
+// 9-nov-2026: antes faltaba AGENT_API_URL y el MCP caía a 127.0.0.1:3002 (su default),
+// así que copiar este bloque dejaba todas las herramientas sin nodo. La ruta del
+// archivo también estaba mal. Mismo bloque que el README de nirium-mcp 0.6.4.
+const MCP_CODE = `// Claude Desktop: claude_desktop_config.json
+//   macOS:   ~/Library/Application Support/Claude/
+//   Windows: %APPDATA%\\Claude\\
 {
   "mcpServers": {
     "nirium": {
       "command": "npx",
       "args": ["-y", "nirium-mcp"],
       "env": {
-        "NIRIUM_API_KEY": "your_key_here"
+        "AGENT_API_URL": "https://nirium-agent.fly.dev",
+        "NIRIUM_API_KEY": "sk_free_...",
+        "STELLAR_SECRET_KEY": "S..."
       }
     }
   }
-}`;
+}
+// NIRIUM_API_KEY and STELLAR_SECRET_KEY are optional: free tools work
+// without them. Use a testnet key with test USDC for paid tools.`;
 
 // Cada ruta de esta tabla existe y fue probada contra la API viva: 200 donde es
 // pública, 401 donde pide credencial, 402 donde pide pago x402, 400 donde faltan
-// parámetros — ninguna 404. La tabla anterior listaba `/v1/vault/*`,
+// parámetros - ninguna 404. La tabla anterior listaba `/v1/vault/*`,
 // `/v1/x402/*` y `/v1/compliance/*`, que nunca existieron: copiar cualquiera de
 // esas filas devolvía 404 en la página que un desarrollador abre primero.
 const ENDPOINTS = [
@@ -127,59 +141,74 @@ const ENDPOINTS = [
     { method: 'GET',  path: '/api/tickers',               desc_en: 'CETES + Blend reference rates',           desc_es: 'Tasas de referencia CETES + Blend' },
     { method: 'GET',  path: '/api/nodes',                 desc_en: 'Execution Node catalog (status + custody)', desc_es: 'Catálogo de Execution Nodes (estado + custodia)' },
     { method: 'GET',  path: '/api/loop/status',           desc_en: 'Autonomous loop state + last decision',   desc_es: 'Estado del loop autónomo + última decisión' },
-    { method: 'POST', path: '/api/execute-demo',          desc_en: 'Run a demo rebalance — no key required',  desc_es: 'Corre un rebalanceo demo — sin llave' },
+    { method: 'POST', path: '/api/execute-demo',          desc_en: 'Run a demo rebalance - no key required',  desc_es: 'Corre un rebalanceo demo - sin llave' },
 
     // Auth
     { method: 'POST', path: '/api/auth/token',            desc_en: 'Exchange credentials for a JWT',          desc_es: 'Cambia credenciales por un JWT' },
     { method: 'POST', path: '/api/auth/keys',             desc_en: 'Issue an API key (also GET / DELETE)',    desc_es: 'Emite una API key (también GET / DELETE)' },
 
-    // x402 — pago por request. signals/execute son testnet-only por diseño
+    // x402 - pago por request. signals/execute son testnet-only por diseño
     // (necesitan el loop autónomo / una llave firmante; el box de mainnet no
-    // tiene ninguna de las dos) — ver X402_CODE arriba y el FAQ de /pricing.
+    // tiene ninguna de las dos) - ver X402_CODE arriba y el FAQ de /pricing.
     // Sin el "(testnet only)" aquí, la tabla vendía dos rutas que en mainnet
     // responden 501 como si fueran igual de reales que market.
-    { method: 'GET',  path: '/api/v1/premium/signals',    desc_en: 'Premium signals — $0.02 USDC (x402, testnet only)',     desc_es: 'Señales premium — $0.02 USDC (x402, solo testnet)' },
-    { method: 'GET',  path: '/api/v1/premium/market',     desc_en: 'Enriched market state — $0.05 USDC (x402, mainnet + testnet)', desc_es: 'Estado de mercado — $0.05 USDC (x402, mainnet + testnet)' },
-    { method: 'POST', path: '/api/v1/premium/execute',    desc_en: 'Paid strategy execution — $0.25 USDC (x402, testnet only)', desc_es: 'Ejecución pagada — $0.25 USDC (x402, solo testnet)' },
+    { method: 'GET',  path: '/api/v1/premium/signals',    desc_en: 'Premium signals - $0.02 USDC (x402, testnet only)',     desc_es: 'Señales premium - $0.02 USDC (x402, solo testnet)' },
+    { method: 'GET',  path: '/api/v1/premium/market',     desc_en: 'Enriched market state - $0.05 USDC (x402, mainnet + testnet)', desc_es: 'Estado de mercado - $0.05 USDC (x402, mainnet + testnet)' },
+    { method: 'POST', path: '/api/v1/premium/execute',    desc_en: 'Paid strategy execution - $0.25 USDC (x402, testnet only)', desc_es: 'Ejecución pagada - $0.25 USDC (x402, solo testnet)' },
 
-    // MPP Charge — mismo patrón: signals/execute 501 en el box de mainnet
+    // MPP Charge - mismo patrón: signals/execute 501 en el box de mainnet
     // (verificado en vivo), solo market corre en las dos redes.
-    { method: 'GET',  path: '/api/v1/mpp/signals',        desc_en: 'Premium signals — $0.02 USDC per call (testnet only; not accepting MPP payments right now)',  desc_es: 'Señales premium — $0.02 USDC por llamada (solo testnet; sin aceptar pagos MPP por ahora)' },
-    { method: 'GET',  path: '/api/v1/mpp/market',         desc_en: 'Enriched market state — $0.05 USDC (not accepting MPP payments right now)',     desc_es: 'Estado de mercado enriquecido — $0.05 USDC (sin aceptar pagos MPP por ahora)' },
-    { method: 'POST', path: '/api/v1/mpp/execute',        desc_en: 'Paid strategy execution — $0.25 USDC (testnet only; not accepting MPP payments right now)',   desc_es: 'Ejecución de estrategia pagada — $0.25 USDC (solo testnet; sin aceptar pagos MPP por ahora)' },
+    // signals y execute de MPP responden 501 en el nodo de mainnet (revisado 9-nov-2026), igual que en x402.
+    { method: 'GET',  path: '/api/v1/mpp/signals',        desc_en: 'Premium signals - $0.02 USDC per call (testnet only; verified 15 Oct 2026)',  desc_es: 'Señales premium - $0.02 USDC por llamada (solo testnet; verificado el 15-oct-2026)' },
+    { method: 'GET',  path: '/api/v1/mpp/market',         desc_en: 'Enriched market state - $0.05 USDC (testnet: verified 15 Oct 2026 · mainnet: not tested)',     desc_es: 'Estado de mercado enriquecido - $0.05 USDC (testnet: verificado el 15-oct-2026 · mainnet: sin probar)' },
+    { method: 'POST', path: '/api/v1/mpp/execute',        desc_en: 'Paid strategy execution - $0.25 USDC (testnet only; implemented, not tested)',   desc_es: 'Ejecución de estrategia pagada - $0.25 USDC (solo testnet; implementado, sin probar)' },
     { method: 'GET',  path: '/api/v1/mpp/info',           desc_en: 'Active mode, routes and pricing',        desc_es: 'Modo activo, rutas y precios' },
 
     // Audit Trail
-    { method: 'POST', path: '/api/audit/log',             desc_en: 'Anchor a record to IPFS — optional agent signature', desc_es: 'Ancla un registro en IPFS — firma de agente opcional' },
+    { method: 'POST', path: '/api/audit/log',             desc_en: 'Anchor a record to IPFS - optional agent signature', desc_es: 'Ancla un registro en IPFS - firma de agente opcional' },
     { method: 'GET',  path: '/api/audit/info',            desc_en: 'Audit node metadata and limits',          desc_es: 'Metadatos y límites del nodo de auditoría' },
 
     // Reporting
     { method: 'GET',  path: '/api/reporting/summary',     desc_en: 'Consolidated summary by period and network', desc_es: 'Sumario consolidado por periodo y red' },
-    { method: 'GET',  path: '/api/reporting/export',      desc_en: 'Institutional-format export (CSV / JSON)', desc_es: 'Export en formato institucional (CSV / JSON)' },
+    { method: 'GET',  path: '/api/reporting/export',      desc_en: 'The rows behind the summary (CSV / JSON), no CIDs', desc_es: 'Las filas detrás del resumen (CSV / JSON), sin CIDs' },
 
     // Payouts
     { method: 'POST', path: '/api/payroll/run',          desc_en: 'Build a batch payout (unsigned XDR)',   desc_es: 'Arma un pago batch (XDR sin firmar)' },
     { method: 'POST', path: '/api/payroll/submit',       desc_en: 'Broadcast company-signed payout',       desc_es: 'Transmite el pago firmado por la empresa' },
     { method: 'POST', path: '/api/payroll/onboard',      desc_en: 'Add a USDC trustline (self-signed)',    desc_es: 'Agrega trustline USDC (self-signed)' },
-    { method: 'GET',  path: '/api/payroll/runs',         desc_en: 'Payout history + IPFS/LCP receipts',    desc_es: 'Historial de pagos + recibos IPFS/LCP' },
+    { method: 'GET',  path: '/api/payroll/runs',         desc_en: 'Payout history: amount, recipient count, tx',    desc_es: 'Historial de pagos: monto, destinatarios, tx' },
 ];
 
+// Descripciones tomadas de nirium-mcp 0.6.4 (server.tool). Antes la lista tenía 11 de 25
+// y dejaba fuera anchor_audit_record, que es el producto principal.
 const MCP_TOOLS = [
-    { name: 'get_market_state',        desc_en: 'Get live tickers: XLM/USDC price, base fee, Blend supply rate', desc_es: 'Tasas en vivo: precio XLM/USDC, base fee y tasa de suministro de Blend' },
-    { name: 'get_loop_status',         desc_en: 'Check autonomous loop status, scan count, and uptime', desc_es: 'Estado del lazo autónomo: scans, uptime y telemetría' },
-    { name: 'start_loop',              desc_en: 'Start the autonomous market scanning loop (Auth)',      desc_es: 'Inicia el lazo autónomo de escaneo de mercado (Auth)' },
-    { name: 'stop_loop',               desc_en: 'Stop the autonomous market scanning loop (Auth)',       desc_es: 'Detiene el lazo autónomo de escaneo de mercado (Auth)' },
-    { name: 'execute_demo',            desc_en: 'Simulate a strategy via Soroban dry-run (Free)',        desc_es: 'Simula una estrategia vía Soroban dry-run (Gratis)' },
-    { name: 'get_premium_signals',     desc_en: 'Market signals from the autonomous loop, testnet only — factual data, not a recommendation ($0.02 USDC)',   desc_es: 'Señales del loop autónomo, solo testnet — datos, no recomendación ($0.02 USDC)' },
-    { name: 'get_premium_market',      desc_en: 'Market state with reference rates attributed to their source, via x402 ($0.05 USDC)',       desc_es: 'Estado de mercado con tasas de referencia y su fuente, vía x402 ($0.05 USDC)' },
-    { name: 'execute_paid_strategy',   desc_en: 'Execute strategy on-chain via x402, testnet only — needs a signing key the mainnet box does not hold ($0.25 USDC)',       desc_es: 'Ejecuta estrategia on-chain vía x402, solo testnet — necesita una llave firmante que el box de mainnet no tiene ($0.25 USDC)' },
-    { name: 'get_wallet_info',         desc_en: 'Show wallet address and session tools (Free)',          desc_es: 'Muestra la wallet y herramientas de la sesión (Gratis)' },
-    { name: 'get_mpp_signals',         desc_en: 'Premium signals via MPP, testnet only ($0.02 USDC). Not accepting payments right now',      desc_es: 'Señales premium vía MPP, solo testnet ($0.02 USDC). Sin aceptar pagos por ahora' },
-    { name: 'get_mpp_market',          desc_en: 'Enriched market state via MPP ($0.05 USDC). Not accepting payments right now',  desc_es: 'Estado de mercado enriquecido vía MPP ($0.05 USDC). Sin aceptar pagos por ahora' },
+    { name: 'anchor_audit_record',   desc_en: 'Anchor evidence to IPFS and get back a CID. Free', desc_es: 'Ancla evidencia en IPFS y regresa un CID. Gratis' },
+    { name: 'get_reporting_summary', desc_en: 'Summary of settled payouts, x402 receipts and IPFS anchors for a period', desc_es: 'Resumen de pagos liquidados, recibos x402 y anclajes en IPFS de un periodo' },
+    { name: 'get_nodes',             desc_en: 'Nirium nodes with live status, custody model and network. Free', desc_es: 'Nodos de Nirium con estado en vivo, modelo de custodia y red. Gratis' },
+    { name: 'get_market_state',      desc_en: 'XLM/USDC price, SDEX spread, base fee, Blend rate, CETES rate. Free', desc_es: 'Precio XLM/USDC, spread del SDEX, base fee, tasa de Blend y de CETES. Gratis' },
+    { name: 'get_premium_market',    desc_en: 'Market state with sourced reference rates, paid via x402 ($0.05 USDC). Data, not advice', desc_es: 'Estado de mercado con tasas y su fuente, pagado vía x402 ($0.05 USDC). Datos, no consejo' },
+    { name: 'get_treasury_info',     desc_en: 'What role Nirium holds on DeFindex vaults and what it cannot do. Free', desc_es: 'Qué rol tiene Nirium en las bóvedas de DeFindex y qué no puede hacer. Gratis' },
+    { name: 'get_treasury_vault',    desc_en: "A DeFindex vault's roles, assets and managed funds. Free", desc_es: 'Roles, activos y fondos de una bóveda de DeFindex. Gratis' },
+    { name: 'execute_demo',          desc_en: 'Dry-run a strategy via Soroban simulation, no real transaction. Free', desc_es: 'Simula una estrategia en Soroban, sin transacción real. Gratis' },
 ];
+
+
+// 9-nov-2026: los ejemplos siguen el switch TEST/MAIN. Precio leído en vivo ese día:
+// 0.05 USDC (500000) en los dos endpoints premium/market, stellar:testnet y stellar:pubnet.
+function forNetwork(code: string, isMain: boolean) {
+    if (!isMain) return code;
+    return code
+        .split('https://nirium-agent.fly.dev').join('https://nirium-agent-mainnet.fly.dev')
+        .split('"stellar:testnet"').join('"stellar:pubnet"')
+        .split('// testnet key with test USDC').join('// mainnet key with real USDC')
+        .split("// Nirium's own test endpoint: 0.05 test USDC on testnet.").join("// Nirium's own endpoint: 0.05 real USDC on mainnet.")
+        .split('Use a testnet key with test USDC for paid tools.').join('Paid tools spend real USDC on mainnet.');
+}
 
 export default function DevelopersPage() {
     const { t, language } = useLanguage();
+    const { network } = useNetwork();
+    const isMain = network === 'mainnet';
     const lang = (en: string, es: string) =>
         language === "es" ? es : en;
 
@@ -248,6 +277,9 @@ export default function DevelopersPage() {
 
                 <div className="max-w-5xl mx-auto px-6 mb-16">
                     <ComplianceBanner />
+                    <NetworkScopeNote className="mt-6"
+                        testnet={{ en: "Code examples point at the testnet agent (nirium-agent.fly.dev). Switch to MAIN in the menu for mainnet.", es: "Los ejemplos de código apuntan al agente de testnet (nirium-agent.fly.dev). Cambia a MAIN en el menú para mainnet." }}
+                        mainnet={{ en: "Code examples point at the mainnet agent (nirium-agent-mainnet.fly.dev) and spend real USDC. The contract list further down is testnet only.", es: "Los ejemplos de código apuntan al agente de mainnet (nirium-agent-mainnet.fly.dev) y gastan USDC real. La lista de contratos más abajo es solo de testnet." }} />
                 </div>
 
                 {/* QUICKSTART */}
@@ -258,10 +290,13 @@ export default function DevelopersPage() {
                                 {t.developers_page.quickstart.title}
                             </h2>
                             <p className="text-gray-500 font-mono text-sm uppercase tracking-widest">
-                                {t.developers_page.quickstart.subtitle}
+                                {isMain
+                                    ? lang('Read market data, list the nodes and anchor a receipt. Same code on mainnet with your API key; prices are on /pricing.',
+                                        'Lee datos de mercado, lista los nodos y ancla un recibo. El mismo código en mainnet con tu API key; los precios están en /pricing.')
+                                    : t.developers_page.quickstart.subtitle}
                             </p>
                         </div>
-                        <CodeBlock code={QUICKSTART_CODE} lang="typescript" />
+                        <CodeBlock code={forNetwork(QUICKSTART_CODE, isMain)} lang="typescript" />
                     </div>
                 </section>
 
@@ -285,18 +320,18 @@ export default function DevelopersPage() {
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-black uppercase italic text-white tracking-tight">{t.developers_page.agentic_payments.x402.title}</h3>
-                                        <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">Linux Foundation Standard</p>
+                                        <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">{lang('Open protocol', 'Protocolo abierto')}</p>
                                     </div>
                                 </div>
-                                <CodeBlock code={X402_CODE} lang="typescript" />
+                                <CodeBlock code={forNetwork(X402_CODE, isMain)} lang="typescript" />
                                 <div className="mt-6 flex items-center gap-4 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
-                                    <span className="px-2 py-0.5 rounded border border-white/10">No Custodian</span>
-                                    <span className="px-2 py-0.5 rounded border border-white/10">Atomic On-chain</span>
+                                    <span className="px-2 py-0.5 rounded border border-white/10">{lang('Non-custodial', 'No custodial')}</span>
+                                    <span className="px-2 py-0.5 rounded border border-white/10">{lang('Settles on-chain', 'Liquida en cadena')}</span>
                                 </div>
                                 <p className="mt-4 text-xs text-amber-300/80 leading-relaxed">
                                     {lang(
-                                        'Known limitation: x402Serve() verifies and settles the payment; it does not deduplicate a payment proof across requests or rate-limit callers. Add your own protection if you need either.',
-                                        'Limitación conocida: x402Serve() verifica y liquida el pago; no deduplica un comprobante entre peticiones ni limita la tasa de llamadas. Agrega tu propia protección si la necesitas.',
+                                        'Off by default: x402Serve() verifies and settles the payment, with no replay protection or rate limiting unless you pass guard: { store } (since nirium 0.15.0). With a store, a used payment proof cannot be replayed, and guard.rateLimit adds a per-IP limit. The design comes from a real integrator, TIA.',
+                                        'Apagado por defecto: x402Serve() verifica y liquida el pago, sin protección contra reuso del comprobante ni límite de llamadas, a menos que pases guard: { store } (desde nirium 0.15.0). Con un store, un comprobante ya usado no se puede reusar, y guard.rateLimit agrega un límite por IP. El diseño viene de un integrador real, TIA.',
                                     )}{' '}
                                     <a
                                         href="https://github.com/nirium-protocol/nirium/issues/91"
@@ -304,12 +339,12 @@ export default function DevelopersPage() {
                                         rel="noopener noreferrer"
                                         className="text-stellar-teal hover:underline"
                                     >
-                                        {lang('issue #91', 'issue #91')}
+                                        {lang('issue #91 (closed)', 'issue #91 (cerrado)')}
                                     </a>
                                 </p>
                                 {/* Vive junto al ejemplo de x402 y no en /keys: quien llega
                                     a /keys viene por credenciales, quien llega aquí viene a
-                                    decidir si esto sirve — y un pago que ocurre de verdad
+                                    decidir si esto sirve - y un pago que ocurre de verdad
                                     convence más que el bloque de código de arriba. */}
                                 <PollarPayCard lang={lang} />
                             </div>
@@ -321,23 +356,27 @@ export default function DevelopersPage() {
                                     </div>
                                     <div>
                                         <h3 className="text-xl font-black uppercase italic text-white tracking-tight">{t.developers_page.agentic_payments.mpp.title}</h3>
-                                        <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">Stripe/Tempo Spec</p>
+                                        <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">Machine Payments Protocol</p>
                                     </div>
                                 </div>
                                 <CodeBlock code={MPP_CODE} lang="typescript" />
+                                <NetworkScopeNote className="mt-4" mainnet={{
+                                    en: "MPP Charge is tested on testnet only, so this example stays on testnet. For paid access on mainnet, use x402.",
+                                    es: "MPP Charge solo está probado en testnet, así que este ejemplo se queda en testnet. Para acceso de pago en mainnet, usa x402.",
+                                }} />
                                 <div className="mt-6 flex items-center gap-4 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
-                                    <span className="px-2 py-0.5 rounded border border-white/10">Balance Returned</span>
-                                    <span className="px-2 py-0.5 rounded border border-white/10">Ideal for Agents</span>
+                                    <span className="px-2 py-0.5 rounded border border-white/10">{lang('No facilitator', 'Sin facilitador')}</span>
+                                    <span className="px-2 py-0.5 rounded border border-white/10">{lang('Experimental', 'Experimental')}</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Per-endpoint pricing — separado por red, con la razón técnica donde
+                        {/* Per-endpoint pricing - separado por red, con la razón técnica donde
                             aplica. Mismo criterio que /pricing: signals/execute son
                             testnet-only por diseño (loop autónomo apagado / sin llave
                             firmante en el box de mainnet); market es el único que corre
-                            en las dos redes. No lumpear en un rango $0.02–0.25 sin decir
-                            dónde corre cada uno — esa fue la brecha real en /pricing. */}
+                            en las dos redes. No lumpear en un rango $0.02-0.25 sin decir
+                            dónde corre cada uno - esa fue la brecha real en /pricing. */}
                         <div className="mt-16 overflow-x-auto rounded-3xl border border-white/10 bg-[#080808]">
                             <table className="w-full text-left">
                                 <thead className="border-b border-white/5 bg-white/[0.02]">
@@ -370,20 +409,20 @@ export default function DevelopersPage() {
                                         {
                                             ep: 'GET /api/v1/mpp/signals',
                                             price: '$0.02',
-                                            avail: lang('Not accepting payments right now', 'Sin aceptar pagos por ahora'),
-                                            why: lang('implemented; the hosted testnet endpoint rejected MPP payments when tested, use x402', 'implementado; el endpoint de testnet rechazó pagos MPP al probarlo, usa x402'),
+                                            avail: lang('Testnet only (verified 15 Oct 2026)', 'Solo testnet (verificado el 15-oct-2026)'),
+                                            why: lang('the mainnet node answers 501, same as x402 signals', 'el nodo de mainnet responde 501, igual que signals en x402'),
                                         },
                                         {
                                             ep: 'GET /api/v1/mpp/market',
                                             price: '$0.05',
-                                            avail: lang('Not accepting payments right now', 'Sin aceptar pagos por ahora'),
-                                            why: lang('implemented; the hosted testnet endpoint rejected MPP payments when tested, use x402', 'implementado; el endpoint de testnet rechazó pagos MPP al probarlo, usa x402'),
+                                            avail: lang('testnet: verified 15 Oct 2026 · mainnet: not tested', 'testnet: verificado el 15-oct-2026 · mainnet: sin probar'),
+                                            why: lang('settled payments on Horizon testnet; for paid access on mainnet, use x402', 'pagos liquidados en Horizon testnet; para acceso pagado en mainnet, usa x402'),
                                         },
                                         {
                                             ep: 'POST /api/v1/mpp/execute',
                                             price: '$0.25',
-                                            avail: lang('Not accepting payments right now', 'Sin aceptar pagos por ahora'),
-                                            why: lang('implemented; the hosted testnet endpoint rejected MPP payments when tested, use x402', 'implementado; el endpoint de testnet rechazó pagos MPP al probarlo, usa x402'),
+                                            avail: lang('Testnet only; implemented, not tested', 'Solo testnet; implementado, sin probar'),
+                                            why: lang('no MPP payment has been sent to this route yet; use x402', 'todavía no se ha enviado un pago MPP a esta ruta; usa x402'),
                                         },
                                     ].map((row) => (
                                         <tr key={row.ep} className="hover:bg-white/[0.02] transition-colors">
@@ -404,10 +443,10 @@ export default function DevelopersPage() {
                             <table className="w-full text-left">
                                 <thead className="border-b border-white/5 bg-white/[0.02]">
                                     <tr>
-                                        <th className="px-6 py-4 text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black">Feature</th>
+                                        <th className="px-6 py-4 text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black">{lang('Feature', 'Característica')}</th>
                                         <th className="px-6 py-4 text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black text-center">x402</th>
                                         <th className="px-6 py-4 text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black text-center">MPP Charge</th>
-                                        <th className="px-6 py-4 text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black text-center">MPP Channel</th>
+                                        <th className="px-6 py-4 text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black text-center">MPP Session</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5 font-mono text-xs">
@@ -450,7 +489,7 @@ export default function DevelopersPage() {
                                 <p className="text-gray-400 text-lg mb-10 leading-relaxed">
                                     {t.developers_page.mcp.subtitle}
                                 </p>
-                                <CodeBlock code={MCP_CODE} lang="json" />
+                                <CodeBlock code={forNetwork(MCP_CODE, isMain)} lang="json" />
                             </div>
 
                             <div className="relative">
@@ -475,7 +514,7 @@ export default function DevelopersPage() {
                                             </div>
                                         ))}
                                         <div className="text-center pt-2">
-                                            <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">+ 3 MORE TOOLS IN DOCUMENTATION</span>
+                                            <a href="https://www.npmjs.com/package/nirium-mcp" target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-gray-500 hover:text-stellar-teal uppercase tracking-widest">{lang('+ 17 more tools in the package README ↗', '+ 17 herramientas más en el README del paquete ↗')}</a>
                                         </div>
                                     </div>
                                 </div>
@@ -484,7 +523,7 @@ export default function DevelopersPage() {
                     </div>
                 </section>
 
-                {/* API ENDPOINTS — PREMIUM EXECUTION HUB */}
+                {/* API ENDPOINTS - PREMIUM EXECUTION HUB */}
                 <section className="py-32 relative overflow-hidden border-t border-white/5">
                     {/* Background Accents */}
                     <div className="absolute top-1/4 -right-64 w-[600px] h-[600px] bg-stellar-teal/5 blur-[120px] rounded-full pointer-events-none" />
@@ -498,7 +537,7 @@ export default function DevelopersPage() {
                                 className="mb-6 px-4 py-1.5 rounded-full bg-stellar-teal/10 border border-stellar-teal/30 flex items-center gap-2"
                             >
                                 <Activity className="w-3 h-3 text-stellar-teal animate-pulse" />
-                                <span className="text-[10px] font-black text-stellar-teal uppercase tracking-[0.2em]">Live Protocol Surface v0.16.0</span>
+                                <span className="text-[10px] font-black text-stellar-teal uppercase tracking-[0.2em]">{lang('25 tools counted in nirium-mcp 0.6.7 on 17 Nov 2026', '25 herramientas contadas en nirium-mcp 0.6.7 el 17 nov 2026')}</span>
                             </motion.div>
                             
                             <h2 className="text-4xl sm:text-7xl font-black uppercase italic tracking-tighter text-white mb-6 leading-none">
@@ -509,7 +548,7 @@ export default function DevelopersPage() {
                             </p>
                         </div>
 
-                        {/* CORE HIGHLIGHTS — PREMIUM CARDS */}
+                        {/* CORE HIGHLIGHTS - PREMIUM CARDS */}
                         <div className="mb-32">
                             <div className="flex items-center gap-6 mb-12">
                                 <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-widest sm:tracking-[0.4em] italic">
@@ -533,7 +572,7 @@ export default function DevelopersPage() {
                                             </span>
                                             <div className="flex items-center gap-1.5">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-                                                <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Live</span>
+                                                <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{lang('Checked', 'Revisado')}</span>
                                             </div>
                                         </div>
                                         <code className="text-[11px] text-white font-mono block mb-3 truncate group-hover:text-stellar-teal transition-colors">{ep.path}</code>
@@ -545,7 +584,7 @@ export default function DevelopersPage() {
                             </div>
                         </div>
 
-                        {/* FULL CATALOG — HIGH DENSITY EXPLORER */}
+                        {/* FULL CATALOG - HIGH DENSITY EXPLORER */}
                         <div className="space-y-12">
                             <div className="flex items-center justify-between mb-8">
                                 <div className="flex items-center gap-4">
@@ -556,16 +595,6 @@ export default function DevelopersPage() {
                                         {t.developers_page.hub.explorer}
                                     </h3>
                                 </div>
-                                <div className="hidden sm:flex items-center gap-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded bg-emerald-500/20 border border-emerald-500/50" />
-                                        Production
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded bg-stellar-blue/20 border border-stellar-blue/50" />
-                                        x402/MPP
-                                    </div>
-                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -574,50 +603,52 @@ export default function DevelopersPage() {
                                         cat: language === 'es' ? 'Seguridad y Auth' : 'Auth & Security', 
                                         icon: Lock,
                                         eps: [
-                                            { m: 'POST', p: '/api/auth/token', d: 'JWT session generation', s: 'CORE' },
-                                            { m: 'POST', p: '/api/auth/keys', d: 'Permanent API key provisioning', s: 'CORE' },
-                                            { m: 'GET', p: '/api/health', d: 'Global cluster status', s: 'LIVE' },
-                                            { m: 'POST', p: '/api/authenticate', d: 'Wallet-signature verification', s: 'LIVE' },
+                                            { m: 'POST', p: '/api/auth/token', d: 'Exchange credentials for a JWT', de: 'Cambia credenciales por un JWT', s: 'PUBLIC' },
+                                            { m: 'POST', p: '/api/auth/keys', d: 'Issue an API key', de: 'Emite una API key', s: 'KEY' },
+                                            { m: 'GET', p: '/health', d: 'Liveness probe', de: 'Comprueba que el nodo responde', s: 'PUBLIC' },
+                                            { m: 'POST', p: '/api/public/authenticate', d: 'Wallet-signature verification', de: 'Verificación con firma de wallet', s: 'PUBLIC' },
                                         ]
                                     },
                                     { 
-                                        cat: language === 'es' ? 'Motor de Tesorería' : 'Treasury Engine', 
+                                        // Este loop es la demo de testnet (escanea y cotiza); el firmante real de
+                                        // Treasury en mainnet es otro proceso y no se controla desde aquí.
+                                        cat: language === 'es' ? 'Loop de escaneo (demo de testnet)' : 'Scan loop (testnet demo)',
                                         icon: Cpu,
                                         eps: [
-                                            { m: 'POST', p: '/api/loop/start', d: 'Autonomous rebalance trigger', s: 'PREMIUM' },
-                                            { m: 'POST', p: '/api/loop/stop', d: 'Emergency circuit breaker', s: 'CORE' },
-                                            { m: 'POST', p: '/api/execute', d: 'Single-invocation agent task', s: 'PREMIUM' },
-                                            { m: 'GET', p: '/api/loop/status', d: 'Real-time rebalance telemetry', s: 'LIVE' },
+                                            { m: 'POST', p: '/api/loop/start', d: 'Start the scan loop', de: 'Arranca el loop de escaneo', s: 'KEY' },
+                                            { m: 'POST', p: '/api/loop/stop', d: 'Stop the scan loop', de: 'Detiene el loop de escaneo', s: 'KEY' },
+                                            { m: 'POST', p: '/api/execute', d: 'Run one strategy step', de: 'Corre un paso de estrategia', s: 'KEY' },
+                                            { m: 'GET', p: '/api/loop/status', d: 'Loop state and last decision', de: 'Estado del loop y última decisión', s: 'PUBLIC' },
                                         ]
                                     },
                                     { 
-                                        cat: language === 'es' ? 'Compliance e IPFS' : 'Compliance & IPFS', 
+                                        cat: language === 'es' ? 'Audit Trail y Reporting' : 'Audit Trail & Reporting',
                                         icon: Shield,
                                         eps: [
-                                            { m: 'POST', p: '/api/audit/log', d: 'Anchor a record to IPFS, optionally agent-signed', s: 'LIVE' },
-                                            { m: 'GET', p: '/api/audit/info', d: 'Audit node metadata and limits', s: 'LIVE' },
-                                            { m: 'GET', p: '/api/reporting/summary', d: 'Consolidated summary by period and network', s: 'LIVE' },
-                                            { m: 'GET', p: '/api/reporting/export', d: 'Institutional-format export (CSV / JSON)', s: 'LIVE' },
+                                            { m: 'POST', p: '/api/audit/log', d: 'Anchor a record to IPFS, optionally agent-signed', de: 'Ancla un registro en IPFS, con firma opcional del agente', s: 'PUBLIC' },
+                                            { m: 'GET', p: '/api/audit/info', d: 'Audit node metadata and limits', de: 'Datos y límites del nodo de auditoría', s: 'PUBLIC' },
+                                            { m: 'GET', p: '/api/reporting/summary', d: 'Summary by period and network', de: 'Resumen por periodo y red', s: 'PUBLIC' },
+                                            { m: 'GET', p: '/api/reporting/export', d: 'Rows behind the summary, no CIDs', de: 'Filas detrás del resumen, sin CIDs', s: 'PUBLIC' },
                                         ]
                                     },
                                     { 
-                                        cat: language === 'es' ? 'Inteligencia de Mercado' : 'Market Intelligence', 
+                                        cat: language === 'es' ? 'Datos de mercado' : 'Market data',
                                         icon: TrendingUp,
                                         eps: [
-                                            { m: 'GET', p: '/api/market', d: 'Live market state and reference rates', s: 'LIVE' },
-                                            { m: 'GET', p: '/api/tickers', d: 'Cross-asset price feeds', s: 'LIVE' },
-                                            { m: 'GET', p: '/api/strategies', d: 'Strategy marketplace', s: 'LIVE' },
-                                            { m: 'GET', p: '/api/signals/recent', d: 'Recent signals from the autonomous loop (testnet)', s: 'LIVE' },
+                                            { m: 'GET', p: '/api/market', d: 'Market state and reference rates', de: 'Estado del mercado y tasas de referencia', s: 'KEY' },
+                                            { m: 'GET', p: '/api/tickers', d: 'CETES and Blend reference rates', de: 'Tasas de referencia de CETES y Blend', s: 'PUBLIC' },
+                                            { m: 'GET', p: '/api/strategies', d: 'Built-in strategy catalog (testnet)', de: 'Catálogo de estrategias incluidas (testnet)', s: 'PUBLIC' },
+                                            { m: 'GET', p: '/api/signals/recent', d: 'Recent signals from the scan loop (testnet)', de: 'Señales recientes del loop de escaneo (testnet)', s: 'PUBLIC' },
                                         ]
                                     },
                                     {
-                                        cat: language === 'es' ? 'Dispersión y Nodos' : 'Disbursement & Nodes',
+                                        cat: language === 'es' ? 'Payouts y nodos' : 'Payouts & nodes',
                                         icon: Send,
                                         eps: [
-                                            { m: 'GET', p: '/api/nodes', d: 'Execution Node catalog', s: 'LIVE' },
-                                            { m: 'POST', p: '/api/payroll/run', d: 'Build batch payout (unsigned)', s: 'CORE' },
-                                            { m: 'POST', p: '/api/payroll/submit', d: 'Broadcast signed payout + LCP receipt', s: 'CORE' },
-                                            { m: 'POST', p: '/api/payroll/onboard', d: 'Self-signed USDC trustline', s: 'CORE' },
+                                            { m: 'GET', p: '/api/nodes', d: 'Node catalog', de: 'Catálogo de nodos', s: 'PUBLIC' },
+                                            { m: 'POST', p: '/api/payroll/run', d: 'Build a batch payout (unsigned)', de: 'Arma una dispersión en lote (sin firmar)', s: 'KEY' },
+                                            { m: 'POST', p: '/api/payroll/submit', d: 'Broadcast a signed payout', de: 'Transmite una dispersión firmada', s: 'KEY' },
+                                            { m: 'POST', p: '/api/payroll/onboard', d: 'Self-signed USDC trustline', de: 'Trustline de USDC que firmas tú', s: 'KEY' },
                                         ]
                                     },
                                 ].map((group, gIdx) => (
@@ -648,13 +679,12 @@ export default function DevelopersPage() {
                                                         <code className="text-[10px] text-gray-400 font-mono truncate group-hover/row:text-stellar-teal transition-colors">{ep.p}</code>
                                                     </div>
                                                     <div className="flex items-center gap-3">
-                                                        <span className="text-[9px] text-gray-600 uppercase tracking-tighter whitespace-nowrap hidden sm:block">{ep.d}</span>
+                                                        <span className="text-[9px] text-gray-600 uppercase tracking-tighter whitespace-nowrap hidden sm:block">{language === 'es' && ep.de ? ep.de : ep.d}</span>
                                                         <span className={`text-[7px] font-black px-1.5 py-0.5 rounded border ${
-                                                            ep.s === 'PREMIUM' ? 'border-stellar-blue/30 text-stellar-blue bg-stellar-blue/5' : 
-                                                            ep.s === 'PRO' ? 'border-stellar-yellow/30 text-stellar-yellow bg-stellar-yellow/5' :
+                                                            ep.s === 'KEY' ? 'border-stellar-yellow/30 text-stellar-yellow bg-stellar-yellow/5' :
                                                             'border-white/10 text-gray-500 bg-white/5'
                                                         }`}>
-                                                            {ep.s}
+                                                            {ep.s === 'KEY' ? lang('API KEY', 'API KEY') : lang('PUBLIC', 'PÚBLICA')}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -664,36 +694,20 @@ export default function DevelopersPage() {
                                 ))}
                             </div>
 
-                            <div className="text-center pt-12">
-                                <motion.div 
-                                    initial={{ opacity: 0 }}
-                                    whileInView={{ opacity: 1 }}
-                                    className="inline-flex flex-col items-center gap-4"
-                                >
-                                    <div className="flex -space-x-2">
-                                        {[1,2,3,4].map(i => (
-                                            <div key={i} className="w-8 h-8 rounded-full border-2 border-black bg-white/5 flex items-center justify-center text-[10px] font-black text-gray-500">
-                                                +{i*4}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em]">
-                                        {t.developers_page.hub.subsystems}
-                                    </p>
-                                </motion.div>
-                            </div>
+                            {/* Aquí había burbujas "+4 +8 +12 +16" y "+18 subsistemas": números
+                                decorativos sin fuente. Se quitaron el 9-nov-2026. */}
                         </div>
                     </div>
                 </section>
 
-                {/* CONTRACTS — INSTITUTIONAL NODES */}
+                {/* CONTRACTS - INSTITUTIONAL NODES */}
                 <section className="py-32 border-t border-white/5 bg-black">
                     <div className="max-w-5xl mx-auto px-6">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
                             <div>
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-1.5 h-6 bg-stellar-teal rounded-full" />
-                                    <span className="text-xs font-black text-stellar-teal uppercase tracking-[0.3em]">Soroban Mainnet Readiness</span>
+                                    <span className="text-xs font-black text-stellar-teal uppercase tracking-[0.3em]">Stellar testnet</span>
                                 </div>
                                 <h2 className="text-3xl sm:text-6xl font-black uppercase italic tracking-tighter text-white break-words">
                                     {t.developers_page.nodes.title}
@@ -706,10 +720,9 @@ export default function DevelopersPage() {
 
                         <div className="grid gap-4">
                             {[
-                                { name: 'NiriumVault', id: 'CBTWMZCG3P72EHFAQ4ZLSEBIOFYJC244H5J6DHZIJ56FHFWJ2CFAWSZU', desc_en: 'Core treasury: vaults, agent delegation, strategy execution, 2-of-3 multisig', desc_es: 'Tesorería core: vaults, delegación de agentes, ejecución de estrategias, multisig 2-de-3' },
-                                { name: 'NiriumProtocol', id: 'CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5', desc_en: 'Unified registry: ELO reputation, strategy marketplace, agent scoring, skill gate', desc_es: 'Registro unificado: reputación ELO, marketplace, scoring de agentes, skill gate' },
-                                { name: 'CETES (Mexican Bonds)', id: 'CC72F57YTPX76HAA64JQOEGHQAPSADQWSY5DWVBR66JINPFDLNCQYHIC', desc_en: 'Government Bond Asset (Etherfuse)', desc_es: 'Activo de Bonos (Etherfuse)' },
-                                { name: 'USDC (Stellar Testnet SAC)', id: 'CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA', desc_en: 'Primary liquidity asset', desc_es: 'Activo de liquidez principal' },
+                                { name: 'NiriumVault', id: 'CDMFURE6MYROTA2A6DLD4TN2S4QTN64L2FZ2I2RY2AREONX6DUQOI2S2', desc_en: 'Vaults and agent delegation; supports a 2-of-3 pause, no cosigners registered yet', desc_es: 'Bóvedas y delegación a agentes; soporta pausa 2-de-3, sin cosignatarios registrados todavía' },
+                                { name: 'CETES (testnet)', id: 'CC72F57YTPX76HAA64JQOEGHQAPSADQWSY5DWVBR66JINPFDLNCQYHIC', desc_en: 'Etherfuse CETES token used by the testnet Treasury strategies', desc_es: 'Token CETES de Etherfuse que usan las estrategias de Treasury en testnet' },
+                                { name: 'USDC (testnet SAC)', id: 'CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA', desc_en: 'USDC the x402 endpoints charge on testnet', desc_es: 'USDC que cobran los endpoints x402 en testnet' },
                             ].map((contract) => (
                                 <div key={contract.name} className="p-5 sm:p-8 rounded-3xl border border-white/10 bg-black/40 backdrop-blur-md group hover:border-stellar-teal/40 transition-all min-w-0">
                                     <div className="flex items-start justify-between gap-4 sm:gap-6 min-w-0">
@@ -747,9 +760,9 @@ export default function DevelopersPage() {
                         </h2>
                         <p className="text-gray-400 max-w-2xl mb-8 leading-relaxed">
                             {language === 'es' ? (
-                                <>Detrás de <Link href="/stats" className="text-stellar-teal hover:underline">nirium.xyz/stats</Link> hay un solo endpoint público, sin autenticación. No tiene nada de interno — llámalo directo y devuelve el mismo JSON que renderiza la página.</>
+                                <>Detrás de <Link href="/stats" className="text-stellar-teal hover:underline">nirium.xyz/stats</Link> hay un solo endpoint público, sin autenticación. No tiene nada de interno - llámalo directo y devuelve el mismo JSON que renderiza la página.</>
                             ) : (
-                                <>Behind <Link href="/stats" className="text-stellar-teal hover:underline">nirium.xyz/stats</Link> is one public, unauthenticated endpoint. Nothing about it is internal — call it directly and it returns the exact same JSON the page renders.</>
+                                <>Behind <Link href="/stats" className="text-stellar-teal hover:underline">nirium.xyz/stats</Link> is one public, unauthenticated endpoint. Nothing about it is internal - call it directly and it returns the exact same JSON the page renders.</>
                             )}
                         </p>
 
@@ -758,8 +771,8 @@ export default function DevelopersPage() {
                                 <CodeBlock lang="bash" code={`curl https://nirium.xyz/api/stats`} />
                                 <p className="mt-4 text-xs text-gray-500 leading-relaxed">
                                     {lang(
-                                        'Server-rendered, cached 5 minutes (Cache-Control: s-maxage=300) — this is only to keep GitHub’s search rate limit off real traffic, not to mask staleness; generatedAt is a real per-request timestamp.',
-                                        'Renderizado en el servidor, cache de 5 min (Cache-Control: s-maxage=300) — solo para no golpear el rate limit de búsqueda de GitHub con tráfico real, no para ocultar staleness; generatedAt es un timestamp real por request.')}
+                                        'Server-rendered, cached 5 minutes (Cache-Control: s-maxage=300) - this is only to keep GitHub’s search rate limit off real traffic, not to mask staleness; generatedAt is a real per-request timestamp.',
+                                        'Renderizado en el servidor, cache de 5 min (Cache-Control: s-maxage=300) - solo para no golpear el rate limit de búsqueda de GitHub con tráfico real, no para ocultar datos viejos; generatedAt es la hora real de cada request.')}
                                 </p>
                             </div>
                             <div className="rounded-2xl border border-white/10 bg-white/[0.01] p-6">
@@ -768,7 +781,7 @@ export default function DevelopersPage() {
                                 </p>
                                 <div className="space-y-3 text-xs font-mono">
                                     {[
-                                        { k: 'x402Settlements', d: lang('Mainnet payments — totals, distinct payers, each labeled internal/external', 'Pagos mainnet — totales, pagadores distintos, cada uno etiquetado interno/externo') },
+                                        { k: 'x402Settlements', d: lang('Mainnet payments - totals, distinct payers, each labeled internal/external', 'Pagos mainnet - totales, pagadores distintos, cada uno etiquetado interno/externo') },
                                         { k: 'treasuryRebalances', d: lang('Treasury Node rebalance() calls, mainnet', 'Llamadas rebalance() del Treasury Node, mainnet') },
                                         { k: 'auditTrailAnchors', d: lang('IPFS anchor count from our own reporting API', 'Conteo de anclajes IPFS desde nuestra propia API de reportería') },
                                         { k: 'npm / pypi', d: lang('Download counts, read live from npmjs.org / pypistats.org', 'Descargas, leídas en vivo de npmjs.org / pypistats.org') },
@@ -782,7 +795,7 @@ export default function DevelopersPage() {
                                     ))}
                                 </div>
                                 <p className="mt-5 pt-5 border-t border-white/5 text-[10px] text-gray-500 uppercase tracking-widest">
-                                    {lang('Every metric object carries its own source URL — the exact query that produced it, not a claim.', 'Cada objeto de métrica trae su propia URL de fuente — la consulta exacta que lo produjo, no una afirmación.')}
+                                    {lang('Every metric object carries its own source URL - the exact query that produced it, not a claim.', 'Cada objeto de métrica trae su propia URL de fuente - la consulta exacta que lo produjo, no una afirmación.')}
                                 </p>
                             </div>
                         </div>
@@ -847,7 +860,8 @@ export default function DevelopersPage() {
                                     <ArrowRight className="ml-2 w-6 h-6" />
                                 </Button>
                             </Link>
-                            <a href="https://github.com/nirium-protocol/nirium-core" target="_blank" rel="noopener">
+                            {/* El repo de los paquetes (nirium, nirium-cli, nirium-mcp); nirium-core es el espejo del protocolo. */}
+                            <a href="https://github.com/nirium-protocol/nirium" target="_blank" rel="noopener">
                                 <Button size="lg" variant="outline" className="px-12 py-8 text-xl rounded-2xl border-white/10 hover:bg-white/5">
                                     <Boxes className="mr-2 w-6 h-6" />
                                     GitHub

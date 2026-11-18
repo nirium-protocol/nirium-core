@@ -20,7 +20,7 @@ export async function GET() {
 
       const dynamicLogs = [
         "Market Scanner: DEPLOYED (XLM/USDC Vectors)",
-        "Path Payment Router: OPTIMIZED — 12ms latency",
+        "Path Payment Router: OPTIMIZED - 12ms latency",
         "Multi-Op Transaction Engine: ARMED",
         "Flash Loan Callback Hook: VALIDATED (Mathematical Safety)",
         "Scanning live SDEX vs Soroswap spreads...",
@@ -29,7 +29,7 @@ export async function GET() {
         "Transaction Confirmed! Ledger: 14892301",
         "Profit Secured: 14.5 XLM",
         "Rebalancing Vault Reserves...",
-        "Connection Status: OPERATIONAL — All systems nominal."
+        "Connection Status: OPERATIONAL - All systems nominal."
       ];
 
       let index = 0;

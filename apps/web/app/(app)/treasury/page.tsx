@@ -1,12 +1,15 @@
-/** Nirium Treasury — Product page (Autonomous Treasury) **/
+/** Nirium Treasury - página del nodo de tesorería.
+ *  8-nov-2026: "Cómo funciona" describe el rebalanceador real (rendimiento medido
+ *  on-chain contra los umbrales del dueño, firma del agente dentro de la bóveda).
+ *  Se quitó la sección cross-border (Treasury no mueve dinero entre países) y la
+ *  tasa fija de CETES (el agente no la usa). **/
 'use client';
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
-    Bot, TrendingUp, Workflow, Coins, ArrowRight, ChevronRight,
+    Bot, TrendingUp, Coins, ArrowRight, ChevronRight,
     Sparkles, Activity, Zap, BarChart3, RefreshCw, AlertTriangle,
-    CheckCircle2, ExternalLink, Globe
+    CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
@@ -14,7 +17,8 @@ import { ComplianceBanner } from "@/components/ui/ComplianceBanner";
 import TreasuryPlainTerms from "@/components/home/TreasuryPlainTerms";
 
 export default function TreasuryPage() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const lang = (en: string, es: string) => (language === "es" ? es : en);
 
     return (
         <main className="min-h-screen bg-black text-white antialiased">
@@ -22,10 +26,14 @@ export default function TreasuryPage() {
             <section className="relative pt-8 pb-16 sm:pt-8 sm:pb-20">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(45,235,232,0.06),transparent_60%)]" />
                 <div className="relative max-w-5xl mx-auto px-6">
-                    <div className="flex justify-center mb-6">
+                    <div className="flex flex-wrap justify-center gap-2 mb-6">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-stellar-teal/20 bg-stellar-teal/5 text-stellar-teal text-xs font-mono">
                             <Sparkles className="w-3 h-3" />
                             {t.treasury_page.hero.badge}
+                        </div>
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-400/20 bg-amber-400/5 text-amber-300 text-xs font-mono">
+                            <AlertTriangle className="w-3 h-3" />
+                            {t.treasury_page.hero.invite_badge}
                         </div>
                     </div>
 
@@ -34,6 +42,15 @@ export default function TreasuryPage() {
                     </h1>
                     <p className="mt-6 text-center text-lg text-white/60 max-w-2xl mx-auto leading-relaxed">
                         {t.treasury_page.hero.subtitle}
+                    </p>
+                    <p className="mt-4 text-center text-sm text-amber-300/80 max-w-2xl mx-auto leading-relaxed">
+                        {t.treasury_page.hero.invite_note}{" "}
+                        <a
+                            href="mailto:niriumprotocol@gmail.com?subject=Treasury%20mainnet%20%E2%80%94%20request%20access"
+                            className="underline hover:text-amber-200"
+                        >
+                            {t.treasury_page.hero.request_access}
+                        </a>
                     </p>
                 </div>
             </section>
@@ -108,7 +125,7 @@ export default function TreasuryPage() {
             <section className="py-16 border-t border-white/5">
                 <div className="max-w-5xl mx-auto px-6">
                     <h2 className="text-2xl sm:text-3xl font-bold text-center">
-                        {t.treasury.sidebar.asset_selector}
+                        {t.treasury_page.assets.title}
                     </h2>
                     <p className="mt-4 text-center text-white/60">
                         {t.treasury_page.assets.coming_soon}
@@ -134,7 +151,7 @@ export default function TreasuryPage() {
                             <div className="space-y-2 text-sm text-white/60">
                                 <div className="flex justify-between">
                                     <span>{t.treasury_page.assets.usdc.yield_label}</span>
-                                    <span className="text-white/50 text-xs italic">Variable — live from Blend</span>
+                                    <span className="text-white/50 text-xs italic">{lang("Variable, measured by the vault", "Variable, la mide la bóveda")}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>{t.treasury_page.assets.usdc.liquidity_label}</span>
@@ -160,13 +177,13 @@ export default function TreasuryPage() {
                                     </div>
                                 </div>
                                 <div className="text-xs uppercase tracking-widest text-stellar-teal">
-                                    Live
+                                    {lang("Variable", "Variable")}
                                 </div>
                             </div>
                             <div className="space-y-2 text-sm text-white/60">
                                 <div className="flex justify-between">
                                     <span>{t.treasury_page.assets.bonds.yield_label}</span>
-                                    <span className="text-white">5.57% <span className="text-white/40 text-xs">(fixed ref., Jun 2026 - not updated live)</span></span>
+                                    <span className="text-white/50 text-xs italic">{lang("Variable, measured by the vault", "Variable, la mide la bóveda")}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>{t.treasury_page.assets.bonds.liquidity_label}</span>
@@ -180,38 +197,6 @@ export default function TreasuryPage() {
                         </div>
                     </div>
 
-                </div>
-            </section>
-
-            {/* OUTPUT: CROSS-BORDER */}
-            <section className="py-16 border-t border-white/5">
-                <div className="max-w-5xl mx-auto px-6">
-                    <div className="flex items-start gap-4 mb-8">
-                        <div className="p-2.5 rounded-lg bg-stellar-teal/10 shrink-0">
-                            <Globe className="w-5 h-5 text-stellar-teal" />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl sm:text-3xl font-bold">
-                                {t.treasury_page.cross_border.title}
-                            </h2>
-                            <p className="mt-2 text-white/60">
-                                {t.treasury_page.cross_border.subtitle}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* La comparativa de 3 números (rieles legacy / crypto / Nirium) se
-                        quitó — no tenía fuente citable para ~4.5% ni 1.5%, y el ~0.8%
-                        de "Nirium + Etherfuse" contradecía el propio modelo de cobro
-                        del proyecto (licencia fija + por-llamada, nunca % del capital;
-                        el único % real y sourced es el ~0.20% de Etherfuse, que sigue
-                        explicado abajo). Mismo estándar que el resto del sitio: sin
-                        fuente citable, se quita en vez de decorarse con un disclaimer. */}
-                    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
-                        <p className="text-sm text-white/50 text-center max-w-2xl mx-auto leading-relaxed">
-                            {t.treasury_page.cross_border.explanation}
-                        </p>
-                    </div>
                 </div>
             </section>
 
@@ -288,12 +273,12 @@ export default function TreasuryPage() {
                                 href: '/treasury/builder',
                             },
                             {
-                                label: 'Soroban 2-of-3 Vault',
+                                label: lang('Security', 'Seguridad'),
                                 desc: t.treasury_page.links.security,
                                 href: '/security',
                             },
                             {
-                                label: 'Audit Trail + IPFS + LCP',
+                                label: 'Audit Trail',
                                 desc: t.treasury_page.links.compliance,
                                 href: '/compliance',
                             },
@@ -327,7 +312,7 @@ export default function TreasuryPage() {
                         {t.treasury_page.cta.subtitle}
                     </p>
                     <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-                        <Link href="/keys">
+                        <Link href="/treasury/vault">
                             <Button size="lg" variant="premium">
                                 {t.treasury_page.cta.start}
                                 <ArrowRight className="ml-2 w-4 h-4" />

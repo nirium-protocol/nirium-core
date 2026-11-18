@@ -8,24 +8,37 @@
 // /agents y GET /api/nodes, y el resto de productos en "More from Nirium".
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
     ArrowRight, ChevronRight, ExternalLink, FileCheck, GitPullRequest,
     Lock, Send, ShieldCheck, BarChart3, Layers, Zap, Activity, Terminal,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
+import HeroParticles from "@/components/home/HeroParticles";
+import PaymentStory from "@/components/home/PaymentStory";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { useLanguage } from "@/context/LanguageContext";
 import LegalDisclaimer from "@/components/legal/LegalDisclaimer";
-import { MAINNET_API_URL, PROOF_TX_HASH, PROOF_TX_URL, TREASURY_ACCOUNT, TREASURY_ACCOUNT_URL } from "@/lib/constants";
+import NiriumtoberBanner from "@/components/home/NiriumtoberBanner";
+import SocialProof from "@/components/home/SocialProof";
+import { isNiriumtoberLive, niriumtoberHref } from "@/lib/niriumtober";
+import { niriumtoberHit, trackFunnel } from "@/lib/attribution";
+import { MAINNET_API_URL, PROOF_TX_HASH, PROOF_TX_URL } from "@/lib/constants";
 
-// El snippet de abajo se corrió TAL CUAL contra nirium@0.16.0 el 4-oct-2026
-// (Node 22, express 5, @x402/* 2.28.0, facilitador de OpenZeppelin en testnet):
-// 402 sin pago, 200 con pago, 0.05 USDC liquidado en esta tx. Si se edita el
-// snippet, hay que volver a correrlo y cambiar este hash.
-const SNIPPET_TESTNET_TX = 'd121b61cbf916790086837d0d9df2604fd3c0d69e9d6bfa7fcb42d64e35b1076';
+// El snippet de abajo se corrió TAL CUAL contra nirium@0.18.0 el 9-nov-2026
+// (Node 24, express 5.3, @x402/* 2.30.0, facilitador de OpenZeppelin en
+// testnet, cuentas nuevas fondeadas con Friendbot): 402 sin pago, 200 con
+// pago y {"tempC":21}, 0.05 USDC liquidado en esta tx (verificada en Horizon,
+// ledger 5637422). La corrida anterior fue con 0.16.0 el 4-oct
+// (d121b61c...). Si se edita el snippet, hay que volver a correrlo y cambiar
+// este hash.
+//
+// Ojo, visto en la misma prueba: el facilitador de testnet respondió 504 en
+// 6 de 9 intentos y aun así liquidó el pago, así que el cliente pagó y recibió
+// 402. Es del facilitador, no del snippet, pero quien lo pruebe puede verlo.
+const SNIPPET_TESTNET_TX = '97f11e97d81924b8874f4643bcb59720cc59dfc4248beae5059422b7ae800b90';
 const SNIPPET_TESTNET_TX_URL = `https://stellar.expert/explorer/testnet/tx/${SNIPPET_TESTNET_TX}`;
 
 const SERVE_SNIPPET = `import express from 'express';
@@ -52,10 +65,43 @@ const CHANGELOG_URL = 'https://github.com/nirium-protocol/nirium/blob/main/packa
 const PR_98_URL = 'https://github.com/nirium-protocol/nirium/pull/98';
 const ISSUE_96_URL = 'https://github.com/nirium-protocol/nirium/issues/96';
 
-// "Built with Nirium": maquetada y vacía a propósito. Cada ficha entra solo
-// cuando el equipo dueño del proyecto aprobó su propio texto - nunca antes.
-type BuiltWith = { name: string; url: string; en: string; es: string };
-const BUILT_WITH: BuiltWith[] = [];
+// Excerpt del adaptador real que se corrio hoy (9-oct-2026) contra el motor
+// de politicas de AgentLedger - call() es el helper HTTP propio hacia ese
+// motor, no parte de Nirium. Ver scratch/agentledger-policy-test/run/run.mjs.
+const POLICY_SNIPPET = `// excerpt - call() is your own HTTP helper to your policy engine
+agent.initX402({
+  signer, network: "stellar:testnet",
+  policy: {
+    requireExpiry: true,
+    evaluate: (ctx, { signal }) =>
+      call("decide", { method: "POST", body: JSON.stringify(ctx), signal }),
+    currentVersion: async (_ctx, { signal }) =>
+      (await call("version", { signal })).policyVersion,
+    onDecision: (record) =>
+      call("outcome", { method: "POST", body: JSON.stringify(record) }),
+  },
+});`;
+
+// Las tres decisiones de politica probadas con dinero real en testnet,
+// verificadas contra Horizon por el hub el 8/9-oct-2026 (ver
+// scratch/agentledger-policy-test/run/run-log.jsonl y run-race-log.jsonl).
+const POLICY_ALLOW_TX = 'c0646b0e7ac186f26c539bc9ecacda286bb8764cc8d14d5fd33130a01850d5f4';
+const POLICY_WAIT_THEN_ALLOW_TX = '63fe315ad191c12d8baab4e7d146dc4b8cd7bb0c0ce97261799021eb5163b71d';
+const POLICY_RACE_ALLOW_TX = '20b9f5a21f012001488630e4f5be7a64c69f6a39648ad53b092d724df3c9b57c';
+const stellarTestnetTx = (hash: string) => `https://stellar.expert/explorer/testnet/tx/${hash}`;
+
+// Ancla propia de Nirium en mainnet (agent.id "selftest-nirium", 21-oct-2026):
+// firmada y con record embebido, así /verify muestra el resultado completo
+// (hash recalculado y firma válida). Es la misma que usa el botón de ejemplo
+// de /verify. La anterior (QmZEuGg…) solo declaraba un hash, sin firma, y en
+// /verify no mostraba quién la ancló. Se enlaza a /verify y no a un gateway
+// público, que a veces tarda o limita.
+const AUDIT_ANCHOR_CID = 'QmaAXCmpqaptjDTJoRPcyFBUywrvuA7GfLyArVaQwd5VDM';
+const AUDIT_ANCHOR_URL = `/verify?cid=${AUDIT_ANCHOR_CID}`;
+// Recibo firmado de un integrador externo (TIA, agent.id "tia-api", llave GATT3…),
+// mainnet, 12-nov-2026. `nirium verify` → SIGNATURE: VALID. Es su cuarto anclaje.
+const TIA_ANCHOR_CID = 'QmZ9bQxXLqoCvAQ6AtRChd18MS9YkjBF6MbT9k5e84PTTv';
+const TIA_ANCHOR_URL = `/verify?cid=${TIA_ANCHOR_CID}`;
 
 function CodeBlock({ code, filename, copyLabel, copiedLabel }: { code: string; filename: string; copyLabel: string; copiedLabel: string }) {
     const [copied, setCopied] = useState(false);
@@ -72,6 +118,7 @@ function CodeBlock({ code, filename, copyLabel, copiedLabel }: { code: string; f
                     type="button"
                     onClick={() => {
                         navigator.clipboard.writeText(code);
+                        trackFunnel("docs_copy", { source: "home" });
                         setCopied(true);
                         setTimeout(() => setCopied(false), 2000);
                     }}
@@ -90,330 +137,295 @@ function CodeBlock({ code, filename, copyLabel, copiedLabel }: { code: string; f
 export default function Home() {
     const { language } = useLanguage();
     const lang = (en: string, es: string) => (language === 'es' ? es : en);
+    // Un solo CTA. Durante Niriumtober lleva a la campaña; después, a la guía de
+    // testnet de esta misma página. Se decide en el navegador, como el banner,
+    // para que el HTML estático no se quede con la fecha del build.
+    const [startHref, setStartHref] = useState("#charge");
+    useEffect(() => {
+        if (isNiriumtoberLive()) setStartHref(niriumtoberHref("home"));
+    }, []);
     const copy = lang('Copy', 'Copiar');
     const copied = lang('Copied!', '¡Copiado!');
 
-    const adds = [
+    // "No nos creas. Verifícanos." - agrupado por verbo (correccion del
+    // 9-oct-2026: el endpoint 402 y el primer settlement van con el verbo 2,
+    // no el 3; /api/audit/info no es prueba; el verbo 3 usa el ancla real de
+    // /stats, verificada contra Pinata antes de escribir esto).
+    const proofGroups = [
         {
-            icon: ShieldCheck,
-            tag: lang('Since 0.15.0 · opt-in', 'Desde 0.15.0 · opcional'),
-            title: lang('Replay guard and rate limit', 'Protección contra replay y rate limit'),
-            body: lang(
-                'Pass a guard store to x402Serve() and a replayed payment proof is refused: one payment, one response. Add a per-IP sliding-window rate limit on top. Replay protection fails closed (503) if the store is down. Generalized from a production integrator’s own implementation, credited in the changelog.',
-                'Pásale un store en guard a x402Serve() y una prueba de pago repetida se rechaza: un pago, una respuesta. Encima puedes poner un rate limit por IP con ventana deslizante. La protección contra replay falla cerrada (503) si el store no responde. Generalizado de la implementación propia de un integrador en producción, acreditado en el changelog.'),
-            link: { href: CHANGELOG_URL, label: 'CHANGELOG' },
+            label: lang('POLICY', 'DECIDE'),
+            items: [
+                {
+                    icon: GitPullRequest,
+                    title: lang('Policy hook, merged in public', 'Hook de políticas, mergeado en público'),
+                    detail: 'nirium-protocol/nirium#98',
+                    cta: 'GitHub',
+                    href: PR_98_URL,
+                },
+                {
+                    icon: ShieldCheck,
+                    title: lang('Concurrent decisions, verified against Horizon', 'Decisiones concurrentes, verificadas contra Horizon'),
+                    detail: `${POLICY_RACE_ALLOW_TX.slice(0, 20)}…`,
+                    cta: lang('testnet, 2026-10-09', 'testnet, 2026-10-09'),
+                    href: stellarTestnetTx(POLICY_RACE_ALLOW_TX),
+                },
+            ],
         },
         {
-            icon: FileCheck,
-            tag: lang('Live on mainnet · free beta', 'En vivo en mainnet · beta gratis'),
-            title: lang('Verifiable receipts with Audit Trail', 'Recibos verificables con Audit Trail'),
-            body: lang(
-                'Anchor the settlement hash, or the sha-256 of any record, and get back an IPFS receipt anyone can check from the CID alone. Sign it with any Stellar key and the receipt also proves who declared it. One API call. Anchor hashes, not raw personal data.',
-                'Ancla el hash de la liquidación, o el sha-256 de cualquier registro, y recibe un recibo IPFS que cualquiera puede revisar solo con el CID. Fírmalo con cualquier llave de Stellar y el recibo prueba también quién lo declaró. Una llamada de API. Ancla hashes, no datos personales crudos.'),
-            link: { href: `${MAINNET_API_URL}/api/audit/info`, label: 'GET /api/audit/info' },
+            label: lang('CHARGE', 'COBRA'),
+            items: [
+                {
+                    icon: Activity,
+                    title: lang('Mainnet endpoint, answers 402', 'Endpoint en mainnet, responde 402'),
+                    detail: 'GET /api/v1/premium/market',
+                    cta: lang('last paid 29 Sep 2026', 'último pago 29 sep 2026'),
+                    href: `${MAINNET_API_URL}/api/v1/premium/market`,
+                },
+                {
+                    icon: Zap,
+                    title: lang('Our first mainnet x402 settlement (own test wallet)', 'Nuestro primer pago x402 liquidado en mainnet (wallet de prueba propia)'),
+                    detail: `${PROOF_TX_HASH.slice(0, 20)}…`,
+                    cta: 'stellar.expert',
+                    href: PROOF_TX_URL,
+                },
+                {
+                    icon: Terminal,
+                    title: lang('The snippet above, run verbatim', 'El snippet de arriba, corrido tal cual'),
+                    detail: `${SNIPPET_TESTNET_TX.slice(0, 20)}…`,
+                    cta: lang('testnet, 2026-11-09', 'testnet, 2026-11-09'),
+                    href: SNIPPET_TESTNET_TX_URL,
+                },
+            ],
         },
         {
-            icon: Lock,
-            tag: lang('New in 0.16.0 · experimental', 'Nuevo en 0.16.0 · experimental'),
-            title: lang('Buyer-side policy hook', 'Hook de políticas del comprador'),
-            body: lang(
-                'On the paying side, initX402({ policy }) asks your policy engine after the Stellar authorization is built and before anything is signed. Only an ALLOW bound to that exact authorization reaches the signer. Not solved yet: L01, concurrent requests that see the same remaining capacity, and L02, code in the same process that holds the raw signer. The shape can still change before 1.0.',
-                'Del lado que paga, initX402({ policy }) le pregunta a tu motor de políticas después de armar la autorización de Stellar y antes de firmar nada. Solo un ALLOW atado a esa autorización exacta llega al firmante. Sin resolver todavía: L01, peticiones concurrentes que ven la misma capacidad restante, y L02, código en el mismo proceso que tiene el firmante crudo. La forma todavía puede cambiar antes de 1.0.'),
-            link: { href: PR_98_URL, label: 'PR #98 · #96' },
-        },
-    ];
-
-    const proofs = [
-        {
-            icon: Activity,
-            title: lang('Live mainnet endpoint', 'Endpoint vivo en mainnet'),
-            detail: 'GET /api/v1/premium/market',
-            cta: lang('answers 402 right now', 'responde 402 ahora mismo'),
-            href: `${MAINNET_API_URL}/api/v1/premium/market`,
-        },
-        {
-            icon: Zap,
-            title: lang('First mainnet x402 settlement', 'Primer settlement x402 en mainnet'),
-            detail: `${PROOF_TX_HASH.slice(0, 20)}…`,
-            cta: 'stellar.expert',
-            href: PROOF_TX_URL,
-        },
-        {
-            icon: Lock,
-            title: lang('Public revenue account', 'Cuenta de ingresos pública'),
-            detail: `${TREASURY_ACCOUNT.slice(0, 12)}…${TREASURY_ACCOUNT.slice(-6)}`,
-            cta: lang('every payment on-chain', 'cada pago on-chain'),
-            href: TREASURY_ACCOUNT_URL,
-        },
-        {
-            icon: BarChart3,
-            title: lang('Usage stats, including who pays', 'Estadísticas de uso, incluido quién paga'),
-            detail: '/stats',
-            cta: lang('counted from Horizon', 'contado desde Horizon'),
-            href: '/stats',
-            internal: true,
-        },
-        {
-            icon: GitPullRequest,
-            title: lang('Policy hook, merged in public', 'Hook de políticas, mergeado en público'),
-            detail: 'nirium-protocol/nirium#98',
-            cta: 'GitHub',
-            href: PR_98_URL,
-        },
-        {
-            icon: Terminal,
-            title: lang('The snippet above, run verbatim', 'El snippet de arriba, corrido tal cual'),
-            detail: `${SNIPPET_TESTNET_TX.slice(0, 20)}…`,
-            cta: lang('testnet, 2026-10-04', 'testnet, 2026-10-04'),
-            href: SNIPPET_TESTNET_TX_URL,
+            label: lang('PROOF', 'PRUEBA'),
+            items: [
+                {
+                    icon: FileCheck,
+                    title: lang('Signed mainnet anchor (our own test)', 'Ancla firmada en mainnet (prueba propia)'),
+                    detail: `${AUDIT_ANCHOR_CID.slice(0, 18)}…`,
+                    cta: lang('verify it, 2026-10-21', 'verifícala, 2026-10-21'),
+                    href: AUDIT_ANCHOR_URL,
+                },
+                {
+                    icon: FileCheck,
+                    title: lang("An external integrator's signed mainnet receipt (TIA)", 'Recibo firmado en mainnet de un integrador externo (TIA)'),
+                    detail: `${TIA_ANCHOR_CID.slice(0, 18)}…`,
+                    cta: lang('verify it, 2026-11-12', 'verifícalo, 2026-11-12'),
+                    href: TIA_ANCHOR_URL,
+                },
+            ],
         },
     ];
-
-    const more = [
-        {
-            icon: FileCheck,
-            title: 'Audit Trail',
-            status: lang('Mainnet · free beta', 'Mainnet · beta gratis'),
-            tone: 'live' as const,
-            body: lang('Immutable IPFS receipts for any record, optionally signed by the agent that declared it.', 'Recibos IPFS inmutables para cualquier registro, opcionalmente firmados por el agente que lo declaró.'),
-            href: '/developers',
-        },
-        {
-            icon: BarChart3,
-            title: 'Reporting',
-            status: lang('Mainnet · read-only', 'Mainnet · solo lectura'),
-            tone: 'live' as const,
-            body: lang('Summaries and CSV/JSON exports of payments, payout runs and receipts. What you file with a regulator stays your responsibility.', 'Resúmenes y exportes CSV/JSON de pagos, corridas de payouts y recibos. Lo que presentes ante un regulador sigue siendo tu responsabilidad.'),
-            href: `${MAINNET_API_URL}/api/reporting/summary?network=mainnet`,
-        },
-        {
-            icon: Layers,
-            title: 'Treasury',
-            status: lang('Mainnet · invite-only', 'Mainnet · solo invitación'),
-            tone: 'gated' as const,
-            body: lang('Idle capital moves into a CETES strategy and back over a DeFindex vault you own. Invite-only until we have a written legal opinion.', 'El capital ocioso entra a una estrategia de CETES y regresa, sobre una bóveda DeFindex tuya. Solo por invitación hasta tener una opinión legal por escrito.'),
-            href: '/treasury',
-        },
-        {
-            icon: Send,
-            title: 'Payouts',
-            status: lang('Mainnet · early access', 'Mainnet · early access'),
-            tone: 'gated' as const,
-            body: lang('Pay up to 100 recipients in one batch you sign yourself: your own contractors and suppliers. Independent service payments only, not employee salary.', 'Paga hasta 100 destinatarios en un lote que firmas tú: tus propios contratistas y proveedores. Solo pagos por prestación de servicios, no salario de empleados.'),
-            href: '/payouts',
-        },
-        {
-            icon: Zap,
-            title: 'MPP Charge',
-            status: lang('Experimental · not available on mainnet', 'Experimental · no disponible en mainnet'),
-            tone: 'experimental' as const,
-            body: lang('A client for MPP Charge ships in the package. It has not been verified end to end against our hosted endpoints; use x402 for paid access.', 'El paquete trae un cliente de MPP Charge. No se ha verificado de punta a punta contra nuestros endpoints alojados; para acceso pagado usa x402.'),
-            note: lang(
-                'Update, 2026-10-04 (checked against the nirium 0.16.0 changelog that day): this page used to say MPP Charge was live on mainnet. That was wrong.',
-                'Actualización, 2026-10-04 (verificado contra el changelog de nirium 0.16.0 ese día): esta página decía que MPP Charge estaba en vivo en mainnet. Era incorrecto.'),
-            href: '/developers',
-        },
-    ];
-
-    const toneClass = {
-        live: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-400',
-        gated: 'border-stellar-teal/25 bg-stellar-teal/10 text-stellar-teal',
-        experimental: 'border-amber-400/25 bg-amber-400/10 text-amber-400',
-    };
 
     return (
         <main className="min-h-screen bg-black text-white antialiased overflow-x-hidden">
             <Navbar />
 
-            <div className="w-full pt-[115px] sm:pt-[140px] px-0 sm:px-4 flex justify-center relative z-50">
+            <div className="w-full pt-[115px] sm:pt-[140px] px-0 sm:px-4 flex flex-col items-center gap-3 relative z-50">
+                <NiriumtoberBanner />
                 <LegalDisclaimer variant="banner" locale={language === 'es' ? 'es' : 'en'} className="w-full max-w-[1600px] sm:rounded-xl shadow-2xl" />
             </div>
 
-            {/* HERO */}
+            {/* HERO - rediseño 9-oct-2026: una idea, tres verbos (decide / cobra / demuestra) */}
             <section className="relative pt-8 sm:pt-12 pb-16 sm:pb-20 overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(45,235,232,0.08),transparent_60%)]" />
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
-                    <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
-                        <div className="flex-1 min-w-0 flex flex-col items-center lg:items-start text-center lg:text-left lg:pt-6">
-                            <motion.div
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5 }}
-                                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-6"
-                            >
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-                                </span>
-                                {lang('x402 on Stellar · live on mainnet', 'x402 en Stellar · en vivo en mainnet')}
-                            </motion.div>
+                <HeroParticles />
+                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-6"
+                    >
+                        <span className="relative flex h-2 w-2">
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                        </span>
+                        {lang('x402 on Stellar · testnet + mainnet', 'x402 en Stellar · testnet + mainnet')}
+                    </motion.div>
 
-                            <motion.h1
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.05 }}
-                                className="text-4xl sm:text-5xl xl:text-6xl font-black leading-[1.05] tracking-tight"
-                            >
-                                {language === 'es' ? (
-                                    <>Cobra a agentes de IA <span className="bg-gradient-to-r from-stellar-teal to-stellar-yellow bg-clip-text text-transparent">por tu API.</span></>
-                                ) : (
-                                    <>Charge AI agents <span className="bg-gradient-to-r from-stellar-teal to-stellar-yellow bg-clip-text text-transparent">for your API.</span></>
-                                )}
-                            </motion.h1>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.05 }}
+                        className="text-4xl sm:text-5xl xl:text-6xl font-black leading-[1.05] tracking-tight"
+                    >
+                        {language === 'es' ? (
+                            <>Rieles de pago, auditoría y <span className="text-stellar-yellow">ejecución</span> en Stellar.</>
+                        ) : (
+                            <>Payment, audit and <span className="text-stellar-yellow">execution</span> rails on Stellar.</>
+                        )}
+                    </motion.h1>
 
-                            <motion.p
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.1 }}
-                                className="mt-5 text-base sm:text-lg text-white/60 max-w-xl leading-relaxed"
-                            >
-                                {lang(
-                                    'Try it on testnet in 5 minutes: your API answers 402, the agent pays in USDC on Stellar, settled in ~4s. Funds go straight from payer to you - Nirium never touches them.',
-                                    'Pruébalo en testnet en 5 minutos: tu API responde 402, el agente paga en USDC sobre Stellar, liquidado en ~4s. El dinero va directo del pagador a ti - Nirium nunca lo toca.')}
-                            </motion.p>
+                    <motion.p
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        className="mt-5 text-base sm:text-lg text-white/60 max-w-2xl mx-auto leading-relaxed"
+                    >
+                        {lang(
+                            'For apps, backends and AI agents. Decide before you sign, charge per request, prove every move. Non-custodial: your keys, your funds.',
+                            'Para apps, backends y agentes de IA. Decide antes de firmar, cobra por request, demuestra cada movimiento. No custodial: tus llaves, tus fondos.')}
+                    </motion.p>
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.15 }}
-                                className="mt-8 grid grid-cols-3 gap-4 sm:gap-6 w-full max-w-sm"
-                            >
-                                <div>
-                                    <div className="text-2xl sm:text-3xl font-black text-white">$0.05</div>
-                                    <div className="text-[10px] uppercase tracking-widest text-white/40 mt-1">{lang('Per x402 request', 'Por request x402')}</div>
-                                </div>
-                                <div className="border-x border-white/5 px-3 sm:px-4">
-                                    <div className="text-2xl sm:text-3xl font-black text-white">~4s</div>
-                                    <div className="text-[10px] uppercase tracking-widest text-white/40 mt-1">{lang('On-chain settlement', 'Liquidación on-chain')}</div>
-                                </div>
-                                <div>
-                                    <div className="text-2xl sm:text-3xl font-black text-white">0</div>
-                                    <div className="text-[10px] uppercase tracking-widest text-white/40 mt-1">{lang('Funds custodied', 'Fondos en custodia')}</div>
-                                </div>
-                            </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="mt-8 flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-center"
+                    >
+                        <a href={startHref} onClick={() => { trackFunnel("cta_start", { source: "home_hero" }); niriumtoberHit("cta_home"); }}>
+                            <Button size="lg" variant="premium" className="w-full sm:w-auto">
+                                {lang('Start in 5 minutes', 'Empieza en 5 minutos')}
+                                <ArrowRight className="ml-2 w-4 h-4" />
+                            </Button>
+                        </a>
+                    </motion.div>
+                    <SocialProof />
+                </div>
+            </section>
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.2 }}
-                                className="mt-8 flex flex-col sm:flex-row gap-3 w-full sm:w-auto"
-                            >
-                                <a href="#try-testnet">
-                                    <Button size="lg" variant="premium" className="w-full sm:w-auto">
-                                        {lang('Try on testnet', 'Pruébalo en testnet')}
-                                        <ArrowRight className="ml-2 w-4 h-4" />
-                                    </Button>
-                                </a>
-                                <a href="mailto:niriumprotocol@gmail.com?subject=Mainnet%20access%20request">
-                                    <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/20 hover:bg-white/5">
-                                        {lang('Request mainnet access', 'Solicita acceso a mainnet')}
-                                    </Button>
-                                </a>
-                            </motion.div>
-                            <p className="mt-3 text-[11px] text-white/35 leading-relaxed max-w-xl">
-                                {lang(
-                                    'Third-party facilitator use of x402Serve() on mainnet is invite-only until we have a written legal opinion - same gate as Treasury and Payouts.',
-                                    'Usar x402Serve() como facilitador de terceros en mainnet es solo por invitación hasta tener una opinión legal por escrito - la misma puerta que Treasury y Payouts.')}
+            {/* UN PAGO, DE PUNTA A PUNTA - scrollytelling */}
+            <PaymentStory />
+
+            {/* LOS TRES VERBOS - un bloque por verbo, cada uno con código real, estado honesto y prueba */}
+            <section className="py-16 sm:py-20 border-t border-white/5">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-20">
+
+                    {/* Verbo 1 - Paga con tu propia política */}
+                    <div id="policy" className="scroll-mt-28">
+                        <div className="flex items-center gap-2 mb-3">
+                            <ShieldCheck className="w-4 h-4 text-stellar-teal" />
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-stellar-teal/70">{lang('POLICY', 'DECIDE')}</span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-bold">{lang('Pay with your own policy', 'Paga con tu propia política')}</h2>
+                        <p className="mt-3 text-white/60 max-w-2xl">
+                            {lang(
+                                "Before your agent signs a payment, Nirium asks your policy engine.",
+                                'Antes de que tu agente firme un pago, Nirium le pregunta a tu motor de políticas.')}
+                        </p>
+                        <div className="mt-6">
+                            <CodeBlock code={POLICY_SNIPPET} filename="client.js" copyLabel={copy} copiedLabel={copied} />
+                        </div>
+                        <p className="mt-3 text-xs text-amber-400/80 leading-relaxed">
+                            {lang(
+                                "New in 0.16.0 · experimental - the shape may change before 1.0. Tested on testnet, engine-neutral by design (no smart account required on your side).",
+                                'Nuevo en 0.16.0 · experimental - la forma puede cambiar antes de 1.0. Probado en testnet, neutral al motor por diseño (no necesitas una smart account de tu lado).')}
+                        </p>
+                        <p className="mt-2 text-xs text-white/45 leading-relaxed">
+                            {lang(
+                                "The hook itself doesn't resolve concurrent requests - your engine does. AgentLedger's does it atomically (verified 2026-10-09, testnet). Code running in the same process as the raw signer can still sign around the hook - that gap is still open.",
+                                'El hook no resuelve la concurrencia por sí solo - la resuelve tu motor. El de AgentLedger lo hace de forma atómica (verificado el 9-oct-2026, testnet). Código que corre en el mismo proceso que el firmante crudo todavía puede firmar saltándose el hook; ese hueco sigue abierto.')}
+                        </p>
+                        <div className="mt-5 p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                            <p className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-3">
+                                {lang('Three decisions, verified against Horizon', 'Tres decisiones, verificadas contra Horizon')}
+                            </p>
+                            <ul className="space-y-2 text-xs">
+                                <li>
+                                    <a href={stellarTestnetTx(POLICY_ALLOW_TX)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-stellar-teal/80 hover:text-stellar-teal">
+                                        {lang('ALLOW, straight through', 'ALLOW directo')} <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href={stellarTestnetTx(POLICY_WAIT_THEN_ALLOW_TX)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-stellar-teal/80 hover:text-stellar-teal">
+                                        {lang('WAIT -> human approval -> ALLOW', 'WAIT -> aprobación humana -> ALLOW')} <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href={stellarTestnetTx(POLICY_RACE_ALLOW_TX)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-stellar-teal/80 hover:text-stellar-teal">
+                                        {lang('Two requests at once, room for one: one settles, the other DENY', 'Dos requests a la vez, espacio para uno: uno liquida, el otro DENY')} <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                </li>
+                            </ul>
+                            <p className="mt-3 text-[10px] text-white/35">
+                                {lang('Integration test coordinated with AgentLedger.', 'Prueba de integración coordinada con AgentLedger.')}
                             </p>
                         </div>
+                    </div>
 
-                        <motion.div
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.7, delay: 0.25 }}
-                            className="w-full lg:w-[560px] xl:w-[600px] shrink-0 min-w-0"
-                        >
+                    {/* Verbo 2 - Cobra por request */}
+                    <div id="charge" className="scroll-mt-28">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Terminal className="w-4 h-4 text-stellar-teal" />
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-stellar-teal/70">{lang('CHARGE', 'COBRA')}</span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-bold">{lang('Charge per request', 'Cobra por request')}</h2>
+                        <p className="mt-3 text-white/60 max-w-2xl">
+                            {lang('One middleware, and your API charges per call.', 'Un middleware, y tu API cobra por llamada.')}
+                        </p>
+                        <div className="mt-6">
                             <CodeBlock code={SERVE_SNIPPET} filename="server.js" copyLabel={copy} copiedLabel={copied} />
-                            <p className="mt-3 text-[11px] text-white/40 font-mono leading-relaxed">
-                                {lang('Ran verbatim with nirium@0.16.0 on testnet: ', 'Corrido tal cual con nirium@0.16.0 en testnet: ')}
-                                <a href={SNIPPET_TESTNET_TX_URL} target="_blank" rel="noopener noreferrer" className="text-stellar-teal/80 hover:text-stellar-teal underline underline-offset-2">
-                                    {lang('402, then paid, then 200', '402, luego pago, luego 200')}
-                                </a>
-                                .
-                            </p>
-                            <p className="mt-2 text-[11px] text-white/35 leading-relaxed">
-                                {lang(
-                                    'x402Serve() is a library that runs on your own server, with your own facilitator key. You remain responsible for compliance in your jurisdiction; ',
-                                    'x402Serve() es una librería que corre en tu propio servidor, con tu propia llave de facilitador. Tú sigues siendo responsable del cumplimiento en tu jurisdicción; ')}
-                                <a href="/legal/restricted-jurisdictions-v1.md" className="underline underline-offset-2 hover:text-white/60">
-                                    {lang('restricted jurisdictions apply', 'aplican jurisdicciones restringidas')}
-                                </a>
-                                .
-                            </p>
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
-
-            {/* TRY IT ON TESTNET - los mismos tres pasos que se corrieron para verificar el snippet */}
-            <section id="try-testnet" className="py-16 sm:py-20 border-t border-white/5 scroll-mt-28">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-center">
-                        {lang('Try it on testnet', 'Pruébalo en testnet')}
-                    </h2>
-                    <p className="mt-4 text-center text-white/55 max-w-xl mx-auto text-sm">
-                        {lang('Three steps, no real money. Node.js 22.12 or newer.', 'Tres pasos, sin dinero real. Node.js 22.12 o más reciente.')}
-                    </p>
-
-                    <div className="mt-12 grid lg:grid-cols-3 gap-6">
-                        <div className="min-w-0 p-6 rounded-xl border border-white/10 bg-white/[0.02]">
-                            <div className="text-xs font-mono text-white/30 mb-3">01</div>
-                            <h3 className="text-lg font-bold mb-2">{lang('Install', 'Instala')}</h3>
-                            <p className="text-sm text-white/60 leading-relaxed mb-4">
-                                {lang('The package plus the x402 pieces x402Serve() loads on demand.', 'El paquete más las piezas de x402 que x402Serve() carga al montarse.')}
-                            </p>
-                            <pre className="p-3 rounded-lg bg-black border border-white/10 text-[11px] font-mono text-white/75 whitespace-pre-wrap break-all">{INSTALL_CMD}</pre>
                         </div>
-                        <div className="min-w-0 p-6 rounded-xl border border-white/10 bg-white/[0.02]">
-                            <div className="text-xs font-mono text-white/30 mb-3">02</div>
-                            <h3 className="text-lg font-bold mb-2">{lang('Charge per request', 'Cobra por request')}</h3>
-                            <p className="text-sm text-white/60 leading-relaxed">
-                                {lang(
-                                    'Get a free testnet facilitator key from OpenZeppelin, set PAY_TO to a testnet address with a USDC trustline, and run server.js. Without payment, GET /weather answers 402 with the price.',
-                                    'Saca una llave gratis de facilitador de testnet en OpenZeppelin, pon en PAY_TO una dirección de testnet con trustline de USDC y corre server.js. Sin pago, GET /weather responde 402 con el precio.')}
-                            </p>
-                            <a href="https://channels.openzeppelin.com/testnet/gen" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-1.5 text-xs text-stellar-teal hover:underline">
-                                channels.openzeppelin.com/testnet/gen <ExternalLink className="w-3 h-3" />
-                            </a>
-                        </div>
-                        <div className="min-w-0 p-6 rounded-xl border border-white/10 bg-white/[0.02]">
-                            <div className="text-xs font-mono text-white/30 mb-3">03</div>
-                            <h3 className="text-lg font-bold mb-2">{lang('Pay it from an agent', 'Págalo desde un agente')}</h3>
-                            <p className="text-sm text-white/60 leading-relaxed mb-4">
-                                {lang('Any x402 client works. With the same package, from a testnet account that holds USDC:', 'Sirve cualquier cliente x402. Con el mismo paquete, desde una cuenta de testnet con USDC:')}
-                            </p>
-                            <CodeBlock code={PAY_SNIPPET} filename="pay.mjs" copyLabel={copy} copiedLabel={copied} />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* WHAT NIRIUM ADDS */}
-            <section className="py-16 sm:py-20 border-t border-white/5 bg-gradient-to-b from-black to-stellar-teal/[0.03]">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-center">
-                        {lang('What Nirium adds on top of x402', 'Lo que Nirium agrega encima de x402')}
-                    </h2>
-                    <p className="mt-4 text-center text-white/55 max-w-xl mx-auto text-sm">
-                        {lang('x402 moves the payment. These are the parts you would otherwise write yourself.', 'x402 mueve el pago. Esto es lo que de otro modo escribirías tú.')}
-                    </p>
-                    <div className="mt-12 grid md:grid-cols-3 gap-6">
-                        {adds.map((a) => (
-                            <div key={a.title} className="min-w-0 flex flex-col p-6 rounded-xl border border-white/10 bg-black/50">
-                                <div className="flex items-center justify-between gap-3 mb-4">
-                                    <div className="p-2.5 rounded-lg bg-stellar-teal/10">
-                                        <a.icon className="w-5 h-5 text-stellar-teal" />
-                                    </div>
-                                    <span className="text-[9px] font-mono uppercase tracking-widest text-white/40 text-right">{a.tag}</span>
-                                </div>
-                                <h3 className="text-lg font-bold mb-2">{a.title}</h3>
-                                <p className="text-sm text-white/60 leading-relaxed flex-1">{a.body}</p>
-                                <a href={a.link.href} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-xs font-mono text-stellar-teal/80 hover:text-stellar-teal">
-                                    {a.link.label} <ExternalLink className="w-3 h-3" />
+                        <p className="mt-3 text-xs text-white/40 font-mono leading-relaxed">
+                            {lang('Ran verbatim with nirium@0.18.0 on testnet (9 Nov 2026): ', 'Corrido tal cual con nirium@0.18.0 en testnet (9 nov 2026): ')}
+                            <a href={SNIPPET_TESTNET_TX_URL} target="_blank" rel="noopener noreferrer" className="text-stellar-teal/80 hover:text-stellar-teal underline underline-offset-2">
+                                {lang('402, then paid, then 200', '402, luego pago, luego 200')}
+                            </a>.
+                        </p>
+                        <p className="mt-3 text-xs text-white/45 leading-relaxed">
+                            {lang(
+                                // Decía "ya cobra en mainnet". El endpoint responde 402, pero la cuenta
+                                // de cobro (GCLBBPON...) no recibe un pago desde el 29-sep-2026
+                                // (verificado en Horizon el 9-nov). "Cobrando" solo se afirma con un
+                                // pago reciente, así que se dice lo que sí es cierto, con su fecha.
+                                "Open to everyone on testnet. Nirium's own endpoint answers 402 on mainnet; its last payment settled on 29 Sep 2026. Charging on your own API (x402Serve) on mainnet is not something we promote for third parties until we have a written legal opinion.",
+                                'Abierto a todos en testnet. El endpoint de Nirium responde 402 en mainnet; su último pago se liquidó el 29 sep 2026. Cobrar en tu propia API (x402Serve) en mainnet no lo promovemos para terceros hasta tener una opinión legal por escrito.')}
+                        </p>
+                        <div className="mt-6 grid sm:grid-cols-3 gap-4 text-xs">
+                            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                                <div className="font-mono text-white/30 mb-2">01 {lang('Install', 'Instala')}</div>
+                                <pre className="p-2 rounded-lg bg-black border border-white/10 font-mono text-white/70 whitespace-pre-wrap break-all text-[10px]">{INSTALL_CMD}</pre>
+                            </div>
+                            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                                <div className="font-mono text-white/30 mb-2">02 {lang('Get a key', 'Saca una llave')}</div>
+                                <p className="text-white/55 leading-relaxed">
+                                    {lang('Free testnet facilitator key from OpenZeppelin.', 'Llave gratis de facilitador de testnet en OpenZeppelin.')}
+                                </p>
+                                <a href="https://channels.openzeppelin.com/testnet/gen" target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-stellar-teal hover:underline">
+                                    channels.openzeppelin.com/testnet/gen <ExternalLink className="w-3 h-3" />
                                 </a>
                             </div>
-                        ))}
+                            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                                <div className="font-mono text-white/30 mb-2">03 {lang('Pay it', 'Págalo')}</div>
+                                <p className="text-white/55 leading-relaxed">
+                                    {lang('Any x402 client works, from a testnet account with USDC.', 'Sirve cualquier cliente x402, desde una cuenta de testnet con USDC.')}
+                                </p>
+                            </div>
+                        </div>
+                        <a href={CHANGELOG_URL} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70">
+                            {lang('Also ships: replay guard + rate limit, opt-in since 0.15.0', 'También trae: protección contra replay + rate limit, opcional desde 0.15.0')} <ExternalLink className="w-3 h-3" />
+                        </a>
                     </div>
+
+                    {/* Verbo 3 - Demuestra lo que la cadena no muestra */}
+                    <div id="prove" className="scroll-mt-28">
+                        <div className="flex items-center gap-2 mb-3">
+                            <FileCheck className="w-4 h-4 text-stellar-teal" />
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-stellar-teal/70">{lang('PROOF', 'PRUEBA')}</span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-bold">{lang('Prove what the chain doesn\'t show', 'Demuestra lo que la cadena no muestra')}</h2>
+                        <p className="mt-3 text-white/60 max-w-2xl">
+                            {lang(
+                                'A Stellar payment is already public on the ledger. Audit Trail covers what is not: what your policy decided, including payments it refused and never signed, a record of what each payment bought, and any document or event off chain. Anyone can check it from a hash alone.',
+                                'Un pago en Stellar ya es público en el ledger. Audit Trail cubre lo que no está ahí: lo que decidió tu política, incluidos los pagos que rechazó y nunca firmó, un registro de qué compró cada pago, y cualquier documento o evento fuera de la cadena. Cualquiera lo revisa solo con el hash.')}
+                        </p>
+                        <div className="mt-6">
+                            <CodeBlock
+                                code={`POST /api/audit/log\n\n// example request, not a live anchor:\n{ "hash": "sha-256:e3b0c442...", "tag": "invoice-2026-07" }`}
+                                filename="audit-log.http"
+                                copyLabel={copy}
+                                copiedLabel={copied}
+                            />
+                        </div>
+                        <p className="mt-3 text-xs text-emerald-400/80">
+                            {lang('Live on mainnet · free during beta.', 'En vivo en mainnet · gratis durante beta.')}
+                        </p>
+                        <a href={AUDIT_ANCHOR_URL} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-xs text-stellar-teal/80 hover:text-stellar-teal">
+                            {lang('Verify a signed mainnet anchor (our own test, 2026-10-21)', 'Verifica un ancla firmada en mainnet (prueba propia, 2026-10-21)')} <ExternalLink className="w-3 h-3" />
+                        </a>
+                    </div>
+
                 </div>
             </section>
 
@@ -425,111 +437,58 @@ export default function Home() {
                             {lang("Don't trust us. Verify us.", 'No nos creas. Verifícanos.')}
                         </h2>
                         <p className="text-[11px] text-white/40 font-mono text-center">
-                            {lang('Every claim below resolves to something public.', 'Cada claim de abajo resuelve en algo público.')}
+                            {lang('Every claim below resolves to something public.', 'Cada afirmación de abajo se puede comprobar en algo público.')}
                         </p>
                     </div>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {proofs.map((p) => {
-                            const inner = (
-                                <>
-                                    <p.icon className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                                    <div className="min-w-0">
-                                        <div className="text-xs font-bold text-white/90">{p.title}</div>
-                                        <div className="text-[10px] font-mono text-white/35 truncate mt-0.5">{p.detail}</div>
-                                        <div className="text-[10px] text-emerald-400/70 mt-1 inline-flex items-center gap-1">{p.cta} {!p.internal && <ExternalLink className="w-2.5 h-2.5" />}</div>
-                                    </div>
-                                </>
-                            );
-                            const cls = "flex items-start gap-3 p-4 rounded-xl border border-emerald-400/15 bg-black/40 hover:border-emerald-400/40 transition-colors";
-                            return p.internal ? (
-                                <Link key={p.title} href={p.href} className={cls}>{inner}</Link>
-                            ) : (
-                                <a key={p.title} href={p.href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>
-                            );
-                        })}
+                    <div className="space-y-8">
+                        {proofGroups.map((group) => (
+                            <div key={group.label}>
+                                <p className="text-[10px] font-mono uppercase tracking-widest text-white/35 mb-3">{group.label}</p>
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {group.items.map((p) => {
+                                        const inner = (
+                                            <>
+                                                <p.icon className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                                <div className="min-w-0">
+                                                    <div className="text-xs font-bold text-white/90">{p.title}</div>
+                                                    <div className="text-[10px] font-mono text-white/35 truncate mt-0.5">{p.detail}</div>
+                                                    <div className="text-[10px] text-emerald-400/70 mt-1 inline-flex items-center gap-1">{p.cta} <ExternalLink className="w-2.5 h-2.5" /></div>
+                                                </div>
+                                            </>
+                                        );
+                                        const cls = "flex items-start gap-3 p-4 rounded-xl border border-emerald-400/15 bg-black/40 hover:border-emerald-400/40 transition-colors";
+                                        return (
+                                            <a key={p.title} href={p.href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
 
-            {/* BUILT WITH NIRIUM - sin fichas hasta que cada equipo apruebe su texto */}
-            <section className="py-16 sm:py-20 border-t border-white/5">
+            {/* HECHO CON NIRIUM - teaser, el catálogo completo vive en /ecosystem */}
+            <section className="py-12 border-t border-white/5">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
-                    <h2 className="text-2xl sm:text-3xl font-bold">{lang('Built with Nirium', 'Hecho con Nirium')}</h2>
-                    <p className="mt-4 text-white/55 max-w-xl mx-auto text-sm">
-                        {lang('Projects charging for their own API with x402Serve(). Each listing goes up once its team approves the text.', 'Proyectos que cobran por su propia API con x402Serve(). Cada ficha se publica cuando su equipo aprueba el texto.')}
-                    </p>
-                    {BUILT_WITH.length > 0 ? (
-                        <div className="mt-10 grid sm:grid-cols-2 gap-6 text-left">
-                            {BUILT_WITH.map((b) => (
-                                <a key={b.name} href={b.url} target="_blank" rel="noopener noreferrer" className="min-w-0 p-6 rounded-xl border border-white/10 bg-white/[0.02] hover:border-stellar-teal/30 transition-colors">
-                                    <h3 className="text-lg font-bold mb-2 inline-flex items-center gap-2">{b.name} <ExternalLink className="w-3.5 h-3.5 text-white/40" /></h3>
-                                    <p className="text-sm text-white/60 leading-relaxed">{lang(b.en, b.es)}</p>
-                                </a>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="mt-10 rounded-xl border border-dashed border-white/15 px-6 py-10 text-sm text-white/40">
-                            {lang('Listings coming soon.', 'Fichas próximamente.')}{' '}
-                            <a href="mailto:niriumprotocol@gmail.com" className="text-stellar-teal/80 hover:text-stellar-teal underline underline-offset-2">
-                                {lang('Built something with x402Serve()? Tell us.', '¿Construiste algo con x402Serve()? Cuéntanos.')}
-                            </a>
-                        </div>
-                    )}
+                    <Link href="/ecosystem" className="inline-flex items-center gap-1.5 text-sm text-stellar-teal/80 hover:text-stellar-teal">
+                        {lang("Who we work with: Pollar, TIA, Trustless Work and AgentLedger (its founder joined the Nirium team in October 2026), and what Nirium itself depends on.", 'Con quién trabajamos: Pollar, TIA, Trustless Work y AgentLedger (su fundador se unió al equipo de Nirium en octubre de 2026), y de qué depende Nirium mismo.')} <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
                 </div>
             </section>
 
-            {/* MORE FROM NIRIUM */}
-            <section className="py-16 sm:py-20 border-t border-white/5">
+            {/* AVISO LEGAL - puntero corto; el texto canónico vive en /disclaimers.
+                Treasury/Payouts/Fiat Hub/Strategy Builder etc. salieron del cuerpo de
+                la landing (9-oct-2026) y se quedan solo en Producto > navbar. */}
+            <section className="py-10 border-t border-white/5">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6">
-                    <h2 className="text-xl sm:text-2xl font-bold">{lang('More from Nirium', 'Más de Nirium')}</h2>
-                    <p className="mt-2 text-sm text-white/45">
-                        {lang('Everything here is non-custodial. Each status is what runs today, not a roadmap.', 'Todo aquí es non-custodial. Cada estado es lo que corre hoy, no un roadmap.')}
-                    </p>
-                    <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {more.map((m) => {
-                            const external = m.href.startsWith('http');
-                            const inner = (
-                                <>
-                                    <div className="flex items-center justify-between gap-2 mb-3">
-                                        <div className="flex items-center gap-2 min-w-0">
-                                            <m.icon className="w-4 h-4 text-white/60 shrink-0" />
-                                            <h3 className="text-sm font-bold text-white/90 truncate">{m.title}</h3>
-                                        </div>
-                                        <ChevronRight className="w-3.5 h-3.5 text-white/30 shrink-0" />
-                                    </div>
-                                    <span className={`inline-flex px-1.5 py-0.5 rounded border text-[8px] font-black uppercase tracking-widest ${toneClass[m.tone]}`}>{m.status}</span>
-                                    <p className="mt-3 text-xs text-white/50 leading-relaxed">{m.body}</p>
-                                    {m.note && <p className="mt-2 text-[10px] text-white/35 leading-relaxed">{m.note}</p>}
-                                </>
-                            );
-                            const cls = "min-w-0 block p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:border-white/25 transition-colors";
-                            return external ? (
-                                <a key={m.title} href={m.href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>
-                            ) : (
-                                <Link key={m.title} href={m.href} className={cls}>{inner}</Link>
-                            );
-                        })}
-                    </div>
-                    <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs">
-                        <Link href="/dashboard" className="text-stellar-teal/80 hover:text-stellar-teal inline-flex items-center gap-1">
-                            {lang('Open the testnet dashboard', 'Abrir el dashboard de testnet')} <ChevronRight className="w-3 h-3" />
-                        </Link>
-                        <Link href="/agents" className="text-stellar-teal/80 hover:text-stellar-teal inline-flex items-center gap-1">
-                            {lang('All execution nodes', 'Todos los nodos de ejecución')} <ChevronRight className="w-3 h-3" />
-                        </Link>
-                        <Link href="/pricing" className="text-stellar-teal/80 hover:text-stellar-teal inline-flex items-center gap-1">
-                            {lang('Pricing', 'Precios')} <ChevronRight className="w-3 h-3" />
-                        </Link>
-                    </div>
-
-                    {/* Aviso legal - puntero corto; el texto canónico vive en /disclaimers. */}
-                    <p className="mt-10 text-[10px] text-white/30 font-mono leading-relaxed border border-white/5 rounded-lg px-5 py-3 bg-white/[0.01]">
+                    <p className="text-[10px] text-white/30 font-mono leading-relaxed border border-white/5 rounded-lg px-5 py-3 bg-white/[0.01]">
                         <span className="text-white/45 font-semibold uppercase tracking-widest">
                             {lang('Legal notice', 'Aviso legal')} -{' '}
                         </span>
                         {lang(
-                            'Nirium is B2B software-only infrastructure and never custodies funds; financial services (SPEI onramp, CETES custody) are operated by regulated partners.',
-                            'Nirium es infraestructura de software B2B y nunca custodia fondos; los servicios financieros (onramp SPEI, custodia de CETES) los operan partners regulados.')}
+                            'Nirium is B2B software-only infrastructure and never custodies funds; financial services (SPEI onramp, CETES custody) are operated by independent third parties, under their own terms.',
+                            'Nirium es infraestructura de software B2B y nunca custodia fondos; los servicios financieros (onramp SPEI, custodia de CETES) los operan terceros independientes, bajo sus propios términos.')}
                         {' '}
                         <Link href="/disclaimers" className="text-stellar-teal/80 hover:text-stellar-teal underline underline-offset-2 font-bold">
                             {lang('Read full legal notice →', 'Ver aviso legal completo →')}
@@ -542,15 +501,15 @@ export default function Home() {
             <section className="py-20 sm:py-24 border-t border-white/5">
                 <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
                     <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
-                        {lang('Your API, paid per request.', 'Tu API, pagada por request.')}
+                        {lang('Set the policy, charge per call, prove what the chain doesn\'t show.', 'Define tu política, cobra por llamada, demuestra lo que la cadena no muestra.')}
                     </h2>
                     <p className="mt-4 text-white/60 max-w-xl mx-auto">
-                        {lang('Start on testnet in five minutes. Mainnet for third-party facilitators is invite-only until we have a written legal opinion.', 'Empieza en testnet en cinco minutos. Mainnet para facilitadores de terceros es solo por invitación hasta tener una opinión legal por escrito.')}
+                        {lang('Start on testnet in five minutes. Nirium\'s own endpoint answers 402 on mainnet; third-party mainnet use is not something we promote until we have a written legal opinion.', 'Empieza en testnet en cinco minutos. El endpoint propio de Nirium responde 402 en mainnet; el uso en mainnet por terceros no lo promovemos hasta tener una opinión legal por escrito.')}
                     </p>
                     <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-                        <a href="#try-testnet">
+                        <a href={startHref} onClick={() => { trackFunnel("cta_start", { source: "home_final" }); niriumtoberHit("cta_home"); }}>
                             <Button size="lg" variant="premium" className="w-full sm:w-auto">
-                                {lang('Try on testnet', 'Pruébalo en testnet')}
+                                {lang('Start in 5 minutes', 'Empieza en 5 minutos')}
                                 <ArrowRight className="ml-2 w-4 h-4" />
                             </Button>
                         </a>
@@ -570,14 +529,14 @@ export default function Home() {
             {/* BUILT ON OPEN STANDARDS */}
             <section className="py-12 border-t border-white/5 bg-black/50 text-center">
                 <div className="max-w-3xl mx-auto px-4 sm:px-6">
-                    <h3 className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-4">Built on Open Standards</h3>
+                    <h3 className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-4">{lang('Built on Open Standards', 'Construido sobre estándares abiertos')}</h3>
                     <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-white/60 mb-6">
                         <span className="font-mono">x402</span>
                         <span className="text-white/20">•</span>
-                        <span className="font-mono">MPP <span className="text-white/35">({lang('experimental', 'experimental')})</span></span>
+                        <span className="font-mono">MPP <span className="text-white/35">(testnet)</span></span>
                         <span className="text-white/20">•</span>
-                        <span className="font-mono">LCP <span className="text-white/35">({lang('legal opinion pending', 'opinión legal pendiente')})</span></span>
-                        <span className="text-white/20">•</span>
+                        {/* LCP salía aquí como "estándar abierto". Es la capa propia de Nirium,
+                            apagada mientras dura la revisión legal: no va en esta fila. */}
                         <span className="font-mono">Apache 2.0</span>
                         <span className="text-white/20">•</span>
                         <span className="font-mono text-emerald-400">Stellar Mainnet</span>

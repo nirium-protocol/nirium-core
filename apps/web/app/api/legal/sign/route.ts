@@ -6,7 +6,7 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { wallet_address, signature_hash, message_signed, network, accepted_at } = body;
 
-        // Columnas NOT NULL en user_signatures — validar antes de tocar la DB.
+        // Columnas NOT NULL en user_signatures - validar antes de tocar la DB.
         if (!wallet_address || !signature_hash || !message_signed) {
             return NextResponse.json(
                 { error: "wallet_address, signature_hash and message_signed are required" },
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
         if (!supabaseUrl || !supabaseKey) {
             return NextResponse.json(
-                { error: "Supabase service role not configured on server — cannot record the signature" },
+                { error: "Supabase service role not configured on server - cannot record the signature" },
                 { status: 500 },
             );
         }

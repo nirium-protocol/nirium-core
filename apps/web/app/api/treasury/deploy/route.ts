@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { agentPost, asAgentNetwork } from '@/lib/agentProxy';
+import { tierBBlock } from '@/lib/tierBGate';
 
 // Arma el XDR SIN firmar para desplegar la bóveda. El cliente la firma con su
 // propia wallet: por eso `manager` viaja explícito y nunca se deriva de nada
@@ -7,6 +8,9 @@ import { agentPost, asAgentNetwork } from '@/lib/agentProxy';
 export async function POST(req: NextRequest) {
     try {
         const { walletAddress, network, ...body } = await req.json();
+        // EEE, UK y EE.UU.: no se ofrece (ver lib/tierBGate.ts).
+        const blocked = tierBBlock(req, asAgentNetwork(network), 'treasury');
+        if (blocked) return blocked;
         if (!walletAddress) return NextResponse.json({ error: 'walletAddress required' }, { status: 400 });
 
         const { status, data } = await agentPost(

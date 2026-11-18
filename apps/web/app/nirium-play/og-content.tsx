@@ -8,7 +8,7 @@ const GOLD_3 = "#8B6F2E";
 const INK = "#0A0A0C";
 
 function GamepadMark({ size }: { size: number }) {
-    // Same shape/paths as app/branding-nirium-play — the controller
+    // Same shape/paths as app/branding-nirium-play - the controller
     // silhouette with the official Nirium N as the D-pad and a Stellar
     // 4-point star as one face button.
     return (

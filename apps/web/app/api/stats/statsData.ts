@@ -40,7 +40,13 @@ const REBALANCE_MANAGER_MAINNET = 'GCEAC7KKHLSPNHEO3N662N57ABRQZQ7QDVIZWQSQAUJZD
 // 'integration-test' = a third party's own wallet, used to test the integration
 // (coordinated with us, funded by us at the start). It is NOT organic adoption,
 // so it never feeds the "external payers" count; it is listed apart with dates.
-type PayerKind = 'internal' | 'external' | 'integration-test';
+// 'campaign' = a participant's own wallet that paid during Niriumtober to earn
+// a badge. Real paid use, but incentivized: it never feeds the "external
+// payers" count either, and is shown apart. Each entry is added by hand from
+// an approved evidence issue (label `niriumtober` in nirium-protocol/nirium),
+// never inferred from timing.
+type PayerKind = 'internal' | 'external' | 'integration-test' | 'campaign';
+const NIRIUMTOBER_PAYERS: Record<string, { evidenceUrl: string }> = {};
 const KNOWN_PAYERS: Record<string, { kind: PayerKind; label: string; shortName: string; note: string; evidenceUrl?: string }> = {
     GAQPWCSBHQNBHR6XXAO2F3MNZIKWPDHCKNU5IEQ6PX6YEIUNNGWE252E: {
         kind: 'internal',
@@ -58,7 +64,7 @@ const KNOWN_PAYERS: Record<string, { kind: PayerKind; label: string; shortName: 
         kind: 'integration-test',
         label: 'AgentLedger (@fernando-mendoza)',
         shortName: 'AgentLedger',
-        note: "Integration tests by a third party (AgentLedger) - the operator identified these settlements as theirs, in public, on OpenZeppelin/relayer-plugin-x402-facilitator#47. Wallet initially funded by Nirium's founder.",
+        note: "Integration tests by AgentLedger - the operator identified these settlements as theirs, in public, on OpenZeppelin/relayer-plugin-x402-facilitator#47. Wallet initially funded by Nirium's founder. AgentLedger was an independent third party when these settlements happened (Aug-Sep 2026); its founder, Fer, also joined Nirium part-time in October 2026.",
         evidenceUrl: 'https://github.com/OpenZeppelin/relayer-plugin-x402-facilitator/issues/47#issuecomment-5644298533',
     },
 };
@@ -84,6 +90,16 @@ const EXTERNAL_MERGED_PRS: Array<{ owner: string; repo: string; number: number }
     { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 2 },
     { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 3 },
     { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 4 },
+    { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 9 },
+    // #10-#13 mergeados 4/5-nov-2026 por techrebelgit (Trustless Work); confirmado
+    // el 9-nov que los cuatro son notas de Nirium: #10 piloto de liberación con
+    // evidencia, #11 liveness del firmante de Treasury, #12 (M0nsxx) hook antes de
+    // firmar, #13 (M0nsxx) x402 vs MPP Charge en el mismo endpoint.
+    { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 10 },
+    { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 11 },
+    { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 12 },
+    { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 13 },
+    { owner: 'stellar', repo: 'stellar-dev-skill', number: 150 },
 ];
 
 // "Built with Nirium" - third parties selling their own API over x402 via
@@ -104,10 +120,11 @@ const BUILT_WITH_NIRIUM: Array<{
         repo: 'Edgadafi/remesa-liquidez',
         packageJsonPath: 'backend/package.json',
         sourceRefs: [
-            { label: 'x402Serve() on /premium', path: 'backend/src/app.ts', lines: 'L147' },
-            { label: 'x402Serve() on /v1', path: 'backend/src/app.ts', lines: 'L154' },
+            { label: 'x402Serve() on /premium', path: 'backend/src/app.ts', lines: 'L165' },
+            { label: 'x402Serve() on /v1', path: 'backend/src/app.ts', lines: 'L178' },
         ],
-        commitSha: '1e0cbd5902cb224d3c6a2320cc009cf4df84f513',
+        // 12-nov-2026: antes 1e0cbd5 (nirium 0.11.0). Su main de hoy usa nirium 0.16.0.
+        commitSha: 'bb9d14b53c37b0662697a8a4c8a4c9c62826764a',
     },
 ];
 
@@ -150,7 +167,13 @@ async function getBuiltWithNirium() {
                         const payTo = decoded?.accepts?.[0]?.payTo as string | undefined;
                         if (!payTo) return { checked: true, payTo: null as string | null, count: null as number | null, source: undefined as string | undefined };
                         const ops = await fetchAllOps(payTo);
-                        const count = ops.filter((o) => o.type === 'invoke_host_function' && (o.asset_balance_changes ?? []).some((c) => c.to === payTo && isMainnetUsdc(c))).length;
+                        // A real x402 payment is never submitted by payTo itself - per the
+                        // comment above, x402 routes every payment through a fresh
+                        // per-transaction facilitator channel account as source_account.
+                        // An op where source_account === payTo is payTo moving its own
+                        // balance (e.g. an XLM->USDC swap), not an incoming settlement -
+                        // found live, 2026-10-07: tx 377e5f66... on this exact payTo.
+                        const count = ops.filter((o) => o.type === 'invoke_host_function' && o.source_account !== payTo && (o.asset_balance_changes ?? []).some((c) => c.to === payTo && isMainnetUsdc(c))).length;
                         return {
                             checked: true,
                             payTo,
@@ -421,7 +444,14 @@ async function getX402Settlements() {
 
     const payers = await Promise.all(
         [...byPayer.entries()].map(async ([address, stats]) => {
-            const known = KNOWN_PAYERS[address];
+            const campaign = NIRIUMTOBER_PAYERS[address];
+            const known = KNOWN_PAYERS[address] ?? (campaign && {
+                kind: 'campaign' as const,
+                label: 'Niriumtober participant',
+                shortName: 'Niriumtober',
+                note: 'Paid during the Niriumtober sprint to earn a badge, with its own funds. Counted apart from external payers.',
+                evidenceUrl: campaign.evidenceUrl,
+            });
             const kind: PayerKind = known?.kind ?? 'external';
             return {
                 address,
@@ -449,16 +479,20 @@ async function getX402Settlements() {
     const ledgers = await Promise.all(integrationTests.map((p) => getLedgerEvidence(p.address, p.hashes)));
     const totalSettlements = payers.reduce((t, p) => t + p.count, 0);
     const externalSettlements = externalPayers.reduce((t, p) => t + p.count, 0);
+    const campaignPayers = payers.filter((p) => p.kind === 'campaign');
 
     return {
         totalSettlements,
         distinctPayers: payers.length,
         externalPayerCount: externalPayers.length,
         externalSettlements,
+        campaignPayerCount: campaignPayers.length,
+        campaignSettlements: campaignPayers.reduce((t, p) => t + p.count, 0),
         integrationTests: integrationTests.map((p, i) => ({
             ledger: ledgers[i],
             address: p.address,
             shortName: p.shortName,
+            note: p.note,
             count: p.count,
             firstAt: p.firstAt,
             lastAt: p.lastAt,
@@ -490,6 +524,10 @@ async function getTreasuryRebalances() {
     };
 }
 
+// Every npm package we publish, in display order. The /stats cards and the
+// freshness map both come from this list, so a new package is one edit here.
+const NPM_PACKAGES = ['nirium', 'nirium-mcp', 'nirium-cli', 'nirium-pollar-adapter'] as const;
+
 async function getNpmDownloads(pkg: string) {
     try {
         const r = await fetch(`https://api.npmjs.org/downloads/point/last-year/${pkg}`, {
@@ -517,10 +555,15 @@ async function getPypiDownloads() {
     // claiming a total. Not in the Next data cache on purpose (it would pin a
     // 429); the route cache and the last-good fallback cover the rate limit. A
     // failure THROWS so the caller reports the real HTTP status.
+    // Sin `cache: 'no-store'` a proposito: en Next 15 un solo fetch no-store
+    // vuelve dinamica TODA la ruta, anulaba `revalidate = 300` de /stats y cada
+    // visita esperaba ~12 llamadas externas en vivo (4-5 s, medido 10-oct-2026).
+    // Sin opcion de cache el fetch tampoco entra al data cache (default de
+    // Next 15), asi que la intencion de arriba se mantiene.
     const ua = { 'User-Agent': 'nirium-stats/1.0 (+https://nirium.xyz/stats)' };
     const [stats, meta] = await Promise.all([
-        fetch('https://pypistats.org/api/packages/nirium/overall', { headers: ua, signal: AbortSignal.timeout(8000), cache: 'no-store' }),
-        fetch('https://pypi.org/pypi/nirium/json', { headers: ua, signal: AbortSignal.timeout(8000), cache: 'no-store' }),
+        fetch('https://pypistats.org/api/packages/nirium/overall', { headers: ua, signal: AbortSignal.timeout(8000) }),
+        fetch('https://pypi.org/pypi/nirium/json', { headers: ua, signal: AbortSignal.timeout(8000) }),
     ]);
     if (!stats.ok) throw new Error(`pypistats answered HTTP ${stats.status}`);
     if (!meta.ok) throw new Error(`pypi.org answered HTTP ${meta.status}`);
@@ -578,6 +621,15 @@ async function getExternalMergedPRs() {
 // campaign and cannot be verified from GitHub.
 const GH_ORG = 'nirium-protocol';
 const TEAM_HANDLES = new Set(['eras256', 'm0nsxx']);
+// Joined the team mid-stream. PRs from before the join date are genuine
+// community contributions made while the author was still external, and
+// still count; PRs from the join date onward don't - adding the handle to
+// TEAM_HANDLES outright would have retroactively erased that real pre-join
+// history (there isn't any for this one yet, but the mechanism has to be
+// date-aware to not do that the next time it matters).
+const TEAM_JOIN_DATES: Record<string, string> = {
+    'fernando-mendoza': '2026-10-15', // Fer, AgentLedger founder - joined Nirium part-time
+};
 
 async function getCommunityContributions() {
     const reposRes = await ghJson(`https://api.github.com/orgs/${GH_ORG}/repos?per_page=100`);
@@ -597,7 +649,14 @@ async function getCommunityContributions() {
         }
         return all;
     };
-    const isCommunity = (u: any) => u && u.type === 'User' && !TEAM_HANDLES.has(String(u.login).toLowerCase());
+    const isCommunity = (u: any, at: string) => {
+        if (!u || u.type !== 'User') return false;
+        const login = String(u.login).toLowerCase();
+        if (TEAM_HANDLES.has(login)) return false;
+        const joinDate = TEAM_JOIN_DATES[login];
+        if (joinDate && at >= joinDate) return false;
+        return true;
+    };
 
     const perRepo = await Promise.all(
         repos.map(async (repo) => {
@@ -626,7 +685,7 @@ async function getCommunityContributions() {
             for (const i of grantfoxIssueList) for (const c of campaignsOf(i)) bountyByCampaign[c] = (bountyByCampaign[c] ?? 0) + 1;
             const bountyIssueTotal = grantfoxIssueList.length;
             const mergedPRs = pulls
-                .filter((p) => p.merged_at && isCommunity(p.user))
+                .filter((p) => p.merged_at && isCommunity(p.user, p.merged_at))
                 .map((p) => {
                     const refs = new Set<number>([...`${p.title} ${p.body ?? ''}`.matchAll(/(?:#|\/issues\/)(\d+)/g)].map((m) => Number(m[1])));
                     return {
@@ -640,7 +699,7 @@ async function getCommunityContributions() {
                     };
                 });
             const closedIssues = issues
-                .filter((i) => !i.pull_request && i.state === 'closed' && i.state_reason === 'completed' && isCommunity(i.user))
+                .filter((i) => !i.pull_request && i.state === 'closed' && i.state_reason === 'completed' && isCommunity(i.user, i.closed_at))
                 .map((i) => ({
                     repo: `${GH_ORG}/${repo}`,
                     number: i.number as number,
@@ -673,7 +732,7 @@ async function getCommunityContributions() {
         failedRequests: failures,
         platformUrl: 'https://grantfox.xyz/open-source',
         source: `https://api.github.com/orgs/${GH_ORG}/repos`,
-        note: 'Team handles (Eras256, M0nsxx) and bots are excluded. The bounty issues themselves are written by the team, so "issues closed" counts only issues opened by people outside the team. Nothing here says whether any bounty was settled.',
+        note: 'Team handles (Eras256, M0nsxx) and bots are excluded. fernando-mendoza joined the team part-time in October 2026 - PRs/issues from him on or after 2026-10-15 are excluded too, but anything from before that date (if any) still counts, since he was genuinely external then. The bounty issues themselves are written by the team, so "issues closed" counts only issues opened by people outside the team. Nothing here says whether any bounty was settled.',
     };
 }
 
@@ -855,8 +914,22 @@ async function getIntegrations(): Promise<Integration[]> {
 // under the Mainnet heading and disclose the unlabeled remainder instead of
 // folding it in (the unfiltered anchors count of 6 was wrongly shown as
 // mainnet until this split - filtered, mainnet is 0).
+//
+// `from` is always explicit (2026-01-01, safely before any Nirium mainnet
+// activity: the earliest real record is a 9-jul-2026 payment). Found
+// 14-nov-2026: the agent's own default when no `from` is given is a rolling
+// 30-day window (`DEFAULT_WINDOW_DAYS` in reportingRoutes.ts) - a total
+// that quietly shrinks as old anchors age out with no new ones to replace
+// them, with nothing in the response to say so (`period.from` came back
+// `null`). 34 mainnet anchors on 12-nov read as 32 two days later, with no
+// deploy or deletion involved - two 13-oct anchors (our own blog-post demo
+// receipts) simply fell out of the window. ALL_TIME_FROM makes the summary
+// (and the link next to it) report the real lifetime count, not a window.
+const ALL_TIME_FROM = '2026-01-01';
+
 async function getReportingSummaries() {
     const base = 'https://nirium-agent-mainnet.fly.dev/api/reporting/summary';
+    const last30From = new Date(Date.now() - 30 * 86_400_000).toISOString();
     const get = async (q: string) => {
         try {
             const r = await fetch(`${base}${q}`, { signal: AbortSignal.timeout(25000) });
@@ -865,20 +938,32 @@ async function getReportingSummaries() {
             return null;
         }
     };
-    const [mainnet, testnet, all] = await Promise.all([get('?network=mainnet'), get('?network=testnet'), get('')]);
-    return { mainnet, testnet, all };
+    const [mainnet, testnet, all, mainnetLast30] = await Promise.all([
+        get(`?network=mainnet&from=${ALL_TIME_FROM}`),
+        get(`?network=testnet&from=${ALL_TIME_FROM}`),
+        get(`?from=${ALL_TIME_FROM}`),
+        // Explicit from/to (not the agent's bare default) so this stays a
+        // real "last 30 days" figure even after the agent's own default
+        // changes to all-time.
+        get(`?network=mainnet&from=${last30From}`),
+    ]);
+    return { mainnet, testnet, all, mainnetLast30 };
 }
 
 export async function getStatsData() {
-    const [x402g, rebalancesg, npmSdkg, npmCling, npmAdapterg, pypig, prsg, reportingg, builtWith, integrations, connectors, communityg] = await Promise.all([
+    const [x402g, rebalancesg, npmg, pypig, prsg, reportingg, builtWith, integrations, connectors, communityg] = await Promise.all([
         guarded('x402', getX402Settlements),
         guarded('rebalances', getTreasuryRebalances),
-        guarded('npm:nirium', () => getNpmDownloads('nirium'), (v) => v.downloads !== null),
-        guarded('npm:nirium-cli', () => getNpmDownloads('nirium-cli'), (v) => v.downloads !== null),
-        guarded('npm:nirium-pollar-adapter', () => getNpmDownloads('nirium-pollar-adapter'), (v) => v.downloads !== null),
+        Promise.all(NPM_PACKAGES.map((pkg) =>
+            guarded(`npm:${pkg}`, () => getNpmDownloads(pkg), (v) => v.downloads !== null))),
         guarded('pypi', getPypiDownloads, () => true, 60 * 60 * 1000),
         guarded('externalPRs', getExternalMergedPRs, (v) => v.unavailable === 0),
-        guarded('reporting', getReportingSummaries, (v) => !!(v.mainnet && v.testnet && v.all)),
+        // A summary with `warnings` means one of its Supabase queries hit the
+        // agent's 8 s cap and came back empty: the counts are LOWER than real,
+        // not live. Treat it as incomplete so the last good read (or an honest
+        // "unavailable") is shown instead of an undercount.
+        guarded('reporting', getReportingSummaries, (v) =>
+            [v.mainnet, v.testnet, v.all, v.mainnetLast30].every((s) => !!s && !(Array.isArray(s.warnings) && s.warnings.length > 0))),
         getBuiltWithNirium(),
         getIntegrations(),
         getConnectors(),
@@ -886,8 +971,9 @@ export async function getStatsData() {
     ]);
     const x402 = x402g.value;
     const rebalances = rebalancesg.value;
-    const reporting: Awaited<ReturnType<typeof getReportingSummaries>> = reportingg.value ?? { mainnet: null, testnet: null, all: null };
-    const npmSdk = npmSdkg.value, npmCli = npmCling.value, npmAdapter = npmAdapterg.value;
+    const reporting: Awaited<ReturnType<typeof getReportingSummaries>> = reportingg.value ?? { mainnet: null, testnet: null, all: null, mainnetLast30: null };
+    const npmByPkg = <T,>(pick: (g: (typeof npmg)[number]) => T): Record<string, T> =>
+        Object.fromEntries(NPM_PACKAGES.map((pkg, i) => [pkg, pick(npmg[i])]));
     const pypi = pypig.value;
     const prs = prsg.value;
     const community = communityg.value;
@@ -895,7 +981,7 @@ export async function getStatsData() {
         x402: x402g.freshness,
         rebalances: rebalancesg.freshness,
         reporting: reportingg.freshness,
-        npm: { nirium: npmSdkg.freshness, 'nirium-cli': npmCling.freshness, 'nirium-pollar-adapter': npmAdapterg.freshness },
+        npm: npmByPkg((g) => g.freshness),
         pypi: pypig.freshness,
         externalPRs: prsg.freshness,
         community: communityg.freshness,
@@ -908,20 +994,33 @@ export async function getStatsData() {
             x402Settlements: x402,
             treasuryRebalances: rebalances,
             auditTrailAnchors: {
-                // Mainnet-labeled rows only. Rows from before network tagging
-                // are reported separately, never folded into mainnet.
+                // Mainnet-labeled rows only, all-time (from=ALL_TIME_FROM - see
+                // getReportingSummaries). Rows from before network tagging are
+                // reported separately, never folded into mainnet.
                 count: reporting.mainnet?.anchors?.count ?? null,
-                latestCid: reporting.mainnet?.anchors?.latestCid ?? null,
+                // Echoes the agent's own `period.from` for this query, so the
+                // label always names the exact window the count above covers
+                // (never a bare number with no period, per the 12-14 Nov drift).
+                since: reporting.mainnet?.period?.from ?? ALL_TIME_FROM,
+                // Sin el CID del último anclaje (9-nov-2026): suele ser evidencia de un socio y
+                // /verify promete que esos CIDs no se listan. Se publica solo la fecha.
+                lastAnchoredAt: reporting.mainnet?.anchors?.lastAnchoredAt ?? null,
                 unlabeledCount:
                     reporting.all && reporting.mainnet && reporting.testnet
                         ? Math.max(0, (reporting.all.anchors?.count ?? 0) - (reporting.mainnet.anchors?.count ?? 0) - (reporting.testnet.anchors?.count ?? 0))
                         : null,
-                source: 'https://nirium-agent-mainnet.fly.dev/api/reporting/summary?network=mainnet',
+                // Secondary, explicitly-windowed figure - freshness, not the total.
+                last30Days: {
+                    count: reporting.mainnetLast30?.anchors?.count ?? null,
+                    from: reporting.mainnetLast30?.period?.from ?? null,
+                },
+                source: `https://nirium-agent-mainnet.fly.dev/api/reporting/summary?network=mainnet&from=${ALL_TIME_FROM}`,
                 note: "Nirium's own live reporting API - not a third party, hit the link yourself to see the raw response.",
             },
             payoutsSettledRuns: {
                 count: reporting.mainnet?.payroll?.settledRuns ?? null,
-                source: 'https://nirium-agent-mainnet.fly.dev/api/reporting/summary?network=mainnet',
+                since: reporting.mainnet?.period?.from ?? ALL_TIME_FROM,
+                source: `https://nirium-agent-mainnet.fly.dev/api/reporting/summary?network=mainnet&from=${ALL_TIME_FROM}`,
             },
             escrowReleases: !x402 ? null : {
                 count: x402.escrowReleases.length,
@@ -933,7 +1032,7 @@ export async function getStatsData() {
                 note: 'Trustless Work escrow milestone releases sent to the mainnet receiving address, read from Horizon (payer = a contract address). Not x402 payments.',
                 source: x402.source,
             },
-            npm: { nirium: npmSdk, 'nirium-cli': npmCli, 'nirium-pollar-adapter': npmAdapter },
+            npm: npmByPkg((g) => g.value),
             pypi,
             externalMergedPRs: prs,
             builtWithNirium: [...builtWith.map((b) => ({ kind: 'x402-seller' as const, ...b })), ...connectors],

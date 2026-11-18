@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { agentGet, asAgentNetwork } from '@/lib/agentProxy';
 
 // Lectura de una bóveda: roles, activos y fondos administrados.
-// Es la comprobación que sostiene todo el argumento — cualquiera puede ver
+// Es la comprobación que sostiene todo el argumento - cualquiera puede ver
 // que el Manager es el cliente y que Nirium solo tiene el rol de rebalanceo.
 export async function GET(req: NextRequest) {
     try {

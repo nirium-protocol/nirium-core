@@ -2,32 +2,36 @@
 
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
     Search, Shield, ShieldCheck, ShieldAlert, ShieldQuestion, Info,
     Copy, CheckCircle2, ExternalLink, RefreshCw, Hash, Clock, Tag as TagIcon,
-    FileCode2, AlertTriangle, Loader2, ArrowRight,
+    FileCode2, AlertTriangle, Loader2, ArrowRight, Sparkles,
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import {
-    extractCid, checkRecordIntegrity, networkLabel, explorerTxUrl, explorerAccountUrl,
-    type AnchoredDoc, type RecordCheck,
+    extractCid, checkRecordIntegrity, declaredNetwork, explorerTxUrl, explorerAccountUrl, checkSignerAccount,
+    rawGatewayUrl, formatAnchoredAtUtc,
+    type AnchoredDoc, type RecordCheck, type SignerAccount,
 } from '@/lib/auditVerify';
 
 const MAX_ATTEMPTS = 10;
 const RETRY_DELAY_MS = 9000; // 10 attempts * 9s ≈ the 60-90s gateway propagation window
+
+// Nirium's own signed mainnet anchor (agent.id "selftest-nirium") - a
+// deliberate self-test, not a partner's evidence, so it's safe to point
+// visitors at from this page and always resolves to the full green result.
+const EXAMPLE_CID = 'QmaAXCmpqaptjDTJoRPcyFBUywrvuA7GfLyArVaQwd5VDM';
 
 type Phase = 'idle' | 'searching' | 'found' | 'error_invalid' | 'error_not_found' | 'error_not_audit_doc' | 'error_generic';
 type AttestationState = 'checking' | 'valid' | 'invalid' | 'none' | 'error';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const GATEWAY = (process.env.NEXT_PUBLIC_GATEWAY_URL || 'https://gateway.pinata.cloud').replace(/\/$/, '');
-const gatewayUrl = (cid: string) => `${GATEWAY.startsWith('http') ? GATEWAY : `https://${GATEWAY}`}/ipfs/${cid}`;
-
 function VerifyContent() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const tv = t.verifyAudit;
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -39,9 +43,17 @@ function VerifyContent() {
     const [doc, setDoc] = useState<AnchoredDoc | null>(null);
     const [recordCheck, setRecordCheck] = useState<RecordCheck | null>(null);
     const [attestation, setAttestation] = useState<AttestationState>('none');
+    const [signerAccount, setSignerAccount] = useState<SignerAccount>('unknown');
     const [copiedField, setCopiedField] = useState<string | null>(null);
+    // Comparar un anclaje de solo hash con la evidencia original (9-nov-2026).
+    // El archivo se lee y se hashea EN EL NAVEGADOR (crypto.subtle); nunca se sube.
+    // Mismo cálculo que `nirium verify --evidence`: sha-256 de los bytes del archivo.
+    const [evidence, setEvidence] = useState<{ name: string; sha256: string; match: boolean } | null>(null);
+    const [evidenceBusy, setEvidenceBusy] = useState(false);
+    const [pastedHash, setPastedHash] = useState('');
 
     const cancelledRef = useRef(false);
+    const signerKeyRef = useRef<string | null>(null);
     useEffect(() => {
         cancelledRef.current = false;
         return () => { cancelledRef.current = true; };
@@ -78,7 +90,7 @@ function VerifyContent() {
         setPhase('searching');
         setAttempt(attemptNum);
         try {
-            const res = await fetch(`/api/ipfs?cid=${encodeURIComponent(targetCid)}`, { signal: AbortSignal.timeout(12_000) });
+            const res = await fetch(`/api/ipfs?cid=${encodeURIComponent(targetCid)}`, { signal: AbortSignal.timeout(25_000) });
             if (cancelledRef.current) return;
             if (!res.ok) {
                 if (attemptNum < MAX_ATTEMPTS) {
@@ -105,6 +117,13 @@ function VerifyContent() {
             if (cancelledRef.current) return;
             setRecordCheck(rc);
 
+            if (data.agent?.key) {
+                const key = data.agent.key;
+                signerKeyRef.current = key;
+                checkSignerAccount(key, data.network).then(s => {
+                    if (!cancelledRef.current && signerKeyRef.current === key) setSignerAccount(s);
+                });
+            }
             await runAttestationCheck(data);
         } catch {
             if (cancelledRef.current) return;
@@ -117,15 +136,41 @@ function VerifyContent() {
         }
     };
 
+    const compareEvidenceFile = async (file: File) => {
+        if (!doc) return;
+        setEvidenceBusy(true);
+        try {
+            const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+            const hex = Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+            setEvidence({ name: file.name, sha256: hex, match: hex === doc.content_sha256.toLowerCase() });
+        } finally {
+            setEvidenceBusy(false);
+        }
+    };
+
+    const comparePastedHash = () => {
+        if (!doc) return;
+        const hex = pastedHash.trim().toLowerCase().replace(/^sha-?256:/, '');
+        if (!/^[0-9a-f]{64}$/.test(hex)) {
+            setEvidence({ name: '', sha256: hex, match: false });
+            return;
+        }
+        setEvidence({ name: '', sha256: hex, match: hex === doc.content_sha256.toLowerCase() });
+    };
+
     const startLookup = (raw: string) => {
         const extracted = extractCid(raw);
         if (!extracted) {
             setPhase('error_invalid');
             return;
         }
+        setEvidence(null);
+        setPastedHash('');
         setDoc(null);
         setRecordCheck(null);
         setAttestation('none');
+        setSignerAccount('unknown');
+        signerKeyRef.current = null;
         void runLookup(extracted, 1);
     };
 
@@ -155,6 +200,10 @@ function VerifyContent() {
         setCidInput('');
         setRecordCheck(null);
         setAttestation('none');
+        setSignerAccount('unknown');
+        setEvidence(null);
+        setPastedHash('');
+        signerKeyRef.current = null;
         router.replace('/verify', { scroll: false });
     };
 
@@ -166,7 +215,8 @@ function VerifyContent() {
     };
 
     const isSearching = phase === 'searching';
-    const network = doc?.network ? networkLabel(doc.network) : 'testnet';
+    // null = el documento no declara red: se dice, no se asume testnet.
+    const network = declaredNetwork(doc?.network);
 
     return (
         <main className="min-h-screen pt-8 pb-24 relative bg-black">
@@ -229,6 +279,29 @@ function VerifyContent() {
                         </button>
                     </div>
                 </motion.form>
+
+                <div className="text-center mb-8 -mt-2 space-y-2">
+                    <div className="flex items-center justify-center gap-2 flex-wrap text-xs text-gray-500">
+                        <span>{tv.example_intro}</span>
+                        <button
+                            type="button"
+                            onClick={() => { setCidInput(EXAMPLE_CID); startLookup(EXAMPLE_CID); }}
+                            disabled={isSearching}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                            {tv.example_button}
+                        </button>
+                        <span>
+                            {tv.example_or}{' '}
+                            <Link href="/docs#quickstart" className="text-emerald-400 hover:text-emerald-300 transition-colors">
+                                {tv.example_anchor_link}
+                            </Link>
+                            {' '}{tv.example_guide_suffix}
+                        </span>
+                    </div>
+                    <p className="text-[11px] text-gray-600">{tv.example_note}</p>
+                </div>
 
                 {/* Status / results */}
                 <AnimatePresence mode="wait">
@@ -305,6 +378,71 @@ function VerifyContent() {
                                 </div>
                             </div>
 
+                            {/* Comparar con la evidencia original: solo para anclajes de solo hash. */}
+                            {recordCheck === 'no_record' && (
+                                <div className="bg-[#121212] border border-white/5 rounded-[1.5rem] p-6 sm:p-8 space-y-4">
+                                    <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
+                                        {language === 'es' ? 'Comparar con tu archivo' : 'Compare with your file'}
+                                    </h4>
+                                    <p className="text-xs text-gray-500 leading-relaxed">
+                                        {language === 'es'
+                                            ? 'Si tienes la evidencia original, elígela aquí. Tu navegador calcula su SHA-256 y lo compara con el hash del recibo. El archivo no sale de tu computadora: no se sube a Nirium ni a ningún otro lado.'
+                                            : 'If you have the original evidence, pick it here. Your browser computes its SHA-256 and compares it with the receipt’s hash. The file never leaves your computer: it is not uploaded to Nirium or anywhere else.'}
+                                    </p>
+                                    <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-xl cursor-pointer transition-all">
+                                        {evidenceBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileCode2 className="w-3.5 h-3.5" />}
+                                        {language === 'es' ? 'Elegir archivo' : 'Choose file'}
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            data-testid="evidence-file"
+                                            onChange={(e) => { const f = e.target.files?.[0]; if (f) void compareEvidenceFile(f); e.target.value = ''; }}
+                                        />
+                                    </label>
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                        <input
+                                            type="text"
+                                            value={pastedHash}
+                                            onChange={(e) => setPastedHash(e.target.value)}
+                                            placeholder={language === 'es' ? 'o pega un SHA-256 (64 caracteres hex)' : 'or paste a SHA-256 (64 hex characters)'}
+                                            className="flex-1 bg-black/40 border border-white/10 rounded-xl py-2.5 px-3 text-white font-mono text-xs focus:outline-none focus:border-emerald-500/40 placeholder:text-gray-700"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={comparePastedHash}
+                                            disabled={!pastedHash.trim()}
+                                            className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-xl disabled:opacity-40"
+                                        >
+                                            {language === 'es' ? 'Comparar' : 'Compare'}
+                                        </button>
+                                    </div>
+                                    {evidence && (
+                                        <div
+                                            data-testid="evidence-result"
+                                            className={`flex items-start gap-2 px-3 py-2.5 rounded-xl text-xs font-bold ${
+                                                evidence.match ? 'bg-emerald-500/10 text-emerald-300' : 'bg-red-500/10 text-red-300'
+                                            }`}
+                                        >
+                                            {evidence.match ? <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5" /> : <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />}
+                                            <span className="min-w-0">
+                                                {evidence.match
+                                                    ? (language === 'es'
+                                                        ? `Coincide: ${evidence.name || 'el hash que pegaste'} es exactamente la evidencia que se ancló.`
+                                                        : `Match: ${evidence.name || 'the hash you pasted'} is exactly the evidence that was anchored.`)
+                                                    : !/^[0-9a-f]{64}$/.test(evidence.sha256)
+                                                        ? (language === 'es' ? 'Eso no es un SHA-256 de 64 caracteres hex.' : 'That is not a 64-character hex SHA-256.')
+                                                        : (language === 'es'
+                                                            ? `No coincide: ${evidence.name || 'ese hash'} no es la evidencia que se ancló (o cambió después).`
+                                                            : `No match: ${evidence.name || 'that hash'} is not the evidence that was anchored (or it changed afterwards).`)}
+                                                {/^[0-9a-f]{64}$/.test(evidence.sha256) && (
+                                                    <span className="block mt-1 font-mono font-normal text-[10px] opacity-70 break-all">sha256: {evidence.sha256}</span>
+                                                )}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Fields */}
                             <div className="bg-[#121212] border border-white/5 rounded-[1.5rem] p-6 sm:p-8 space-y-4">
                                 <FieldRow icon={Hash} label={tv.result.field_cid}>
@@ -317,12 +455,22 @@ function VerifyContent() {
                                     <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${
                                         network === 'mainnet' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
                                     }`}>
-                                        {network}
+                                        {network ?? (language === 'es' ? 'no declarada' : 'not declared')}
                                     </span>
                                 </FieldRow>
                                 {doc.anchoredAt && (
                                     <FieldRow icon={Clock} label={tv.result.field_anchored_at}>
-                                        <span className="text-sm text-white font-mono">{new Date(doc.anchoredAt).toLocaleString()}</span>
+                                        <span className="text-sm text-white font-mono" title={doc.anchoredAt}>
+                                            {formatAnchoredAtUtc(doc.anchoredAt, language)}
+                                        </span>
+                                        {/* 12-nov-2026: anchoredAt es el reloj del servidor de Nirium (auditRoutes: new Date()),
+                                            no una hora del ledger. En el ejemplo, record.at (reloj del cliente) queda 0.3 s
+                                            después: sin esta nota parece que el registro se creó después de anclarse. */}
+                                        <span className="block text-[10px] text-white/40 mt-0.5">
+                                            {language === 'es'
+                                                ? 'Reloj del servidor de Nirium al anclar, no una hora del ledger de Stellar.'
+                                                : "Nirium's server clock when anchoring, not a Stellar ledger time."}
+                                        </span>
                                     </FieldRow>
                                 )}
                                 {doc.tag && (
@@ -349,7 +497,7 @@ function VerifyContent() {
 
                                 <div className="pt-2">
                                     <a
-                                        href={gatewayUrl(cid)}
+                                        href={rawGatewayUrl(cid)}
                                         target="_blank" rel="noopener noreferrer"
                                         className="inline-flex items-center gap-2 text-xs text-gray-500 hover:text-white transition-colors"
                                     >
@@ -379,14 +527,21 @@ function VerifyContent() {
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-between gap-3 flex-wrap">
                                             <span className="text-[11px] text-gray-500 uppercase tracking-widest font-mono">{tv.result.attested_by}</span>
-                                            <a
-                                                href={explorerAccountUrl(doc.agent.key, doc.network)}
-                                                target="_blank" rel="noopener noreferrer"
-                                                className="text-sm text-emerald-400 hover:text-emerald-300 font-mono truncate inline-flex items-center gap-1.5"
-                                            >
-                                                {doc.agent.key}<ExternalLink className="w-3 h-3 shrink-0" />
-                                            </a>
+                                            {signerAccount === 'missing' ? (
+                                                <span className="text-sm text-white font-mono truncate">{doc.agent.key}</span>
+                                            ) : (
+                                                <a
+                                                    href={explorerAccountUrl(doc.agent.key, doc.network)}
+                                                    target="_blank" rel="noopener noreferrer"
+                                                    className="text-sm text-emerald-400 hover:text-emerald-300 font-mono truncate inline-flex items-center gap-1.5"
+                                                >
+                                                    {doc.agent.key}<ExternalLink className="w-3 h-3 shrink-0" />
+                                                </a>
+                                            )}
                                         </div>
+                                        {signerAccount === 'missing' && (
+                                            <p className="text-xs text-gray-500 leading-relaxed">{tv.result.signer_no_account}</p>
+                                        )}
                                         <div className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold ${
                                             attestation === 'valid' ? 'bg-emerald-500/10 text-emerald-300' :
                                             attestation === 'invalid' ? 'bg-red-500/10 text-red-300' :

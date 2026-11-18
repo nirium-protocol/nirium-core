@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
+import { isPrivateAnchorLog, ownAnchorNeedles } from '@/lib/privateAnchors';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Llave de servidor (nunca NEXT_PUBLIC_): con 20261108_lock_down_log_tables.sql la
+// llave pública ya no ve filas AUDIT_NODE/PAYROLL_NODE, y aquí hacen falta para
+// listar los anclajes propios de Nirium. lib/privateAnchors decide qué sale.
+// Sin la variable cae a la pública: el panel funciona, solo sin anclajes propios.
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const PINATA_GATEWAY = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'https://gateway.pinata.cloud';
 
 export interface AuditLogEntry {
@@ -16,7 +21,7 @@ export interface AuditLogEntry {
 }
 
 /**
- * GET /api/audit — Fetch IPFS audit trail records from Supabase logs.
+ * GET /api/audit - Fetch IPFS audit trail records from Supabase logs.
  * Filters for log entries that contain IPFS CIDs (archived batches).
  * Optional query params: ?agent=AGENT_NAME&from=ISO_DATE&to=ISO_DATE&limit=50
  */
@@ -54,9 +59,23 @@ export async function GET(req: Request) {
             Authorization: `Bearer ${SUPABASE_KEY}`,
         };
 
-        const [logsRes, agentRes] = await Promise.all([
+        // Los anclajes propios se piden aparte, uno por llave o CID: en la consulta
+        // general los tapan cientos de anclajes de socios (que se descartan abajo),
+        // y con el límite quedarían fuera de la ventana. Misma sintaxis
+        // `message=ilike.*…*` que la consulta general.
+        const ownUrls = ownAnchorNeedles().map((needle) => {
+            let u = `${SUPABASE_URL}/rest/v1/agent_logs?select=*&order=created_at.desc&limit=50`;
+            u += `&message=ilike.*${encodeURIComponent(needle)}*`;
+            if (agent) u += `&agent_id=eq.${encodeURIComponent(agent)}`;
+            if (from) u += `&created_at=gte.${encodeURIComponent(from)}`;
+            if (to) u += `&created_at=lte.${encodeURIComponent(to)}`;
+            return u;
+        });
+
+        const [logsRes, agentRes, ...ownRes] = await Promise.all([
             fetch(logsUrl, { headers, next: { revalidate: 0 } }).then(r => r.ok ? r.json() : []),
             fetch(agentLogsUrl, { headers, next: { revalidate: 0 } }).then(r => r.ok ? r.json() : []),
+            ...ownUrls.map((u) => fetch(u, { headers, next: { revalidate: 0 } }).then(r => r.ok ? r.json() : []).catch(() => [])),
         ]);
 
         // Extract CIDs from log messages and structure the response
@@ -67,6 +86,10 @@ export async function GET(req: Request) {
 
         const processEntry = (entry: any, source: string) => {
             const msg = entry.message || '';
+            // Anclajes de socios (POST /api/audit/log) y recibos de Payouts no se
+            // listan: son evidencia de otra persona. Quien ancló tiene el CID y lo
+            // verifica en /verify. Ver lib/privateAnchors.
+            if (isPrivateAnchorLog(msg)) return;
             const cidMatch = msg.match(cidRegex) || msg.match(gatewayRegex);
             if (!cidMatch) return;
 
@@ -88,6 +111,7 @@ export async function GET(req: Request) {
 
         (logsRes || []).forEach((e: any) => processEntry(e, 'logs'));
         (agentRes || []).forEach((e: any) => processEntry(e, 'agent_logs'));
+        ownRes.forEach((rows: any) => (Array.isArray(rows) ? rows : []).forEach((e: any) => processEntry(e, 'agent_logs')));
 
         // Deduplicate by CID
         const seen = new Set<string>();

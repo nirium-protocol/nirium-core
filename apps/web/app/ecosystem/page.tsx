@@ -28,8 +28,8 @@ export default function EcosystemPage() {
                     </h1>
                     <p className="mt-4 text-white/55 max-w-xl mx-auto text-sm">
                         {lang(
-                            "What's integrated with Nirium, what's built on it, and what Nirium itself depends on. Each listing goes up once its owning team approves the text.",
-                            'Qué se integra con Nirium, qué se construye sobre él, y de qué depende Nirium mismo. Cada ficha se publica cuando su equipo aprueba el texto.'
+                            "What's integrated with Nirium, what's built on it, and what Nirium itself depends on.",
+                            'Qué se integra con Nirium, qué se construye sobre él, y de qué depende Nirium mismo.'
                         )}
                     </p>
                 </div>

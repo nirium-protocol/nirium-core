@@ -89,7 +89,7 @@ export function renderOgImage() {
                             color: "#2DEBE8",
                         }}
                     >
-                        Don&apos;t trust us — verify the fix.
+                        Don&apos;t trust us - verify the fix.
                     </div>
                 </div>
 

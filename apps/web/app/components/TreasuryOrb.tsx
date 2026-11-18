@@ -6,7 +6,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Float, Sphere, MeshDistortMaterial, Torus } from '@react-three/drei';
 
-/** Orbital node — a small sphere that travels along a ring */
+/** Orbital node - a small sphere that travels along a ring */
 function OrbitalNode({ radius, speed, offset, color, tiltX = 0, tiltZ = 0 }: {
     radius: number; speed: number; offset: number; color: string; tiltX?: number; tiltZ?: number;
 }) {
@@ -84,7 +84,7 @@ export function TreasuryOrb() {
                 <meshBasicMaterial color="#FFC800" transparent opacity={0.65} side={THREE.BackSide} />
             </Sphere>
 
-            {/* ── Orbit ring 1 — USDC (flat, teal) ── */}
+            {/* ── Orbit ring 1 - USDC (flat, teal) ── */}
             <group rotation={[Math.PI / 2, 0, 0]}>
                 <Torus args={[10.5, 0.06, 6, 80]}>
                     <meshBasicMaterial color="#2DEBE8" transparent opacity={0.5} />
@@ -93,7 +93,7 @@ export function TreasuryOrb() {
             <OrbitalNode radius={10.5} speed={0.45} offset={0}           color="#2DEBE8" tiltX={Math.PI / 2} />
             <OrbitalNode radius={10.5} speed={0.45} offset={Math.PI}     color="#2DEBE8" tiltX={Math.PI / 2} />
 
-            {/* ── Orbit ring 2 — CETES (tilted 42°, yellow) ── */}
+            {/* ── Orbit ring 2 - CETES (tilted 42°, yellow) ── */}
             <group rotation={[Math.PI / 2 - 0.73, 0.4, 0.2]}>
                 <Torus args={[12, 0.055, 6, 80]}>
                     <meshBasicMaterial color="#FFC800" transparent opacity={0.4} />
@@ -117,7 +117,7 @@ export function TreasuryOrb() {
                 />
             </points>
 
-            {/* ── Lights — yellow front, teal back, matching original ── */}
+            {/* ── Lights - yellow front, teal back, matching original ── */}
             <pointLight position={[0,  0,  10]} intensity={2.2}   color="#2DEBE8" />
             <pointLight position={[0,  0, -10]} intensity={1.8} color="#FFC800" />
         </group>

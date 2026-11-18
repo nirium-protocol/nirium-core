@@ -1,5 +1,6 @@
 "use client";
 
+import { trackFunnel } from "@/lib/attribution";
 import { useState } from 'react';
 import { useFreighter } from "@/hooks/useFreighter";
 import { Key, Lock, Copy, CheckCircle, RefreshCw, AlertTriangle, Shield } from 'lucide-react';
@@ -100,6 +101,7 @@ export default function ApiKeyManager() {
             if (!keyData.success && !keyData.apiKey) throw new Error(keyData.error || 'Failed to generate key');
 
             setGeneratedKey(keyData);
+            trackFunnel("key_created", { source: "docs" });
             toast.success(t.agents.console.success);
 
         } catch (error: any) {

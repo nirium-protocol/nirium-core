@@ -8,10 +8,12 @@ import Link from "next/link";
 export default function RiskDisclosurePage() {
     const { t } = useLanguage();
     const risk = t.risk_disclosure || {
-        title: "Algorithmic Risk Disclosure",
-        mandatory: "MANDATORY ACKNOWLEDGEMENT: You are using algorithmic, highly experimental open-source software.",
+        title: "Risk Disclosure",
+        badge: "Risk notice",
+        last_updated: "Last updated: November 16, 2026",
+        mandatory: "Read this before using Nirium: it is experimental open-source software on Stellar.",
         sections: {},
-        footer: "By connecting your wallet, you accept all risks outlined above."
+        footer: "Using Nirium means you have read these risks."
     };
 
     const icons = [Activity, Shield, Scale, Cpu, AlertTriangle];
@@ -31,12 +33,13 @@ export default function RiskDisclosurePage() {
                     className="mb-12"
                 >
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/30 rounded-full text-[10px] font-mono text-red-500 mb-4 uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-                        <AlertTriangle className="w-3 h-3" /> Emergency Protocol Notice
+                        <AlertTriangle className="w-3 h-3" /> {risk.badge ?? "Risk notice"}
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">
                         {risk.title}
                     </h1>
-                    
+                    <p className="text-sm font-mono text-zinc-500 mb-6">{risk.last_updated}</p>
+
                     <div className="font-mono text-[11px] md:text-xs uppercase text-red-500 font-bold border-l-4 border-red-500 pl-4 py-3 bg-red-500/5 rounded-r-lg mt-6">
                         {risk.mandatory}
                     </div>
