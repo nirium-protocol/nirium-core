@@ -297,11 +297,10 @@ export default function PricingPage() {
                                 ],
                             },
                             {
-                                label: lang('Regulated Partner Fees (not Nirium)', 'Fees del Partner Regulado (no Nirium)'),
+                                label: lang('Third-party costs (not Nirium)', 'Costos de terceros (no Nirium)'),
                                 rows: [
                                     { who: lang('Etherfuse (CETES execution)', 'Etherfuse (ejecución CETES)'), fee: 'etherfuse.com', feeLink: 'https://etherfuse.com', note: lang('Charged by Etherfuse directly — Nirium does not receive or manage this fee', 'Cobrado por Etherfuse directamente — Nirium no recibe ni administra este fee'), highlight: false, total: false },
                                     { who: lang('Stellar network (gas)', 'Red Stellar (gas)'), fee: '<$0.01', note: lang('Per transaction', 'Por transacción'), highlight: false, total: false },
-                                    { who: lang('Regulated operator commission', 'Comisión del operador regulado'), fee: lang('Set by partner', 'Definida por partner'), note: lang('ITF/Casa de bolsa sets their own fee', 'ITF/Casa de bolsa define su propio fee'), highlight: true, total: false },
                                 ],
                             },
                         ].map((section) => (
@@ -420,8 +419,8 @@ export default function PricingPage() {
                             {
                                 q: lang('Who charges the financial commissions?', '¿Quién cobra las comisiones financieras?'),
                                 a: lang(
-                                    'Your Regulated Partner (ITF, casa de bolsa, or licensed fintech) sets and collects all financial fees. Etherfuse — an independent regulated operator — publishes its own fee schedule at etherfuse.com. Nirium only charges software license fees in fiat.',
-                                    'Tu Partner Regulado (ITF, casa de bolsa o fintech licenciada) establece y cobra todos los fees financieros. Etherfuse — operador regulado independiente — publica su propio esquema de tarifas en etherfuse.com. Nirium solo cobra licencias de software en fiat.'),
+                                    'The third party that provides each asset or protocol, under its own terms: Etherfuse for issuing and redeeming tokenized CETES (see etherfuse.com), DeFindex and the vault owner for the vault fee, and the Stellar network for transaction fees. Nirium only charges software license fees, plus per-request x402 charges in USDC for its own API.',
+                                    'El tercero que da cada activo o protocolo, con sus propios términos: Etherfuse por emitir y canjear CETES tokenizados (ver etherfuse.com), DeFindex y el dueño de la bóveda por la comisión de la bóveda, y la red Stellar por el fee de cada transacción. Nirium solo cobra licencias de software, más cargos x402 por request en USDC por su propia API.'),
                             },
                             {
                                 q: lang('Are there volume discounts?', '¿Hay descuentos por volumen?'),

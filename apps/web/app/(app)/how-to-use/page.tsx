@@ -124,7 +124,7 @@ export default function HowToUsePage() {
                                     </h4>
                                     <p className="text-sm text-gray-400 leading-relaxed">
                                         Power users can scaffold custom units using our CLI. Run <code className="bg-white/5 px-1 rounded text-stellar-teal">npx nirium create-unit</code> to inject custom Soroban kernels or Python/Node.js logic directly into the Strategic Hub.
-                                        All agent decisions are cryptographically signed and archived for tamper-proof forensic auditing.
+                                        Agent decisions can be signed and anchored, so any later change shows.
                                     </p>
                                 </div>
                             </div>
@@ -221,7 +221,7 @@ const STEPS = [
     },
     {
         title: "Live Monitoring",
-        description: "Watch your fleet in action. The Command Center and Agents Console provide real-time telemetry, Horizon latency, transaction traces, and forensic logs backed by decentralized IPFS storage.",
+        description: "Watch your fleet in action. The Command Center and Agents Console provide real-time telemetry, Horizon latency, transaction traces, and logs backed by decentralized IPFS storage.",
         icon: Terminal,
         color: "from-amber-400 to-orange-500",
         features: [
