@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// Nirium — Public Health Check Edge Function
+// Nirium - Public Health Check Edge Function
 // ═══════════════════════════════════════════════════════════════
 //
 // Returns a minimal status payload without exposing any internal

@@ -41,7 +41,8 @@ function Footer({ path, color }: { path: string; color: string }) {
     return (
         <div style={{ display: "flex", fontSize: 24, color: "rgba(255,255,255,0.55)" }}>
             <div style={{ display: "flex" }}>nirium.xyz</div>
-            <div style={{ display: "flex", color }}>{path}</div>
+            {/* "/home" is the site-wide card, not a real page: show only the domain. */}
+            {path === "/home" ? null : <div style={{ display: "flex", color }}>{path}</div>}
         </div>
     );
 }

@@ -8,12 +8,12 @@ import { Horizon } from '@stellar/stellar-sdk';
  * Agents must pay 0.10 USDC to the Settlement Hub to unlock high-ELO CIDs.
  */
 
-const SETTLEMENT_HUB = process.env.NEXT_PUBLIC_CONTRACT_PROTOCOL || "CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5";
+const SETTLEMENT_HUB = process.env.NEXT_PUBLIC_CONTRACT_PROTOCOL || "CBKCTMTCCZQIPEESLHHEZKXYSPWNO24NEG33T2XSAAAHPISBND5CNSXX";
 const USDC_ASSET = "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
 const [USDC_CODE, USDC_ISSUER] = USDC_ASSET.split(':');
 const FEE_AMOUNT = "0.10";
 
-// Best-effort, in-memory only — not persisted across restarts or shared
+// Best-effort, in-memory only - not persisted across restarts or shared
 // across instances. Same documented limit as apps/web/app/api/marketplace/install/[id]/route.ts.
 const consumedTxHashes = new Set<string>();
 
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
         }
 
         const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
-        // .transaction(id) returns a CallBuilder, not the record — needs
+        // .transaction(id) returns a CallBuilder, not the record - needs
         // .call() to actually fetch. The pre-existing `await ...transaction(txHash)`
         // (no .call()) never fetched anything; its result was unused, so the
         // bug was silent until this check needed the real record.
@@ -63,7 +63,7 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: "Transaction did not succeed" }, { status: 403 });
         }
 
-        // Security checks: destination, asset, and amount — a payment op
+        // Security checks: destination, asset, and amount - a payment op
         // has no asset_code/asset_issuer check here previously, so any
         // self-issued or native asset moved at sufficient face value would
         // pass. Fixed 1-sep-2026 alongside the same bug class already found

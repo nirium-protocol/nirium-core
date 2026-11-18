@@ -1,19 +1,19 @@
 'use client';
 // ═══════════════════════════════════════════════════════════════
-// Nirium — Client-Side Anti-Debug & Anti-Tamper Protection
+// Nirium - Client-Side Anti-Debug & Anti-Tamper Protection
 // ═══════════════════════════════════════════════════════════════
 //
 // DESIGN PHILOSOPHY:
-//   Graceful degradation only — NEVER crash the app.
+//   Graceful degradation only - NEVER crash the app.
 //   If tampering is detected, disable sensitive features
 //   and notify telemetry, then continue silently.
 //
 // DETECTION METHODS:
-//   a) Debug timing attack — devtools open detection
-//   b) Domain lock — disable features off nirium.xyz
-//   c) Function integrity — detect monkey-patched critical fns
-//   d) Console override — mute console in production
-//   e) Key function hash — alert if hashes change at runtime
+//   a) Debug timing attack - devtools open detection
+//   b) Domain lock - disable features off nirium.xyz
+//   c) Function integrity - detect monkey-patched critical fns
+//   d) Console override - mute console in production
+//   e) Key function hash - alert if hashes change at runtime
 //
 // ═══════════════════════════════════════════════════════════════
 
@@ -119,7 +119,7 @@ function checkDomainLock(): boolean {
   return isApprovedHostname(hostname);
 }
 
-// ─── c) Anti-Tamper — Monkey Patch Detection ─────────────────────
+// ─── c) Anti-Tamper - Monkey Patch Detection ─────────────────────
 //
 // We snapshot the .toString() of native functions at module load time.
 // If a function has been monkey-patched, its toString() will differ from
@@ -181,7 +181,7 @@ function overrideConsoleInProduction(): void {
     console.log   = noop;
     console.debug = noop;
     console.info  = noop;
-    // Preserve warn/error — needed by error monitoring (Sentry etc.)
+    // Preserve warn/error - needed by error monitoring (Sentry etc.)
     // but strip verbose data by intercepting
     const originalWarn = _originalConsole.warn;
     console.warn = (...args: unknown[]) => {
@@ -191,7 +191,7 @@ function overrideConsoleInProduction(): void {
       }
     };
   } catch {
-    // Intentionally swallowed — console override must never crash the app
+    // Intentionally swallowed - console override must never crash the app
   }
 }
 
@@ -245,7 +245,7 @@ export function verifyCriticalFunctions(fns: Record<string, Function>): string[]
   const mismatched: string[] = [];
   for (const [name, fn] of Object.entries(fns)) {
     const expected = _fnHashRegistry.get(name);
-    if (expected === undefined) continue; // not registered — skip
+    if (expected === undefined) continue; // not registered - skip
     const src = getFunctionSource(fn);
     if (src === null) continue;
     const actual = djb2Hash(src);
@@ -287,7 +287,7 @@ function reportTamperEvent(event: TamperEvent): void {
 /**
  * Initialize all anti-debug / anti-tamper protections.
  * Must be called once, client-side, typically in a top-level layout.
- * Safe to call multiple times — only initializes once.
+ * Safe to call multiple times - only initializes once.
  */
 export function initAntiDebug(): AntiDebugStatus {
   if (_initialized) return getAntiDebugStatus();

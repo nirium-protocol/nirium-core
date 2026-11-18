@@ -6,7 +6,8 @@ import { Scale, FileText, Shield, Gavel, Cpu, Lock, AlertTriangle } from "lucide
 import Link from "next/link";
 
 export default function TermsPage() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const lang = (en: string, es: string) => (language === "es" ? es : en);
     const terms = t.terms || { title: "Terms of Service", last_updated: "", sections: {} };
 
     const icons = [Scale, FileText, Shield, Gavel, Cpu, Lock, AlertTriangle, Scale];
@@ -29,7 +30,8 @@ export default function TermsPage() {
                     className="mb-12"
                 >
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-stellar-teal/10 border border-stellar-teal/30 rounded-full text-[10px] font-mono text-stellar-teal mb-4 uppercase tracking-widest font-bold">
-                        <Scale className="w-3 h-3" /> Enterprise License Agreement
+                        {/* Antes decía "Enterprise License Agreement": no existe tal licencia; el código es Apache 2.0. */}
+                        <Scale className="w-3 h-3" /> {lang("Terms of service", "Términos de servicio")}
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4 uppercase">
                         {terms.title}
@@ -79,17 +81,20 @@ export default function TermsPage() {
                     className="mt-12 p-6 bg-white/5 border border-white/10 rounded-2xl text-center"
                 >
                     <p className="text-[10px] md:text-xs uppercase tracking-[0.15em] text-gray-500 font-bold">
-                        By accessing Nirium Protocol, you acknowledge and accept all terms above.
+                        {/* Antes: "al acceder aceptas todos los términos". Entrar al sitio no deja
+                            constancia escrita (CCom art. 1423 para el arbitraje) y no puede quitar
+                            derechos de consumidor (LFPC art. 90). */}
+                        {(terms as any).footer ?? lang("If you use Nirium, these terms apply.", "Si usas Nirium, aplican estos términos.")}
                     </p>
                 </motion.div>
 
                 {/* Back Links */}
                 <div className="flex justify-center gap-6 pt-8">
                     <Link href="/" className="text-[10px] font-black uppercase tracking-widest text-stellar-teal hover:text-white transition-colors">
-                        ← Return to Home
+                        {lang("← Return to Home", "← Volver al inicio")}
                     </Link>
                     <Link href="/disclaimers" className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
-                        Legal Disclaimers →
+                        {lang("Legal Disclaimers →", "Avisos legales →")}
                     </Link>
                 </div>
             </div>

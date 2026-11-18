@@ -20,7 +20,7 @@ const config: Config = {
         },
         extend: {
             colors: {
-                // Theme-aware core surfaces/text — these invert between the dark
+                // Theme-aware core surfaces/text - these invert between the dark
                 // (default) and light themes via CSS variables. Every bg-black,
                 // text-white/x, border-white/x, bg-background, etc. follows the theme.
                 black: "rgb(var(--nx-black) / <alpha-value>)",

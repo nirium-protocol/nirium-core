@@ -1,8 +1,8 @@
-/** Nirium Play — HackMeridian evidence page (nirium.xyz/nirium-play)
+/** Nirium Play - HackMeridian evidence page (nirium.xyz/nirium-play)
  * Standalone from the (app) shell, same pattern as /pitch and
  * /branding-nirium: MinimalNav only, no sidebar/navbar. Unlike those two,
  * this page is fully bilingual and actually retranslates on language
- * switch (dictionaries/{en,es}.json under `nirium_play_page`) — the
+ * switch (dictionaries/{en,es}.json under `nirium_play_page`) - the
  * MinimalNav toggle isn't decorative here.
  *
  * Brand identity reused from packages already shipped by the branding-pack
@@ -12,10 +12,10 @@
  *
  * Every fact on this page (the PR links, the tx hashes, the Trustless Work
  * merge acknowledgments) was independently verified against the GitHub API
- * and Horizon before this file was written — see the commit history for
+ * and Horizon before this file was written - see the commit history for
  * that verification. The Trustless Work merge comments are cited because
  * they were independently checked (real account, bio says "CEO Trustless
- * Work", real comment text on the real PRs) — not because of an
+ * Work", real comment text on the real PRs) - not because of an
  * unverifiable social-media claim about a tweet, which this page
  * deliberately does not cite.
  */
@@ -156,6 +156,7 @@ export default function NiriumPlayPage() {
                     <Badge>{c.badge_stack}</Badge>
                     <Badge>{c.badge_bugs}</Badge>
                     <Link
+                        prefetch={false}
                         href="/nirium-play/game/"
                         className="font-mono text-[11px] sm:text-xs px-4 py-1.5 rounded-full font-bold inline-flex items-center gap-1.5 text-[#0A0A0C] bg-gradient-to-br from-[#F5D57A] via-[#D4AF37] to-[#8B6F2E] hover:opacity-90 transition-opacity"
                     >
@@ -225,7 +226,7 @@ export default function NiriumPlayPage() {
                     </div>
                 </section>
 
-                {/* External validation — Trustless Work */}
+                {/* External validation - Trustless Work */}
                 <section className="mb-12 sm:mb-16">
                     <h2 className="text-base sm:text-lg font-bold mb-1.5">{c.external_title}</h2>
                     <p className="text-xs sm:text-sm text-black/50 dark:text-white/50 mb-5 max-w-xl">{c.external_note}</p>

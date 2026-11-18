@@ -16,7 +16,7 @@ const USDC_ASSET = new Asset('USDC', 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4N
 // x402 Pattern: Using standard Transactions for maximum wallet compatibility (Freighter/LOBSTR)
 const PREMIUM_SKILLS = ['flash-loan-executor', 'whale-tracker', 'arbitrage-bot', 'price-oracle', 'telegram-alerts-pro', 'soroswap-lp-manager'];
 
-// Single source of truth for pricing — the 402 challenge and the payment
+// Single source of truth for pricing - the 402 challenge and the payment
 // verification below both call this, so they can never drift apart again
 // (previously the challenge computed 0.05 for non-flash-loan skills but
 // the built operation hardcoded 0.01, undercharging everything else).
@@ -29,14 +29,14 @@ function expectedDestination(): string {
 }
 
 // Best-effort replay protection: rejects the same signed tx being replayed
-// for another install. In-memory only — resets on cold start, so it's not
+// for another install. In-memory only - resets on cold start, so it's not
 // a substitute for a persisted store, but it's a real improvement over no
 // protection at all for this testnet demo route.
 const consumedTxHashes = new Set<string>();
 
 /**
  * Confirms the decoded transaction actually contains a payment operation
- * matching the skill's price, asset, and destination — reported by
+ * matching the skill's price, asset, and destination - reported by
  * chenshj73 (github.com/nirium-protocol/nirium-core/issues/1) as missing: the route
  * used to treat "a header is present" as proof of payment.
  */
@@ -49,7 +49,7 @@ function findMatchingPaymentOp(
         if (op.type !== 'payment') return false;
         if (op.destination !== destination) return false;
         if (op.asset.code !== USDC_ASSET.code || op.asset.issuer !== USDC_ASSET.issuer) return false;
-        // Compare as numbers, not strings — Stellar can round-trip an
+        // Compare as numbers, not strings - Stellar can round-trip an
         // amount as "0.0500000" vs "0.05" depending on how it was built.
         return Number(op.amount) === Number(amount);
     });
@@ -147,7 +147,7 @@ export async function POST(
                 const response = await horizonServer.submitTransaction(txObj);
                 realHash = response.hash;
             } catch (submitErr: any) {
-                // Submission failing means the payment never landed on-chain —
+                // Submission failing means the payment never landed on-chain -
                 // this used to fall back to the local (unsubmitted) tx hash
                 // and still return success:true, delivering the premium
                 // payload for free. Fail closed instead.

@@ -21,19 +21,19 @@ import '@xyflow/react/dist/style.css';
 import Link from "next/link";
 import { SectionBrandLogo } from "@/components/ui/SectionBrandLogo";
 import { useLanguage } from "@/context/LanguageContext";
+import { useNetwork } from "@/context/NetworkContext";
 import {
     Plus, Play, Save, Box, Activity, Zap, ArrowRight, Trash2,
     Settings, Search, ZoomIn, ZoomOut, Undo, Redo,
     LayoutGrid, Cpu, History, Clock, Landmark, Coins, Shield, Database,
     Twitter, MessageSquare, Bell, Share2, BarChart3, Fingerprint, Lock, Repeat, RefreshCw,
-    Layers, MousePointer2, Info, ChevronRight, Download, X, Menu, Bolt,
+    Layers, MousePointer2, Info, ChevronRight, Download, Upload, X, Menu, Bolt,
     FlaskConical, KeyRound, TrendingUp, Terminal, Mail, Send, Smartphone, ArrowLeftRight, CheckSquare
 } from "lucide-react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFreighter } from "@/hooks/useFreighter";
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { useMarketplace } from '@/hooks/useNiriumContracts';
 
 import CustomNode from './CustomNode';
 
@@ -64,6 +64,7 @@ const getId = () => `node_${Date.now()}_${id++}`;
 
 function StrategyBuilderInner() {
     const { t, language } = useLanguage();
+    const { network } = useNetwork();
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -77,13 +78,12 @@ function StrategyBuilderInner() {
     const [history, setHistory] = useState<any[]>([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [selectedAsset, setSelectedAsset] = useState<'XLM' | 'USDC'>('XLM');
+    const [selectedAsset, setSelectedAsset] = useState<'USDC' | 'CETES'>('USDC');
     const [draggedTemplate, setDraggedTemplate] = useState<any>(null);
     const [dropHint, setDropHint] = useState<{ x: number, y: number, label: string, desc: string, targetNode?: string, position?: 'before' | 'after' } | null>(null);
 
     const { address: accountStr, isConnected } = useFreighter();
     const account = isConnected ? { address: accountStr, chains: ['stellar:testnet'] } : null;
-    const marketplace = useMarketplace();
     const router = useRouter();
 
     // PALETA RECONSTRUIDA SOBRE LO QUE CORRE (7-ago-2026).
@@ -91,14 +91,14 @@ function StrategyBuilderInner() {
     // Se retiraron cinco bloques, y cuatro no por estar sin construir sino
     // porque contradecían la posición legal que el sitio publica:
     //
-    //   SPEI_DEPOSIT     — Nirium no toca fiat, nunca. Es restricción dura.
-    //   KYC_VERIFY       — no somos Sujeto Obligado y no hacemos KYC. Ofrecerlo
+    //   SPEI_DEPOSIT     - Nirium no toca fiat, nunca. Es restricción dura.
+    //   KYC_VERIFY       - no somos Sujeto Obligado y no hacemos KYC. Ofrecerlo
     //                      es declararse ejecutor de una función regulada.
-    //   OFAC_SCREENING   — la política dice, con todas sus letras, que solo se
+    //   OFAC_SCREENING   - la política dice, con todas sus letras, que solo se
     //                      screenean las direcciones operativas propias y NUNCA
     //                      usuarios finales, "porque esto no es una institución
     //                      financiera y no debe actuar como una".
-    //   SOROSWAP_HEDGE / DEX_SWAP — los swaps se retiraron del nodo de tesorería
+    //   SOROSWAP_HEDGE / DEX_SWAP - los swaps se retiraron del nodo de tesorería
     //                      el 6-ago por la fracc. XVI de la LFPIORPI. Seguir
     //                      ofreciéndolos en el lienzo reintroduce el verbo.
     //
@@ -346,68 +346,66 @@ function StrategyBuilderInner() {
         [reactFlowInstance, setNodes, setEdges, nodes]
     );
 
-    const handleSave = async (deploy = false) => {
-        if (!account?.address) {
-            toast.error(t.legal_modal.consent_required);
-            return;
-        }
+    // ─── Borradores: solo en este navegador (8-nov-2026) ───────────────────
+    // Antes se escribían también en la tabla nirium_protocol_records, cuya política
+    // es "Allow all for anon": cualquiera con la llave pública (va en el sitio) podía
+    // leer, cambiar o borrar los borradores de cualquier wallet. Nada ejecuta estos
+    // diagramas, así que no hace falta una tabla: se guardan aquí y se respaldan con
+    // Exportar / Importar. No pide wallet: el dibujo vive en el navegador de quien lo hizo.
+    const DRAFTS_KEY = 'nirium-builder-drafts';
+    const readDrafts = (): any[] => {
+        try {
+            const own = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+            // Borradores viejos guardados por wallet: se siguen mostrando para no perderlos.
+            const legacy = account?.address
+                ? JSON.parse(localStorage.getItem(`nirium-fleet-${account.address}`) || '[]')
+                    .filter((d: any) => d?.config?.nodes)
+                : [];
+            const seen = new Set<string>();
+            return [...(Array.isArray(own) ? own : []), ...legacy].filter((d: any) => {
+                const k = d?.id || d?.strategy_id;
+                if (!k || seen.has(k)) return false;
+                seen.add(k);
+                return true;
+            });
+        } catch { return []; }
+    };
+
+    const handleSave = async () => {
         setIsSaving(true);
-        const toastId = toast.loading(deploy ? t.toasts.compiling : t.toasts.archiving);
         try {
             const flow = reactFlowInstance.toObject();
             const sid = strategyId || `custom-${Date.now()}`;
             if (!strategyId) setStrategyId(sid);
-
-            const { StrategyService } = await import("@/lib/strategyService");
-            const newStrat = {
+            const draft = {
+                id: sid,
                 strategy_id: sid,
                 name: strategyName,
                 emoji: '🏗️',
-                status: deploy ? 'RUNNING' : 'DRAFT',
-                rate: '—',
+                status: 'DRAFT',
+                rate: '-',
                 asset: selectedAsset,
                 created_at: new Date().toISOString(),
-                config: flow
+                config: flow,
             };
-
-            const localKey = `nirium-fleet-${account.address}`;
-            const existing = JSON.parse(localStorage.getItem(localKey) || "[]");
-            const filtered = existing.filter((s: any) => s.id !== sid && s.strategy_id !== sid);
-            localStorage.setItem(localKey, JSON.stringify([{ ...newStrat, id: sid }, ...filtered]));
-
-            try {
-                await StrategyService.deployStrategy(account.address, newStrat);
-            } catch (dbError: any) {
-                console.warn("Cloud sync error", dbError);
-            }
-
-            if (deploy) {
-                toast.success(t.toasts.broadcast_success);
-                router.push(`/dashboard?autostart=true&strategy=${sid}&name=${encodeURIComponent(strategyName)}&asset=${selectedAsset}`);
-            } else {
-                toast.success(t.toasts.broadcast_success);
-                fetchHistory();
-            }
-        } catch (e: any) {
+            const own = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+            const rest = (Array.isArray(own) ? own : []).filter((d: any) => d.id !== sid);
+            localStorage.setItem(DRAFTS_KEY, JSON.stringify([draft, ...rest].slice(0, 50)));
+            toast.success(language === 'es'
+                ? 'Guardado en este navegador. Usa Exportar para tener una copia.'
+                : 'Saved in this browser. Use Export to keep a copy.');
+            fetchHistory();
+        } catch {
             toast.error(t.toasts.broadcast_failed);
         } finally {
             setIsSaving(false);
-            toast.dismiss(toastId);
         }
     };
 
     const fetchHistory = async () => {
-        if (!account?.address) return;
         setIsLoadingHistory(true);
-        try {
-            const { StrategyService } = await import("@/lib/strategyService");
-            const dbStrategies = await StrategyService.getStrategies(account.address);
-            setHistory(dbStrategies);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setIsLoadingHistory(false);
-        }
+        setHistory(readDrafts());
+        setIsLoadingHistory(false);
     };
 
     const handleExport = () => {
@@ -435,65 +433,33 @@ function StrategyBuilderInner() {
         toast.success(t.marketplace.custom_builder.export);
     };
 
-    const handlePublishOnChain = async () => {
-        if (!account?.address) {
-            toast.error(t.legal_modal.consent_required);
-            return;
-        }
-
-        const toastId = toast.loading(t.toasts.archiving);
+    // Lee un archivo hecho con Exportar. Solo acepta la forma que Exportar produce;
+    // cualquier otra cosa se rechaza con un mensaje, no se intenta adivinar.
+    const importInputRef = useRef<HTMLInputElement>(null);
+    const handleImport = async (file: File) => {
         try {
-            if (!reactFlowInstance) {
-                toast.error(t.toasts.broadcast_failed);
-                return;
-            }
-
-            const flow = reactFlowInstance.toObject();
-            const schema = {
-                version: '0.0.7',
-                exported_at: new Date().toISOString(),
-                kernel_name: strategyName,
-                kernel_id: strategyId || `custom-${Date.now()}`,
-                asset: selectedAsset,
-                node_count: flow.nodes?.length || 0,
-                edge_count: flow.edges?.length || 0,
-                flow,
-            };
-
-            const ipfsResponse = await fetch('/api/pinata', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(schema)
-            });
-
-            if (!ipfsResponse.ok) throw new Error("IPFS Error");
-
-            const { IpfsHash } = await ipfsResponse.json();
-            if (!IpfsHash) throw new Error("No IPFS Hash");
-
-            toast.loading(t.toasts.compiling, { id: toastId });
-
-            const subscriptionFee = BigInt(10000000); 
-            const result = await marketplace.publishStrategy(
-                account.address,
-                strategyName,
-                IpfsHash,
-                subscriptionFee
-            );
-
-            if (result.success) {
-                toast.success(t.toasts.broadcast_success, {
-                    description: `Tx: ${result.txHash?.slice(0, 10)}...`
-                });
-            } else {
-                toast.error(result.error || t.toasts.broadcast_failed);
-            }
-        } catch (e: any) {
-            toast.error(e.message || t.toasts.broadcast_failed);
-        } finally {
-            toast.dismiss(toastId);
+            const schema = JSON.parse(await file.text());
+            const flow = schema?.flow;
+            if (!flow || !Array.isArray(flow.nodes) || !Array.isArray(flow.edges)) throw new Error('shape');
+            setNodes(flow.nodes);
+            setEdges(flow.edges);
+            if (typeof schema.kernel_name === 'string') setStrategyName(schema.kernel_name);
+            if (typeof schema.kernel_id === 'string') setStrategyId(schema.kernel_id);
+            if (schema.asset === 'USDC' || schema.asset === 'CETES') setSelectedAsset(schema.asset);
+            setTimeout(() => { reactFlowInstance?.fitView({ duration: 800 }); }, 100);
+            toast.success(language === 'es' ? 'Esquema importado.' : 'Schema imported.');
+        } catch {
+            toast.error(language === 'es'
+                ? 'Ese archivo no es un esquema exportado desde aquí.'
+                : 'That file is not a schema exported from here.');
         }
     };
+
+    // "Publicar" se quitó el 8-nov-2026: subía el diagrama por /api/pinata (abierto,
+    // sin login ni límite) y lo listaba en un mercado de estrategias de testnet con
+    // suscripción de 1 USDC. El contrato tenía 0 estrategias publicadas, y vender
+    // estrategias por suscripción roza la asesoría de inversión que la política dice
+    // que no damos.
 
     const loadKernel = (strat: any) => {
         if (strat.config && strat.config.nodes) {
@@ -501,7 +467,7 @@ function StrategyBuilderInner() {
             setEdges(strat.config.edges || []);
             setStrategyName(strat.name);
             setStrategyId(strat.strategy_id || strat.id);
-            if (strat.asset === 'XLM' || strat.asset === 'USDC') setSelectedAsset(strat.asset);
+            if (strat.asset === 'USDC' || strat.asset === 'CETES') setSelectedAsset(strat.asset);
             setShowHistory(false);
             toast.success(strat.name);
             setTimeout(() => { reactFlowInstance?.fitView({ duration: 800 }); }, 100);
@@ -527,7 +493,7 @@ function StrategyBuilderInner() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setSidebarOpen(false)}
-                        className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-sm"
+                        className="fixed inset-0 bg-black/60 z-[55] lg:hidden backdrop-blur-sm"
                     />
                 )}
             </AnimatePresence>
@@ -539,7 +505,7 @@ function StrategyBuilderInner() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
                         onClick={() => setSidebarOpen(true)}
-                        className="absolute top-6 left-4 sm:left-6 z-50 bg-[#121212]/90 backdrop-blur-xl border border-white/10 p-3 sm:p-4 rounded-xl sm:rounded-2xl text-stellar-teal hover:border-stellar-teal/50 shadow-[0_0_20px_rgba(45,235,232,0.2)] transition-all"
+                        className="lg:hidden absolute top-6 left-4 sm:left-6 z-50 bg-[#121212]/90 backdrop-blur-xl border border-white/10 p-3 sm:p-4 rounded-xl sm:rounded-2xl text-stellar-teal hover:border-stellar-teal/50 shadow-[0_0_20px_rgba(45,235,232,0.2)] transition-all"
                     >
                         <Menu size={18} className="sm:w-5 sm:h-5" />
                     </motion.button>
@@ -549,7 +515,7 @@ function StrategyBuilderInner() {
             <aside className={`
                 ${sidebarOpen ? 'translate-x-0 shadow-[0_0_40px_rgba(0,0,0,0.8)]' : '-translate-x-full'}
                 fixed lg:relative lg:translate-x-0
-                w-full sm:w-80 h-full bg-[#0d0d0d] border-r border-white/5 flex flex-col z-40
+                w-full sm:w-80 h-full bg-[#0d0d0d] border-r border-white/5 flex flex-col z-[60] lg:z-40
                 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
             `}>
                 <div className="p-3 pt-2 sm:pt-3 border-b border-white/5 space-y-2 sm:space-y-3">
@@ -563,22 +529,22 @@ function StrategyBuilderInner() {
                         <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">{t.treasury.sidebar.asset_selector}</label>
                         <div className="grid grid-cols-2 gap-1.5 bg-black/40 p-1 rounded-xl border border-white/5">
                             <button
-                                onClick={() => setSelectedAsset('XLM')}
-                                className={`py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all duration-300 ${selectedAsset === 'XLM'
+                                onClick={() => setSelectedAsset('USDC')}
+                                className={`py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all duration-300 ${selectedAsset === 'USDC'
                                     ? 'bg-stellar-teal/10 text-stellar-teal border border-stellar-teal/30 shadow-[0_0_15px_rgba(45,235,232,0.2)]'
                                     : 'text-gray-500 hover:text-gray-300'
                                     }`}
                             >
-                                XLM NATIVE
+                                USDC
                             </button>
                             <button
-                                onClick={() => setSelectedAsset('USDC')}
-                                className={`py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all duration-300 ${selectedAsset === 'USDC'
+                                onClick={() => setSelectedAsset('CETES')}
+                                className={`py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all duration-300 ${selectedAsset === 'CETES'
                                     ? 'bg-purple-500/10 text-purple-400 border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.2)]'
                                     : 'text-gray-500 hover:text-gray-300'
                                     }`}
                             >
-                                USDC TOKEN
+                                CETES
                             </button>
                         </div>
                     </div>
@@ -668,63 +634,63 @@ function StrategyBuilderInner() {
 
                     <Panel position="top-left" className={`
                         transition-all duration-500 pt-3 sm:pt-4
-                        ${sidebarOpen ? 'ml-4' : 'ml-14 sm:ml-20'}
+                        ${sidebarOpen ? '!ml-4' : '!ml-[4.5rem] sm:!ml-24'}
                     `}>
-                        <div className="bg-[#121212]/90 backdrop-blur-xl border border-white/10 p-3 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl flex items-center gap-3 sm:gap-4 max-w-[180px] xs:max-w-[240px] sm:max-w-none overflow-hidden">
+                        <div className="bg-[#121212]/90 backdrop-blur-xl border border-white/10 p-3 sm:p-5 rounded-2xl sm:rounded-3xl shadow-2xl flex items-center gap-3 sm:gap-4 max-w-[calc(100vw_-_9.5rem)] sm:max-w-[min(560px,36vw)] overflow-hidden">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-stellar-teal/10 border border-stellar-teal/20 flex items-center justify-center text-stellar-teal shadow-inner shrink-0">
                                 <Cpu size={20} className="sm:w-6 sm:h-6" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 mb-1.5 bg-stellar-yellow/10 border border-stellar-yellow/20 rounded-full text-stellar-yellow text-[8px] font-black uppercase tracking-widest">
-                                    <Clock className="w-2.5 h-2.5" />
-                                    {language === "es" ? "BETA · FUNCIONALIDAD EN AUDITORÍA DE CUMPLIMIENTO" : "BETA · FEATURE UNDERGOING COMPLIANCE AUDIT"}
+                                <div className="inline-flex items-start sm:items-center gap-1.5 px-2 py-1 sm:py-0.5 mb-1.5 bg-stellar-yellow/10 border border-stellar-yellow/20 rounded-lg sm:rounded-full text-stellar-yellow text-[8px] leading-tight font-black uppercase tracking-wider sm:tracking-widest">
+                                    <Clock className="w-2.5 h-2.5 shrink-0 mt-px sm:mt-0" />
+                                    {/* Nada lee este diagrama: el agente decide con los umbrales de la bóveda
+                                        (REBALANCE_VAULTS / rebalanceDecision.ts), no con lo que se dibuja aquí. */}
+                                    <span>{language === "es" ? "VISTA PREVIA · NO SE EJECUTA: EL AGENTE USA LOS UMBRALES DE TU BÓVEDA" : "PREVIEW · NOT EXECUTED: THE AGENT USES YOUR VAULT'S THRESHOLDS"}</span>
                                 </div>
                                 <input
                                     value={strategyName}
                                     onChange={(e) => setStrategyName(e.target.value)}
                                     className="bg-transparent border-none focus:outline-none font-black text-sm sm:text-xl tracking-tighter text-white uppercase font-mono italic w-full truncate"
                                 />
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-stellar-teal animate-pulse"></span>
-                                    <span className="text-[8px] sm:text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] sm:tracking-[0.3em]">{t.treasury.header.status_ready}</span>
-                                    <div className="ml-2 pl-2 border-l border-white/10 flex items-center gap-1.5">
-                                        <Shield size={8} className="text-gray-700" />
-                                        <span className="text-[7px] font-mono text-gray-700 uppercase tracking-widest">{t.treasury.header.ethics_aligned}</span>
-                                    </div>
-                                </div>
+                                {/* 8-nov-2026: se quitaron "OPERATIVO" (con punto pulsante) y "Ética
+                                    alineada". El lienzo no corre nada; eran decorado con forma de estado. */}
                             </div>
                         </div>
                     </Panel>
 
-                    <Panel position="top-right" className="pt-3 sm:pt-4 flex flex-col sm:flex-row gap-2 sm:gap-3 items-end sm:items-center">
+                    {/* Apilado hasta 2xl: en pantallas medianas (sidebar del sitio
+                        + paleta del builder abiertos) los tres botones en fila no
+                        caben junto a la tarjeta del esquema y el último se corta. */}
+                    <Panel position="top-right" className="pt-3 sm:pt-4 flex flex-col 2xl:flex-row gap-2 sm:gap-3 items-end 2xl:items-center">
                         <button
-                            onClick={() => handleSave(false)}
+                            onClick={() => handleSave()}
                             disabled={isSaving}
+                            aria-label={t.treasury.controls.save_draft}
+                            title={t.treasury.controls.save_draft}
                             className="bg-[#121212]/90 backdrop-blur-xl border border-white/10 px-3 sm:px-6 py-2 sm:py-3.5 rounded-lg sm:rounded-2xl font-mono text-[8px] sm:text-[10px] font-black tracking-[0.1em] sm:tracking-[0.25em] text-gray-500 hover:text-white hover:border-white/20 transition-all flex items-center gap-2 sm:gap-3 shadow-2xl active:scale-95"
                         >
-                            <Save size={12} className="sm:w-4 sm:h-4" /> {t.treasury.controls.save_draft}
+                            {/* En celular solo el ícono: el texto se montaba sobre la tarjeta del esquema. */}
+                            <Save size={14} className="sm:w-4 sm:h-4" /> <span className="hidden xl:inline">{t.treasury.controls.save_draft}</span>
                         </button>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handleSave(true)}
-                                disabled={isSaving}
-                                className="bg-stellar-teal px-3 sm:px-8 py-2 sm:py-3.5 rounded-lg sm:rounded-2xl font-mono text-[8px] sm:text-[10px] font-black tracking-[0.1em] sm:tracking-[0.25em] text-black hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(45,235,232,0.4)] transition-all flex items-center justify-center gap-2 sm:gap-3"
-                            >
-                                <Play size={12} fill="currentColor" className="sm:w-4 sm:h-4" /> {t.treasury.controls.run}
-                            </button>
-                            <button
-                                onClick={handlePublishOnChain}
-                                className="bg-purple-600/20 text-purple-400 border border-purple-600/50 px-3 sm:px-8 py-2 sm:py-3.5 rounded-lg sm:rounded-2xl font-mono text-[8px] sm:text-[10px] font-black tracking-[0.1em] sm:tracking-[0.25em] hover:bg-purple-600 hover:text-white shadow-[0_0_30px_rgba(168,85,247,0.2)] hover:shadow-[0_0_40px_rgba(168,85,247,0.6)] transition-all flex items-center justify-center gap-2 sm:gap-3 active:scale-95"
-                            >
-                                <Database size={12} className="sm:w-4 sm:h-4" /> {t.treasury.controls.publish}
-                            </button>
-                        </div>
+                        {/* "EJECUTAR" (8-nov-2026) no ejecutaba nada y "PUBLICAR" se quitó:
+                            ver el comentario junto a handleImport. */}
                     </Panel>
 
                     <Panel position="bottom-right" className="flex flex-col gap-2 sm:gap-3 mb-12 sm:mb-0">
                         <button onClick={() => { fetchHistory(); setShowHistory(true); }} className="w-10 h-10 sm:w-14 sm:h-14 bg-[#121212]/90 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-gray-500 hover:text-stellar-teal hover:border-stellar-teal/30 shadow-2xl transition-all hover:scale-110 active:scale-90 group relative">
                             <History size={16} className="sm:w-5 sm:h-5" />
                             <span className="absolute right-full mr-4 bg-black text-white text-[9px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest hidden sm:block">{t.treasury.controls.history_tooltip}</span>
+                        </button>
+                        <input
+                            ref={importInputRef}
+                            type="file"
+                            accept="application/json,.json"
+                            className="hidden"
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImport(f); e.target.value = ''; }}
+                        />
+                        <button onClick={() => importInputRef.current?.click()} className="w-10 h-10 sm:w-14 sm:h-14 bg-[#121212]/90 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-gray-500 hover:text-white shadow-2xl transition-all hover:scale-110 active:scale-90 group relative">
+                            <Upload size={16} className="sm:w-5 sm:h-5" />
+                            <span className="absolute right-full mr-4 bg-black text-white text-[9px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest hidden sm:block">{language === 'es' ? 'Importar' : 'Import'}</span>
                         </button>
                         <button onClick={handleExport} className="w-10 h-10 sm:w-14 sm:h-14 bg-[#121212]/90 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-gray-500 hover:text-white shadow-2xl transition-all hover:scale-110 active:scale-90 group relative">
                             <Download size={16} className="sm:w-5 sm:h-5" />
@@ -844,7 +810,7 @@ function StrategyBuilderInner() {
                                             <div className="flex items-center gap-3 text-[10px] font-black font-mono text-gray-600 uppercase tracking-tighter">
                                                 <span className="text-white/80">{strat.asset}</span>
                                                 <span className="w-1 h-1 bg-gray-800 rounded-full"></span>
-                                                <span className="text-stellar-teal font-black">{strat.rate || strat.yield || '—'} {t.treasury.history.rate}</span>
+                                                <span className="text-stellar-teal font-black">{strat.rate || strat.yield || '-'} {t.treasury.history.rate}</span>
                                             </div>
                                         </div>
                                         <ChevronRight size={20} className="text-gray-800 group-hover:text-stellar-teal transition-transform group-hover:translate-x-1" />
@@ -863,8 +829,16 @@ export default function StrategyBuilderPro() {
     const { t } = useLanguage();
 
     return (
-        <main className="h-screen w-screen bg-black text-white flex flex-col font-sans selection:bg-stellar-teal/30 overflow-hidden">
-<div className="h-9 w-full shrink-0"></div>
+        // w-full, no w-screen: la página vive dentro de AppLayout, que ya resta
+        // el sidebar de 256px; 100vw empujaba los botones de la derecha fuera
+        // de la pantalla. La altura deja aire para el TestnetBanner (no es
+        // fixed) y para la barra superior en móvil, así la tarjeta de abajo y
+        // los controles de zoom no quedan cortados.
+        // 9-nov-2026: AppLayout ya baja la barra de mercado (pt-9) y el body baja el
+        // aviso de red, así que el espaciador h-9 de aquí sobraba y dejaba un hueco.
+        // La altura resta barra (2.25rem), aviso (--banner-h) y, en móvil, la barra
+        // superior del layout (3.75rem).
+        <main className="h-[calc(100dvh_-_var(--top-chrome)_-_3.75rem)] lg:h-[calc(100dvh_-_2.25rem_-_var(--banner-h,0px))] min-h-[560px] w-full bg-black text-white flex flex-col font-sans selection:bg-stellar-teal/30 overflow-hidden">
 
             {/* Growth plan preview banner */}
             <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2 bg-stellar-yellow/10 border-b border-stellar-yellow/20">
@@ -888,9 +862,9 @@ export default function StrategyBuilderPro() {
                     <StrategyBuilderInner />
                 </ReactFlowProvider>
 
-                {/* Bottom fade + upgrade card — blocks "run in production" affordance */}
+                {/* Bottom fade + upgrade card - blocks "run in production" affordance */}
                 <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#080808] via-[#080808]/70 to-transparent z-50" />
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-auto z-50">
+                <div className="absolute bottom-20 sm:bottom-4 left-1/2 -translate-x-1/2 pointer-events-auto z-50 w-max max-w-[calc(100vw-2rem)]">
                     <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl border border-stellar-yellow/30 bg-[#080808]/90 backdrop-blur-md shadow-[0_0_30px_rgba(255,200,0,0.1)]">
                         <Lock className="w-4 h-4 text-stellar-yellow shrink-0" />
                         <span className="text-xs text-white/70">

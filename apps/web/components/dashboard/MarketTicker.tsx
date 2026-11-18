@@ -15,7 +15,17 @@ interface TickerItem {
 
 import { useLanguage } from '@/context/LanguageContext';
 
-function buildTickers(market: any, prev: any, t: any): TickerItem[] {
+// "07:23 UTC" a partir del timestamp que manda el agente con cada lectura.
+function asOfLabel(timestamp: string | null | undefined, t: any): string | null {
+    if (!timestamp) return null;
+    const d = new Date(timestamp);
+    if (Number.isNaN(d.getTime())) return null;
+    const hh = String(d.getUTCHours()).padStart(2, '0');
+    const mm = String(d.getUTCMinutes()).padStart(2, '0');
+    return `${t.common.tickers.as_of} ${hh}:${mm} UTC`;
+}
+
+function buildTickers(market: any, prev: any, t: any, timestamp?: string | null): TickerItem[] {
     const fmt = (n: number | null, decimals = 4) =>
         n != null ? n.toFixed(decimals) : '-';
 
@@ -42,14 +52,25 @@ function buildTickers(market: any, prev: any, t: any): TickerItem[] {
     // '0.81bps', '+0.01%') hacían que el ticker siguiera mostrando cifras
     // creíbles cuando el agente no respondía - o sea, precisamente cuando el
     // usuario más necesita saber que no hay dato. Ahora dice em-dash.
-    return [
+    // La variación se calculaba contra la lectura de hace 4 s. El agente
+    // actualiza el precio con menos frecuencia, así que casi siempre salía
+    // "+0.000%": un número que parece dato pero solo dice "no pasaron 4 s
+    // de mercado". Ahora la variación sale solo cuando el precio de verdad se
+    // movió; si no, se muestra la hora de la última lectura del agente.
+    const xlmMove = xlm != null && prevXlm != null && prevXlm !== 0
+        ? (xlm - prevXlm) / prevXlm * 100
+        : null;
+    const xlmMoved = xlmMove != null && Math.abs(xlmMove) >= 0.001;
+    const asOf = asOfLabel(timestamp, t);
+
+    const items: TickerItem[] = [
         {
             label: "XLM/USDC",
             value: xlm != null ? `$${fmt(xlm)}` : '-',
-            change: prevXlm != null && xlm != null
-                ? `${xlm >= prevXlm ? '+' : ''}${((xlm - prevXlm) / prevXlm * 100).toFixed(3)}%`
-                : '-',
-            trend: trend(xlm, prevXlm),
+            change: xlmMoved
+                ? `${xlmMove! >= 0 ? '+' : ''}${xlmMove!.toFixed(3)}%`
+                : (xlm != null && asOf ? asOf : '-'),
+            trend: xlmMoved ? trend(xlm, prevXlm) : 'neutral',
         },
         {
             // La tasa está FIJA en 5.57 (stellarProvider.fetchEtherfuseApy la
@@ -82,12 +103,19 @@ function buildTickers(market: any, prev: any, t: any): TickerItem[] {
             // que referencia, y el resto del sitio lo dice así. Un badge de
             // versión junto a la palabra COMPLIANCE es justo lo que alguien lee
             // como "esto ya cumple".
+            // "LCP · in legal review" no le decía nada a quien no conoce el
+            // proyecto. Lo que sí importa en esta barra es la postura: solo
+            // software, sin custodia (igual que el aviso legal del footer).
             label: "COMPLIANCE",
-            value: "NON-FINANCIAL ADVICE // REFERENCE DATA",
-            change: "LCP · legal opinion pending",
+            value: t.common.tickers.non_financial,
+            change: t.common.tickers.software_only,
             trend: 'neutral',
         }
     ];
+
+    // Sin spread no se muestra la casilla: un guion suelto en una barra de
+    // datos se lee como algo roto, no como "no hay liquidez".
+    return items.filter((item) => !(item.label === t.common.tickers.sdex_spread && spread == null));
 }
 
 const MarketTicker = () => {
@@ -104,8 +132,7 @@ const MarketTicker = () => {
         setTickers([
             { label: "XLM/USDC", value: '-', change: '-', trend: 'neutral' },
             { label: "🇲🇽 CETES", value: '-', change: t.common.tickers.cetes_fixed, trend: 'neutral' },
-            { label: t.common.tickers.sdex_spread, value: '-', change: '-', trend: 'neutral' },
-            { label: "COMPLIANCE", value: "NON-FINANCIAL ADVICE // REFERENCE DATA", change: "LCP · legal opinion pending", trend: 'neutral' },
+            { label: "COMPLIANCE", value: t.common.tickers.non_financial, change: t.common.tickers.software_only, trend: 'neutral' },
         ]);
     }, [t]);
 
@@ -145,7 +172,7 @@ const MarketTicker = () => {
                     return;
                 }
 
-                const built = buildTickers(data.market, prevMarket.current, t);
+                const built = buildTickers(data.market, prevMarket.current, t, data.timestamp);
                 prevMarket.current = data.market;
                 setTickers(built);
             } catch {
@@ -160,13 +187,12 @@ const MarketTicker = () => {
     }, [t]);
 
     return (
-        <div className="fixed top-0 left-0 right-0 z-[110] w-full bg-background/80 border-b border-black/10 backdrop-blur-md h-9 flex items-center overflow-hidden">
-            {/* Live Status Label (More Compact) */}
+        <div className="nirium-ticker fixed top-0 left-0 right-0 z-[110] w-full bg-background/80 border-b border-black/10 backdrop-blur-md h-9 flex items-center overflow-hidden">
+            {/* Etiqueta de la barra. Decía "LIVE" con un punto pulsante, pero
+                la barra mezcla datos en vivo (XLM) con una referencia fija
+                (CETES, jun-2026). Ahora dice "MARKET" y el punto no pulsa. */}
             <div className="flex items-center gap-2 px-4 h-full bg-white/[0.02] border-r border-black/10 dark:border-white/10 min-w-[100px] justify-center shrink-0">
-                <div className="relative">
-                    <div className="w-2 h-2 rounded-full bg-stellar-yellow shadow-[0_0_10px_#FFC800]"></div>
-                    <div className="absolute inset-0 w-2 h-2 rounded-full bg-stellar-yellow animate-ping opacity-40"></div>
-                </div>
+                <div className="w-2 h-2 rounded-full bg-stellar-yellow shadow-[0_0_10px_#FFC800]"></div>
                 <span className="text-[9px] font-black tracking-[0.2em] text-zinc-800 dark:text-white/90">
                     {t.common.tickers.live_feed}
                 </span>

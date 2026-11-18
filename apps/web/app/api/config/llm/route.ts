@@ -4,6 +4,41 @@ export const dynamic = 'force-dynamic';
 
 const CONFIG_COOKIE = 'nirium_llm_config';
 
+// Hallazgo real (2026-11-03, barrido de seguridad): este POST escribía sin
+// NINGÚN auth a la fila compartida `nirium_llm_config` en Supabase, que el
+// loop autónomo del agente lee cada 30s para decidir qué LLM usa en cada
+// ejecución — incluido lo que propone para Treasury Rebalance. La ruta
+// equivalente del agente (`POST /api/config/llm` en server.ts) sí exige
+// `authMiddleware + adminMiddleware`; esta ruta pisaba la misma superficie
+// sin pasar por ningún gate.
+//
+// En vez de duplicar `ADMIN_API_KEY` como variable de Vercel (un segundo
+// lugar donde ese secreto puede desalinearse del real en Fly), se verifica
+// el admin llamando al propio endpoint ya gateado del agente
+// (`GET /api/system/health`, authMiddleware + adminMiddleware) con las
+// credenciales que mandó quien llama — una sola fuente de verdad para "es
+// admin", nunca una copia del secreto en esta app.
+const AGENT_URL = (process.env.AGENT_INTERNAL_URL ?? 'https://nirium-agent.fly.dev').replace(/\/$/, '');
+
+async function requireAdmin(request: NextRequest): Promise<boolean> {
+    const apiKey = request.headers.get('x-api-key');
+    const authHeader = request.headers.get('authorization');
+    if (!apiKey && !authHeader) return false;
+    try {
+        const headers: Record<string, string> = {};
+        if (apiKey) headers['x-api-key'] = apiKey;
+        if (authHeader) headers['Authorization'] = authHeader;
+        const res = await fetch(`${AGENT_URL}/api/system/health`, {
+            headers,
+            signal: AbortSignal.timeout(5000),
+        });
+        return res.ok;
+    } catch {
+        // Un agente inalcanzable nunca debe leerse como "admin confirmado".
+        return false;
+    }
+}
+
 const VALID_PROVIDERS = new Set([
     'nirium', 'openai', 'anthropic', 'ollama',
     'minimax', 'gemini', 'grok', 'bedrock', 'openrouter',
@@ -35,18 +70,24 @@ async function syncToSupabase(provider: string, model: string): Promise<void> {
 export async function GET(request: NextRequest) {
     const saved = request.cookies.get(CONFIG_COOKIE);
     if (!saved) {
-        return NextResponse.json({ provider: 'nirium', model: 'nirium-core-v1' });
+        return NextResponse.json({ provider: 'nirium', model: 'agent-default' });
     }
     try {
         const config = JSON.parse(saved.value);
         if (config.apiKey) config.apiKey = '••••••••';
         return NextResponse.json(config);
     } catch {
-        return NextResponse.json({ provider: 'nirium', model: 'nirium-core-v1' });
+        return NextResponse.json({ provider: 'nirium', model: 'agent-default' });
     }
 }
 
 export async function POST(request: NextRequest) {
+    if (!(await requireAdmin(request))) {
+        return NextResponse.json(
+            { success: false, message: 'Admin permissions required' },
+            { status: 403 },
+        );
+    }
     try {
         const body = await request.json();
         const { provider, model, apiKey, ollamaUrl } = body;
@@ -77,7 +118,7 @@ export async function POST(request: NextRequest) {
         if (ollamaUrl) config.ollamaUrl = ollamaUrl;
 
         // Sync provider+model to Supabase so the agent picks it up dynamically.
-        // API key is intentionally excluded — the agent uses its own Fly.io env vars.
+        // API key is intentionally excluded - the agent uses its own Fly.io env vars.
         await syncToSupabase(provider, model);
 
         const response = NextResponse.json({
@@ -102,7 +143,13 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function DELETE(_request: NextRequest) {
+export async function DELETE(request: NextRequest) {
+    if (!(await requireAdmin(request))) {
+        return NextResponse.json(
+            { success: false, message: 'Admin permissions required' },
+            { status: 403 },
+        );
+    }
     // Revert Supabase to the default agent provider
     await syncToSupabase('openrouter', 'meta-llama/llama-4-maverick');
 

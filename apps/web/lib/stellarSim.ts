@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// Nirium — Soroban Simulation Utility (Pre-flight Engine)
+// Nirium - Soroban Simulation Utility (Pre-flight Engine)
 // ═══════════════════════════════════════════════════════════════
 import { Transaction, rpc, Networks } from '@stellar/stellar-sdk';
 

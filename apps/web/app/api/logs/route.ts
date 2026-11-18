@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { redactPrivateAnchorLog } from '@/lib/privateAnchors';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Llave de servidor (nunca NEXT_PUBLIC_): la respuesta pasa por redactPrivateAnchorLog,
+// así que los anclajes privados salen sin CID aunque esta llave sí los vea.
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const TREASURY = "GC4Q5TWWXI7IHN6DYCBEKCOWJWCKY4JE2NLKLU5SE3YL44IUUFPKUOPC";
 const USDC_ISSUER = 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5';
 
@@ -26,7 +28,7 @@ export async function GET() {
         // 2. Fetch from logs (Soroban Intelligence, Activity)
         // agent_id=neq.REBALANCER-RATIO: the rebalancer stores its own rate
         // history in this table (message = "RATIO:<vault>|<n>|<ts>") as a
-        // poor-man's KV store — internal bookkeeping, never meant to render
+        // poor-man's KV store - internal bookkeeping, never meant to render
         // as a feed line.
         const activityLogsPromise = (SUPABASE_URL && SUPABASE_KEY) ? fetch(
             `${SUPABASE_URL}/rest/v1/logs?select=*&agent_id=neq.REBALANCER-RATIO&order=timestamp.desc&limit=30`,
@@ -39,7 +41,7 @@ export async function GET() {
             }
         ).then(res => res.ok ? res.json() : []) : Promise.resolve([]);
 
-        // 3. Fetch from Horizon (Live On-chain Settlements) — 5s timeout so we never block OpsConsole
+        // 3. Fetch from Horizon (Live On-chain Settlements) - 5s timeout so we never block OpsConsole
         const horizonPromise = fetch(
             `https://horizon-testnet.stellar.org/accounts/${TREASURY}/operations?order=desc&limit=20`,
             { signal: AbortSignal.timeout(5000), cache: 'no-store' }
@@ -109,50 +111,19 @@ export async function GET() {
 
         unified.sort((a, b) => b.sortDate - a.sortDate);
 
-        return NextResponse.json(unified.slice(0, 50));
+        // Anclajes de socios y recibos de Payouts: la línea se queda (se ve que
+        // hubo actividad) pero sin CID, hash ni id de corrida. Ver lib/privateAnchors.
+        const publicFeed = unified.slice(0, 50).map((l: any) =>
+            typeof l.message === 'string' ? { ...l, message: redactPrivateAnchorLog(l.message) } : l,
+        );
+
+        return NextResponse.json(publicFeed);
     } catch (e) {
         console.error('[API /logs] GET Error:', e);
         return NextResponse.json([], { status: 200 });
     }
 }
 
-export async function POST(req: NextRequest) {
-    if (!SUPABASE_URL || !SUPABASE_KEY) {
-        return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
-    }
-
-    try {
-        const body = await req.json();
-        const { message, level, agent_id } = body;
-
-        if (!message) {
-            return NextResponse.json({ error: 'message is required' }, { status: 400 });
-        }
-
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/agent_logs`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                'Prefer': 'return=minimal',
-            },
-            body: JSON.stringify({
-                agent_id: agent_id || 'UI_CLIENT',
-                message,
-                level: level || 'info',
-            }),
-        });
-
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error('[API /logs] POST Error:', res.status, errText);
-            return NextResponse.json({ error: errText }, { status: res.status });
-        }
-
-        return NextResponse.json({ success: true }, { status: 201 });
-    } catch (e) {
-        console.error('[API /logs] POST Exception:', e);
-        return NextResponse.json({ error: String(e) }, { status: 500 });
-    }
-}
+// POST /api/logs se quitó el 8-nov-2026: escribía en agent_logs con la llave pública
+// y sin autenticación, así que cualquiera podía publicar en el feed un mensaje con el
+// agent_id que quisiera. Su único uso era writeLog() del dashboard (ver lib/logger.ts).

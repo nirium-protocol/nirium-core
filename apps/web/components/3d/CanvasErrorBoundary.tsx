@@ -19,7 +19,7 @@ export class CanvasErrorBoundary extends Component<Props, State> {
     }
 
     componentDidCatch(error: Error) {
-        // Only reset for R3F context loss errors — they are transient
+        // Only reset for R3F context loss errors - they are transient
         if (error.message?.includes('R3F') || error.message?.includes('Canvas')) {
             setTimeout(() => this.setState({ hasError: false }), 500);
         }

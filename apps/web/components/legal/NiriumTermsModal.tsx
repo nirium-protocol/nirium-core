@@ -53,7 +53,7 @@ export default function NiriumTermsModal({ walletAddress }: NiriumTermsProps) {
 
             if (!signed) throw new Error("Signature failed or was rejected");
 
-            // Freighter devuelve string u objeto según versión — normalizamos a texto para la columna TEXT.
+            // Freighter devuelve string u objeto según versión - normalizamos a texto para la columna TEXT.
             const signatureHash = typeof signed === 'string' ? signed : JSON.stringify(signed);
 
             const signatureData = {
@@ -71,7 +71,7 @@ export default function NiriumTermsModal({ walletAddress }: NiriumTermsProps) {
             };
 
             // El agente valida el consentimiento server-side contra la tabla user_signatures.
-            // La persistencia en el backend es la fuente de verdad — el localStorage es solo cache.
+            // La persistencia en el backend es la fuente de verdad - el localStorage es solo cache.
             const res = await fetch('/api/legal/sign', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

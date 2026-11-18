@@ -9,7 +9,7 @@
 //
 // Network routing: testnet → Box A (nirium-agent), mainnet → Box B
 // (nirium-agent-mainnet, receive-only, payouts early access). El token se
-// cachea POR box — un JWT de Box A no sirve en Box B.
+// cachea POR box - un JWT de Box A no sirve en Box B.
 // ───────────────────────────────────────────────────────────────
 
 // Force IPv4-first DNS: Node's fetch to Cloudflare/Fly-fronted hosts can hang on
@@ -26,7 +26,7 @@ const AGENT_URLS: Record<AgentNetwork, string> = {
     mainnet: process.env.AGENT_MAINNET_API_URL || 'https://nirium-agent-mainnet.fly.dev',
 };
 
-/** Sanitiza el network que llega del browser — cualquier otra cosa es testnet. */
+/** Sanitiza el network que llega del browser - cualquier otra cosa es testnet. */
 export function asAgentNetwork(v: unknown): AgentNetwork {
     return v === 'mainnet' ? 'mainnet' : 'testnet';
 }
@@ -35,7 +35,7 @@ const G_ADDRESS = /^G[A-Z2-7]{55}$/;
 
 // The agent's /api/auth/token can be slow when the single machine is busy with
 // the autonomous loop. The token is valid 1h and its identity doesn't gate the
-// payroll routes, so mint per wallet+box and reuse — keeps the slow call off
+// payroll routes, so mint per wallet+box and reuse - keeps the slow call off
 // the hot path. (Cache POR wallet+network: la identidad del JWT define el
 // dueño en auth_keys.user_address, un token global mezclaría usuarios.)
 const cachedToken = new Map<string, { token: string; exp: number }>();
@@ -64,7 +64,7 @@ async function mintToken(walletAddress: string, network: AgentNetwork): Promise<
 // ── Wallet-verified tokens (consola /keys) ──────────────────────
 // A diferencia de mintToken, aquí la identidad SÍ importa: el agente exige una
 // firma SEP-53 fresca y devuelve un JWT con claim `wsig`, único que los
-// endpoints /api/auth/keys aceptan. Sin cache — el token vive en la cookie
+// endpoints /api/auth/keys aceptan. Sin cache - el token vive en la cookie
 // httpOnly de la sesión del browser.
 export async function mintWalletVerifiedToken(
     walletAddress: string,

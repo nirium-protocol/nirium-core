@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// Nirium — Domain Lock Utility
+// Nirium - Domain Lock Utility
 // ═══════════════════════════════════════════════════════════════
 //
 // Checks if the application is running on an approved domain.
@@ -83,7 +83,7 @@ interface DomainViolationEvent {
  * In production, this would forward to a SIEM or monitoring service.
  */
 function logSuspiciousDomainAccess(event: DomainViolationEvent): void {
-    // Structured log — picked up by Vercel / Railway log drains
+    // Structured log - picked up by Vercel / Railway log drains
     const entry = {
         level: 'WARN',
         event: 'DOMAIN_LOCK_VIOLATION',
@@ -96,7 +96,7 @@ function logSuspiciousDomainAccess(event: DomainViolationEvent): void {
 
     // Browser-side: also push to a telemetry endpoint if available
     if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
-        // Fire-and-forget — do not await or handle errors to avoid
+        // Fire-and-forget - do not await or handle errors to avoid
         // disrupting the UI rendering path.
         try {
             fetch('/api/telemetry/domain-violation', {
@@ -105,7 +105,7 @@ function logSuspiciousDomainAccess(event: DomainViolationEvent): void {
                 body: JSON.stringify(entry),
                 keepalive: true,
             }).catch(() => {
-                // Intentionally swallowed — telemetry must never crash the app
+                // Intentionally swallowed - telemetry must never crash the app
             });
         } catch {
             // Intentionally swallowed
@@ -145,7 +145,7 @@ export function getDomainLockStatus(): DomainLockStatus {
     const hostname = getCurrentHostname();
 
     if (hostname === null) {
-        // Cannot determine hostname — allow in SSR/build contexts
+        // Cannot determine hostname - allow in SSR/build contexts
         _cachedStatus = {
             approved: true,
             hostname: null,

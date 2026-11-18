@@ -77,7 +77,7 @@ const X402_SERVE_INSTALL = "npm i express @x402/express @x402/core @x402/stellar
 // instalación limpia: NiriumVault (create_vault 8de99e3e..., deposit 8cee8b54...)
 // y Treasury con API key de otra wallet (deploy 85bfba5b..., deposit ade89e6c...,
 // propuesta firmada por el RebalanceManager e8032fa3...).
-const VAULT_TESTNET = "import { Keypair, Horizon, rpc, Contract, TransactionBuilder, Operation, Asset, Networks, nativeToScVal, scValToNative } from '@stellar/stellar-sdk';\n\nconst kp = Keypair.random(); // a new testnet key. Save kp.secret() to reuse it\nconst NET = Networks.TESTNET;\nconst horizon = new Horizon.Server('https://horizon-testnet.stellar.org');\nconst server = new rpc.Server('https://soroban-testnet.stellar.org');\nconst vaults = new Contract('CARTJIASVFHS4JJ24GVRO3XFQD37JCJEAXVPS7SPIWB3HLBXAYQ5SICV'); // NiriumVault\nconst CETES = new Asset('CETES', 'GC3CW7EDYRTWQ635VDIGY6S4ZUF5L6TQ7AA4MWS7LEQDBLUSZXV7UPS4');\nconst addr = (a) => nativeToScVal(a, { type: 'address' });\n\nawait fetch(`https://friendbot.stellar.org?addr=${kp.publicKey()}`);\n// Testnet CETES from the DEX: trustline plus a 20 XLM swap, in one transaction\nconst swap = new TransactionBuilder(await horizon.loadAccount(kp.publicKey()), { fee: '1000', networkPassphrase: NET })\n    .addOperation(Operation.changeTrust({ asset: CETES }))\n    .addOperation(Operation.pathPaymentStrictSend({ sendAsset: Asset.native(), sendAmount: '20', destination: kp.publicKey(), destAsset: CETES, destMin: '1' }))\n    .setTimeout(60).build();\nswap.sign(kp);\nawait horizon.submitTransaction(swap);\n\nasync function invoke(fn, ...args) {\n    let tx = new TransactionBuilder(await server.getAccount(kp.publicKey()), { fee: '1000000', networkPassphrase: NET })\n        .addOperation(vaults.call(fn, ...args)).setTimeout(60).build();\n    tx = await server.prepareTransaction(tx);\n    tx.sign(kp); // you sign every step\n    const { hash } = await server.sendTransaction(tx);\n    const done = await server.pollTransaction(hash);\n    if (done.status !== 'SUCCESS') throw new Error(`${fn} failed: ${hash}`);\n    console.log(fn, hash);\n    return done.returnValue && scValToNative(done.returnValue);\n}\n\n// Creating the vault costs 12.5 testnet XLM, paid from your Friendbot XLM\nconst { vault_id } = await invoke('create_vault', addr(kp.publicKey()), addr(CETES.contractId(NET)),\n    nativeToScVal('my niriumtober vault', { type: 'string' }), addr(Asset.native().contractId(NET)));\nawait invoke('deposit', nativeToScVal(vault_id, { type: 'u64' }), nativeToScVal(10_000_000n, { type: 'i128' })); // 1 CETES\n\n// Read your vault back (a simulation: no fee, nothing to sign)\nconst read = await server.simulateTransaction(new TransactionBuilder(await server.getAccount(kp.publicKey()), { fee: '100', networkPassphrase: NET })\n    .addOperation(vaults.call('get_vault', nativeToScVal(vault_id, { type: 'u64' }))).setTimeout(30).build());\nconst vault = scValToNative(read.result.retval);\nconsole.log('Vault', String(vault.vault_id), 'balance:', Number(vault.balance) / 1e7, 'CETES');\nconsole.log('Your public key:', kp.publicKey());";
+const VAULT_TESTNET = "import { Keypair, Horizon, rpc, Contract, TransactionBuilder, Operation, Asset, Networks, nativeToScVal, scValToNative } from '@stellar/stellar-sdk';\n\nconst kp = Keypair.random(); // a new testnet key. Save kp.secret() to reuse it\nconst NET = Networks.TESTNET;\nconst horizon = new Horizon.Server('https://horizon-testnet.stellar.org');\nconst server = new rpc.Server('https://soroban-testnet.stellar.org');\nconst vaults = new Contract('CDMFURE6MYROTA2A6DLD4TN2S4QTN64L2FZ2I2RY2AREONX6DUQOI2S2'); // NiriumVault\nconst CETES = new Asset('CETES', 'GC3CW7EDYRTWQ635VDIGY6S4ZUF5L6TQ7AA4MWS7LEQDBLUSZXV7UPS4');\nconst addr = (a) => nativeToScVal(a, { type: 'address' });\n\nawait fetch(`https://friendbot.stellar.org?addr=${kp.publicKey()}`);\n// Testnet CETES from the DEX: trustline plus a 20 XLM swap, in one transaction\nconst swap = new TransactionBuilder(await horizon.loadAccount(kp.publicKey()), { fee: '1000', networkPassphrase: NET })\n    .addOperation(Operation.changeTrust({ asset: CETES }))\n    .addOperation(Operation.pathPaymentStrictSend({ sendAsset: Asset.native(), sendAmount: '20', destination: kp.publicKey(), destAsset: CETES, destMin: '1' }))\n    .setTimeout(60).build();\nswap.sign(kp);\nawait horizon.submitTransaction(swap);\n\nasync function invoke(fn, ...args) {\n    let tx = new TransactionBuilder(await server.getAccount(kp.publicKey()), { fee: '1000000', networkPassphrase: NET })\n        .addOperation(vaults.call(fn, ...args)).setTimeout(60).build();\n    tx = await server.prepareTransaction(tx);\n    tx.sign(kp); // you sign every step\n    const { hash } = await server.sendTransaction(tx);\n    const done = await server.pollTransaction(hash);\n    if (done.status !== 'SUCCESS') throw new Error(`${fn} failed: ${hash}`);\n    console.log(fn, hash);\n    return done.returnValue && scValToNative(done.returnValue);\n}\n\n// Creating the vault costs 12.5 testnet XLM, paid from your Friendbot XLM\nconst { vault_id } = await invoke('create_vault', addr(kp.publicKey()), addr(CETES.contractId(NET)),\n    nativeToScVal('my niriumtober vault', { type: 'string' }), addr(Asset.native().contractId(NET)));\nawait invoke('deposit', nativeToScVal(vault_id, { type: 'u64' }), nativeToScVal(10_000_000n, { type: 'i128' })); // 1 CETES\n\n// Read your vault back (a simulation: no fee, nothing to sign)\nconst read = await server.simulateTransaction(new TransactionBuilder(await server.getAccount(kp.publicKey()), { fee: '100', networkPassphrase: NET })\n    .addOperation(vaults.call('get_vault', nativeToScVal(vault_id, { type: 'u64' }))).setTimeout(30).build());\nconst vault = scValToNative(read.result.retval);\nconsole.log('Vault', String(vault.vault_id), 'balance:', Number(vault.balance) / 1e7, 'CETES');\nconsole.log('Your public key:', kp.publicKey());";
 const TREASURY_TESTNET = "import { Agent } from 'nirium';\nimport { Keypair, Horizon, TransactionBuilder, Operation, Asset, Networks } from '@stellar/stellar-sdk';\n\n// Two keys, both yours: the API rejects the same key as Manager and RebalanceManager.\nconst manager = Keypair.random(), rebalancer = Keypair.random(); // save both .secret() to reuse them\nconst NET = Networks.TESTNET;\nconst horizon = new Horizon.Server('https://horizon-testnet.stellar.org');\nconst CETES = new Asset('CETES', 'GC3CW7EDYRTWQ635VDIGY6S4ZUF5L6TQ7AA4MWS7LEQDBLUSZXV7UPS4');\nconst agent = new Agent({ apiKey: process.env.NIRIUM_API_KEY, baseUrl: 'https://nirium-agent.fly.dev' }); // key from nirium.xyz/keys\n\nawait Promise.all([manager, rebalancer].map((k) => fetch(`https://friendbot.stellar.org?addr=${k.publicKey()}`)));\n// Testnet CETES from the DEX for the Manager: trustline plus a 20 XLM swap\nconst swap = new TransactionBuilder(await horizon.loadAccount(manager.publicKey()), { fee: '1000', networkPassphrase: NET })\n    .addOperation(Operation.changeTrust({ asset: CETES }))\n    .addOperation(Operation.pathPaymentStrictSend({ sendAsset: Asset.native(), sendAmount: '20', destination: manager.publicKey(), destAsset: CETES, destMin: '1' }))\n    .setTimeout(60).build();\nswap.sign(manager);\nawait horizon.submitTransaction(swap);\n\nconst signAndSubmit = (xdr, kp) => { const tx = TransactionBuilder.fromXDR(xdr, NET); tx.sign(kp); return agent.submitTreasuryTx(tx.toXDR()); };\n\nconst deploy = await agent.deployTreasuryVault({\n    caller: manager.publicKey(), manager: manager.publicKey(), rebalanceManager: rebalancer.publicKey(),\n    name: 'My Niriumtober vault', symbol: 'MNV',\n    assets: [{ address: CETES.contractId(NET), strategies: [{ address: 'CCP4RBDWPRNO2LWO23XFU4BBLGA73J5N3BK7EHRJUHVN33YEMMFB2MBE', name: 'blend-autocompound' }] }],\n});\nconst { contract: vault, hash } = await signAndSubmit(deploy.xdr, manager);\nconsole.log('deploy', hash, 'vault', vault);\nconst deposit = await agent.depositToTreasuryVault({ vault, from: manager.publicKey(), amounts: ['10000000'] }); // 1 CETES\nconsole.log('deposit', (await signAndSubmit(deposit.xdr, manager)).hash);\n\n// Ask for a proposal; your RebalanceManager key decides whether to sign it\nconst proposal = await agent.proposeTreasuryRebalance({ vault, caller: rebalancer.publicKey(), enterAt: 2.5, exitAt: 2.0 });\nconsole.log('proposal', JSON.stringify(proposal.instructions));\nif (proposal.xdr) console.log('rebalance', (await signAndSubmit(proposal.xdr, rebalancer)).hash);\nconsole.log('Manager:', manager.publicKey(), 'RebalanceManager:', rebalancer.publicKey());";
 // "Prepara tu cuenta", leído del archivo que se corrió en testnet el 22-oct-2026
 // (trustlines y swaps en 27a8056b...; la rama sin ruta a USDC, en 03269cfb...).
@@ -107,13 +107,14 @@ agent.initX402({ secretKey: process.env.STELLAR_SECRET, network: 'stellar:pubnet
 const res = await agent.x402Fetch('${MAINNET_BOX}/api/v1/premium/market'); // 0.05 USDC
 console.log(res.status, JSON.parse(atob(res.headers.get('payment-response'))).transaction); // tx hash`;
 
-type Status = "available" | "in_progress" | "under_review" | "done";
+type Status = "available" | "in_progress" | "under_review" | "done" | "closed";
 
 const STATUS_STYLE: Record<Status, string> = {
     available: "bg-emerald-400/10 border-emerald-400/30 text-emerald-300",
     in_progress: "bg-amber-400/10 border-amber-400/30 text-amber-300",
     under_review: "bg-sky-400/10 border-sky-400/30 text-sky-300",
     done: "bg-white/5 border-white/15 text-gray-400",
+    closed: "bg-white/5 border-white/10 text-gray-500",
 };
 
 type NodeRow = {
@@ -191,7 +192,7 @@ const FUN_ISSUES: Issue[] = [
         title: "Write a short agent horror story",
         area: "Community · writing",
         paths: ["community/horror-stories/"],
-        status: "available",
+        status: "closed",
         desc: [
             "Halloween edition: a short, original horror story about an AI agent, a payment or a Stellar transaction that goes wrong. The key that signed at midnight, the receipt that was never anchored, the facilitator that answered 402 forever. Add `community/horror-stories/<your-github-handle>.md`. English or Spanish.",
             "Edición Halloween: un cuento de terror corto y original sobre un agente de IA, un pago o una transacción de Stellar que sale mal. La llave que firmó a medianoche, el recibo que nunca se ancló, el facilitador que respondía 402 para siempre. Agrega `community/horror-stories/<tu-usuario-de-github>.md`. En inglés o en español.",
@@ -206,7 +207,7 @@ const FUN_ISSUES: Issue[] = [
         title: "ASCII art: a jack-o'-lantern, the Nirium logo or a Halloween theme",
         area: "Community · ASCII",
         paths: ["community/ascii/"],
-        status: "available",
+        status: "closed",
         desc: [
             "Add `community/ascii/<your-github-handle>-<name>.txt` with one piece: a jack-o'-lantern, the Nirium mark, a ghost, a bat, a haunted node. Plain ASCII characters only.",
             "Agrega `community/ascii/<tu-usuario-de-github>-<nombre>.txt` con una pieza: una calabaza de Halloween, el logo de Nirium, un fantasma, un murciélago, un nodo embrujado. Solo caracteres ASCII simples.",
@@ -221,7 +222,7 @@ const FUN_ISSUES: Issue[] = [
         title: "Translate examples/go-x402/README.md to Spanish",
         area: "Docs · español",
         paths: ["examples/go-x402/README.md"],
-        status: "available",
+        status: "closed",
         desc: [
             "It is the shortest README under `examples/`. Add `examples/go-x402/README.es.md` and a one-line link to it at the top of the English README.",
             "Es el README más corto de `examples/`. Agrega `examples/go-x402/README.es.md` y un link de una línea al inicio del README en inglés.",
@@ -239,7 +240,7 @@ const ISSUES: Issue[] = [
         title: "Example: anchor and verify an Audit Trail receipt from Python",
         area: "Python · Audit Trail",
         paths: ["examples/", "packages/sdk-python/src/nirium/client.py"],
-        status: "available",
+        status: "closed",
         desc: [
             "`anchor_audit_record()` exists in the Python package, but `examples/` has no Python example for Audit Trail. Add `examples/python-audit-anchor`: hash a file, anchor it on testnet, fetch the CID back and check the hash.",
             "`anchor_audit_record()` existe en el paquete de Python, pero `examples/` no tiene un ejemplo de Audit Trail en Python. Agrega `examples/python-audit-anchor`: hashea un archivo, ánclalo en testnet, recupera el CID y revisa el hash.",
@@ -254,7 +255,7 @@ const ISSUES: Issue[] = [
         title: "Tests for anchor_audit_record() in the Python package",
         area: "Python · tests",
         paths: ["packages/sdk-python/tests/"],
-        status: "available",
+        status: "closed",
         desc: [
             "`packages/sdk-python/tests/` only covers the LangChain tool and the WebSocket client. Add tests for `anchor_audit_record()`: payload shape, `hash` vs `record`, and the error when neither is given. Mock HTTP, no network.",
             "`packages/sdk-python/tests/` solo cubre la herramienta de LangChain y el cliente WebSocket. Agrega tests para `anchor_audit_record()`: forma del payload, `hash` vs `record` y el error cuando no viene ninguno. HTTP simulado, sin red.",
@@ -269,7 +270,7 @@ const ISSUES: Issue[] = [
         title: "Docs: verify an Audit Trail CID by hand",
         area: "Docs · Audit Trail",
         paths: ["docs/", "actions/verify-audit-cid/src/verify.ts"],
-        status: "available",
+        status: "done",
         desc: [
             "The verification model is only written up in the GitHub Action's README. Add `docs/verify-audit-cid.md`: fetch the document, recompute sha-256 over `record`, rebuild `nirium-audit-v1:<sha256>` and check the ed25519 signature against `agent.key`.",
             "El modelo de verificación solo está escrito en el README de la GitHub Action. Agrega `docs/verify-audit-cid.md`: baja el documento, recalcula el sha-256 de `record`, reconstruye `nirium-audit-v1:<sha256>` y verifica la firma ed25519 contra `agent.key`.",
@@ -284,7 +285,7 @@ const ISSUES: Issue[] = [
         title: "Docs (ES): Spanish version of the x402 quickstart",
         area: "Docs · español",
         paths: ["docs/quickstart-x402.md"],
-        status: "available",
+        status: "done",
         desc: [
             "There is no Spanish file in the repo. Translate `docs/quickstart-x402.md` to `docs/es/quickstart-x402.md` and link both ways.",
             "No hay ningún archivo en español en el repo. Traduce `docs/quickstart-x402.md` a `docs/es/quickstart-x402.md` y enlaza en los dos sentidos.",
@@ -299,7 +300,7 @@ const ISSUES: Issue[] = [
         title: "Docs (ES): Spanish README for the Python package",
         area: "Docs · español",
         paths: ["packages/sdk-python/README.md"],
-        status: "available",
+        status: "closed",
         desc: [
             "Add `packages/sdk-python/README.es.md` with a link at the top of the English README. Keep the known limits it states (for example, MPP Charge in Python) exactly as written.",
             "Agrega `packages/sdk-python/README.es.md` con un link al inicio del README en inglés. Conserva tal cual los límites que declara (por ejemplo, MPP Charge en Python).",
@@ -314,7 +315,7 @@ const ISSUES: Issue[] = [
         title: "Example: x402Serve() on plain Express, testnet",
         area: "TypeScript · x402",
         paths: ["examples/express-x402/src/server.ts", "examples/deploy-x402-vercel/lib/x402-handler.ts"],
-        status: "available",
+        status: "closed",
         desc: [
             "`examples/express-x402` wires `@x402/express` by hand; only the Vercel example uses `x402Serve()`. Add a minimal Express server that charges for one route with `x402Serve()` on `stellar:testnet`.",
             "`examples/express-x402` arma `@x402/express` a mano; solo el ejemplo de Vercel usa `x402Serve()`. Agrega un servidor Express mínimo que cobre una ruta con `x402Serve()` en `stellar:testnet`.",
@@ -329,7 +330,7 @@ const ISSUES: Issue[] = [
         title: "Python: make mpp_fetch() pay an MPP Charge server on testnet",
         area: "Python · MPP",
         paths: ["packages/sdk-python/src/nirium/client.py", "packages/sdk-python/README.md"],
-        status: "available",
+        status: "closed",
         desc: [
             "The Python README says `init_mpp()`/`mpp_fetch()` cannot pay an MPP Charge server today. Fix it for testnet only, matching what the TypeScript client already does.",
             "El README de Python dice que `init_mpp()`/`mpp_fetch()` hoy no pueden pagar un servidor MPP Charge. Arréglalo solo para testnet, igual que ya lo hace el cliente de TypeScript.",
@@ -344,7 +345,7 @@ const ISSUES: Issue[] = [
         title: "Example: a Payouts run on testnet",
         area: "Payouts",
         paths: ["examples/", "packages/sdk-python/src/nirium/client.py"],
-        status: "available",
+        status: "closed",
         desc: [
             "No example covers Payouts. Add one that builds a two-recipient run on testnet with `acknowledgeTerms`, signs it with a throwaway testnet key and submits it.",
             "Ningún ejemplo cubre Payouts. Agrega uno que arme una corrida de dos destinatarios en testnet con `acknowledgeTerms`, la firme con una llave desechable de testnet y la envíe.",
@@ -359,7 +360,7 @@ const ISSUES: Issue[] = [
         title: "Example: Reporting summary and CSV export",
         area: "Reporting",
         paths: ["examples/", "packages/sdk-python/src/nirium/client.py"],
-        status: "available",
+        status: "closed",
         desc: [
             "`get_reporting_summary()` and `get_reporting_export()` have no example. Add a short script that prints the testnet summary and saves the export to a file.",
             "`get_reporting_summary()` y `get_reporting_export()` no tienen ejemplo. Agrega un script corto que imprima el resumen de testnet y guarde la exportación en un archivo.",
@@ -374,7 +375,7 @@ const ISSUES: Issue[] = [
         title: "examples/README.md: an index of the examples",
         area: "Docs",
         paths: ["examples/"],
-        status: "available",
+        status: "closed",
         desc: [
             "`examples/` has twelve folders and no index. Add `examples/README.md` with one line per example: what it shows, language, and network.",
             "`examples/` tiene doce carpetas y ningún índice. Agrega `examples/README.md` con una línea por ejemplo: qué muestra, lenguaje y red.",
@@ -390,7 +391,7 @@ const ISSUES: Issue[] = [
         title: "Research: aggregate spending caps for the pre-sign policy hook",
         area: "Research · x402 policy",
         paths: ["docs/research/"],
-        status: "available",
+        status: "closed",
         desc: [
             "The pre-sign policy hook decides one payment at a time. Write a design note on spending caps per time window, per destination and per asset, built on top of it. Related: #127.",
             "El hook de política previo a la firma decide un pago a la vez. Escribe una nota de diseño sobre topes de gasto por ventana de tiempo, por destino y por activo, encima del hook. Relacionado: #127.",
@@ -405,7 +406,7 @@ const ISSUES: Issue[] = [
         title: "Research: a multi-asset DeFindex vault on testnet (USDC, XLM, CETES)",
         area: "Research · Treasury",
         paths: ["docs/research/"],
-        status: "available",
+        status: "closed",
         desc: [
             "Can one DeFindex vault on testnet hold USDC, XLM and CETES at once? Find out, with sources.",
             "¿Una bóveda de DeFindex en testnet puede tener USDC, XLM y CETES a la vez? Averígualo, con fuentes.",
@@ -420,7 +421,7 @@ const ISSUES: Issue[] = [
         title: "Research: Audit Trail receipts vs W3C Verifiable Credentials and C2PA",
         area: "Research · Audit Trail",
         paths: ["docs/research/"],
-        status: "available",
+        status: "closed",
         desc: [
             "Compare an Audit Trail receipt (a signed hash on IPFS) with W3C Verifiable Credentials and C2PA.",
             "Compara un recibo de Audit Trail (un hash firmado en IPFS) con W3C Verifiable Credentials y C2PA.",
@@ -435,7 +436,7 @@ const ISSUES: Issue[] = [
         title: "Python: port the pre-sign policy hook (ALLOW, DENY, WAIT)",
         area: "Python · x402",
         paths: ["packages/sdk-python/src/nirium/", "packages/sdk-python/tests/"],
-        status: "available",
+        status: "closed",
         desc: [
             "Port the TypeScript pre-sign policy hook to the Python package: ALLOW, DENY or WAIT, with `contextHash` and `expiresAt`. Anything but a valid ALLOW signs nothing.",
             "Porta al paquete de Python el hook de política previo a la firma de TypeScript: ALLOW, DENY o WAIT, con `contextHash` y `expiresAt`. Todo lo que no sea un ALLOW válido no firma nada.",
@@ -450,7 +451,7 @@ const ISSUES: Issue[] = [
         title: "verify-audit-cid: try more than one IPFS gateway",
         area: "GitHub Action · Audit Trail",
         paths: ["actions/verify-audit-cid/"],
-        status: "available",
+        status: "done",
         desc: [
             "The Action fetches from one IPFS gateway, and today its default answers 429. Try several gateways in order and report which one answered. Related: #135.",
             "La Action consulta un solo gateway de IPFS, y hoy el de por defecto responde 429. Prueba varios gateways en orden y reporta cuál respondió. Relacionado: #135.",
@@ -650,6 +651,7 @@ export default function NiriumtoberPage() {
         in_progress: lang("In progress", "En curso"),
         under_review: lang("Under review", "En revisión"),
         done: lang("Done", "Hecho"),
+        closed: lang("Closed", "Cerrado"),
     };
     const mainnetLabel = {
         points: "Mainnet · +3",
@@ -808,7 +810,7 @@ export default function NiriumtoberPage() {
                                 </a>
                             </div>
                             <div className="space-y-1 text-xs text-gray-400">
-                                <p>{lang("10K+ package downloads on npm and PyPI · 2 SCF Instawards · Open source", "10K+ descargas de paquetes en npm y PyPI · 2 SCF Instawards · Open source")}</p>
+                                <p>{lang("17K+ package downloads on npm and PyPI · 2 SCF Instawards · Open source", "17K+ descargas de paquetes en npm y PyPI · 2 SCF Instawards · Open source")}</p>
                                 <p className="text-gray-500">{lang("No cash prizes. The Champion gets a hoodie.", "Sin premios en dinero. Champion se lleva una sudadera.")}</p>
                             </div>
                         </motion.div>

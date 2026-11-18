@@ -1,5 +1,5 @@
 'use client';
-import { Shield, Lock, CheckCircle, Heart } from 'lucide-react';
+import { Shield, CheckCircle, Heart } from 'lucide-react';
 import { useLanguage } from "@/context/LanguageContext";
 
 export function ComplianceBanner() {
@@ -7,18 +7,19 @@ export function ComplianceBanner() {
 
     // El texto de "Aviso Regulatorio" que vivía aquí se quitó a propósito
     // (21-ago-2026): era una variante corta y distinta del disclaimer real
-    // (LegalDisclaimer.tsx, footer sitewide) — dos versiones del mismo aviso
+    // (LegalDisclaimer.tsx, footer sitewide) - dos versiones del mismo aviso
     // legal en paralelo, una de ellas sin actualizar cuando la otra se
     // corrigió. El footer ya aparece en cada página; no hace falta duplicarlo
     // aquí. Los badges de abajo no son un claim legal, se quedan.
+    // 8-nov-2026: se quitó "COC COMPLIANT". Nadie certifica ese cumplimiento; seguir el
+    // Código de Conducta de Stellar es un compromiso nuestro y así lo dice el aviso
+    // (LegalDisclaimer.tsx), no una insignia de cumplimiento.
     return (
         <div className="space-y-4 mb-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4">
                 {[
                     { label: t.common.non_custodial, icon: Shield, color: 'text-stellar-teal' },
-                    { label: t.common.institutional_grade, icon: Lock, color: 'text-stellar-yellow' },
                     { label: t.common.scf_7, icon: Heart, color: 'text-pink-400' },
-                    { label: t.common.coc_compliant, icon: CheckCircle, color: 'text-green-400' },
                 ].map((item, i) => (
                     <div key={i} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
                         <item.icon size={12} className={item.color} />

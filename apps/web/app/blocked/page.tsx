@@ -1,4 +1,4 @@
-// HTTP 451 — Unavailable For Legal Reasons.
+// HTTP 451 - Unavailable For Legal Reasons.
 //
 // Se sirve por rewrite desde middleware.ts cuando la petición viene de una
 // jurisdicción Tier A. Vive FUERA de (app) a propósito: el layout de la app
@@ -10,7 +10,7 @@
 // leer ni cuestionar se parece más a una falla que a una política.
 
 export const metadata = {
-    title: 'Not available in your jurisdiction — Nirium',
+    title: 'Not available in your jurisdiction - Nirium',
     robots: { index: false, follow: false },
 };
 
@@ -63,7 +63,7 @@ export default async function BlockedPage({
                 <p style={{ color: '#a6adbb', marginBottom: '1rem' }}>
                     This is a restriction on who we serve, not a judgement about you, and it is not a
                     statement that you have done anything wrong. If you believe it applies to you in
-                    error — geolocation is imperfect — write to us and we will look at it.
+                    error - geolocation is imperfect - write to us and we will look at it.
                 </p>
 
                 <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '2rem' }}>

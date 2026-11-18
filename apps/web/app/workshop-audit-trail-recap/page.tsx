@@ -158,8 +158,8 @@ function Page() {
                             <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
                                 <p className="text-sm text-amber-100/90 leading-relaxed">
                                     {lang(
-                                        "The real story behind why this matters: in September 2026, an x402 facilitator failed silently for about a month, while still returning what looked like valid 402 responses. Four other integrators, plus us, had to reconstruct by hand what had actually happened before anyone outside could fix it.",
-                                        "La historia real detrás de por qué importa: en septiembre de 2026, un facilitador de x402 falló en silencio durante casi un mes, mientras seguía devolviendo respuestas 402 que parecían válidas. Otros cuatro integradores, más nosotros, tuvimos que reconstruir a mano qué había pasado de verdad antes de que alguien de afuera pudiera arreglarlo.",
+                                        "The real story behind why this matters: from August to September 2026, x402 payments on mainnet failed for 32 days because of a misconfiguration inside a hosted facilitator. Two other integrators and we had to reconstruct by hand what had actually happened before it could be fixed.",
+                                        "La historia real detrás de por qué importa: de agosto a septiembre de 2026, los pagos x402 en mainnet fallaron durante 32 días por una configuración equivocada dentro de un facilitador hospedado. Otros dos integradores y nosotros tuvimos que reconstruir a mano qué había pasado de verdad antes de que se pudiera arreglar.",
                                     )}
                                 </p>
                             </div>
@@ -314,8 +314,8 @@ function Page() {
                                 </div>
                                 <p className="text-gray-300 text-sm leading-relaxed">
                                     {lang(
-                                        "TIA signs and anchors every exchange-rate quote it issues, on mainnet, with its own key. ",
-                                        "TIA firma y ancla cada cotización de tipo de cambio que emite, en mainnet, con su propia llave. ",
+                                        "TIA signs and anchors its exchange-rate quotes on mainnet, with its own key - 3 by the day of this workshop (30 Oct 2026), 7 by 16 Nov 2026. ",
+                                        "TIA firma y ancla sus cotizaciones de tipo de cambio en mainnet, con su propia llave; 3 al día de este taller (30 oct 2026), 7 al 16 nov 2026. ",
                                     )}
                                     <a href={`https://nirium.xyz/verify?cid=${TIA_CID}`} target="_blank" rel="noopener noreferrer" className="text-emerald-300 hover:underline whitespace-nowrap">
                                         {lang("See this receipt", "Ver este recibo")}

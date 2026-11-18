@@ -1,7 +1,7 @@
 "use client";
 
 // ───────────────────────────────────────────────────────────────
-// Payroll / Disbursement Node — operator console
+// Payroll / Disbursement Node - operator console
 //
 // Fan-out one treasury to many employees in a single signed batch payment.
 // Non-custodial: the agent builds the unsigned XDR from the CONNECTED wallet
@@ -28,8 +28,8 @@ type ClientInfo = { legalName: string; taxId: string; repName: string };
 type RecipientResult = { wallet: string; amount: string; status: "ok" | "skipped"; reason?: string };
 type Receipt = { txHash?: string; explorer?: string; cid?: string; totalAmount?: string; recipientCount?: number };
 type Run = {
-    runId: string; asset: string; totalAmount: string; recipientCount: number;
-    txHash?: string; explorer?: string; cid?: string;
+    asset: string; totalAmount: string; recipientCount: number;
+    txHash?: string; explorer?: string;
 };
 type LegalDoc = {
     terms: string; atrHash?: string;
@@ -37,7 +37,8 @@ type LegalDoc = {
 };
 
 const shorten = (s: string, n = 6) => (s.length > n * 2 ? `${s.slice(0, n)}…${s.slice(-n)}` : s);
-const ipfsUrl = (cid: string) => `https://gateway.pinata.cloud/ipfs/${cid}`;
+// El recibo se abre en /verify, que recalcula el hash (antes: JSON crudo en Pinata).
+const verifyUrl = (cid: string) => `/verify?cid=${encodeURIComponent(cid)}`;
 
 async function signXdr(
     signTransaction: (xdr: string, opts?: any) => Promise<any>,
@@ -61,16 +62,16 @@ export default function PayrollPage() {
     const p = t.payroll;
 
     const [asset, setAsset] = useState<"USDC" | "XLM">("USDC");
-    // Red global (sidebar) — no un estado local: dos toggles independientes
+    // Red global (sidebar) - no un estado local: dos toggles independientes
     // (este y el del sidebar) es justo el bug que causaba que "Corridas
     // recientes" siguiera mostrando testnet tras cambiar a mainnet desde el
     // sidebar. Un solo lugar para cambiar de red, como treasury/vault/page.tsx.
     const { network, setNetwork } = useNetwork();
     // Blindaje legal: la corrida exige aceptación explícita de los términos
-    // (el agente responde 403 sin acknowledgeTerms — en AMBAS redes).
+    // (el agente responde 403 sin acknowledgeTerms - en AMBAS redes).
     const [ackTerms, setAckTerms] = useState(false);
-    // Identificación de cliente — solo mainnet, adelantada a LFPIORPI fracc. XVI
-    // (vigente 17-ene-2027). El agente responde 403 sin ella en mainnet.
+    // Identificación de cliente - solo mainnet, de cara a LFPIORPI fracc. XVI
+    // (vigente desde 2019, no 2027 - ver NiriumMainnet.md §3.7). El agente responde 403 sin ella en mainnet.
     const [clientInfo, setClientInfo] = useState<ClientInfo>({ legalName: "", taxId: "", repName: "" });
     const [memo, setMemo] = useState("");
     const [recipients, setRecipients] = useState<Recipient[]>([{ wallet: "", amount: "" }]);
@@ -85,12 +86,12 @@ export default function PayrollPage() {
     const [runs, setRuns] = useState<Run[]>([]);
     const [legal, setLegal] = useState<LegalDoc | null>(null);
 
-    // LCP discovery — read our own published .well-known file (same origin).
+    // LCP discovery - read our own published .well-known file (same origin).
     useEffect(() => {
         fetch("/.well-known/legal-context.json", { cache: "no-store" })
             .then((r) => (r.ok ? r.json() : null))
             .then((d) => setLegal(d))
-            .catch(() => { /* not published yet — banner hidden */ });
+            .catch(() => { /* not published yet - banner hidden */ });
     }, []);
 
     const loadRuns = useCallback(async () => {
@@ -98,7 +99,7 @@ export default function PayrollPage() {
             const r = await fetch(`/api/payroll/runs?network=${network}`, { cache: "no-store" });
             const d = await r.json();
             setRuns(Array.isArray(d.runs) ? d.runs : []);
-        } catch { /* agent offline — leave list as-is */ }
+        } catch { /* agent offline - leave list as-is */ }
     }, [network]);
 
     useEffect(() => { loadRuns(); }, [loadRuns]);
@@ -177,7 +178,7 @@ export default function PayrollPage() {
         try {
             setOnboardPhase("working");
             // Self-service: add the USDC trustline to the CONNECTED account (it signs
-            // its own changeTrust — one signature). Guard against a wallet account
+            // its own changeTrust - one signature). Guard against a wallet account
             // switch so we don't sign with the wrong account (tx_bad_auth).
             const active = await getAddress();
             if (active && active !== address) { setOnboardMsg(p.errors.accountMismatch); return; }
@@ -218,7 +219,7 @@ export default function PayrollPage() {
                     ))}
                 </div>
 
-                {/* Precio — LICENCIA MENSUAL POR CAPACIDAD, $0 durante la Beta.
+                {/* Precio - LICENCIA MENSUAL POR CAPACIDAD, $0 durante la Beta.
                     Era "por destinatario" y contradecía los propios términos que
                     el cliente acepta dos recuadros más abajo (§9: nunca un cargo
                     por pago). Cobrar por pago procesado es como cobra un
@@ -232,7 +233,7 @@ export default function PayrollPage() {
                     <p className="text-[11px] text-white/35 mt-2 leading-relaxed">{p.pricing.note}</p>
                 </div>
 
-                {/* LCP legal context — published discovery file */}
+                {/* LCP legal context - published discovery file */}
                 {legal && (
                     <div className="mb-10 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] text-white/50">
                         <span className="text-stellar-teal">{p.legal.label}</span>
@@ -241,7 +242,7 @@ export default function PayrollPage() {
                         {legal.atrHash && (
                             <span title={legal.atrHash}>atrHash&nbsp;{legal.atrHash.replace("sha-256:", "").slice(0, 10)}…</span>
                         )}
-                        {legal.disputeResolution?.source && <span>{p.legal.dispute}&nbsp;·&nbsp;{legal.disputeResolution.source}</span>}
+                        {legal.disputeResolution?.source && <span>{p.legal.dispute}&nbsp;·&nbsp;{language === 'es' && legal.disputeResolution.source === 'Courts of Mexico City (arbitration only by written agreement)' ? 'Tribunales de la Ciudad de México (arbitraje solo por acuerdo escrito)' : legal.disputeResolution.source}</span>}
                     </div>
                 )}
 
@@ -274,6 +275,7 @@ export default function PayrollPage() {
                                 </button>
                             ))}
                         </div>
+                        {network === "testnet" && (
                         <div className="flex rounded-full border border-white/10 p-0.5 font-mono text-xs">
                             {(["USDC", "XLM"] as const).map((a) => (
                                 <button key={a} onClick={() => setAsset(a)}
@@ -282,35 +284,36 @@ export default function PayrollPage() {
                                 </button>
                             ))}
                         </div>
+                        )}
                         </div>
                     </div>
 
+                    {/* Mainnet: sin formulario. El sitio pide al agente un token de nivel
+                        'free' para cualquier wallet (/api/auth/token) y la corrida en
+                        mainnet exige nivel institucional (requirePayrollMainnetAccess),
+                        así que desde aquí siempre terminaba en 403, incluso para un
+                        invitado. Las empresas invitadas lo corren por API con su llave
+                        autorizada. Decidido el 8-nov-2026. */}
                     {network === "mainnet" && (
-                        <>
-                        <p className="mb-4 rounded-lg border border-emerald-400/20 bg-emerald-400/[0.05] px-3 py-2 font-mono text-[11px] text-emerald-300/90">
-                            {p.badges.mainnet} · {p.network.freighterHint}
-                        </p>
-                        <p className="mb-4 rounded-lg border border-amber-400/20 bg-amber-400/[0.05] px-3 py-2 font-mono text-[11px] text-amber-300/90">
-                            {p.network.privateAccessNote}
-                        </p>
-                        <div className="mb-5 rounded-lg border border-white/10 bg-white/[0.02] p-4">
-                            <p className="text-xs font-mono text-white/60 mb-3">{p.clientInfo.title}</p>
-                            <p className="text-[11px] text-white/40 mb-3 leading-relaxed">{p.clientInfo.note}</p>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                <input value={clientInfo.legalName} onChange={(e) => setClientInfo((c) => ({ ...c, legalName: e.target.value }))}
-                                    placeholder={p.clientInfo.legalNamePlaceholder}
-                                    className="h-10 px-3 rounded-lg bg-black border border-white/10 font-mono text-sm text-white/90 placeholder:text-white/25 focus:border-stellar-teal/60 outline-none" />
-                                <input value={clientInfo.taxId} onChange={(e) => setClientInfo((c) => ({ ...c, taxId: e.target.value }))}
-                                    placeholder={p.clientInfo.taxIdPlaceholder}
-                                    className="h-10 px-3 rounded-lg bg-black border border-white/10 font-mono text-sm text-white/90 placeholder:text-white/25 focus:border-stellar-teal/60 outline-none" />
-                                <input value={clientInfo.repName} onChange={(e) => setClientInfo((c) => ({ ...c, repName: e.target.value }))}
-                                    placeholder={p.clientInfo.repNamePlaceholder}
-                                    className="h-10 px-3 rounded-lg bg-black border border-white/10 font-mono text-sm text-white/90 placeholder:text-white/25 focus:border-stellar-teal/60 outline-none" />
+                        <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.05] p-5">
+                            <p className="font-mono text-[11px] uppercase tracking-widest text-amber-300/90 mb-2">{p.badges.mainnet}</p>
+                            <p className="text-sm text-white/70 leading-relaxed mb-4">{p.network.privateAccessNote}</p>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <a
+                                    href="mailto:niriumprotocol@gmail.com?subject=Payouts%20mainnet%20-%20request%20access"
+                                    className="inline-flex h-10 items-center px-5 rounded-full bg-white text-[#0b0b0b] font-bold text-sm hover:bg-stellar-yellow transition-all"
+                                >
+                                    {lang("Request access →", "Solicitar acceso →")}
+                                </a>
+                                <a href="/legal/payouts-terms-v1.md" target="_blank" rel="noreferrer"
+                                    className="text-xs underline decoration-white/25 text-white/60 hover:text-stellar-teal">
+                                    {p.terms.link} ↗
+                                </a>
                             </div>
                         </div>
-                        </>
                     )}
 
+                    {network === "testnet" && (<>
                     <div className="space-y-2 mb-3">
                         {recipients.map((r, i) => (
                             <div key={i} className="flex flex-col sm:flex-row gap-2">
@@ -356,7 +359,7 @@ export default function PayrollPage() {
                         </span>
                     </label>
 
-                    {/* La representación del usuario es la protección jurídica REAL — el
+                    {/* La representación del usuario es la protección jurídica REAL - el
                         bloqueo por IP se salta con una VPN, una declaración no. Va junto al
                         botón que construye la corrida, no enterrada en un PDF, porque una
                         declaración que nadie leyó no declara nada. */}
@@ -371,7 +374,7 @@ export default function PayrollPage() {
                             {p.batch.total} <span className="text-white font-bold">{total.toFixed(4)}</span> {asset}
                             <span className="text-white/30 block sm:inline"> · {filledCount} {p.batch.recipients}</span>
                         </p>
-                        <button onClick={runPayroll} disabled={busy || !ackTerms || (network === "mainnet" && !clientInfoComplete)}
+                        <button onClick={runPayroll} disabled={busy || !ackTerms}
                             className="w-full sm:w-auto h-11 px-6 rounded-full bg-stellar-teal text-[#0b0b0b] font-bold text-sm hover:bg-stellar-yellow transition-all uppercase tracking-tight disabled:opacity-50">
                             {actionLabel}
                         </button>
@@ -385,7 +388,7 @@ export default function PayrollPage() {
                             <ul className="space-y-1">
                                 {skipped.map((s, i) => (
                                     <li key={i} className="text-xs font-mono text-white/60">
-                                        {shorten(s.wallet, 5)} — <span className="text-amber-400/80">{s.reason}</span>
+                                        {shorten(s.wallet, 5)} - <span className="text-amber-400/80">{s.reason}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -405,21 +408,18 @@ export default function PayrollPage() {
                                     </a>
                                 )}
                                 {receipt.cid && (
-                                    <a href={ipfsUrl(receipt.cid)} target="_blank" rel="noreferrer"
+                                    <a href={verifyUrl(receipt.cid)} target="_blank" rel="noreferrer"
                                         className="block text-white/70 hover:text-stellar-teal break-all">
                                         {p.receipt.ipfs} · {shorten(receipt.cid, 8)} ↗
                                     </a>
                                 )}
-                                {legal && (
-                                    <p className="text-white/40 pt-1">
-                                        {p.receipt.boundPre}{" "}
-                                        <a href={legal.terms} target="_blank" rel="noreferrer" className="underline decoration-white/20 hover:text-white/70">{p.receipt.boundLink}</a>
-                                        {" "}· {p.receipt.boundPost}
-                                    </p>
-                                )}
+                                {/* Antes: "Vinculado a los términos · LCP L2 · SHA-256 verificado".
+                                    Con LCP_ENABLED apagado el recibo no lleva el contexto legal
+                                    (auditPayroll en ipfsAuditBridge.ts), así que no se afirma. */}
                             </div>
                         </div>
                     )}
+                    </>)}
                 </section>
 
                 {/* Onboarding */}
@@ -444,20 +444,22 @@ export default function PayrollPage() {
                     {runs.length === 0 ? (
                         <p className="text-white/30 text-sm font-mono">{p.runs.empty}</p>
                     ) : (
+                        // Sin ID de corrida ni CID del recibo: el recibo es evidencia de la
+                        // empresa que pagó (misma regla que el Audit Trail del dashboard).
+                        // La tx sí, porque ya es pública en la cadena. El proxy
+                        // /api/payroll/runs tampoco devuelve esos dos campos.
                         <div className="space-y-2">
-                            {runs.map((run) => (
-                                <div key={run.runId}
+                            {runs.map((run, i) => (
+                                <div key={run.txHash || i}
                                     className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.015] px-4 py-3">
                                     <div className="min-w-0">
                                         <p className="font-mono text-sm text-white/80">
                                             {run.totalAmount} {run.asset}
                                             <span className="text-white/30"> · {run.recipientCount} {p.runs.recipients}</span>
                                         </p>
-                                        <p className="font-mono text-[11px] text-white/30 truncate">{run.runId}</p>
                                     </div>
                                     <div className="flex gap-3 font-mono text-xs shrink-0">
                                         {run.explorer && <a href={run.explorer} target="_blank" rel="noreferrer" className="text-white/50 hover:text-stellar-teal">{p.receipt.tx} ↗</a>}
-                                        {run.cid && <a href={ipfsUrl(run.cid)} target="_blank" rel="noreferrer" className="text-white/50 hover:text-stellar-teal">IPFS ↗</a>}
                                     </div>
                                 </div>
                             ))}

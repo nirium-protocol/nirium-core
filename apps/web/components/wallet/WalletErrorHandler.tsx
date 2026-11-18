@@ -1,5 +1,5 @@
 /**
- * Nirium — Global Wallet Error Handler & Interceptor
+ * Nirium - Global Wallet Error Handler & Interceptor
  * Captures Freighter rejections and system-level Stellar errors.
  */
 import { toast } from 'sonner';

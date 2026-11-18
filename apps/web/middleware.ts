@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { isNiriumtoberLive } from '@/lib/niriumtober'
 import type { NextRequest } from 'next/server'
 
-// ═══ Jurisdicciones prohibidas — Tier A de la política ═══
+// ═══ Jurisdicciones prohibidas - Tier A de la política ═══
 //
 // Política completa: /legal/restricted-jurisdictions-v1.md
 //
@@ -12,7 +12,7 @@ import type { NextRequest } from 'next/server'
 // China continental. Esa es la única de la lista con alcance extraterritorial
 // explícito sobre nosotros. HK/MO/TW no están incluidos, a propósito.
 //
-// Esto NO pretende ser infalible: una VPN lo salta. El valor es doble — evitar
+// Esto NO pretende ser infalible: una VPN lo salta. El valor es doble - evitar
 // la operación por accidente, y demostrar diligencia. La protección jurídica
 // real la da la declaración del usuario (§6 de la política); esto es el letrero
 // en la puerta, no la cerradura.
@@ -20,7 +20,7 @@ const BLOCKED_COUNTRIES = new Set([
     'CU', 'IR', 'KP', 'SY',        // sanciones comprensivas OFAC
     'AF', 'MM',                     // FATF call-for-action / alto riesgo
     'RU', 'BY',                     // restricción prudencial, en revisión
-    'CN',                           // PBoC 2021 — alcance extraterritorial
+    'CN',                           // PBoC 2021 - alcance extraterritorial
 ])
 
 // Rutas que siguen abiertas desde cualquier lugar: nadie queda sin poder LEER
@@ -40,11 +40,21 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(url, 301)
     }
 
+    // /baf era un pitch viejo de junio 2026 (afirmaciones que ya no son
+    // ciertas en mainnet, bajo el nombre de BAF). Se retiró; quien llegue
+    // por un link viejo cae en la página principal en vez de un 404.
+    if (path === '/baf' || path.startsWith('/baf/')) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/'
+        url.search = ''
+        return NextResponse.redirect(url, 301)
+    }
+
     if (BLOCKED_COUNTRIES.has(country) && !ALWAYS_ALLOWED.test(path)) {
         // Las rutas /api son la operación de verdad: construir una corrida de
         // payouts o desplegar una bóveda pasa por aquí, no por la UI. Bloquear
         // la pantalla y dejar el API abierto es poner reja en la puerta y
-        // ninguna en la ventana. Devuelven JSON — un rewrite a HTML rompería
+        // ninguna en la ventana. Devuelven JSON - un rewrite a HTML rompería
         // al cliente sin decirle por qué.
         if (path.startsWith('/api')) {
             return NextResponse.json(
@@ -80,7 +90,7 @@ export function middleware(request: NextRequest) {
 
     const response = NextResponse.next()
 
-    // ═══ Security Headers — OWASP API8:2023 Compliance ═══
+    // ═══ Security Headers - OWASP API8:2023 Compliance ═══
 
     // Clickjacking protection
     response.headers.set('X-Frame-Options', 'DENY')
@@ -91,13 +101,13 @@ export function middleware(request: NextRequest) {
     // Referrer leakage prevention
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
 
-    // HSTS — Force HTTPS for 1 year, include subdomains, enable preload
+    // HSTS - Force HTTPS for 1 year, include subdomains, enable preload
     response.headers.set(
         'Strict-Transport-Security',
         'max-age=31536000; includeSubDomains; preload'
     )
 
-    // Content Security Policy — Strict policy with necessary exceptions
+    // Content Security Policy - Strict policy with necessary exceptions
     response.headers.set(
         'Content-Security-Policy',
         [
@@ -110,7 +120,7 @@ export function middleware(request: NextRequest) {
             // el logo de nuestra app y el de Pollar dentro de SU modal de login.
             // Sin estos hosts, los tres modales salen con imágenes rotas.
             "img-src 'self' data: blob: https://*.nirium.xyz https://gateway.pinata.cloud https://stellar.expert https://horizon-testnet.stellar.org https://fonts.gstatic.com https://grainy-gradients.vercel.app https://api.web3modal.org https://api.sand.etherfuse.com https://stellar.creit.tech https://storage.herewallet.app https://uni.onekey-asset.com https://sdk.api.pollar.xyz https://pollar.xyz https://*.pollar.xyz",
-            // OJO: vercel.json también emite un CSP — el browser aplica la INTERSECCIÓN
+            // OJO: vercel.json también emite un CSP - el browser aplica la INTERSECCIÓN
             // de ambos. Mantener las dos listas de connect-src idénticas.
             "connect-src 'self' https://*.nirium.xyz https://nirium-agent.fly.dev wss://nirium-agent.fly.dev https://nirium-agent-mainnet.fly.dev https://nirium-play-backend.fly.dev https://horizon-testnet.stellar.org https://soroban-testnet.stellar.org https://horizon.stellar.org https://soroban-rpc.mainnet.stellar.gateway.fm wss://relay.walletconnect.com wss://relay.walletconnect.org https://rpc.walletconnect.com https://api.web3modal.com https://api.web3modal.org https://api.coingecko.com https://vercel.live https://va.vercel-scripts.com https://*.supabase.co wss://*.supabase.co https://api.sand.etherfuse.com https://pulse.walletconnect.org https://sdk.api.pollar.xyz",
             "frame-src 'self' https://verify.walletconnect.com https://verify.walletconnect.org",
@@ -121,7 +131,7 @@ export function middleware(request: NextRequest) {
         ].join('; ')
     )
 
-    // Permissions Policy — Restrict browser features
+    // Permissions Policy - Restrict browser features
     response.headers.set(
         'Permissions-Policy',
         'camera=(), microphone=(), geolocation=(), interest-cohort=()'
@@ -139,7 +149,7 @@ export const config = {
          * `api` ya NO se excluye. Se excluía por costo de edge, y mientras el
          * middleware solo ponía headers eso daba igual (los headers los pone
          * vercel.json de todas formas). Ahora decide jurisdicción, y las rutas
-         * operativas —construir una corrida de payouts, desplegar una bóveda—
+         * operativas -construir una corrida de payouts, desplegar una bóveda-
          * viven justamente en /api. Excluirlas dejaba la restricción como
          * cosmética: bastaba con llamar al endpoint sin abrir la página.
          */

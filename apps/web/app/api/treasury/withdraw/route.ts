@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { agentPost, asAgentNetwork } from '@/lib/agentProxy';
 
 // Saca fondos de la bóveda hacia la wallet del dueño. Devuelve XDR SIN firmar
-// porque lo firma quien tiene las participaciones — el agente no puede llamar
+// porque lo firma quien tiene las participaciones - el agente no puede llamar
 // esto ni queriendo: el rol de RebalanceManager no lo autoriza, y ese es todo
 // el argumento del nodo.
 export async function POST(req: NextRequest) {

@@ -7,7 +7,7 @@ import { useLanguage } from "@/context/LanguageContext";
 // testnet no arriesga nada y pedir confirmación para lo seguro entrena a la
 // gente a aceptar sin leer.
 //
-// La tabla NO es decorativa — cada fila corresponde a una diferencia real de
+// La tabla NO es decorativa - cada fila corresponde a una diferencia real de
 // configuración entre Box A (nirium-agent) y Box B (nirium-agent-mainnet),
 // no a un flag de UI. Ver `fly.mainnet.toml`.
 
@@ -29,7 +29,7 @@ export default function NetworkSwitchModal({ open, onConfirm, onCancel }: Props)
 
     const rows: { label: string; testnet: React.ReactNode; mainnet: React.ReactNode }[] = [
         {
-            label: lang("Settlement — x402", "Liquidación — x402"),
+            label: lang("Settlement - x402", "Liquidación - x402"),
             testnet: yes,
             mainnet: (
                 <span className="text-[10px] font-bold text-emerald-400">
@@ -48,7 +48,7 @@ export default function NetworkSwitchModal({ open, onConfirm, onCancel }: Props)
             mainnet: yes,
         },
         {
-            label: lang("Payouts — self-custody batch", "Payouts — lote self-custody"),
+            label: lang("Payouts - self-custody batch", "Payouts - lote self-custody"),
             testnet: (
                 <span className="text-[10px] font-bold text-white/50">
                     {lang("open", "abierto")}
@@ -64,32 +64,42 @@ export default function NetworkSwitchModal({ open, onConfirm, onCancel }: Props)
             label: lang(
                 "Treasury vault + autonomous rebalance",
                 "Vault de tesorería + rebalanceo autónomo"),
+            // "live 24/7" era una etiqueta fija, no una lectura: nada en este
+            // modal comprueba que el rebalanceador de testnet esté corriendo.
+            // "open" dice lo que sí es cierto: cualquiera puede usarlo.
             testnet: (
-                <span className="text-[10px] font-bold text-emerald-400">
-                    {lang("live 24/7", "vivo 24/7")}
+                <span className="text-[10px] font-bold text-white/50">
+                    {lang("open", "abierto")}
                 </span>
             ),
             // Dejó de ser "espera auditoría" el 5-ago: la tesorería autónoma
-            // corre en mainnet sobre una bóveda DeFindex del cliente —contrato
-            // ajeno ya auditado— y lo que sigue esperando auditoría es
-            // NiriumVault, que es otra cosa. Confundirlas subvalora lo único
-            // que de verdad está corriendo con dinero real.
+            // está desplegada en mainnet sobre una bóveda DeFindex del cliente
+            // -contrato ajeno ya auditado- y lo que sigue esperando auditoría
+            // es NiriumVault, que es otra cosa. Decía "live", pero el propio
+            // sitio (docs.overview.network_scope, legal.disclaimer_full) dice
+            // que solo ha corrido con fondos del equipo: 4 rebalanceos el
+            // 6-ago-2026. "Desplegado" es lo que se puede respaldar.
             mainnet: (
                 <span className="text-[10px] font-bold text-amber-400">
-                    {lang("live · invite-only", "vivo · por invitación")}
+                    {lang("deployed · invite-only", "desplegado · por invitación")}
                 </span>
             ),
         },
         {
-            label: lang("Agent signing key in the box", "Llave firmante del agente en el box"),
+            // Antes "Agent signing key in the box": jerga, y en español quedaba
+            // "en el box". Es la garantía de no custodia, tiene que entenderse.
+            label: lang("Server holds an agent key", "El servidor guarda una llave del agente"),
             testnet: (
                 <span className="text-[10px] font-bold text-white/50">
                     {lang("yes", "sí")}
                 </span>
             ),
+            // 12-nov-2026: "none" era cierto para la API de mainnet (fly.mainnet.toml), pero en
+            // mainnet también corre nirium-rebalancer-mainnet con una llave que solo tiene el rol
+            // de rebalanceo de DeFindex (fly.rebalancer.toml). Mismo ajuste que /security.
             mainnet: (
-                <span className="text-[10px] font-bold text-emerald-400">
-                    {lang("none", "ninguna")}
+                <span className="text-[10px] font-bold text-emerald-400 leading-tight inline-block">
+                    {lang("API: none · rebalancer: rebalance only", "API: ninguna · rebalanceador: solo rebalancea")}
                 </span>
             ),
         },
@@ -115,8 +125,8 @@ export default function NetworkSwitchModal({ open, onConfirm, onCancel }: Props)
                 <div className="p-6 space-y-5">
                     <p className="text-sm text-white/60 leading-relaxed">
                         {lang(
-                            "You're about to point the console at real Stellar mainnet data. Settlement and audit anchoring there move real USDC, signed by your own wallet — Nirium never holds it. The autonomous treasury runs on mainnet over a DeFindex vault you own — invite-only until we have a written legal opinion. Nirium's own NiriumVault stays on testnet until an external audit.",
-                            "Estás por apuntar la consola a datos reales de Stellar mainnet. La liquidación y el anclaje de auditoría ahí mueven USDC real, firmado por tu propia wallet — Nirium nunca lo custodia. La tesorería autónoma corre en mainnet sobre una bóveda DeFindex que tú posees — por invitación hasta tener una opinión legal por escrito. NiriumVault, el contrato propio de Nirium, se queda en testnet hasta una auditoría externa.")}
+                            "You're about to point the console at real Stellar mainnet data. Settlement there moves real USDC, signed by your own wallet - Nirium never holds it. The autonomous treasury is deployed on mainnet over a DeFindex vault you own - invite-only until we have a written legal opinion. Nirium's own NiriumVault stays on testnet until an external audit.",
+                            "Estás por apuntar la consola a datos reales de Stellar mainnet. Ahí la liquidación mueve USDC real, firmado por tu propia wallet - Nirium nunca lo custodia. La tesorería autónoma está desplegada en mainnet sobre una bóveda DeFindex que tú posees - por invitación hasta tener una opinión legal por escrito. NiriumVault, el contrato propio de Nirium, se queda en testnet hasta una auditoría externa.")}
                     </p>
 
                     <div className="rounded-xl border border-white/10 overflow-hidden">
@@ -138,14 +148,14 @@ export default function NetworkSwitchModal({ open, onConfirm, onCancel }: Props)
                     </div>
 
                     {/* El feed sale de una tabla de Supabase compartida por los dos
-                        boxes, así que no se filtra por red — decirlo evita que un
+                        boxes, así que no se filtra por red - decirlo evita que un
                         hash de testnet en mainnet se lea como error. */}
                     <div className="flex gap-3 items-start rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3">
                         <Radio className="w-3.5 h-3.5 text-stellar-teal shrink-0 mt-0.5" aria-hidden />
                         <p className="text-[11px] text-white/50 leading-relaxed">
                             {lang(
-                                "The audit feed is shared across both networks — you'll see entries from each, and every transaction hash resolves on the explorer for the network it was written on.",
-                                "El feed de auditoría se comparte entre las dos redes — verás entradas de ambas, y cada hash de transacción resuelve en el explorador de la red en la que se escribió.")}
+                                "The audit feed is shared across both networks - you'll see entries from each, and every transaction hash resolves on the explorer for the network it was written on.",
+                                "El feed de auditoría se comparte entre las dos redes - verás entradas de ambas, y cada hash de transacción resuelve en el explorador de la red en la que se escribió.")}
                         </p>
                     </div>
                 </div>

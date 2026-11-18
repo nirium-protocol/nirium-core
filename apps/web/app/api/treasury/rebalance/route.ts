@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { agentPost, asAgentNetwork } from '@/lib/agentProxy';
+import { tierBBlock } from '@/lib/tierBGate';
 
 // Pide al agente que ejecute un rebalanceo. Lo firma ÉL, con su propia llave,
-// porque el RebalanceManager es el agente — no el usuario. Por eso aquí no
+// porque el RebalanceManager es el agente - no el usuario. Por eso aquí no
 // vuelve ningún XDR para firmar: vuelve un hash ya confirmado.
 //
 // En mainnet el box no tiene llave (receive-only) y el agente responde 501
@@ -10,6 +11,9 @@ import { agentPost, asAgentNetwork } from '@/lib/agentProxy';
 export async function POST(req: NextRequest) {
     try {
         const { walletAddress, vault, instructions, network } = await req.json();
+        // EEE, UK y EE.UU.: no se ofrece (ver lib/tierBGate.ts).
+        const blocked = tierBBlock(req, asAgentNetwork(network), 'treasury');
+        if (blocked) return blocked;
         if (!walletAddress || !vault || !Array.isArray(instructions))
             return NextResponse.json({ error: 'walletAddress, vault and instructions required' }, { status: 400 });
 

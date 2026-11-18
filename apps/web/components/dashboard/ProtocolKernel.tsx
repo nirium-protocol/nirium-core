@@ -45,7 +45,7 @@ import { useLanguage } from '@/context/LanguageContext';
 const ProtocolKernel = ({ activity = 0.5 }: { activity?: number }) => {
     const { t } = useLanguage();
     // Latencia MEDIDA, no simulada. Antes era 20 + Math.random() * 5 cada dos
-    // segundos, con el comentario "to feel alive" — un número que se movía
+    // segundos, con el comentario "to feel alive" - un número que se movía
     // solo para parecer vivo. La misma corrección se hizo en /analytics, que
     // tenía un 142 hardcodeado; este componente se quedó atrás.
     const [latency, setLatency] = React.useState<number | null>(null);
@@ -84,7 +84,7 @@ const ProtocolKernel = ({ activity = 0.5 }: { activity?: number }) => {
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center pointer-events-none">
                 <div className="text-[10px] font-mono tracking-[0.3em] text-stellar-blue/60 uppercase">{t.common.sync}</div>
                 <div className="text-[8px] font-mono text-white/30 mt-1 uppercase">
-                    {t.common.latency}: {latency != null ? `${latency.toFixed(0)}ms` : '—'} | {t.common.load}: {(activity * 100).toFixed(0)}%
+                    {t.common.latency}: {latency != null ? `${latency.toFixed(0)}ms` : '-'} | {t.common.load}: {(activity * 100).toFixed(0)}%
                 </div>
             </div>
         </div>

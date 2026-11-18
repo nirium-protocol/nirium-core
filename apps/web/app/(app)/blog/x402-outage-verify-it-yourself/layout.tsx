@@ -6,11 +6,13 @@ import type { Metadata } from 'next';
 // Mainnet" on every share.
 const TITLE = "Mainnet x402 Was Down for 32 Days: Don't Trust Us, Verify the Fix";
 const DESCRIPTION =
-    "Every paid mainnet request against Nirium's x402 endpoints failed for 32 days - not from our code, but from a stale RPC URL inside a facilitator we don't operate. Here's the root cause, the two independent real payments that prove it's fixed, and the permanent logging hook we shipped so the next one doesn't take a month to notice.";
+    "Every paid mainnet request against Nirium's x402 endpoints failed for 32 days - not from our code, but from a stale RPC URL inside a facilitator we don't operate. Here's the root cause, the two real payments that prove it's fixed, and the permanent logging hook we shipped so the next one doesn't take a month to notice.";
 
 export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
+    // Propio: si no, hereda el canonical /blog del layout del blog.
+    alternates: { canonical: '/blog/x402-outage-verify-it-yourself' },
     openGraph: {
         title: TITLE,
         description: DESCRIPTION,

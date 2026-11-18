@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/pageMetadata";
 export const metadata = pageMetadata({
     path: "/compliance",
     title: "Audit Trail",
-    description: "Every node execution is hashed with SHA-256, anchored on IPFS and exported as JSON, so anyone can check it.",
+    description: "Receipts anyone can verify: each record gets a SHA-256 hash, an optional ed25519 signature and an IPFS CID you can check at nirium.xyz/verify.",
 });
 
 export default function ComplianceLayout({ children }: { children: React.ReactNode }) {

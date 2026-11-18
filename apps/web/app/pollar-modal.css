@@ -5,14 +5,14 @@
    1) z-index. Pollar publica su overlay en z-index 50, pero nuestro chrome
       va más alto: barra de tickers 110, navbar 100, botón de chat 100, y un
       contenedor de contenido en 60. Resultado: el modal se dibujaba DEBAJO
-      del navbar y el logo/cerrar quedaban tapados — se veía cortado, no
+      del navbar y el logo/cerrar quedaban tapados - se veía cortado, no
       scrolleado. Lo subimos por encima de todo lo nuestro.
 
    2) Alturas cortas. Su contenido pide ~634px (logo 64 + header + email +
       divisor + 3 botones + pie). En laptops chicas, móvil horizontal o con
       zoom alto del navegador la tarjeta se queda en ~508px y obliga a
       scrollear dentro de una caja apretada. Apretamos solo lo decorativo
-      —logo y espaciados— antes de sacrificar usabilidad.
+      -logo y espaciados- antes de sacrificar usabilidad.
    ─────────────────────────────────────────────────────────────── */
 
 .pollar-overlay {
@@ -44,8 +44,8 @@
 }
 
 /* Umbral para que quepa sin scroll en móviles chicos (iPhone SE, 320x568):
-   el contenido pedía 546px con 536px disponibles. El logo es decorativo — el
-   título ya dice el nombre de la app — así que se va antes de obligar a
+   el contenido pedía 546px con 536px disponibles. El logo es decorativo - el
+   título ya dice el nombre de la app - así que se va antes de obligar a
    scrollear. */
 @media (max-height: 620px) {
     .pollar-logo-wrap {

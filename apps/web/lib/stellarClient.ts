@@ -1,5 +1,5 @@
 /**
- * Nirium — Stellar Transaction & Data Client (Mock)
+ * Nirium - Stellar Transaction & Data Client (Mock)
  * This acts as the standard client during development and testing.
  */
 export const stellarClient = {

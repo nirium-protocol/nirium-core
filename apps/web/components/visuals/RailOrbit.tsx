@@ -1,11 +1,11 @@
-/** RailOrbit — replaces the old TreasuryCanvas (a glowing/distorted 3D sphere
+/** RailOrbit - replaces the old TreasuryCanvas (a glowing/distorted 3D sphere
  * with bloom post-processing, apps/web/components/3d/TreasuryOrb.tsx) with a
  * flat, brand-consistent visual: a single thin ring, 3 gold nodes orbiting it
  * (the same payment/audit/execution rails the icon's 3 dots represent), and
- * the real vector mark at the center. No WebGL — plain CSS animation, so it's
+ * the real vector mark at the center. No WebGL - plain CSS animation, so it's
  * lighter than the Three.js scene it replaces.
  *
- * Deliberately has no pill labels of its own — the two real ones (USDC,
+ * Deliberately has no pill labels of its own - the two real ones (USDC,
  * CETES rate) already live in page.tsx as siblings positioned over this same
  * container; adding more here would duplicate/collide with them.
  */

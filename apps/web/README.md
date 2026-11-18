@@ -35,11 +35,11 @@ Copy `.env.example` to `.env.local`:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-NEXT_PUBLIC_CONTRACT_VAULT=CAU2XBJTQUBTMPAUFRX7GMZ337I5WLBI4GYPWHZEVXTMJ66D3CP6DEL4
+NEXT_PUBLIC_CONTRACT_VAULT=CDMFURE6MYROTA2A6DLD4TN2S4QTN64L2FZ2I2RY2AREONX6DUQOI2S2
 NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
 ```
 
-The agent API URL defaults to `https://nirium-agent.fly.dev`. For local dev set `NEXT_PUBLIC_AGENT_API_URL=http://localhost:3002`.
+The agent API URL defaults to `https://nirium-agent.fly.dev`. For local dev set `NEXT_PUBLIC_AGENT_API_URL=http://localhost:3001`.
 
 ## Pages
 
@@ -51,7 +51,6 @@ The agent API URL defaults to `https://nirium-agent.fly.dev`. For local dev set 
 | `/analytics` | Protocol analytics and execution history |
 | `/treasury` | Treasury / revenue tracking |
 | `/strategies` | Strategy explorer and builder |
-| `/marketplace` | Skills marketplace with install/uninstall |
 | `/sandbox` | Sandbox account request and management |
 | `/docs` | API documentation and guides |
 | `/leaderboard` | Agent leaderboard with ELO ranking |
@@ -81,7 +80,6 @@ The landing page and dashboard show 5 real-time indicators:
 - `MarketTicker` - live 5-indicator ticker strip
 - `ProtocolFeed` - real-time agent decision logs
 - `ProtocolRevenue` - revenue tracking (testnet simulation)
-- `AISettingsModal` - LLM provider configuration
 - `ApiKeyManager` - institutional API key management
 - `StrategyBuilder` - visual strategy builder
 - `WalletConnector` - Freighter + Stellar Wallets Kit integration

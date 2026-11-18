@@ -6,7 +6,7 @@ import { Sun, Moon } from "lucide-react";
 type Theme = "dark" | "light";
 
 /**
- * Theme toggle — flips the `data-theme` attribute on <html> and persists it.
+ * Theme toggle - flips the `data-theme` attribute on <html> and persists it.
  * The whole app follows via CSS variables (see globals.css / tailwind.config).
  * The initial attribute is set by the anti-FOUC script in the root layout.
  */

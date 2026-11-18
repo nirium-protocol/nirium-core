@@ -1,11 +1,13 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://nirium-agent.fly.dev' : 'http://localhost:3002');
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://nirium-agent.fly.dev' : 'http://localhost:3001');
 
-// Box B — superficie mainnet (x402/MPP/audit/reporting). Box A (arriba) sigue
+// Box B - superficie mainnet (x402/MPP/audit/reporting). Box A (arriba) sigue
 // siendo el flagship testnet; nunca mezclar métricas de las dos redes.
 export const MAINNET_API_URL = process.env.NEXT_PUBLIC_MAINNET_API_URL || 'https://nirium-agent-mainnet.fly.dev';
 
-// Prueba pública verificable del primer settlement x402 en mainnet (9 jul 2026).
-export const PROOF_TX_HASH = '3134a51c66091fd7fbd85b38a4a6ec6cd432bb92c2450eac84ea7855cb7558bc';
+// Prueba pública verificable del primer settlement x402 en mainnet (9 jul 2026,
+// 20:06:59 UTC, 0.02 USDC a GCLBBPON desde nuestra wallet de prueba GAQPWC…).
+// Hasta el 12-nov-2026 aquí estaba 3134a51c…, que fue el quinto de ese día, no el primero.
+export const PROOF_TX_HASH = '8a2487b8545e02324ced5d902fa350f0f5d8c2d5d2210272506a320b36d73170';
 export const PROOF_TX_URL = `https://stellar.expert/explorer/public/tx/${PROOF_TX_HASH}`;
 export const TREASURY_ACCOUNT = 'GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP';
 export const TREASURY_ACCOUNT_URL = `https://stellar.expert/explorer/public/account/${TREASURY_ACCOUNT}`;

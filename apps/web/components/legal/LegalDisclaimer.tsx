@@ -14,13 +14,13 @@ interface LegalDisclaimerProps {
 }
 
 const SHORT: Record<Locale, string> = {
-  en: "Nirium is B2B software-only infrastructure on Stellar (Mainnet + Testnet). It is enterprise software, not a financial product. No yields guaranteed. Use at your own risk.",
-  es: "Nirium es infraestructura de software B2B en Stellar (Mainnet + Testnet). Es software para empresas, no un producto financiero. No garantiza rendimientos. Úselo bajo su propio riesgo.",
+  en: "Nirium is software-only B2B infrastructure on Stellar (mainnet and testnet). It is software, not a consumer financial product or investment advice, and it never holds your funds. No yields are guaranteed. Use at your own risk.",
+  es: "Nirium es infraestructura de software B2B en Stellar (mainnet y testnet). Es software, no un producto financiero para consumidores ni asesoría de inversión, y nunca custodia tus fondos. No garantiza rendimientos. Úsalo bajo tu propio riesgo.",
 };
 
 const FULL: Record<Locale, string> = {
-  en: "Nirium is software-only B2B infrastructure. It is software, not a consumer financial product, and not investment advice. Nirium never holds or custodies funds. Non-custodial settlement (x402), batch payouts (early access), audit anchoring and reporting run on Stellar mainnet. Autonomous rebalancing runs on DeFindex vaults — third-party audited contracts the client owns — invite-only until we have a written legal opinion; the role Nirium holds cannot withdraw funds, and the client can revoke it at any time. NiriumVault, Nirium’s own contract, runs on Stellar testnet only, audit-gated until a formal external audit. Nirium does not guarantee yields, dividends, or returns. Any rate data shown (e.g., Etherfuse CETES) is public reference information, not a promise of return. MPP Charge is experimental and not available on mainnet. Crypto assets are volatile. Financial services are provided by regulated partners, not by Nirium.",
-  es: "Nirium es infraestructura de software B2B, software-only. Es software, no un producto financiero para consumidores, ni asesoría de inversión. Nirium nunca custodia fondos. La liquidación non-custodial (x402), las dispersiones en lote (early access), el anclaje de auditoría y la reportería corren en Stellar mainnet. El rebalanceo autónomo corre sobre bóvedas de DeFindex —contratos de terceros, auditados y propiedad del cliente— en modo invitación hasta tener una opinión legal por escrito; el rol que Nirium sostiene no puede retirar fondos y el cliente puede revocarlo cuando quiera. NiriumVault, el contrato propio de Nirium, corre únicamente en Stellar testnet, audit-gated hasta una auditoría externa formal. Nirium no garantiza rendimientos, dividendos ni retornos de ningún tipo. Las tasas mostradas (ej. CETES vía Etherfuse) son información pública de referencia, no promesas de ganancia. MPP Charge es experimental y no está disponible en mainnet. Los criptoactivos son volátiles. Los servicios financieros los prestan partners regulados, no Nirium.",
+  en: "Nirium is software-only B2B infrastructure. It is software, not a consumer financial product, and not investment advice. Nirium never holds or custodies funds. Non-custodial settlement (x402), audit anchoring and reporting run on Stellar mainnet; batch payouts are invite-only early access on mainnet, with no mainnet runs yet. Autonomous rebalancing runs on DeFindex vaults (third-party audited contracts, structured so the client owns the vault; today's live vault is Nirium's own, self-funded), invite-only until we have a written legal opinion; the role Nirium holds cannot withdraw funds, and the client can revoke it at any time. NiriumVault, Nirium’s own contract, runs on Stellar testnet only, audit-gated until a formal external audit. Nirium does not guarantee yields, dividends, or returns. Any rate data shown (e.g., Etherfuse CETES) is public reference information, not a promise of return. MPP Charge is experimental: verified on testnet, not tested on mainnet. Crypto assets are volatile. Financial services are provided by independent third parties, not by Nirium.",
+  es: "Nirium es infraestructura de software B2B: solo software. Es software, no un producto financiero para consumidores, ni asesoría de inversión. Nirium nunca custodia fondos. La liquidación no custodial (x402), el anclaje de auditoría y los reportes corren en Stellar mainnet; las dispersiones en lote son acceso anticipado por invitación en mainnet, todavía sin corridas ahí. El rebalanceo autónomo corre sobre bóvedas de DeFindex (contratos de terceros, auditados, pensados para que la bóveda sea del cliente; la bóveda activa hoy es de Nirium, con fondos propios), solo por invitación hasta tener una opinión legal por escrito; el rol que Nirium tiene no puede retirar fondos y el cliente puede revocarlo cuando quiera. NiriumVault, el contrato propio de Nirium, corre únicamente en Stellar testnet y no pasará a mainnet sin una auditoría externa formal. Nirium no garantiza rendimientos, dividendos ni retornos de ningún tipo. Las tasas mostradas (por ejemplo, CETES vía Etherfuse) son información pública de referencia, no promesas de ganancia. MPP Charge es experimental: verificado en testnet, sin probar en mainnet. Los criptoactivos son volátiles. Los servicios financieros los prestan terceros independientes, no Nirium.",
 };
 
 const COC_URL = "https://stellar.org/foundation/code-of-conduct";
@@ -50,7 +50,7 @@ export default function LegalDisclaimer({
     return (
       <div
         role="alert"
-        className={`relative w-full bg-black backdrop-blur-md border-b border-red-500/20 text-white px-4 py-3 sm:py-2.5 shadow-lg transition-all duration-300 ${className}`}
+        className={`disclaimer-banner relative w-full bg-black backdrop-blur-md border-b border-red-500/20 text-white px-4 py-3 sm:py-2.5 shadow-lg transition-all duration-300 ${className}`}
       >
         <div className="max-w-5xl mx-auto flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-red-500" />
@@ -69,12 +69,12 @@ export default function LegalDisclaimer({
               rel="noopener noreferrer"
               className="underline underline-offset-2 text-red-500 hover:text-red-400 transition-colors"
             >
-              Stellar CoC ↗
+              {locale === "es" ? "Seguimos el Código de Conducta de Stellar ↗" : "We follow the Stellar Code of Conduct ↗"}
             </a>
           </p>
           <button
             onClick={dismiss}
-            aria-label="Dismiss disclaimer"
+            aria-label={locale === "es" ? "Cerrar aviso" : "Dismiss disclaimer"}
             className="shrink-0 p-1 rounded hover:bg-white/10 text-red-500 hover:text-red-400 transition-colors"
           >
             <X className="w-3.5 h-3.5" />
@@ -85,7 +85,7 @@ export default function LegalDisclaimer({
   }
 
   if (variant === "footer") {
-    // Short pointer, not a third independently-written full text — the only
+    // Short pointer, not a third independently-written full text - the only
     // full version lives on /disclaimers (which itself renders FULL via the
     // "inline" variant below). Duplicating FULL here risked the footer and
     // /disclaimers drifting apart in wording over time.
@@ -107,16 +107,16 @@ export default function LegalDisclaimer({
           rel="noopener noreferrer"
           className="underline underline-offset-2 hover:text-zinc-300 transition-colors"
         >
-          Stellar Code of Conduct ↗
+          {locale === "es" ? "Seguimos el Código de Conducta de Stellar ↗" : "We follow the Stellar Code of Conduct ↗"}
         </a>
       </p>
     );
   }
 
-  // inline — full block for /disclaimers page
+  // inline - full block for /disclaimers page
   return (
     <div
-      className={`rounded-2xl border border-stellar-teal/15 bg-zinc-950/50 backdrop-blur-sm p-6 ${className}`}
+      className={`rounded-2xl border border-stellar-teal/15 bg-black/40 backdrop-blur-sm p-6 ${className}`}
     >
       <div className="flex items-center gap-2 mb-4">
         <AlertTriangle className="w-4 h-4 text-stellar-teal shrink-0" />
@@ -133,7 +133,7 @@ export default function LegalDisclaimer({
         rel="noopener noreferrer"
         className="inline-flex items-center gap-1.5 text-xs text-stellar-teal hover:text-stellar-teal/80 underline underline-offset-2 transition-colors"
       >
-        Stellar Code of Conduct ↗
+        {locale === "es" ? "Seguimos el Código de Conducta de Stellar ↗" : "We follow the Stellar Code of Conduct ↗"}
       </a>
     </div>
   );

@@ -1,14 +1,11 @@
-# Nirium Payroll / Disbursement - Governing Terms (v1)
+# Nirium Payouts / Disbursement - Governing Terms (v1)
 
-> **INTERIM - PENDING FINAL COUNSEL CONFIRMATION.** The arbitration language in
-> §7 is the American Arbitration Association's International Centre for Dispute
-> Resolution (AAA-ICDR) **official standard clause**, quoted verbatim. The
-> governing law (§6) and the seat, language, and number of arbitrators (§7) are
-> filled in with the ICDR-recommended defaults for an early-stage Mexico-based
-> operator - Mexico, Mexico City, Spanish and English, one arbitrator. These are
-> sensible interim values, **not yet reviewed and confirmed by outside counsel.**
-> Mainnet Payouts runs under these interim terms during early access; the
-> founder must have counsel confirm or adjust §6-§7 before broader reliance.
+> **Dispute resolution (§7) matches the site Terms (§5) across the product,
+> updated 9 November 2026:** the competent courts of Mexico City, with
+> arbitration only where both parties agree to it in writing (Código de
+> Comercio art. 1423 requires a written arbitration agreement). This replaces
+> the binding Cámara de Comercio de la Ciudad de México clause of the
+> previous text. Governing law (§6, Mexico) is unchanged.
 >
 > This document is the reference artifact for the Legal Context Protocol
 > (LCP · https://legalcontextprotocol.org). Its SHA-256 is the LCP `atrHash`
@@ -17,7 +14,7 @@
 
 ## 1. Parties and scope
 
-These terms govern a **disbursement run** executed through the Nirium Payroll /
+These terms govern a **disbursement run** executed through the Nirium Payouts /
 Disbursement node: a fan-out payment from a paying party's treasury ("the
 **Company**") to one or more recipient accounts ("**Recipients**") on the Stellar
 network. "**Nirium**" refers to the software provider.
@@ -27,9 +24,8 @@ legal name, tax identification number, and the name of an authorized
 representative (`clientInfo: { legalName, taxId, repName }`). This is not
 KYC in the regulated-institution sense - Nirium performs no verification of
 the information provided, holds no license to do so, and the requirement
-exists purely as documentation preparation, adopted six months ahead of the
-LFPIORPI Art. 17 fracc. XVI effective date (17-Jan-2027) rather than in
-response to a present legal obligation. This paragraph documents what the
+is adopted in view of LFPIORPI Art. 17 fracc. XVI, in force since September
+2019 - not a future date. This paragraph documents what the
 software already enforces (`requireClientIdentification()`,
 `services/payoutsLegal.ts`); it does not itself constitute a representation
 that such identification satisfies any specific regulatory requirement.
@@ -41,7 +37,7 @@ transaction; the Company signs it with its own wallet and submits it. Nirium is
 **non-custodial** and at no time holds, controls, directs, or takes title to any
 funds. Settlement of value is effected solely by the Company's own signature.
 Where fiat conversion or other regulated activity occurs, it is performed by
-regulated third-party operators, not by Nirium. Nirium is not a bank, money
+independent third-party operators, not by Nirium. Nirium is not a bank, money
 transmitter, payment institution, custodian, or fiduciary.
 
 ## 3. What a disbursement represents
@@ -69,52 +65,14 @@ document and its `atrHash` prove *under which terms*.
 ## 6. Governing law
 
 These terms shall be governed by and construed in accordance with the laws of
-**Mexico** (interim value - pending final confirmation by outside counsel),
-without regard to its conflict-of-laws rules.
+**Mexico**, without regard to its conflict-of-laws rules.
 
-## 7. Dispute resolution - AAA-ICDR (official standard clause)
+## 7. Dispute resolution
 
-**Arbitration clause (ICDR standard, verbatim):**
-
-> Any controversy or claim arising out of or relating to this contract, or the
-> breach thereof, shall be determined by arbitration administered by the
-> International Centre for Dispute Resolution in accordance with its International
-> Arbitration Rules.
-
-**Mediation step-up (ICDR standard, verbatim):**
-
-> In the event of any controversy or claim arising out of or relating to this
-> contract, or the breach thereof, the parties hereto agree first to try and
-> settle the dispute by mediation, administered by the International Centre for
-> Dispute Resolution under its Mediation Rules. If settlement is not reached
-> within 60 days after service of a written demand for mediation, any unresolved
-> controversy or claim arising out of or relating to this contract shall be
-> settled by arbitration in accordance with the International Arbitration Rules of
-> the International Centre for Dispute Resolution.
-
-**Supplementary provisions (ICDR-recommended interim values - pending final confirmation by counsel):**
-
-- The number of arbitrators shall be **one**.
-- The place (seat) of arbitration shall be **Mexico City, Mexico**.
-- The language(s) of the arbitration shall be **Spanish and English**.
-
-> **Why these values (for counsel to confirm or override, not to draft from
-> scratch)**: one arbitrator, not three, because run values disputed under
-> this document are expected to stay small relative to three-arbitrator ICDR
-> cases, and a single arbitrator is materially faster and cheaper to convene
-> - the interim assumption is that speed matters more than a panel here.
-> Mexico City as seat because it is where the Company's counterparties and,
-> in most anticipated disputes, the Company itself are located, and because
-> §6 already sets Mexican governing law - an ICDR seat outside the
-> jurisdiction whose law governs the contract is an unforced complication.
-> Spanish and English together, not Spanish alone, because Nirium's own
-> operations and documentation are bilingual and a Recipient may not share
-> the Company's language. None of these were chosen to favor Nirium over the
-> Company - they were chosen to minimize friction for whichever party ends up
-> needing to actually use this clause.
-
-Judgment on the award rendered by the arbitrator(s) may be entered in any court
-having jurisdiction thereof.
+Any controversy related to this agreement goes to the competent courts of
+**Mexico City**. The parties may instead agree in writing to arbitration;
+that written agreement names the institution and the rules. This is the same
+rule as the site Terms §5.
 
 ## 8. No warranty of value
 
@@ -133,7 +91,7 @@ receipt.
 
 ---
 
-*LCP conformance: Level 2 (Provable) - `terms` + `atrHash`. The AAA-ICDR dispute
-resolution clause (§7) is referenced as additional context (a Level 4 field).
-Per-payout digital acceptance (Level 3) is not captured. Sources: ICDR standard
-clauses, https://www.icdr.org/clauses.*
+*LCP conformance: Level 2 (Provable) - `terms` + `atrHash`. The dispute
+resolution clause (§7 - courts of Mexico City, matching Terms §5) is
+referenced as additional context (a Level 4 field). Per-payout
+digital acceptance (Level 3) is not captured.*

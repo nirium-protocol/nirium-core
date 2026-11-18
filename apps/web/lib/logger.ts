@@ -1,26 +1,19 @@
 /**
- * Write a log entry via /api/logs (server-side insert to Supabase).
- * Routing through the API route avoids CORS issues and surfaces errors.
+ * Registro de eventos del dashboard (crear, depositar, cerrar bóveda...).
+ *
+ * Antes mandaba cada evento a POST /api/logs, que lo escribía en el feed público
+ * (agent_logs) sin autenticación: cualquiera podía publicar ahí un mensaje con el
+ * agent_id que quisiera, y estas líneas, escritas por el navegador, aparecían junto
+ * a las del agente como si fueran suyas. Desde el 8-nov-2026 se quedan en la
+ * consola del navegador; lo verificable de cada acción es su tx en la cadena.
  */
 export async function writeLog(
     message: string,
     level: 'info' | 'warn' | 'error' | 'success' | 'system' = 'info',
     agentId?: string
 ) {
-    try {
-        const res = await fetch('/api/logs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                agent_id: agentId || 'UI_CLIENT',
-                message,
-                level,
-            }),
-        });
-        if (!res.ok) {
-            console.warn('[writeLog] Insert failed:', res.status, await res.text());
-        }
-    } catch (e) {
-        console.warn('[writeLog] Failed:', e);
-    }
+    const line = `[${agentId || 'UI_CLIENT'}] ${message}`;
+    if (level === 'error') console.error(line);
+    else if (level === 'warn') console.warn(line);
+    else console.info(line);
 }

@@ -1,14 +1,14 @@
 "use client";
 
 // ───────────────────────────────────────────────────────────────
-// PollarPayCard — pagar un endpoint x402 con la wallet de Pollar.
+// PollarPayCard - pagar un endpoint x402 con la wallet de Pollar.
 //
 // Es la contraparte de PollarDoor en /keys: allá la firma sirve para ENTRAR,
 // aquí la misma wallet sirve para PAGAR. Dos usos de una llave que el usuario
 // nunca custodió.
 //
 // POR QUÉ VÍA EL PAQUETE PUBLICADO y no un fetch a mano: x402 v2 tiene tres
-// detalles que no se adivinan — los términos llegan en el header
+// detalles que no se adivinan - los términos llegan en el header
 // `payment-required` (el body va vacío), el header de respuesta se llama
 // `PAYMENT-SIGNATURE` (mandar el `X-PAYMENT` de v1 hace que el servidor ignore
 // el pago sin decir nada), y hay que RE-SIMULAR después de firmar porque la
@@ -47,10 +47,13 @@ export function PollarPayCard({
 
     const caip = network === "mainnet" ? "stellar:pubnet" : "stellar:testnet";
     const real = network === "mainnet";
+    // 12-nov-2026: en mainnet premium/signals responde 501 (ese box no corre el loop de señales),
+    // así que la tarjeta fallaba con el switch en MAIN. premium/market cobra en las dos redes.
+    const price = real ? 0.05 : 0.02;
 
     // La wallet de un usuario recién onboardado nace VACÍA. Sin este aviso, su
     // primer clic choca contra un fallo del contrato del token que no dice
-    // "no tienes saldo" — dice cualquier otra cosa. Decirlo ANTES de firmar.
+    // "no tienes saldo" - dice cualquier otra cosa. Decirlo ANTES de firmar.
     const loadBalance = useCallback(async () => {
         if (!address) { setBalance(null); return; }
         const horizon = real ? "https://horizon.stellar.org" : "https://horizon-testnet.stellar.org";
@@ -72,7 +75,7 @@ export function PollarPayCard({
 
     if (!available) return null;
 
-    const broke = balance !== null && balance < 0.02;
+    const broke = balance !== null && balance < price;
 
     async function pay() {
         const client = getClient();
@@ -88,8 +91,8 @@ export function PollarPayCard({
                 signer: createPollarSigner(client as never, { network: caip, address: address ?? undefined }),
                 network: caip,
             });
-            const signals = await nirium.getPremiumSignals();
-            setResult({ ok: true, body: JSON.stringify(signals, null, 2).slice(0, 600) });
+            const data = real ? await nirium.getPremiumMarket() : await nirium.getPremiumSignals();
+            setResult({ ok: true, body: JSON.stringify(data, null, 2).slice(0, 600) });
             void loadBalance();
         } catch (e) {
             setResult({ ok: false, message: e instanceof Error ? e.message : String(e) });
@@ -105,8 +108,8 @@ export function PollarPayCard({
             </p>
             <p className="text-xs text-white/50 mb-3 leading-relaxed">
                 {lang(
-                    "The same wallet that signed you in can pay for an API call. $0.02 USDC, no card, no subscription — and no XLM: Pollar sponsors the account reserve and the x402 facilitator sponsors the network fee.",
-                    "La misma wallet con la que entraste puede pagar una llamada a la API. $0.02 USDC, sin tarjeta ni suscripción — y sin XLM: Pollar patrocina la reserva de la cuenta y el facilitador de x402 patrocina el fee de red.",
+                    `The same wallet that signed you in can pay for an API call. $${price.toFixed(2)} USDC, no card, no subscription - and no XLM: Pollar sponsors the account reserve and the x402 facilitator sponsors the network fee.`,
+                    `La misma wallet con la que entraste puede pagar una llamada a la API. $${price.toFixed(2)} USDC, sin tarjeta ni suscripción - y sin XLM: Pollar patrocina la reserva de la cuenta y el facilitador de x402 patrocina el fee de red.`,
                 )}
             </p>
 
@@ -127,7 +130,7 @@ export function PollarPayCard({
                         <Zap className="w-3.5 h-3.5" />
                         {busy
                             ? lang("Paying…", "Pagando…")
-                            : lang("Pay $0.02 for signals", "Pagar $0.02 por señales")}
+                            : (real ? lang("Pay $0.05 for market state", "Pagar $0.05 por el estado de mercado") : lang("Pay $0.02 for signals", "Pagar $0.02 por señales"))}
                     </button>
                     <span className={`text-[10px] uppercase tracking-widest font-bold ${real ? "text-emerald-400" : "text-amber-400"}`}>
                         {real
@@ -141,8 +144,8 @@ export function PollarPayCard({
             {isAuthenticated && broke && (
                 <p className="mt-3 text-xs text-amber-400/90 leading-relaxed">
                     {lang(
-                        `This wallet holds ${balance?.toFixed(2)} USDC — a payment needs 0.02. Send USDC to ${address} to try it.`,
-                        `Esta wallet tiene ${balance?.toFixed(2)} USDC y un pago necesita 0.02. Mándale USDC a ${address} para probarlo.`,
+                        `This wallet holds ${balance?.toFixed(2)} USDC - a payment needs ${price.toFixed(2)}. Send USDC to ${address} to try it.`,
+                        `Esta wallet tiene ${balance?.toFixed(2)} USDC y un pago necesita ${price.toFixed(2)}. Mándale USDC a ${address} para probarlo.`,
                     )}
                 </p>
             )}
@@ -150,7 +153,7 @@ export function PollarPayCard({
             {result?.ok === true && (
                 <div className="mt-3">
                     <p className="text-xs text-emerald-400 font-bold mb-2 inline-flex items-center gap-1.5">
-                        {lang("Paid — response below", "Pagado — respuesta abajo")}
+                        {lang("Paid - response below", "Pagado - respuesta abajo")}
                     </p>
                     <pre className="text-[10px] font-mono text-white/60 bg-black/40 border border-white/8 rounded-lg p-3 overflow-x-auto">
                         {result.body}

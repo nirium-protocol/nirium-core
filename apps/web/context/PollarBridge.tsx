@@ -1,7 +1,7 @@
 "use client";
 
 // ───────────────────────────────────────────────────────────────
-// PollarBridge — Pollar como segunda puerta de identidad, app-wide.
+// PollarBridge - Pollar como segunda puerta de identidad, app-wide.
 //
 // Por qué un puente y no usar `usePollar()` directo en cada componente:
 //   1. `usePollar()` LANZA si no hay <PollarProvider> arriba, y Pollar es
@@ -14,7 +14,7 @@
 // La red la manda NetworkContext: mainnet y testnet son apps SEPARADAS en
 // Pollar (la red no se puede cambiar después de crear la app), cada una con su
 // llave. El `key={network}` es obligatorio: PollarProvider fija su cliente en
-// el primer render y no lo reconstruye al cambiar props — sin la key queda
+// el primer render y no lo reconstruye al cambiar props - sin la key queda
 // clavado en la red inicial y firmaría contra la app equivocada.
 // ───────────────────────────────────────────────────────────────
 
@@ -42,13 +42,13 @@ export interface PollarBridgeValue {
     logout: () => void;
     /**
      * Firma un mensaje con SEP-53. Produce ed25519 sobre
-     * sha256("Stellar Signed Message:\n" + msg) — el mismo digest que Freighter,
+     * sha256("Stellar Signed Message:\n" + msg) - el mismo digest que Freighter,
      * así que el agente lo verifica por la misma ruta sin cambios.
      */
     signMessage: (message: string) => Promise<PollarSignedMessage>;
     /**
      * El PollarClient crudo. Se expone SOLO para pagos x402: el adapter necesita
-     * el cliente entero, no un método suelto — lee la dirección del authState y
+     * el cliente entero, no un método suelto - lee la dirección del authState y
      * llama `signAuthEntry(xdr, { validUntilLedger })`, que es dialecto de Pollar
      * y no de SEP-43. Traducir eso aquí sería duplicar el paquete que ya lo hace.
      * Devuelve null cuando Pollar no está configurado.

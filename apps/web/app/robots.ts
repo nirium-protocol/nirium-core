@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
             },
             {
                 userAgent: ['GPTBot', 'ChatGPT-User', 'Google-Extended', 'Claude-Web', 'anthropic-ai', 'PerplexityBot', 'Omgili', 'OAI-SearchBot'],
-                allow: ['/', '/docs', '/strategies'],
+                allow: ['/', '/docs'],
                 disallow: ['/api/'],
             }
         ],

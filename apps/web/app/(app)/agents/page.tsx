@@ -3,13 +3,13 @@
 import { motion } from "framer-motion";
 import {
     Shield, Cpu, Globe, Lock, CheckCircle, Clock,
-    Activity, Server, Zap, AlertTriangle, FlaskConical, ArrowRight,
+    Activity, Server, Zap,
     FileSearch, Send
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import NodeActivity from "@/components/analytics/NodeActivity";
 import { useFreighter } from "@/hooks/useFreighter";
 import OpsConsole from "@/components/layout/OpsConsole";
-import Link from "next/link";
 import SecurityDisclaimer from "@/components/shared/SecurityDisclaimer";
 import { useEffect, useState } from "react";
 import { useEloReputation } from "@/hooks/useNiriumContracts";
@@ -35,7 +35,7 @@ export default function AgentsPage() {
     const nodes = [
         {
             id: "rebalance-node",
-            statusLabel: "LIVE · MAINNET · INVITE-ONLY",
+            statusLabel: lang("MAINNET · INVITE-ONLY", "MAINNET · POR INVITACIÓN"),
             statusColor: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20",
             dotColor: "bg-stellar-teal",
             accentBorder: "border-stellar-teal/20",
@@ -45,26 +45,30 @@ export default function AgentsPage() {
                 "Rebalance Node",
                 "Nodo de Rebalanceo"),
             role: lang(
-                "Autonomous rebalancing between USDC and CETES (Etherfuse) based on operator thresholds. Operates 24/7 with zero human intervention.",
-                "Rebalanceo autónomo entre USDC y CETES (Etherfuse) basado en umbrales del operador. Opera 24/7 sin intervención humana."),
-            cycle: lang("Continuous / 24h active", "Continuo / 24h activo"),
+                "Autonomous rebalancing of a vault's idle funds (USDC or CETES, one asset per vault) into the vault's own strategy and back, based on thresholds the vault owner sets, no human approval per call. Designed to run continuously; to date, 4 real rebalances, self-funded, all on 6 Aug 2026, none since.",
+                "Rebalanceo autónomo del saldo ocioso de una bóveda (USDC o CETES, un activo por bóveda) hacia la estrategia de esa misma bóveda y de regreso, según umbrales que fija el dueño de la bóveda, sin aprobación humana por llamada. Diseñado para correr de forma continua; a la fecha, 4 rebalanceos reales, autofinanciados, todos el 6-ago-2026, ninguno desde entonces."),
+            // Revisado contra rebalanceDecision.ts / scripts/rebalancer.ts (8-nov-2026):
+            // no es un spread. Es la tasa de CETES de la bóveda (medida desde su
+            // propia posición, o la de referencia declarada si aún no hay historia)
+            // contra dos umbrales del dueño, con banda muerta entre ellos.
+            cycle: lang("Checks every 10 minutes by default", "Revisa cada 10 minutos por defecto"),
             trigger: lang(
-                "Spread exceeds operator-configured threshold",
-                "Spread supera umbral configurado por el operador"),
+                "The vault's measured yield (or the CETES reference rate, until there is history) reaches the owner's entry threshold (invest idle cash) or drops to the exit threshold (unwind); between the two, it does nothing",
+                "El rendimiento medido de la bóveda (o la tasa de referencia de CETES, mientras no hay historial) llega al umbral de entrada del dueño (invierte el efectivo ocioso) o baja al de salida (recoge lo invertido); entre los dos, no hace nada"),
             authorized: lang(
-                "Invest and Unwind between the vault own strategies — no swaps, no destination address",
-                "Invest y Unwind entre las estrategias de la propia bóveda — sin swaps y sin dirección de destino"),
+                "Invest and Unwind between the vault's own strategies - no swaps, no destination address",
+                "Invest y Unwind entre las estrategias de la propia bóveda - sin swaps y sin dirección de destino"),
             audit: lang(
-                "SHA-256 + IPFS anchor per execution",
-                "SHA-256 + anclaje IPFS por ejecución"),
+                "SHA-256 + IPFS anchor when a run is recorded (opt-in)",
+                "SHA-256 + anclaje IPFS cuando se registra una corrida (opcional)"),
             metric: lang(
-                "Last execution: success · Monitoring: continuous",
-                "Última ejecución: exitosa · Monitoreo: continuo 24h"),
+                "Health is public - see /api/public/rebalancer-health; a non-zero problem count there is expected when a dependency hiccups, not a silent failure",
+                "Salud pública - ver /api/public/rebalancer-health; un conteo de problemas distinto de cero ahí es esperado cuando falla una dependencia, no una falla silenciosa"),
             locked: false,
         },
         {
             id: "payroll-node",
-            statusLabel: "MAINNET · EARLY ACCESS",
+            statusLabel: lang("MAINNET · EARLY ACCESS · INVITE-ONLY", "MAINNET · ACCESO ANTICIPADO · POR INVITACIÓN"),
             statusColor: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20",
             dotColor: "bg-stellar-teal",
             accentBorder: "border-stellar-teal/20",
@@ -74,61 +78,67 @@ export default function AgentsPage() {
                 "Disbursement Node (Bulk Payouts)",
                 "Nodo de Dispersión (Pagos Masivos)"),
             role: lang(
-                "Disburse funds from one treasury to up to 100 recipients (contractors, freelancers, B2B partners) in a single signed batch payment. Non-custodial — the company signs in its own wallet, Nirium never holds funds.",
-                "Dispersa fondos de una tesorería a hasta 100 destinatarios (contratistas, freelancers, socios B2B) en un solo lote de pago firmado. Non-custodial — la empresa firma en su propia wallet, Nirium nunca custodia fondos."),
+                "Disburse funds from one company wallet to up to 100 recipients (contractors, freelancers, B2B partners) in a single signed batch payment. Non-custodial - the company signs in its own wallet, Nirium never holds funds.",
+                "Dispersa fondos desde una wallet de la empresa a hasta 100 destinatarios (contratistas, freelancers, socios B2B) en un solo lote de pago firmado. Non-custodial - la empresa firma en su propia wallet, Nirium nunca custodia fondos."),
             cycle: lang("On-demand / per run", "Bajo demanda / por corrida"),
             trigger: lang(
                 "Company builds and signs a payout run",
                 "La empresa arma y firma una corrida de pago"),
             authorized: lang(
-                "Batch USDC/XLM payment (≤100 recipients) + sponsored USDC trustline onboarding",
-                "Pago batch USDC/XLM (≤100 destinatarios) + alta de trustline USDC"),
+                // No es "sponsored": executePayroll.ts (onboardEmployee) arma un
+                // changeTrust que firma el propio destinatario y su cuenta paga la
+                // reserva. Verificado el 8-nov-2026.
+                "Batch USDC/XLM payment (≤100 recipients) + USDC trustline the recipient adds and signs itself",
+                "Pago batch USDC/XLM (≤100 destinatarios) + trustline USDC que el propio destinatario agrega y firma"),
             audit: lang(
-                "Immutable IPFS receipt per run (optional LCP legal layer — pending a legal opinion)",
-                "Recibo IPFS inmutable por corrida (capa legal LCP opcional — en revisión legal)"),
+                "Immutable IPFS receipt per run (optional LCP legal layer - pending a legal opinion)",
+                "Recibo IPFS inmutable por corrida (capa legal LCP opcional - pendiente de opinión legal)"),
             metric: lang(
                 "Mainnet early access · independent service payments only · Freighter-signed",
                 "Mainnet early access · solo pagos de servicios independientes · firmado con Freighter"),
             locked: false,
         },
         {
-            id: "compliance-sentinel",
-            // nodeRegistry.ts:132 tiene status: 'proposed', y GET /api/nodes
-            // confirma 0 'architected' / 1 'proposed' en la cuenta real — este
-            // es ese nodo. "ARCHITECTED" no correspondía a ningún estado real.
-            statusLabel: "PROPOSED",
-            statusColor: "bg-white/5 text-white/40 border-white/10",
+            id: "policy-gate",
+            // Reemplaza a "Compliance Sentinel" (2026-11-03): esa tarjeta
+            // describía una idea sin construir (el endpoint auditor de
+            // coordinationService da 404 en las dos redes) con el mismo
+            // nombre que lo que SÍ existe y ya corre en producción: el
+            // pre-sign policy hook (#96, packages/sdk/src/x402-policy.ts).
+            // Las dos se mezclaban bajo una sola tarjeta y un solo estado -
+            // esta es la mitad real. Texto igual al de
+            // packages/agent/src/services/nodeRegistry.ts (la fuente real) -
+            // si se actualiza uno, actualizar el otro.
+            // Sin "SDK" en lo público (regla de AGENTS.md: ese enrutamiento ya
+            // costó un prescreen de SCF). Es el paquete `nirium` en npm.
+            statusLabel: lang("SHIPPED · NPM PACKAGE", "PUBLICADO · PAQUETE NPM"),
+            statusColor: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20",
             dotColor: "bg-green-400",
             accentBorder: "border-green-500/20",
             icon: Shield,
             iconColor: "text-green-400",
             name: lang(
-                "Compliance Sentinel",
-                "Centinela de Cumplimiento"),
-            // Texto igual al de packages/agent/src/services/nodeRegistry.ts:152
-            // (la fuente real) — verificado en vivo, POST /api/v1/premium/audit
-            // responde 404 en testnet y en mainnet. Si se actualiza uno, actualizar
-            // el otro: esta página tenía una versión vieja y falsa ("el servicio
-            // backend existe") que nodeRegistry.ts ya había corregido.
+                "Policy Gate",
+                "Compuerta de Políticas"),
             role: lang(
-                "Not built. The intent is to validate every proposed transfer against a policy before it is signed. What exists today is the agent-to-agent x402 client pattern in coordinationService; the auditor endpoint it calls does not exist yet, and the call fails open by design so a downed auditor never blocks execution. Do not rely on this as a control.",
-                "No está construido. La intención es validar cada transferencia propuesta contra una política antes de firmarla. Lo que existe hoy es el patrón de cliente x402 agente-a-agente en coordinationService; el endpoint auditor que llama todavía no existe, y la llamada falla abierta por diseño para que un auditor caído nunca bloquee la ejecución. No confíes en esto como un control."),
-            cycle: lang("Continuous", "Continuo"),
-            trigger: lang("Any vault event", "Cualquier evento del vault"),
+                "Routes every outgoing x402 payment through your own policy engine before it is signed. Binds the ALLOW to the exact authorization (contract, amount, destination, nonce) via initX402({ policy }); a DENY, timeout, stale answer, or anything not bound to that exact payment signs nothing. Not a remote key-custody control: it wraps the signing call inside the same process that holds the key, so code with direct access to that signer can still bypass it.",
+                "Hace pasar cada pago x402 saliente por tu propio motor de políticas antes de firmarlo. Ata el ALLOW a la autorización exacta (contrato, monto, destino, nonce) vía initX402({ policy }); un DENY, un timeout, una respuesta vieja, o cualquier cosa no atada a ese pago exacto no firma nada. No es una custodia remota de la llave: envuelve la firma dentro del mismo proceso que la sostiene, así que código con acceso directo a ese firmante puede saltárselo."),
+            cycle: lang("Per x402 payment", "Por pago x402"),
+            trigger: lang("Every outgoing x402Fetch() call", "Cada llamada saliente a x402Fetch()"),
             authorized: lang(
-                "Transaction validation, event filtering, policy enforcement",
-                "Validación de transacciones, filtrado de eventos, aplicación de políticas"),
+                "Transfer-only (contract, amount, destination, nonce) - the policy engine never sees anything else",
+                "Solo transferencia (contrato, monto, destino, nonce) - el motor de políticas nunca ve nada más"),
             audit: lang(
-                "Audit logs anchored on IPFS",
-                "Logs de auditoría anclados en IPFS"),
+                "Full decision record via onDecision (ALLOWED/SIGNED/DENY/TIMEOUT/...), kept by the integrator",
+                "Registro completo de la decisión vía onDecision (ALLOWED/SIGNED/DENY/TIMEOUT/...), lo conserva quien integra"),
             metric: lang(
-                "Status: architected · not yet public",
-                "Estado: en diseño · aún no público"),
+                "Shipped in the TypeScript package (nirium on npm) - exercised on testnet only so far, not yet run against mainnet traffic. Not a key-custody control, see the roadmap for that",
+                "Publicado en el paquete de TypeScript (nirium en npm) - probado solo en testnet hasta ahora, no se ha corrido todavía contra tráfico de mainnet. No es una custodia remota de la llave, eso está en el roadmap"),
             locked: false,
         },
         {
             id: "settlement-hub",
-            statusLabel: "LIVE · MAINNET",
+            statusLabel: "MAINNET",
             statusColor: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20",
             dotColor: "bg-purple-400",
             accentBorder: "border-purple-500/20",
@@ -138,24 +148,24 @@ export default function AgentsPage() {
                 "Settlement Hub",
                 "Hub de Liquidación"),
             role: lang(
-                "Orchestrates x402 micro-billing, per request. Direct integration with the Horizon API.",
-                "Orquestra micro-facturación x402, por request. Integración directa con la Horizon API."),
+                "On mainnet, Nirium's own x402 test endpoint (/premium/market, $0.05) settles on-chain; signals and execute answer 501 there without charging. x402Serve() lets you charge for your own API the same way. Third-party use on mainnet is not something we promote until we have a written legal opinion, and compliance is the integrator's own responsibility.",
+                "En mainnet, el endpoint x402 de prueba de Nirium (/premium/market, $0.05) liquida en cadena; signals y execute responden 501 ahí sin cobrar. x402Serve() te deja cobrar por tu propia API de la misma forma. No promovemos su uso por terceros en mainnet hasta tener una opinión legal por escrito, y el cumplimiento es responsabilidad de quien integra."),
             cycle: lang("On-demand", "Bajo demanda"),
-            trigger: lang("Authenticated API calls", "Llamadas API autenticadas"),
+            trigger: lang("Paid HTTP requests (x402)", "Requests HTTP pagados (x402)"),
             authorized: lang(
                 "Payment verification, on-chain settlement",
                 "Verificación de pagos, liquidación en cadena"),
             audit: lang(
-                "Transaction hash anchored per payment",
-                "Hash de transacción anclado por pago"),
+                "Payment receipt logged per call; the settlement hash is on Horizon",
+                "Recibo de pago registrado por llamada; el hash de liquidación está en Horizon"),
             metric: lang(
-                "Active protocols: x402 — LIVE ON MAINNET",
-                "Protocolos activos: x402 — EN VIVO EN MAINNET"),
+                "Nirium's own test endpoint on mainnet, last settled payment 29 Sep 2026. x402Serve() for third parties: written legal opinion pending",
+                "Endpoint de prueba propio de Nirium en mainnet, último pago liquidado el 29 sep 2026. x402Serve() para terceros: opinión legal por escrito pendiente"),
             locked: false,
         },
         {
             id: "audit-node",
-            statusLabel: "LIVE · MAINNET",
+            statusLabel: lang("LIVE · MAINNET", "EN VIVO · MAINNET"),
             statusColor: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20",
             dotColor: "bg-stellar-yellow",
             accentBorder: "border-stellar-yellow/20",
@@ -165,24 +175,35 @@ export default function AgentsPage() {
                 "Audit Node",
                 "Nodo de Auditoría"),
             role: lang(
-                "Anchors every operation to IPFS as an immutable, publicly verifiable receipt, and powers institutional-format exports. Optional Legal Context Protocol layer, pending a legal opinion.",
-                "Ancla cada operación a IPFS como recibo inmutable y públicamente verificable, y alimenta exportes con formato institucional. Capa opcional Legal Context Protocol en revisión legal."),
-            cycle: lang("Continuous", "Continuo"),
-            trigger: lang("Every signed execution", "Cada ejecución firmada"),
+                "Anchors a record to IPFS as an immutable, publicly verifiable receipt when the caller asks for it (opt-in per call), and powers institutional-format exports. Optional Legal Context Protocol layer, pending a legal opinion.",
+                "Ancla un registro a IPFS como recibo inmutable y públicamente verificable cuando quien llama lo pide (opcional por llamada), y alimenta exportes con formato institucional. Capa opcional Legal Context Protocol, pendiente de opinión legal."),
+            cycle: lang("On request", "Bajo demanda"),
+            trigger: lang("A POST /api/audit/log call, opt-in per call", "Una llamada POST /api/audit/log, opcional en cada llamada"),
             authorized: lang(
                 "IPFS pinning, report generation, signature verification",
                 "Pinning en IPFS, generación de reportes, verificación de firmas"),
             audit: lang(
-                "Self-auditing — every report is verifiable on IPFS",
-                "Auto-auditable — cada reporte es verificable en IPFS"),
+                "Every anchored receipt is verifiable on IPFS by anyone",
+                "Cada recibo anclado lo puede verificar cualquiera en IPFS"),
+            // No fixed number here (14-nov-2026): /api/reporting/summary without
+            // an explicit `from` is a rolling 30-day window, so a hardcoded count
+            // drifts out of date in both directions as the window moves - 34 on
+            // 12-nov read as 32 two days later with nothing deleted. The live
+            // all-time count lives at /stats.
             metric: lang(
-                "Audit trail status: 100% anchored",
-                "Estado del rastro de auditoría: 100% anclado"),
+                "Mainnet anchors - live count at /stats",
+                "Anclajes en mainnet - conteo en vivo en /stats"),
             locked: false,
         },
         {
+            // Revisado contra packages/contracts/src/nirium_vault.rs (8-nov-2026).
+            // Antes decía que pausa, cambio de cosignatarios y cierre de bóveda
+            // requerían multisig 2-de-3. En el contrato: solo pause/unpause usan
+            // admin + 1 cosignatario, y solo si hay cosignatarios registrados (si no,
+            // el admin solo); set_cosigners es solo del admin; close_vault lo firma
+            // el dueño de la bóveda.
             id: "vault-operations",
-            statusLabel: lang("2-OF-3 MULTISIG · TESTNET", "MULTISIG 2-DE-3 · TESTNET"),
+            statusLabel: lang("TESTNET · CONTRACT ADMIN", "TESTNET · ADMIN DEL CONTRATO"),
             statusColor: "bg-red-500/10 text-red-400 border-red-500/20",
             dotColor: "bg-red-400",
             accentBorder: "border-red-500/20",
@@ -191,22 +212,25 @@ export default function AgentsPage() {
             name: lang(
                 "Vault Operations Node",
                 "Nodo de Operaciones de Vault"),
+            // Confirmado en la cadena el 8-nov-2026 (instance storage de
+            // CARTJI…Q5SICV vía Soroban RPC): solo AdminAddress, Treasury y
+            // contadores; ningún Cosigner1/Cosigner2. O sea, hoy pausa el admin solo.
             role: lang(
-                "Critical treasury operations requiring human 2-of-3 multisig authorization. This node never executes autonomously.",
-                "Operaciones críticas de tesorería que requieren autorización multisig humana 2-de-3. Este nodo nunca ejecuta de forma autónoma."),
+                "Emergency controls of the NiriumVault contract. The contract supports a 2-of-3 pause (admin plus one cosigner), but the testnet deployment has no cosigners registered yet (checked on-chain, 8 Nov 2026), so today pausing or resuming takes the admin's signature alone. Each owner closes their own vault with their own signature. Never runs autonomously.",
+                "Controles de emergencia del contrato NiriumVault. El contrato admite una pausa 2-de-3 (admin más un cosignatario), pero el despliegue de testnet todavía no tiene cosignatarios registrados (revisado en la cadena, 8 nov 2026), así que hoy pausarlo o reanudarlo requiere solo la firma del admin. Cada dueño cierra su propia bóveda con su propia firma. Nunca corre de forma autónoma."),
             cycle: lang("Manual only", "Solo manual"),
             trigger: lang(
-                "Multisig request from Owner/Cosigners",
-                "Solicitud multisig de Owner/Cosignatarios"),
+                "Admin request (no cosigners registered yet)",
+                "Solicitud del admin (aún sin cosignatarios registrados)"),
             authorized: lang(
-                "Protocol pause/unpause · cosigner changes · vault closure",
-                "Pausa/reanudación del protocolo · cambio de cosignatarios · cierre de bóveda"),
+                "Contract pause/unpause · cosigner changes (admin only)",
+                "Pausa/reanudación del contrato · cambio de cosignatarios (solo el admin)"),
             audit: lang(
-                "On-chain multisig event history",
-                "Historial de eventos multisig on-chain"),
+                "Pause and unpause emit on-chain events",
+                "La pausa y la reanudación emiten eventos en la cadena"),
             metric: lang(
-                "Requires human signatures — no autonomous risk",
-                "Requiere firmas humanas — sin riesgo autónomo"),
+                "Human signatures only - no autonomous action",
+                "Solo firmas humanas - ninguna acción autónoma"),
             locked: false,
         },
     ];
@@ -232,11 +256,16 @@ export default function AgentsPage() {
                         {lang("Execution Architecture", "Arquitectura de Ejecución")}
                     </h1>
                     <p className="text-white/50 max-w-xl mx-auto text-base">
+                        {/* Antes prometía "rastro de auditoría criptográfico" para los 6;
+                            Policy Gate y Vault Operations no lo tienen (ver su campo Audit). */}
                         {lang(
-                            "6 specialized nodes. Each with a defined role, authorized actions, and cryptographic audit trail.",
-                            "6 nodos especializados. Cada uno con un rol definido, acciones autorizadas y rastro de auditoría criptográfico.")}
+                            "6 nodes: what each one does, what it is allowed to sign, and on which network it runs.",
+                            "6 nodos: qué hace cada uno, qué puede firmar y en qué red corre.")}
                     </p>
                 </motion.div>
+
+                {/* 9-nov-2026: números en vivo por nodo, siguen el switch TEST/MAIN. */}
+                <NodeActivity language={language} />
 
                 {/* ── LIVE STATUS BAR ─────────────────────────────────────── */}
                 <motion.div
@@ -245,24 +274,24 @@ export default function AgentsPage() {
                     transition={{ duration: 0.5, delay: 0.2 }}
                     className="mb-14 flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-5 py-3 bg-white/[0.03] border border-white/10 rounded-2xl text-xs font-mono"
                 >
+                    {/* Barra de contexto, no de estado: nada aquí se mide en vivo, así que
+                        sin punto pulsante ni la palabra "Conexión". */}
                     <div className="flex items-center gap-1.5">
-                        <span className="relative flex h-1.5 w-1.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-stellar-teal opacity-75" />
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-stellar-teal" />
-                        </span>
-                        <span className="text-white/40">{lang("Connection", "Conexión")}</span>
+                        <span className="inline-flex rounded-full h-1.5 w-1.5 bg-stellar-teal" />
+                        <span className="text-white/40">{lang("Networks", "Redes")}</span>
                         <span className="text-stellar-teal ml-1">Stellar Mainnet + Testnet</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <Server className="w-3 h-3 text-white/20" />
-                        <span className="text-white/40">{lang("Latency", "Latencia")}</span>
-                        <span className="text-white/80 ml-1">~5s / ledger</span>
+                        <span className="text-white/40">{lang("Ledger close", "Cierre de ledger")}</span>
+                        <span className="text-white/80 ml-1">~5s</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <Cpu className="w-3 h-3 text-white/20" />
                         <span className="text-white/40">{lang("Protocol", "Protocolo")}</span>
-                        {/* Verificado 4-oct-2026 contra el último ledger de Horizon (mainnet y testnet): protocol_version 29. */}
-                        <span className="text-white/80 ml-1">Soroban · Protocol 29</span>
+                        {/* Verificado 8-nov-2026 contra el último ledger de Horizon: mainnet
+                            protocol_version 29, testnet 30. Antes decía 29 para las dos. */}
+                        <span className="text-white/80 ml-1">{lang("Soroban · 29 mainnet · 30 testnet", "Soroban · 29 mainnet · 30 testnet")}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <Globe className="w-3 h-3 text-white/20" />
@@ -272,14 +301,14 @@ export default function AgentsPage() {
                     {eloScore !== null && eloScore > 0 && (
                         <div className="flex items-center gap-1.5">
                             <Activity className="w-3 h-3 text-stellar-teal/60" />
-                            <span className="text-white/40">ELO</span>
+                            <span className="text-white/40">ELO (testnet)</span>
                             <span className="text-stellar-teal ml-1 font-bold">{eloScore}</span>
                         </div>
                     )}
                     {totalSentinels !== null && totalSentinels > 0 && (
                         <div className="flex items-center gap-1.5">
                             <Shield className="w-3 h-3 text-green-400/60" />
-                            <span className="text-white/40">{lang("Sentinels", "Centinelas")}</span>
+                            <span className="text-white/40">{lang("Sentinels (testnet)", "Centinelas (testnet)")}</span>
                             <span className="text-green-400 ml-1 font-bold">{totalSentinels}</span>
                         </div>
                     )}
@@ -321,7 +350,7 @@ export default function AgentsPage() {
                                             <p className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-1">
                                                 {lang("Cycle / Trigger", "Ciclo / Disparador")}
                                             </p>
-                                            <p className="text-white/60">{node.cycle} — {node.trigger}</p>
+                                            <p className="text-white/60">{node.cycle} - {node.trigger}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-1">
@@ -348,37 +377,6 @@ export default function AgentsPage() {
                     ))}
                 </div>
 
-                {/* ── WHAT WE REMOVED ────────────────────────────────────── */}
-                <motion.div
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="mb-16"
-                >
-                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6 flex items-start gap-3">
-                        <AlertTriangle className="w-4 h-4 text-stellar-yellow/40 mt-0.5 shrink-0" />
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">
-                                {lang("What we removed and why", "Qué removimos y por qué")}
-                            </p>
-                            <p className="text-white/40 text-xs leading-relaxed">
-                                {lang(
-                                    "Previous versions showed 26 experimental agent names (Astra, Titan, Eliza, etc.) running \"spread condition\" checks. These were testnet research nodes that confused the institutional narrative. The 6 nodes above represent the actual production architecture — each with a defined role, authorized scope, and audit trail.",
-                                    "Versiones anteriores mostraban 26 nombres de agentes experimentales (Astra, Titan, Eliza, etc.) ejecutando verificaciones de \"condiciones de spread\". Estos eran nodos de investigación en testnet que confundían la narrativa institucional. Los 6 nodos anteriores representan la arquitectura de producción real — cada uno con un rol definido, alcance autorizado y rastro de auditoría.")}
-                            </p>
-                            <Link 
-                                href="/labs/experimental" 
-                                className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold text-purple-400 hover:text-purple-300 transition-colors uppercase tracking-widest group"
-                            >
-                                <FlaskConical className="w-3 h-3" />
-                                {lang("Access Experimental Labs", "Acceder a Laboratorios Experimentales")}
-                                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                            </Link>
-                        </div>
-                    </div>
-                </motion.div>
-
                 <SecurityDisclaimer />
 
                 {/* ── LIVE ACTIVITY FEED ─────────────────────────────────── */}
@@ -389,7 +387,7 @@ export default function AgentsPage() {
                     transition={{ duration: 0.6 }}
                 >
                     <h2 className="text-xs font-black uppercase tracking-widest text-white/40 mb-5">
-                        {lang("Live Activity Feed", "Feed de Actividad en Vivo")}
+                        {lang("Agent log feed", "Feed de logs del agente")}
                     </h2>
                     <OpsConsole
                         isExpanded={false}

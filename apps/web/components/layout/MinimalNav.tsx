@@ -1,11 +1,11 @@
 'use client';
 
 // Minimal top bar for standalone pages (e.g. /pitch, /pitch-pro) that opt
-// out of the full app chrome via ChromeGate — just the language selector
+// out of the full app chrome via ChromeGate - just the language selector
 // and the light/dark toggle, same components as the rest of the site, no
 // logo/links/sidebar. Purely visual here: these pages don't consume `t.*`
 // from the dictionaries, so switching language doesn't retranslate the
-// page content — that's a deliberate choice, not a bug.
+// page content - that's a deliberate choice, not a bug.
 import { Globe } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";

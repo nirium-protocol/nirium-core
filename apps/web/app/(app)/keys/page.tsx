@@ -1,7 +1,7 @@
 "use client";
 
 // ───────────────────────────────────────────────────────────────
-// API Keys — self-service console
+// API Keys - self-service console
 //
 // 100% real y same-origin: la página habla SOLO con /api/devkeys (rutas Next).
 // Identidad = UNA firma de wallet por sesión (SEP-53): el agente verifica la
@@ -11,9 +11,11 @@
 // mainnet. La key cruda se muestra UNA sola vez.
 // ───────────────────────────────────────────────────────────────
 
+import { getRef, trackFunnel } from "@/lib/attribution";
 import { useCallback, useEffect, useState } from "react";
 import { useFreighter } from "@/hooks/useFreighter";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAgentBaseUrl } from "@/components/shared/NetworkScopeNote";
 import { usePollarBridge } from "@/context/PollarBridge";
 import { KeyRound, Copy, CheckCircle, Trash2, Lock, RefreshCw, PenLine } from "lucide-react";
 
@@ -40,15 +42,15 @@ function buildAuthMessage(wallet: string): string {
 }
 
 /**
- * Puerta 2 — Pollar (login social, sin instalar nada).
+ * Puerta 2 - Pollar (login social, sin instalar nada).
  *
  * Pollar firma el MISMO mensaje SEP-53 que Freighter: su
  * `stellar.sep53.signMessage` produce ed25519 sobre
  * sha256("Stellar Signed Message:\n" + msg), que es el primer candidato que
  * prueba `verifyWalletProof` en el agente. Cero cambios en el backend.
  *
- * OJO: las wallets con passkey (C-address) NO pueden firmar SEP-53 — no tienen
- * llave clásica — y el agente además solo acepta direcciones G. Por eso esta
+ * OJO: las wallets con passkey (C-address) NO pueden firmar SEP-53 - no tienen
+ * llave clásica - y el agente además solo acepta direcciones G. Por eso esta
  * puerta es para login social (wallet custodial G), no para smart wallets.
  */
 function PollarDoor({
@@ -115,6 +117,7 @@ function PollarDoor({
 }
 
 export default function KeysPage() {
+    const agentBase = useAgentBaseUrl(); // la misma key sirve en las dos redes
     const { address, isConnected, connect, signMessage } = useFreighter();
     const pollarEnabled = usePollarBridge().available;
     const { language } = useLanguage();
@@ -161,7 +164,7 @@ export default function KeysPage() {
                 const r = await fetch("/api/devkeys/session", { cache: "no-store" });
                 const d = await r.json().catch(() => ({}));
                 if (!cancelled && d?.authenticated && d?.address === activeAddress) setSessionAddr(activeAddress);
-            } catch { /* sin sesión — se pedirá firma */ }
+            } catch { /* sin sesión - se pedirá firma */ }
         })();
         return () => { cancelled = true; };
     }, [activeAddress]);
@@ -180,7 +183,7 @@ export default function KeysPage() {
         setSessionAddr(walletAddress);
     }, []);
 
-    /** Puerta 1 — Freighter (extensión de navegador). */
+    /** Puerta 1 - Freighter (extensión de navegador). */
     async function authenticate() {
         if (!address) { await connect(); return; }
         setError(null);
@@ -192,16 +195,16 @@ export default function KeysPage() {
             if (!signature) throw new Error(lang("Wallet did not return a signature.", "La wallet no devolvió una firma."));
             if (signed?.signerAddress && signed.signerAddress !== address) {
                 throw new Error(lang(
-                    "The active wallet account doesn't match the connected address — switch accounts and retry.",
-                    "La cuenta activa de la wallet no coincide con la dirección conectada — cambia de cuenta y reintenta."));
+                    "The active wallet account doesn't match the connected address - switch accounts and retry.",
+                    "La cuenta activa de la wallet no coincide con la dirección conectada - cambia de cuenta y reintenta."));
             }
             await submitProof({ walletAddress: address, message, signature });
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             setError(/not support|unsupported|does not exist/i.test(msg)
                 ? lang(
-                    "This wallet doesn't support message signing — use Freighter.",
-                    "Esta wallet no soporta firma de mensajes — usa Freighter.")
+                    "This wallet can't sign messages - use one that can, such as Freighter.",
+                    "Esta wallet no puede firmar mensajes - usa una que sí pueda, como Freighter.")
                 : msg);
         } finally {
             setAuthing(false);
@@ -218,15 +221,19 @@ export default function KeysPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     name: keyName.trim() || `Key ${new Date().toISOString().slice(0, 10)}`,
+                    // Niriumtober: el agente suma key_created con este ref cuando
+                    // de verdad guarda la llave (no un beacon que cualquiera infla).
+                    ref: getRef() ?? "none",
                 }),
             });
             if (r.status === 401) {
                 setSessionAddr(null);
-                throw new Error(lang("Session expired — sign again.", "Sesión expirada — firma de nuevo."));
+                throw new Error(lang("Session expired - sign again.", "Sesión expirada - firma de nuevo."));
             }
             const d = await r.json().catch(() => ({}));
             if (!r.ok || !d.apiKey) throw new Error(d.message || d.error || `server error (${r.status})`);
             setNewKey(d.apiKey);
+            trackFunnel("key_created", { source: "keys" });
             setKeyName("");
             await loadKeys();
         } catch (e) {
@@ -243,7 +250,7 @@ export default function KeysPage() {
             const r = await fetch(`/api/devkeys/${encodeURIComponent(id)}`, { method: "DELETE" });
             if (r.status === 401) {
                 setSessionAddr(null);
-                throw new Error(lang("Session expired — sign again.", "Sesión expirada — firma de nuevo."));
+                throw new Error(lang("Session expired - sign again.", "Sesión expirada - firma de nuevo."));
             }
             if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error || `revoke failed (${r.status})`); }
             setKeys((ks) => ks.filter((k) => k.id !== id));
@@ -270,12 +277,12 @@ export default function KeysPage() {
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">API Keys</h1>
                 <p className="text-white/50 mb-6 max-w-xl">
                     {lang(
-                        "Issue real API keys for the Nirium agent — audit anchoring, reporting and authenticated endpoints. One key works on both testnet and mainnet.",
-                        "Emite API keys reales del agente Nirium — anclaje de auditoría, reportería y endpoints autenticados. Una misma key funciona en testnet y mainnet.")}
+                        "Issue real API keys for the Nirium agent - audit anchoring, reporting and authenticated endpoints. One key works on both testnet and mainnet.",
+                        "Emite API keys reales del agente Nirium - anclaje de auditoría, reportería y endpoints autenticados. Una misma key funciona en testnet y mainnet.")}
                 </p>
                 <div className="flex flex-wrap gap-2 mb-10 font-mono text-[11px]">
                     {[
-                        lang("Free tier · 100 calls/day", "Tier free · 100 calls/día"),
+                        lang("Free tier · 20 requests/min", "Tier free · 20 requests/min"),
                         "sk_free_…",
                         lang("Testnet + Mainnet", "Testnet + Mainnet"),
                     ].map((b) => (
@@ -318,8 +325,8 @@ export default function KeysPage() {
                     {!!activeAddress && !sessionActive && (
                         <p className="mt-4 text-[12px] font-mono text-white/35">
                             {lang(
-                                "Sign one message to prove you own this address — no transaction, no fees. The session lasts ~1 hour.",
-                                "Firma un mensaje para demostrar que la dirección es tuya — sin transacción, sin fees. La sesión dura ~1 hora.")}
+                                "Sign one message to prove you own this address - no transaction, no fees. The session lasts ~1 hour.",
+                                "Firma un mensaje para demostrar que la dirección es tuya - sin transacción, sin fees. La sesión dura ~1 hora.")}
                         </p>
                     )}
 
@@ -358,7 +365,7 @@ export default function KeysPage() {
                             {newKey && (
                                 <div className="mt-5 rounded-lg border border-stellar-yellow/30 bg-stellar-yellow/[0.05] p-4">
                                     <p className="text-xs font-mono text-stellar-yellow mb-2 uppercase tracking-widest">
-                                        {lang("Copy it now — it is shown only once", "Cópiala ahora — se muestra una sola vez")}
+                                        {lang("Copy it now - it is shown only once", "Cópiala ahora - se muestra una sola vez")}
                                     </p>
                                     <div className="flex items-center gap-3">
                                         <code className="flex-1 min-w-0 font-mono text-sm text-white/90 break-all">{newKey}</code>
@@ -369,8 +376,8 @@ export default function KeysPage() {
                                     </div>
                                     <p className="mt-3 text-[11px] font-mono text-white/40 break-all">
                                         {lang(
-                                            'Use it as header: curl -H "x-api-key: <key>" https://nirium-agent-mainnet.fly.dev/api/market',
-                                            'Úsala como header: curl -H "x-api-key: <key>" https://nirium-agent-mainnet.fly.dev/api/market')}
+                                            `Use it as header: curl -H "x-api-key: <key>" ${agentBase}/api/market`,
+                                            `Úsala como header: curl -H "x-api-key: <key>" ${agentBase}/api/market`)}
                                     </p>
                                 </div>
                             )}

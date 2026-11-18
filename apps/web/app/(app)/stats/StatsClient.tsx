@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, ExternalLink, Loader2, RefreshCcw } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import NodeActivity from "@/components/analytics/NodeActivity";
 
 type Freshness = { status: 'live' | 'stale' | 'unavailable'; asOf: string | null; error: string | null };
 
@@ -22,18 +23,20 @@ interface StatsResponse {
         distinctPayers: number;
         externalPayerCount: number;
         externalSettlements: number;
+        campaignPayerCount?: number;
+        campaignSettlements?: number;
         integrationTests: {
             ledger: null | { freshness?: Freshness; pageUrl: string; apiUrl: string; ok: false; status: number | null } | {
                 freshness?: Freshness;
                 pageUrl: string; apiUrl: string; ok: true; chainVerified: boolean; entriesRead: number;
                 found: { txHash: string; seq: number; at: string; resource: string; httpStatus: number | null; verdict: string; amountUsdc: number; network: string; requestedByNirium: boolean }[];
             };
-            address: string; shortName: string | null; count: number; firstAt: string; lastAt: string; hashes: string[];
+            address: string; shortName: string | null; note: string; count: number; firstAt: string; lastAt: string; hashes: string[];
             funding: { funder: string; funderIsNirium: boolean; startingBalanceXlm: number; ownSwapToUsdc: boolean } | null;
         }[];
         payers: {
             address: string; count: number; firstAt: string; lastAt: string; totalUsdc: number | null; hashes: string[];
-            kind: 'internal' | 'external' | 'integration-test'; label: string | null; shortName: string | null; note: string; evidenceUrl: string | null;
+            kind: 'internal' | 'external' | 'integration-test' | 'campaign'; label: string | null; shortName: string | null; note: string; evidenceUrl: string | null;
             funding: { funder: string; funderIsNirium: boolean; startingBalanceXlm: number; ownSwapToUsdc: boolean } | null;
         }[];
         firstAt: string | null;
@@ -52,8 +55,16 @@ interface StatsResponse {
         source: string;
     };
     treasuryRebalances: null | { total: number; lastAt: string | null; source: string; explorer: string };
-    auditTrailAnchors: { count: number | null; latestCid: string | null; unlabeledCount: number | null; source: string; note: string };
-    payoutsSettledRuns: { count: number | null; source: string };
+    auditTrailAnchors: {
+        count: number | null;
+        since: string;
+        lastAnchoredAt: string | null;
+        unlabeledCount: number | null;
+        last30Days: { count: number | null; from: string | null };
+        source: string;
+        note: string;
+    };
+    payoutsSettledRuns: { count: number | null; since: string; source: string };
     npm: Record<string, null | { package: string; downloads: number | null; source: string; npmUrl?: string }>;
     pypi: null | { total: number; since: string; firstUpload: string | null; fullHistory: boolean; days: number; source: string; humanUrl?: string };
     externalMergedPRs: null | {
@@ -125,7 +136,7 @@ const INSTAWARDS = [
 
 function fmtDate(iso: string | null, lang: (en: string, es: string) => string): string {
     if (!iso) return lang('never', 'nunca');
-    return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+    return new Date(iso).toLocaleDateString(lang('en-US', 'es-MX'), { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 }
 
 function fmtUtc(iso: string | null): string {
@@ -246,16 +257,21 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                     </h1>
                     <p className="mt-6 text-lg text-white/60 max-w-2xl">
                         {lang(
-                            'Every number below is fetched live from a third-party source - Horizon, npm, PyPI, GitHub - at the moment you load this page. Nothing here is typed in by hand. Each card links to the exact query that produced it.',
-                            'Cada número de abajo se lee en vivo de una fuente de terceros - Horizon, npm, PyPI, GitHub - al momento en que cargas esta página. Nada aquí se escribe a mano. Cada tarjeta enlaza a la consulta exacta que lo produjo.')}
+                            'Every number below is fetched live when you load this page: from Horizon, npm, PyPI and GitHub, and, for Audit Trail and Payouts, from our own public reporting API (labeled on each card). No number is typed in by hand. Each card links to the exact query that produced it.',
+                            'Cada número de abajo se lee en vivo al cargar esta página: de Horizon, npm, PyPI y GitHub y, para Audit Trail y Payouts, de nuestra propia API pública de reporting (marcado en cada tarjeta). Ningún número se escribe a mano. Cada tarjeta enlaza a la consulta exacta que lo produjo.')}
                     </p>
+                    {/* 15-nov-2026: el bloque de testnet ya no depende del selector TEST/MAIN.
+                        NetworkContext arranca en 'testnet' y luego lee la elección guardada, así que
+                        con MAIN guardado el bloque aparecía un instante y desaparecía. Ahora testnet
+                        se muestra siempre, en su propia sección al final, después de mainnet. */}
                     {data && (
                         <p className="mt-4 text-xs font-mono text-white/40">
-                            {lang('Generated', 'Generado')} {new Date(data.generatedAt).toLocaleString(undefined, { timeZone: 'UTC' })} UTC · {lang('dates on this page are UTC', 'las fechas de esta página son UTC')} ·{' '}
+                            {lang('Generated', 'Generado')} {new Date(data.generatedAt).toLocaleString(lang('en-US', 'es-MX'), { timeZone: 'UTC' })} UTC · {lang('dates on this page are UTC', 'las fechas de esta página son UTC')} ·{' '}
                             <button onClick={load} className="inline-flex items-center gap-1 text-stellar-teal hover:underline">
                                 <RefreshCcw className="w-3 h-3" /> {lang('refresh', 'actualizar')}
                             </button>
                             {' '}· <a href="/api/stats" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">{lang('raw JSON', 'JSON crudo')}</a>
+                            {' '}· <a href="#testnet" className="text-amber-300/90 hover:underline">{lang('Testnet activity ↓', 'Actividad en testnet ↓')}</a>
                         </p>
                     )}
                 </div>
@@ -312,14 +328,17 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                     ? lang('0 today - not counting the third-party integration test listed below', '0 por ahora - sin contar la prueba de integración de un tercero listada abajo')
                                                     : `${xs.externalSettlements} ${lang('settlements', 'liquidaciones')}`}
                                             </span>}
-                                            {xs.integrationTests.map((t) => {
-                                                const pp = xs.payers.find((x) => x.address === t.address);
-                                                return (
-                                                    <span key={t.address} className="block text-amber-300/80">
-                                                        {lang('Integration test', 'Prueba de integración')} · {fmtDate(t.firstAt, lang)}{t.lastAt.slice(0, 10) !== t.firstAt.slice(0, 10) ? ` - ${fmtDate(t.lastAt, lang)}` : ''}: {t.count} {lang('settlements', 'liquidaciones')} - {lang('integration tests by a third party', 'pruebas de integración de un tercero')} ({t.shortName ?? t.address.slice(0, 8)}){pp && fundingSentence(pp, lang) ? `; ${fundingSentence(pp, lang)}` : ''}
-                                                    </span>
-                                                );
-                                            })}
+                                            {!noX && (xs.campaignPayerCount ?? 0) > 0 && <span className="block text-orange-300/80">
+                                                {lang(
+                                                    `Not counted: ${xs.campaignPayerCount} Niriumtober participant(s), ${xs.campaignSettlements} settlements - paid with their own funds to earn a badge, listed below.`,
+                                                    `No contados: ${xs.campaignPayerCount} participante(s) de Niriumtober, ${xs.campaignSettlements} liquidaciones - pagaron con sus propios fondos por un badge, listados abajo.`
+                                                )}
+                                            </span>}
+                                            {xs.integrationTests.map((t) => (
+                                                <span key={t.address} className="block text-amber-300/80">
+                                                    {lang('Integration test', 'Prueba de integración')} · {fmtDate(t.firstAt, lang)}{t.lastAt.slice(0, 10) !== t.firstAt.slice(0, 10) ? ` - ${fmtDate(t.lastAt, lang)}` : ''}: {t.count} {lang('settlements', 'liquidaciones')}. {t.note}
+                                                </span>
+                                            ))}
                                         </span>
                                     }
                                 />
@@ -336,7 +355,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                     }
                                 />
                                 <StatCard
-                                    label={lang('Audit Trail anchors - mainnet', 'Anclajes de Audit Trail - mainnet')}
+                                    label={lang(`Audit Trail anchors - mainnet, since ${data.auditTrailAnchors.since}`, `Anclajes de Audit Trail - mainnet, desde ${data.auditTrailAnchors.since}`)}
                                     value={data.auditTrailAnchors.count ?? '-'}
                                     sourceUrl={data.auditTrailAnchors.source}
                                     sourceLabel={lang("Nirium's own live API", 'API propia de Nirium, en vivo')}
@@ -348,15 +367,22 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                 : data.auditTrailAnchors.unlabeledCount
                                                 ? lang(`${data.auditTrailAnchors.unlabeledCount} older anchors carry no network label - not counted here. Own API, not a third party.`, `${data.auditTrailAnchors.unlabeledCount} anclajes antiguos sin etiqueta de red - no se cuentan aquí. API propia, no un tercero.`)
                                                 : lang('own API, not a third party - verify by calling it yourself', 'API propia, no un tercero - verifícalo llamándola tú mismo')}
+                                            {data.auditTrailAnchors.last30Days.count !== null && (
+                                                <span className="block mt-1">
+                                                    {lang(
+                                                        `${data.auditTrailAnchors.last30Days.count} in the last 30 days`,
+                                                        `${data.auditTrailAnchors.last30Days.count} en los últimos 30 días`)}
+                                                </span>
+                                            )}
                                         </span>
                                     }
                                 />
                                 <StatCard
-                                    label={lang('Payroll runs', 'Corridas de Payroll')}
+                                    label={lang(`Payouts runs, since ${data.payoutsSettledRuns.since}`, `Corridas de Payouts, desde ${data.payoutsSettledRuns.since}`)}
                                     value={data.payoutsSettledRuns.count ?? '-'}
                                     sourceUrl={data.payoutsSettledRuns.source}
                                     sourceLabel={lang("Nirium's own live API", 'API propia de Nirium, en vivo')}
-                                    footnote={<span className="text-xs text-white/40">{lang('What the Payroll node registers today (mainnet-labeled). Mainnet is invite-only.', 'Lo que el nodo de Payroll registra hoy (etiquetado mainnet). Mainnet es solo por invitación.')}<Stale f={F?.reporting} lang={lang} /></span>}
+                                    footnote={<span className="text-xs text-white/40">{lang('What the Payouts node registers (mainnet-labeled). Mainnet is invite-only.', 'Lo que el nodo de Payouts registra (etiquetado mainnet). Mainnet es solo por invitación.')}<Stale f={F?.reporting} lang={lang} /></span>}
                                 />
                                 <StatCard
                                     label={lang('Milestone releases via Trustless Work escrow (mainnet)', 'Liberaciones de milestone vía escrow de Trustless Work (mainnet)')}
@@ -413,8 +439,8 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                 </p>
                                             </div>
                                             <div className="text-right shrink-0">
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-widest ${p.kind === 'internal' ? 'bg-white/5 text-white/40 border border-white/10' : p.kind === 'integration-test' ? 'bg-amber-400/10 text-amber-300 border border-amber-400/20' : 'bg-emerald-400/10 text-emerald-400 border border-emerald-400/20'}`}>
-                                                    {p.kind === 'internal' ? lang('internal', 'interna') : p.kind === 'integration-test' ? lang('integration test', 'prueba de integración') : lang('external', 'externa')}
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-widest ${p.kind === 'internal' ? 'bg-white/5 text-white/40 border border-white/10' : p.kind === 'integration-test' ? 'bg-amber-400/10 text-amber-300 border border-amber-400/20' : p.kind === 'campaign' ? 'bg-orange-400/10 text-orange-300 border border-orange-400/20' : 'bg-emerald-400/10 text-emerald-400 border border-emerald-400/20'}`}>
+                                                    {p.kind === 'internal' ? lang('internal', 'interna') : p.kind === 'integration-test' ? lang('integration test', 'prueba de integración') : p.kind === 'campaign' ? 'Niriumtober' : lang('external', 'externa')}
                                                 </span>
                                                 <p className="text-white/40 mt-1">{p.count} {p.count === 1 ? lang('payment', 'pago') : lang('payments', 'pagos')} · {fmtDate(p.firstAt, lang)}{p.lastAt.slice(0, 10) !== p.firstAt.slice(0, 10) ? ` - ${fmtDate(p.lastAt, lang)}` : ''}{p.totalUsdc !== null ? ` · ${p.totalUsdc.toFixed(2)} USDC` : ''}</p>
                                             </div>
@@ -425,11 +451,28 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                         </div>
                     </section>
 
+                    {/* TESTNET - always visible, right after the main mainnet block; never counted in it.
+                        15-nov-2026: estaba al final (82% de la página) y nadie llegaba. */}
+                    <section id="testnet" className="py-10 border-t border-white/5 scroll-mt-28">
+                        <div className="max-w-5xl mx-auto px-6">
+                            <div className="flex flex-wrap items-center gap-3 mb-2">
+                                <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-widest border border-amber-500/40 text-amber-300 bg-amber-500/10">TESTNET</span>
+                                <h2 className="text-lg sm:text-xl font-bold">{lang('Testnet activity', 'Actividad en testnet')}</h2>
+                            </div>
+                            <p className="mb-6 text-sm text-white/50 max-w-3xl">
+                                {lang(
+                                    'No real value. It includes our own development and testing traffic and the testnet autonomous loop, so it is shown apart and never counted in the mainnet numbers above.',
+                                    'Sin valor real. Incluye nuestro propio tráfico de desarrollo y pruebas y el loop autónomo de testnet, por eso va aparte y nunca se suma a los números de mainnet de arriba.')}
+                            </p>
+                            <NodeActivity language={language} network="testnet" />
+                        </div>
+                    </section>
+
                     {/* DOWNLOADS */}
                     <section className="py-10 border-t border-white/5">
                         <div className="max-w-5xl mx-auto px-6">
                             <h2 className="text-xl font-bold mb-6">{lang('Package downloads', 'Descargas de paquetes')}</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {Object.entries(data.npm).map(([name, pkg]) => (
                                     <StatCard
                                         key={name}
@@ -485,7 +528,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                         className="flex items-center justify-between gap-4 p-4 hover:bg-white/[0.02] transition-colors"
                                     >
                                         <div className="min-w-0">
-                                            <p className="text-sm text-white truncate">{pr.title}</p>
+                                            <p className="text-sm text-white break-words">{pr.title}</p>
                                             <p className="text-xs text-white/40 font-mono mt-0.5">
                                                 {pr.repo}#{pr.number} · {fmtDate(pr.mergedAt, lang)}
                                                 {pr.mergedBy && <> · {lang('merged by', 'mergeado por')} @{pr.mergedBy}</>}
@@ -594,9 +637,9 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                         <StatCard
                                             label={lang('Community PRs merged', 'PRs de la comunidad mergeados')}
                                             value={com.mergedPRs.count}
-                                            sourceUrl={`https://github.com/nirium-protocol/nirium/pulls?q=is%3Apr+is%3Amerged+-author%3AEras256+-author%3AM0nsxx+-author%3Aapp%2Fdependabot`}
+                                            sourceUrl={`https://github.com/nirium-protocol/nirium/pulls?q=is%3Apr+is%3Amerged+-author%3AEras256+-author%3AM0nsxx+-author%3Aapp%2Fdependabot+-author%3Afernando-mendoza`}
                                             sourceLabel="GitHub"
-                                            footnote={<span className="text-xs text-white/40">{com.mergedPRs.linkedToGrantfoxIssue} {lang('linked to a GrantFox-labeled issue', 'vinculados a un issue con etiqueta GrantFox')} · {com.bountyIssues.total} {lang('bounty issues published in total', 'issues de bounty publicados en total')}</span>}
+                                            footnote={<span className="text-xs text-white/40">{com.mergedPRs.linkedToGrantfoxIssue} {lang('linked to a GrantFox-labeled issue', 'vinculados a un issue con etiqueta GrantFox')} · {com.bountyIssues.total} {lang('bounty issues published in total', 'issues de bounty publicados en total')} · {lang('excludes fernando-mendoza (joined the team 2026-10-15)', 'excluye a fernando-mendoza (se unió al equipo el 2026-10-15)')}</span>}
                                         />
                                         <StatCard
                                             label={lang('Issues opened by external contributors, closed as completed', 'Issues abiertos por contribuidores externos, cerrados como completados')}
@@ -612,7 +655,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                             .map((x) => (
                                                 <a key={x.url} href={x.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-4 p-4 hover:bg-white/[0.02] transition-colors">
                                                     <div className="min-w-0">
-                                                        <p className="text-sm text-white truncate">{x.title}</p>
+                                                        <p className="text-sm text-white break-words">{x.title}</p>
                                                         <p className="text-xs text-white/40 font-mono mt-0.5">
                                                             {x.kind} · {x.repo}#{x.number} · @{x.author} · {fmtDate(x.at, lang)}
                                                         </p>
@@ -638,8 +681,8 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                 <h2 className="text-xl font-bold mb-2">{lang('Built with Nirium', 'Construido con Nirium')}</h2>
                                 <p className="text-sm text-white/50 mb-6">
                                     {lang(
-                                        'Third parties selling their own API over x402 using our tooling - independently verified, not self-reported.',
-                                        'Terceros que venden su propia API por x402 usando nuestro tooling - verificado de forma independiente, no auto-reportado.')}
+                                        "This is a narrower, automated slice of the independent projects shown on the homepage's Built with Nirium: specifically, third parties selling their own API over x402 with our tooling, verified live against their own code and the chain - not self-reported.",
+                                        'Esta es una porción más angosta y automatizada de los proyectos independientes que muestra la sección Built with Nirium del homepage: específicamente, terceros que venden su propia API por x402 con nuestro tooling, verificados en vivo contra su propio código y la cadena - no auto-reportado.')}
                                 </p>
                                 <div className="space-y-4">
                                     {data.builtWithNirium.map((b) => b.kind === 'connector' ? (
@@ -678,7 +721,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                 {b.connectorUrl}
                                             </a>
                                             <p className="text-xs text-white/40 mt-3">
-                                                {lang('AgentLedger\u2019s mainnet payments are integration tests by a third party, listed apart in the payer table above; they are not counted as external payers or as a paying customer.', 'Los pagos de AgentLedger en mainnet son pruebas de integración de un tercero, listadas aparte en la tabla de pagadores arriba; no se cuentan como pagadores externos ni como cliente de pago.')}
+                                                {lang('The badges above describe that demo widget only (their site, synthetic agents, testnet dry-run) - it is separate from AgentLedger\u2019s own wallet, which has made real mainnet x402 payments. Those are integration tests by an independent third party when they happened (Aug-Sep 2026) - its founder, Fer, also joined Nirium part-time in October 2026 - listed apart in the payer table above and shown with real evidence below; they are not counted as external payers or as a paying customer.', 'Los badges de arriba describen solo ese widget de demo (en su sitio, agentes sintéticos, dry-run de testnet) - es distinto de la wallet propia de AgentLedger, que sí ha hecho pagos x402 reales en mainnet. Esos son pruebas de integración de un tercero independiente cuando ocurrieron (ago-sep 2026) - su fundador, Fer, también se unió a Nirium part-time en octubre 2026 - listadas aparte en la tabla de pagadores arriba y mostradas con evidencia real abajo; no se cuentan como pagadores externos ni como cliente de pago.')}
                                             </p>
                                             {xs.integrationTests.filter((t) => t.ledger).map((t) => {
                                                 const pp = xs.payers.find((x) => x.address === t.address);
@@ -745,7 +788,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                             </a>
                                             <p className="text-xs text-white/40 mt-3">
                                                 {lang('Settlements received', 'Liquidaciones recibidas')}: {b.settlements.count ?? '-'} -{' '}
-                                                {lang('payer not identified; not presented as a client', 'pagador sin identificar; no se presenta como cliente')}
+                                                {lang("self-test payments from wallets the vendor's own payTo created and funded (checked on Horizon); not presented as a client", 'pagos de pruebas propias desde wallets que el propio payTo del vendedor creó y fondeó (verificado en Horizon); no se presenta como cliente')}
                                                 {b.settlements.source && (
                                                     <> · <a href={b.settlements.source} target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">{lang('source', 'fuente')}</a></>
                                                 )}
@@ -764,6 +807,12 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                         </div>
                                     ))}
                                 </div>
+                                <p className="mt-6 text-xs leading-relaxed text-white/55">
+                                    {lang(
+                                        'Listed projects are independent. Nirium does not operate them and is not their partner or guarantor; being listed does not imply endorsement, partnership or customer usage. Each project is solely responsible for its own legal, tax and regulatory compliance. Nirium does not provide legal advice.',
+                                        'Los proyectos listados son independientes. Nirium no los opera, no es su socio ni su garante, y estar aquí no implica respaldo, alianza ni uso por clientes. Cada proyecto es responsable de su propio cumplimiento legal, fiscal y regulatorio. Nirium no da asesoría legal.'
+                                    )}
+                                </p>
                             </div>
                         </section>
                     )}
@@ -795,10 +844,14 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                 {lang('How this page works', 'Cómo funciona esta página')}
                             </h2>
                             <ul className="space-y-2 text-sm text-white/50 list-disc list-inside">
-                                <li>{lang('Every metric is fetched server-side at /api/stats on every load (5-minute cache) - nothing is precomputed or hand-edited.', 'Cada métrica se obtiene del lado del servidor en /api/stats en cada carga (cache de 5 min) - nada se precalcula ni se edita a mano.')}</li>
+                                {/* 9-nov-2026: decía "en cada carga (cache de 5 min)". Con la revalidación de
+                                    Next, la primera visita después de un rato sin tráfico recibe la versión
+                                    anterior mientras se genera la nueva (medido: el snapshot del 8-nov traía
+                                    datos de 11 h antes). La hora de generación siempre se muestra arriba. */}
+                                <li>{lang('Every metric is fetched server-side from its source, never hand-edited. The page is regenerated at most every 5 minutes; the first visit after a quiet period can get the previous version while a new one is built - the time it was generated is shown at the top.', 'Cada métrica se obtiene del lado del servidor desde su fuente, nunca se edita a mano. La página se regenera como máximo cada 5 minutos; la primera visita después de un rato sin tráfico puede recibir la versión anterior mientras se genera la nueva - arriba se muestra a qué hora se generó.')}</li>
                                 <li>{lang('x402 settlements and Treasury rebalances are counted directly from Horizon operations on the mainnet accounts - see the source link on each card.', 'Las liquidaciones x402 y los rebalanceos del Treasury se cuentan directo de las operaciones en Horizon sobre las cuentas de mainnet - ver el link de fuente en cada tarjeta.')}</li>
                                 <li>{lang('GitHub-backed lists (external merged PRs, community contributions) are cached up to 1 hour to stay inside GitHub\u2019s unauthenticated rate limit. A request that fails is shown as a failure, never silently dropped.', 'Las listas que vienen de GitHub (PRs externos mergeados, contribuciones de la comunidad) se cachean hasta 1 hora para no pasarse del límite sin autenticación de GitHub. Una consulta que falla se muestra como falla, nunca se omite en silencio.')}</li>
-                                <li>{lang('Testnet activity is not shown here - it includes automated development/testing traffic and would not represent real usage.', 'La actividad de testnet no se muestra aquí - incluye tráfico automatizado de desarrollo/pruebas y no representaría uso real.')}</li>
+                                <li>{lang('Testnet activity has its own section, labeled TESTNET, right after the main mainnet block. It includes automated development and testing traffic, so it is never counted in the mainnet numbers.', 'La actividad de testnet tiene su propia sección, marcada TESTNET, justo después del bloque principal de mainnet. Incluye tráfico automatizado de desarrollo y pruebas, así que nunca se suma a los números de mainnet.')}</li>
                                 <li>{lang('Payers are read from the USDC transfer itself, not the transaction source (x402 routes every payment through a per-transaction facilitator account). A wallet counts as internal only with proof we hold its key, and as external only with its operator\u2019s own public statement; a third party\u2019s wallet that we coordinated and initially funded is listed apart as an integration test, not as an external payer. Who created or funded a wallet is never treated as proof of who controls it, and funding origin is disclosed.', 'Los pagadores se leen de la transferencia de USDC, no de la fuente de la transacción (x402 pasa cada pago por una cuenta de facilitador distinta). Una wallet cuenta como interna solo con prueba de que tenemos su llave, y como externa solo con declaración pública de su operador; la wallet de un tercero que coordinamos y fondeamos al inicio se lista aparte como prueba de integración, no como pagador externo. Quién creó o fondeó una wallet nunca se toma como prueba de quién la controla, y el origen del fondeo se revela.')}</li>
                                 <li>{lang('Audit Trail and Payouts figures come from Nirium\u2019s own public reporting API, filtered to mainnet-labeled rows only - older rows with no network label are disclosed, not counted. It is not an independent third party: the link on each card lets you call it yourself and see the raw response.', 'Las cifras de Audit Trail y Payouts vienen de la API pública de reportería de Nirium, filtradas a filas etiquetadas mainnet - las filas antiguas sin etiqueta de red se revelan, no se cuentan. No es un tercero independiente: el link de cada tarjeta te deja llamarla tú mismo y ver la respuesta cruda.')}</li>
                                 <li>

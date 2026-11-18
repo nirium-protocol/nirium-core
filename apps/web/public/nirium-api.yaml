@@ -39,13 +39,13 @@ info:
 
     - **Production:** `https://nirium-agent.fly.dev`
     - **Staging:** `https://api-staging.nirium.xyz`
-    - **Local Dev:** `http://localhost:3002`
+    - **Local Dev:** `http://localhost:3001`
 
     ## Support
 
     - **Documentation:** https://docs.nirium.xyz
     - **Email:** niriumprotocol@gmail.com
-    - **Discord:** https://discord.gg/nirium
+    - **Discord:** https://discord.gg/gAAznKrSQZ
   contact:
     name: Nirium Protocol Support
     email: niriumprotocol@gmail.com
@@ -59,7 +59,7 @@ servers:
     description: Production Server
   - url: https://api-staging.nirium.xyz
     description: Staging Server
-  - url: http://localhost:3002
+  - url: http://localhost:3001
     description: Local Development
 
 tags:
@@ -67,7 +67,7 @@ tags:
     description: Public endpoints (no authentication required)
   - name: Authentication
     description: JWT tokens and API key management
-  - name: Sandbox
+  - name: Testnet
     description: Institutional sandbox accounts
   - name: Market Data
     description: Real-time market data and signals
@@ -298,7 +298,7 @@ paths:
 
   /api/sandbox/request:
     post:
-      tags: [Sandbox]
+      tags: [Testnet]
       summary: Request sandbox account
       description: |
         Request a new sandbox account for institutional testing.
@@ -324,7 +324,7 @@ paths:
 
   /api/sandbox/info:
     get:
-      tags: [Sandbox]
+      tags: [Testnet]
       summary: Sandbox program information
       description: Public information about sandbox tiers, quotas, and features
       operationId: getSandboxInfo
@@ -349,7 +349,7 @@ paths:
 
   /api/sandbox/status:
     get:
-      tags: [Sandbox]
+      tags: [Testnet]
       summary: Sandbox account status
       description: Get current sandbox account status, quotas, and usage
       operationId: getSandboxStatus
@@ -368,7 +368,7 @@ paths:
 
   /api/sandbox/accounts:
     get:
-      tags: [Sandbox]
+      tags: [Testnet]
       summary: List sandbox accounts (admin only)
       description: List all sandbox accounts with details
       operationId: getSandboxAccounts

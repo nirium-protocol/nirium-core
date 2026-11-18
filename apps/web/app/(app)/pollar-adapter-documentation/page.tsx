@@ -91,11 +91,11 @@ export default function PollarAdapterDocumentationPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-xl overflow-hidden mb-6">
                         <div className="bg-black p-4">
                             <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">npm</p>
-                            <p className="font-mono text-sm">nirium-pollar-adapter@0.4.0</p>
+                            <p className="font-mono text-sm">nirium-pollar-adapter@0.6.5</p>
                         </div>
                         <div className="bg-black p-4">
                             <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">Peer requerido</p>
-                            <p className="font-mono text-sm">@pollar/core &gt;=0.11.0</p>
+                            <p className="font-mono text-sm">@pollar/core &gt;=0.11.4 &lt;0.13.0</p>
                         </div>
                         <div className="bg-black p-4">
                             <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">Login social Pollar</p>
@@ -106,9 +106,9 @@ export default function PollarAdapterDocumentationPage() {
                         </div>
                         <div className="bg-black p-4">
                             <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">Probado por Pollar</p>
-                            <div className="inline-flex items-center gap-1.5 text-[11px] font-mono text-amber-400 uppercase tracking-widest font-bold">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                                aún no
+                            <div className="inline-flex items-center gap-1.5 text-[11px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                                sí · testnet
                             </div>
                         </div>
                     </div>
@@ -116,14 +116,16 @@ export default function PollarAdapterDocumentationPage() {
                     <div className="border-l-2 border-amber-400/50 bg-white/[0.02] rounded-r-xl p-5 mb-6">
                         <p className="text-sm font-semibold text-white mb-2">Para ser exactos sobre quién probó qué.</p>
                         <p className="text-sm text-gray-400 leading-relaxed">
-                            Nirium construyó el adaptador y lo probó de punta a punta contra la API real de Pollar, incluyendo una liquidación real en mainnet. Pollar todavía no lo ha corrido ni validado de su lado, y eso quedó claro en la llamada de esta semana. Todo lo que sigue en esta página describe lo que nosotros verificamos, no un acuerdo ya cerrado entre las dos partes.
+                            Nirium construyó el adaptador y lo probó de punta a punta contra la API real de Pollar, incluyendo una liquidación real en mainnet. Del lado de Pollar, su CTO lo probó en testnet el 30 de agosto de 2026 desde nuestro demo: su propia wallet pagó 0.05 USDC por x402 (
+                            <a href="https://stellar.expert/explorer/testnet/tx/2ca4a89aa56504dcd7f6e17472a6662eaed6bb00e134806defb674673b369038" target="_blank" rel="noopener noreferrer" className="font-mono text-stellar-teal hover:underline">2ca4a89a…9038</a>
+                            ), y lo confirmó por escrito el 7 de noviembre. Eso es una prueba en testnet, no una integración en producción ni un acuerdo cerrado entre las dos partes.
                         </p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white/[0.03] border border-white/10 rounded-xl p-5">
                         <div>
-                            <p className="text-sm font-semibold text-white">Pago real desde login social de Pollar</p>
-                            <p className="text-xs text-gray-500 mt-1">5 de agosto de 2026 · 0.02 USDC · el usuario sostuvo cero XLM en todo el camino</p>
+                            <p className="text-sm font-semibold text-white">Pago en mainnet desde login social de Pollar (prueba propia de Nirium)</p>
+                            <p className="text-xs text-gray-500 mt-1">5 de agosto de 2026 · 0.02 USDC · wallet de prueba creada y fondeada por Nirium, no un usuario externo · sostuvo cero XLM en todo el camino</p>
                         </div>
                         <a
                             href={`https://stellar.expert/explorer/public/tx/${EVIDENCE_TX}`}
@@ -155,7 +157,7 @@ export default function PollarAdapterDocumentationPage() {
                             <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Confirmado en la llamada</p>
                             <p className="font-semibold text-white mb-1.5">Fondeo diferido disponible</p>
                             <p className="text-sm text-gray-400">
-                                Con <code className="text-stellar-teal font-mono text-xs bg-white/5 px-1 py-0.5 rounded">POST /v1/wallets/activate</code> ya vivo del lado de Pollar, ese costo por usuario deja de ser obligatorio en cuanto alguien lo conecte.
+                                Con <code className="text-stellar-teal font-mono text-xs bg-white/5 px-1 py-0.5 rounded">POST /v3/wallets/fund</code> vivo del lado de Pollar (reemplazó a <code className="font-mono text-xs">/v1/wallets/activate</code>), ese costo por usuario deja de ser obligatorio. <code className="font-mono text-xs">nirium-pollar-adapter</code> 0.6.0 ya lo usa.
                             </p>
                         </div>
                     </div>
@@ -209,35 +211,25 @@ export default function PollarAdapterDocumentationPage() {
                     </div>
                 </section>
 
-                {/* 06 · Oferta */}
+                {/* 06 · Qué está abierto. 16-nov-2026: esta sección ofrecía "acceso de lectura a más
+                    anclajes de los que hoy son públicos" (recibos de terceros, privados desde el
+                    8-nov) y llamaba invite-only a Audit Trail y Reporting, que son públicos. */}
                 <section className="mb-16">
-                    <p className="text-[11px] font-mono uppercase tracking-widest text-stellar-teal mb-3">06 · Una oferta abierta</p>
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-3">Acceso ampliado, cuando les sirva</h2>
+                    <p className="text-[11px] font-mono uppercase tracking-widest text-stellar-teal mb-3">06 · Lo que ya está abierto</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-3">Sin acceso especial que pedir</h2>
                     <p className="text-gray-400 leading-relaxed mb-6">
-                        Dos piezas de infraestructura de Nirium hoy son invite-only en mainnet hasta tener una opinión legal por escrito. Si a Pollar le resulta útil para evaluar la integración con más profundidad, podemos abrir acceso anticipado.
+                        Audit Trail y Reporting ya son públicos en mainnet: cualquiera ancla y verifica recibos, y consulta los resúmenes, sin pedir acceso. Los recibos que ancla cada quien se quedan con quien los hizo; Nirium no los comparte con terceros. Treasury y Payouts siguen solo por invitación hasta tener una opinión legal por escrito.
                     </p>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                        <div className="bg-white/[0.02] border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors">
-                            <div className="w-9 h-9 rounded-lg bg-stellar-teal/10 text-stellar-teal flex items-center justify-center font-mono text-sm mb-4">◆</div>
-                            <h3 className="font-bold text-white mb-2">Audit trail ampliado</h3>
-                            <p className="text-sm text-gray-400">Acceso de lectura a más anclajes de auditoría de los que hoy son públicos, para evaluar el formato de evidencia con datos reales, no solo con ejemplos.</p>
-                        </div>
-                        <div className="bg-white/[0.02] border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors">
-                            <div className="w-9 h-9 rounded-lg bg-stellar-teal/10 text-stellar-teal flex items-center justify-center font-mono text-sm mb-4">▤</div>
-                            <h3 className="font-bold text-white mb-2">Reportería institucional</h3>
-                            <p className="text-sm text-gray-400">Exportes en formato institucional (CSV/JSON) sobre actividad liquidada, útiles si alguien del lado de Pollar necesita mostrar números hacia adentro antes de comprometerse a nada.</p>
-                        </div>
-                    </div>
                 </section>
 
                 {/* Footer */}
                 <footer className="pt-10 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-sm">
                     <div className="flex gap-5 text-gray-400">
                         <a href="https://www.npmjs.com/package/nirium-pollar-adapter" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">npm</a>
-                        <a href="https://github.com/nirium-protocol/nirium-core" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>
+                        <a href="https://github.com/nirium-protocol/nirium-pollar-adapter" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>
                         <a href="/" className="hover:text-white transition-colors">nirium.xyz</a>
                     </div>
-                    <span className="text-xs font-mono text-gray-600">nirium-pollar-adapter v0.4.0 · Stellar Mainnet</span>
+                    <span className="text-xs font-mono text-gray-600">nirium-pollar-adapter v0.6.5</span>
                 </footer>
 
             </div>
