@@ -158,6 +158,8 @@ The Nirium API is deployed dual-network on Fly.io with Express 5 and Node >=22.1
 **x402Serve telemetry:** `/api/x402serve/telemetry`, `/api/x402serve/info`
 
 ### 4.3 WebSocket Real-Time Signals
+> **Update, 2026-11-18:** the hosted stream at `wss://nirium-agent.fly.dev/ws/signals` did not accept WebSocket connections when checked (the same path answers HTTP 404). The description below is the design.
+
 JWT-authenticated WebSocket stream. Events: `signal` (arbitrage/yield signal), `log` (agent execution log), `connected`. Reconnects automatically. Used for real-time dashboard feeds and signal-triggered strategy execution.
 
 ---

@@ -280,7 +280,7 @@ Multi-tier authentication with sandbox accounts, self-service API keys (`/keys`,
 | Public (no key) | health, loop/status, execute-demo, signals/recent, skills, nodes, netdiag |
 | Protected (API key) | execute, market, tickers, stats, loop control, webhooks, subscriptions, skills/install, payroll/\*, treasury/\* |
 | Paid (x402 / MPP) | premium/\*, mpp/\* |
-| WebSocket (JWT) | `/ws/signals`, real-time signal stream |
+| WebSocket (JWT) | `/ws/signals`, signal stream (the hosted endpoint did not accept connections when checked on 18 Nov 2026) |
 | Admin only | system/health, config/llm |
 
 **Endpoints charge where the capability exists, not where it reads better.** The mainnet box holds no signing key and runs no autonomous loop, so `premium/signals` and `premium/execute` return `501` there instead of charging for an empty answer. `premium/market` charges and delivers on both networks.
@@ -556,8 +556,8 @@ curl https://nirium-agent.fly.dev/api/nodes
 curl https://nirium-agent.fly.dev/api/sandbox/status \
   -H "x-api-key: YOUR_SANDBOX_KEY"
 
-# WebSocket: real-time signals
-wscat -c "wss://nirium-agent.fly.dev/ws/signals?token=YOUR_JWT"
+# WebSocket signal stream (hosted endpoint not accepting connections as of 18 Nov 2026;
+# run your own agent and use ws://localhost:3002/ws/signals?token=YOUR_JWT)
 ```
 
 ---
