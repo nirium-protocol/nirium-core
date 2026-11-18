@@ -10,7 +10,7 @@ info:
     - Autonomous agent orchestration
     - Real-time market data and signals
     - Strategy execution and testing
-    - WebSocket subscriptions for live updates
+    - WebSocket subscriptions (the hosted stream did not accept connections when checked on 18 Nov 2026)
 
     ## Security controls
 
