@@ -163,9 +163,9 @@
         "presented_p2": "The message we kept returning to is the security pattern that makes this safe to put in front of institutions. An AI agent can read the market and propose a rebalance, but it never holds custody — a 2-of-3 Soroban multisig vault enforces delegation scopes on-chain, so a compromised or hallucinating agent physically cannot move funds the contract did not authorize.",
         "pattern_quote": "The LLM proposes, the contract decides.",
         "h_venue": "Why the venue matters",
-        "venue_p1": "Tokenized real-world assets in Mexico are no longer a thesis on a slide. CETES on Stellar via a regulated operator is a live corridor, and seeing it discussed inside BBVA Tower — rather than a hackathon side room — signals how quickly institutional appetite is forming. Nirium's position is deliberately software-only and non-custodial: regulated partners handle settlement, while we provide the rails developers and fintechs embed.",
+        "venue_p1": "Tokenized real-world assets in Mexico are no longer a thesis on a slide. CETES on Stellar via an independent operator is a live corridor, and seeing it discussed inside BBVA Tower - rather than a hackathon side room - signals how quickly institutional appetite is forming. Nirium's position is deliberately software-only and non-custodial: independent third parties handle settlement, while we provide the rails developers and fintechs embed.",
         "h_takeaway": "What we took away",
-        "takeaway_p1": "Beyond the pitch, the value of La Arena was the conversations it opened — with investors and ecosystem operators who understand both the Stellar stack and the Mexican regulatory context. Those are the relationships that turn a working testnet protocol into a funded, audited, mainnet product. We left with new threads to pull, and a clearer read on what institutional partners need to see next: verifiable adoption, not promises.",
+        "takeaway_p1": "Beyond the pitch, the value of La Arena was the conversations it opened - with investors and ecosystem operators who understand both the Stellar stack and the Mexican regulatory context. Those are the relationships that turn a working testnet protocol into a funded, audited, mainnet product. We left with new threads to pull, and a clearer read on what institutional partners need to see next: verifiable adoption, not promises.",
         "where_label": "Where we are",
         "where_body": "Nirium runs an autonomous agent on Stellar testnet and published TypeScript and Python SDKs. On mainnet, x402 payments, Audit Trail and Reporting already run, receive-only and non-custodial; MPP is experimental. NiriumVault, our own treasury contract, remains audit-gated. Backed by the Stellar ecosystem: two-time Stellar Community Fund Instawards recipient (via the Stellar Ambassador Program) and an active Stellar Mexico Ambassador."
       },
@@ -207,7 +207,7 @@
         "impact_clients_p": "To be direct about where this stands today: the vault in this post is Nirium's own team proving the mechanism with its own funds, not an outside client's money yet — worth saying plainly, since the whole point of this post is not overstating what's verifiable. What it gives a future client isn't a promise that it'll work when it's their turn. It's something to check before they ever have to take our word for anything: the exact contract, the exact role, the exact transaction, all public, all today.",
         "impact_nirium_h": "For Nirium",
         "impact_nirium_p": "This is the kind of evidence that doesn't inflate under scrutiny — it's stronger the harder someone looks at it, which is the opposite of most claims made in this space. For the Stellar Community Fund and for any future partner evaluating whether the non-custodial claim is real, this transaction and the three lines of contract code behind it are the actual differentiator, not a line in a pitch deck.",
-        "regulatory_map_p": "One more thing, for completeness: converting USDC to CETES in this flow touches three separate regulatory regimes, not one — Circle (USDC's issuer) holds a full MiCA license in the EU and multiple licenses in the US, but no direct Banxico/CNBV authorization to operate in Mexico; Etherfuse operates under its own Mexican no-action relief and Swiss registration, also without being a licensed Mexican bank. Neither is doing anything improper — this is simply the real map of who regulates what, without flattening it.",
+        "regulatory_map_p": "One more thing: each party near this flow answers for its own activity under its own rules - Circle for USDC, Etherfuse for its tokenized CETES, DeFindex for its contracts. Their regulatory status is theirs to state; ask them, not us.",
         "h_close": "Go check it",
         "close_p1": "Every link above resolves to something you don't have to take our word for — a live block explorer, a public GitHub repository, a documentation page DeFindex controls, not us. Decode the transaction. Read the contract. If something here doesn't hold up the way this post says it does, that's worth knowing — for you and for us.",
         "where_label": "Where we are",
@@ -355,7 +355,7 @@
       "title": "COMPARE",
       "span": "& DECIDE",
       "subtitle": "The real cost of moving money across borders. Nirium already includes market spread.",
-      "disclaimer": "Indicative fees on Stellar Testnet. Nirium charges flat software license fees only. Etherfuse execution costs (~0.20%) are charged separately by Etherfuse. Regulated partner sets financial commissions.",
+      "disclaimer": "Indicative fees on Stellar Testnet. Nirium charges flat software license fees only. Etherfuse execution costs (~0.20%) are charged separately by Etherfuse. Third parties set their own fees.",
       "col_provider": "Provider",
       "col_cost": "All-in Cost",
       "col_speed": "Speed",
@@ -436,7 +436,7 @@
       },
       "archive": {
         "title": "Perfect Records",
-        "desc": "Every move is saved forever. Ready to hand to your auditor or regulator without a second thought."
+        "desc": "Every move is saved forever. Ready to share with your auditor."
       }
     },
     "elo_title_1": "AGENT AUDIT",
@@ -497,7 +497,7 @@
     "deploy_cta_card2_desc": "Automated allocation of idle liquidity into structured institutional assets and RWAs.",
     "deploy_cta_card2_tag": "Active Treasury",
     "deploy_cta_card3_title": "Compliance & Audit",
-    "deploy_cta_card3_desc": "Immutable records on a decentralized ledger — audit-grade evidence your regulated operators can rely on.",
+    "deploy_cta_card3_desc": "Records anyone can check from a hash, with an optional signature saying who made them.",
     "deploy_cta_card3_tag": "On-Chain Traceability",
     "deploy_cta_primary": "REQUEST SANDBOX ACCESS",
     "deploy_cta_secondary": "VIEW DOCUMENTATION",
@@ -598,7 +598,7 @@
         },
         "audit": {
           "name": "AUDIT TRAIL ENGINE",
-          "desc": "IPFS-backed immutable audit logs. Institutional-format exports your regulated operators can file. Software-only audit infrastructure."
+          "desc": "Audit records on IPFS where any later change shows, with CSV or JSON exports for your own systems. Software only."
         },
         "settlement": {
           "name": "x402 + MPP PAYMENTS",
@@ -636,7 +636,7 @@
             "time": "Scalable"
           },
           "forensic_treasury": {
-            "name": "Forensic Audit Hub",
+            "name": "Treasury Audit Hub",
             "tagline": "Real-time, immutable corporate treasury monitoring. Uses the Audit Trail (IPFS) to generate exportable audit reports on demand.",
             "stack": [
               "Webhooks",
@@ -1087,12 +1087,12 @@
     "last_updated": "Last updated: August 15, 2026",
     "sections": {
       "nature": {
-        "title": "1. Nature of Service and Regulatory Framework",
-        "content": "Nirium is technology infrastructure software (IaaS). Nirium operates as a B2B software provider facilitating treasury flow orchestration. The platform provides immutable forensic telemetry and Soroban protocols. Custody, settlement, and issuance services for any real-world asset are the exclusive responsibility of regulated third-party providers (e.g., Etherfuse) under their own licenses and terms of service. Nirium never holds client funds."
+        "title": "1. What Nirium is",
+        "content": "Nirium is software. It runs nodes and an API on Stellar to charge per call (x402), anchor receipts (Audit Trail), report, build batch payouts that the client signs (Payouts) and rebalance the client's own vault (Treasury). Nirium never custodies client funds. Issuing, holding and redeeming real-world assets such as CETES is done by third parties under their own terms, such as Etherfuse."
       },
       "no_guarantees": {
         "title": "2. No Guarantees — Service Level Agreement (SLA)",
-        "content": "Nirium does not guarantee financial returns of any kind nor assumes responsibility for secondary market liquidity. Routing projections and spread metrics are strictly informational and reflect historical algorithmic execution on Stellar Testnet.\n\nNirium is not an investment product, security, or mutual fund. Capital remains under the sovereign control of the regulated operator's corporate keys at all times. Nirium is automation software with which institutions interact assuming the technological risk."
+        "content": "Nirium does not guarantee returns or the liquidity of any asset or market. Rates and metrics shown on the site are for information only. Nirium is not an investment product, a security or a fund. Funds stay under the client's own keys."
       },
       "ai_liability": {
         "title": "3. Autonomous Node & Oracle Liability",
@@ -1100,7 +1100,7 @@
       },
       "rwa_disclaimer": {
         "title": "4. Sovereign Asset (CETES) Risks",
-        "content": "Operations with CETES are subject to institutional availability, banking window constraints, and Banxico regulations. Nirium acts solely as a technological bridge (Middleware) and, where autonomous rebalancing is enabled, holds only the RebalanceManager role on a client-owned DeFindex vault — a role that cannot withdraw funds. Counterparty risk, legal custody of the underlying asset, and AML compliance rest entirely with the bond issuer, the final custodian, and the regulated operator. CETES exposure occurs on Stellar Mainnet through client-owned, third-party-audited vaults (invite-only pending a written legal opinion) and, separately, as a Stellar Testnet proof of concept via Nirium's own NiriumVault contract."
+        "content": "USDC is issued by Circle; tokenized CETES are issued by Etherfuse. Their value and redemption depend on those issuers and, for CETES, on the Mexican government bonds behind them. Nirium does not issue, hold or redeem either. On mainnet, CETES exposure happens through DeFindex vaults the client owns (invite-only until there is a written legal opinion); on testnet, also through Nirium's own NiriumVault contract, as a proof of concept."
       },
       "dispute": {
         "title": "5. Jurisdiction and Technological Arbitration",
@@ -1112,11 +1112,11 @@
       },
       "reverse_solicitation": {
         "title": "7. B2B Compliance and Institutional Solicitation",
-        "content": "Nirium does not make a public offering of securities, payment intermediation, or retail financial services. Access by foreign corporations is a private B2B request. Nirium does not rely on reverse solicitation as its jurisdictional defence — it restricts by policy and by technical means where a service would be regulated (see Restricted Jurisdictions and Sanctions). The integrating institution remains solely responsible for complying with financial, sanctions and Anti-Money Laundering laws in its own jurisdiction."
+        "content": "Nirium does not offer securities to the public, is not a financial entity and holds no financial authorization. Whether autonomous rebalancing and Payouts fall under fraction XVI of article 17 of the LFPIORPI is an open question, with no written legal opinion yet; meanwhile both are invite-only on mainnet. Each party complies, for its own clients, with the financial, sanctions and anti-money-laundering laws that apply to it."
       },
       "restricted_jurisdictions": {
         "title": "8. Restricted Jurisdictions and Sanctions",
-        "content": "Nirium is established in Mexico and does not offer its services into jurisdictions where those services would constitute regulated activity, regardless of how the software is built. Access is prohibited from comprehensively sanctioned jurisdictions, jurisdictions subject to a Financial Action Task Force call for action, and mainland China. Payouts and the Treasury node are additionally not offered in the European Economic Area, the United Kingdom or the United States, pending written legal opinion. By using any Nirium service you represent, on every occasion of use, that you are not located in or resident of a prohibited jurisdiction and are not a sanctioned person or acting for one. Nirium may block access by technical means, including IP geolocation, and may refuse or terminate service without notice. Because Nirium never holds funds, termination never strands assets: your keys, accounts and vaults remain fully usable without us. The full policy governs and is published at /legal/restricted-jurisdictions-v1.md."
+        "content": "Nirium Protocol operates from Mexico, run by its founders, with no incorporated legal entity to date, and does not offer its services into jurisdictions where they would be regulated activity, however the software is built. Access is prohibited from comprehensively sanctioned jurisdictions, jurisdictions under a FATF call for action, and mainland China. In the European Economic Area, the United Kingdom and the United States, pending a written legal opinion, Payouts is not offered on any network and the Treasury node is not offered on mainnet; the Treasury node on testnet stays available as a demonstration, and withdrawing from a vault you already own is never restricted there. By using any Nirium service you represent, each time, that you are not located in or resident of a prohibited jurisdiction and are not a sanctioned person or acting for one. Nirium may block access by technical means, including IP geolocation, and may refuse or end service. Because Nirium never holds funds, ending service never strands assets: your keys, accounts and vaults keep working without us. The full policy governs: /legal/restricted-jurisdictions-v1.md."
       },
       "intellectual_property": {
         "title": "9. SDK Intellectual Property",
@@ -1124,7 +1124,7 @@
       },
       "stellar_code": {
         "title": "10. Alignment with the Stellar Code of Conduct",
-        "content": "Nirium strictly adheres to the principles of the Stellar Development Foundation (SDF) and the Stellar Code of Conduct, promoting open infrastructure, corporate respect, and forensic traceability."
+        "content": "Nirium follows the Stellar Code of Conduct. It is an independent project and is not endorsed by the Stellar Development Foundation."
       }
     }
   },
@@ -1132,7 +1132,7 @@
     "title": "Infrastructure Access: Consent Protocol",
     "consent_required": "CRYPTOGRAPHIC CONSENT SIGNATURE:",
     "acknowledge_prefix": "By signing this payload, the institution declares under penalty of perjury that:",
-    "item_non_custodial": "You understand that Nirium is a B2B software provider; master keys and custody are the absolute responsibility of the regulated operator.",
+    "item_non_custodial": "You understand that Nirium is a software provider and never holds your keys or funds: custody stays with you or the provider you choose.",
     "item_elo_historical": "You acknowledge that routing simulations do not imply or guarantee future settlement rates or availability.",
     "item_systemic_risk": "You accept the systemic technological risk inherent in smart contracts, oracle latency, and third-party APIs (SLA).",
     "item_liability": "You release Nirium Software from all legal liability for network failures, bugs in automation logic, or interruptions in CETES settlement.",
@@ -1155,7 +1155,7 @@
       },
       "governance": {
         "title": "3. Institutional Governance",
-        "content": "Nirium provides B2B software in alignment with the Stellar Code of Conduct. The integrating institution assumes responsibility for KYC/AML and regulatory compliance with relevant authorities. Nirium does not custody funds or manage third-party liquidity."
+        "content": "Nirium provides software and does not custody funds. Whether autonomous rebalancing and Payouts fall under fraction XVI of article 17 of the LFPIORPI (virtual assets) is an open question, with no written legal opinion yet; both stay invite-only on mainnet until it is answered. Each party complies with the law for its own clients: this page does not move anyone's legal obligations onto someone else. Access is prohibited from comprehensively sanctioned jurisdictions, jurisdictions under a FATF call for action, and mainland China. In the EEA, the UK and the US, Payouts is not offered on any network and Treasury is not offered on mainnet. Full policy: /legal/restricted-jurisdictions-v1.md. This is not legal or financial advice."
       }
     },
     "footer": "By connecting your wallet, you accept all risks outlined above."
@@ -1169,12 +1169,12 @@
         "content": "Nirium is technological middleware. We never collect, store, or process corporate private keys. All instruction signing occurs locally within the HSM module or institutional wallet of the operating company."
       },
       "anonymity": {
-        "title": "2. On-Chain Forensic Traceability",
-        "content": "As Stellar infrastructure, all vault operations generate an immutable on-chain hash (SHA-256). Nirium does not associate these operations with corporate identities; identity responsibility (KYB - Know Your Business) lies exclusively with the regulated operator and settlement providers (e.g., Etherfuse)."
+        "title": "2. On-Chain Traceability",
+        "content": "As Stellar infrastructure, all vault operations generate an immutable on-chain hash (SHA-256). Nirium does not associate these operations with corporate identities; identity checks (KYB/KYC) are done by the providers you contract with (e.g., Etherfuse), not by Nirium."
       },
       "institutional": {
         "title": "4. Fintech Compliance & SCF",
-        "content": "Nirium maintains a B2B architecture that prioritizes data immutability and forensic-grade auditability, so regulated operators can meet their own reporting obligations. Software-only, non-custodial."
+        "content": "Nirium maintains a B2B architecture that keeps records that show any later change, so the teams using it can check what happened. Software-only, non-custodial."
       },
       "telemetry": {
         "title": "3. SLA Telemetry",
@@ -1248,8 +1248,8 @@
       "testnet_notice": "Dual-network B2B environment. Payment and audit rails are live on Stellar mainnet; the autonomous treasury vault and its contracts run on Stellar Testnet, audit-gated, until a formal external audit — before any real capital is deployed.",
       "summary_title": "Infrastructure Executive Summary",
       "summary_p1": "Nirium is an infrastructure software provider (package/API) built on the Stellar network. We facilitate the autonomous routing of corporate capital —with a primary focus on CETES tokenization via Etherfuse— without Nirium assuming custody or managing third-party liquidity.",
-      "summary_p2": "The core architecture consists of hardened Soroban contracts, programmatic execution nodes with atomic micropayments (x402/MPP), and a forensic telemetry system anchored to IPFS for institutional-grade auditability.",
-      "summary_who": "Who is this for? Regulated operators and Fintechs. Integrate our TypeScript package or deploy logic through the Treasury Builder to generate immutable compliance trails (SHA-256).",
+      "summary_p2": "The core architecture consists of hardened Soroban contracts, programmatic execution nodes with atomic micropayments (x402/MPP), and a telemetry system anchored to IPFS for institutional-grade auditability.",
+      "summary_who": "Who is this for? Teams that need to show what their agents did. Integrate our TypeScript package or deploy logic through the Treasury Builder to anchor SHA-256 records anyone can check.",
       "summary_warning": "Software-only. Nirium does not provide legal or financial advice. All contracts are in Sandbox/Testnet phase.",
       "progressive_title": "Flow Approval Models",
       "progressive_subtitle": "Configure the autonomy level of the B2B node to fit your internal compliance policies.",
@@ -1283,7 +1283,7 @@
         },
         "dashboard": {
           "title": "Telemetry Console",
-          "desc": "Monitor node activity, latencies, and export JSON forensic logs."
+          "desc": "Monitor node activity, latencies, and export JSON logs."
         },
         "wallets": {
           "title": "Vault Contracts",
@@ -1346,7 +1346,7 @@
           "items": [
             "Cloud database for strategy state and execution logs",
             "Local cache for low-latency UI reads",
-            "IPFS for immutable, tamper-proof audit records",
+            "IPFS for content-addressed audit records: any later change shows",
             "Three-way synchronization maintained continuously"
           ]
         },
@@ -1485,7 +1485,7 @@
         },
         "audit": {
           "title": "Immutable Auditability",
-          "desc": "Tamper-proof IPFS execution history."
+          "desc": "Tamper-evident IPFS execution history."
         },
         "multi": {
           "title": "Multi-Rail Support",
@@ -1820,7 +1820,7 @@
       "recording": {
         "title": "Immutable Event Log",
         "desc": "All Nirium transactions are publicly verifiable on the Stellar ledger. Off-chain logs are cryptographically signed and stored independently.",
-        "proof": "Tamper-proof by cryptographic construction"
+        "proof": "Tamper-evident by cryptographic construction"
       },
       "ipfs": {
         "title": "Immutable Audit Record (IPFS)",
@@ -1839,7 +1839,7 @@
           "Safety: Non-custodial by design; the user remains the sole owner of their keys.",
           "Professionalism: Interaction within the community follows the highest ethical standards of the SDF."
         ],
-        "compliance": "Built for institutional audit and regulatory review — see the audit-trail evidence layer below.",
+        "compliance": "Built for institutional audit and regulatory review - see the audit-trail evidence layer below.",
         "audit_trail": {
           "title": "Compliance Layer: Audit Trail",
           "subtitle": "Every agent decision is content-hashed with SHA-256, optionally signed by the declaring agent's own key, anchored on IPFS, and exportable to institutional formats.",
@@ -1866,7 +1866,7 @@
               "desc": "Structured JSON with fields: folio, timestamp, operation_type, agent, usdc_amount, blockchain_network, tx_hash, content_sha256, agent_signature (optional), integrity. Ready for submission."
             }
           ],
-          "fintech_law": "Immutable, forensic-grade audit reports — the audit layer regulated operators need, without building it themselves."
+          "fintech_law": "Records that show any later change, with an optional signature saying who made them."
         }
       }
     },
@@ -1891,10 +1891,10 @@
           "code": "// Middleware for AI call monetization\nagent.onCall(async (req) => {\n  await x402.bill(req.tokens, { unit: 'USDC' });\n  return await brain.process(req);\n});"
         },
         {
-          "name": "Forensic Audit Hub",
+          "name": "Treasury Audit Hub",
           "desc": "Real-time, immutable corporate treasury monitoring. Uses Protocol Archive (IPFS) to generate exportable audit reports on demand.",
           "diff": "Standard",
-          "code": "// Forensic audit trail via IPFS\nvault.onEvent(async (e) => {\n  const cid = await ipfs.pin(e.signature);\n  await elo.verify(cid);\n});"
+          "code": "// Audit trail via IPFS\nvault.onEvent(async (e) => {\n  const cid = await ipfs.pin(e.signature);\n  await elo.verify(cid);\n});"
         },
         {
           "name": "Autonomous Capital Router",
@@ -2002,7 +2002,7 @@
         },
         "eliza-sentiment": {
           "name": "Compliance Sentinel",
-          "desc": "Cryptographic module that hashes all treasury decisions with SHA-256 and anchors the record on IPFS for immutable, forensic-grade auditability."
+          "desc": "Cryptographic module that hashes all treasury decisions with SHA-256 and anchors the record on IPFS, so any later change shows."
         }
       }
     },
@@ -2019,7 +2019,7 @@
         },
         "price-oracle": {
           "name": "Institutional Reference Oracle",
-          "desc": "INTEGRATES REGULATED PRICE FEEDS FOR EXACT FX RATES AND SPREAD EXECUTION."
+          "desc": "READS EXTERNAL PRICE FEEDS FOR FX RATES AND SPREADS."
         },
         "telegram-alerts-pro": {
           "name": "Corporate Alerts Webhook",
@@ -2031,7 +2031,7 @@
         },
         "ipfs-blackbox-logger": {
           "name": "IPFS Audit Engine",
-          "desc": "ARCHIVES ALL EXECUTION EVENTS (SHA-256) TO IPFS STORAGE FOR FORENSIC COMPLIANCE."
+          "desc": "ARCHIVES EXECUTION EVENTS (SHA-256) TO IPFS, SO ANY LATER CHANGE SHOWS."
         },
         "eliza-trading-brain": {
           "name": "Approval Logic Layer",
@@ -2067,7 +2067,7 @@
         },
         "ipfs-blackbox-logger": {
           "name": "IPFS Immutable Logger",
-          "description": "COMMITS CRYPTOGRAPHIC PROOFS OF EVERY ON-CHAIN ACTION TO IPFS FOR REGULATORY COMPLIANCE AND AUDIT."
+          "description": "COMMITS CRYPTOGRAPHIC PROOFS OF EVERY ON-CHAIN ACTION TO IPFS FOR AUDIT."
         }
       }
     },
@@ -2334,7 +2334,7 @@
     "header": {
       "badge": "SPEI → CETES Funding via Etherfuse",
       "title": "Contract with Etherfuse to obtain CETES",
-      "subtitle": "Transfer MXN via SPEI to a CLABE. Etherfuse — an independent regulated operator — converts it to tokenized CETES on Stellar at the quote Etherfuse returns for each order. KYC/KYB required. Sandbox active — no real funds are moved."
+      "subtitle": "Transfer MXN via SPEI to a CLABE. Etherfuse - an independent operator - converts it to tokenized CETES on Stellar at the quote Etherfuse returns for each order. KYC/KYB required. Test environment active - no real funds are moved."
     },
     "component": {
       "title": "SPEI → CETES Funding",
@@ -2415,7 +2415,7 @@
     },
     "record_panel": {
       "title": "IMMUTABLE AUDIT LOG",
-      "desc": "All infrastructure operations are written to decentralized storage (IPFS). This cryptographic registry is tamper-proof, providing forensic-grade audit evidence.",
+      "desc": "Operations you choose to anchor are written to IPFS. Each record is content-addressed, so any later change shows, and an optional signature says who recorded it.",
       "saved": "Events Indexed",
       "lives": "Persistence Layer",
       "how_long": "Retention Period",
@@ -2525,7 +2525,7 @@
       },
       "cnbv": {
         "title": "Structured Export (JSON)",
-        "desc": "Pre-structured formats with standard identifiers (`folio`, `monto_usdc`, `content_sha256`, etc.) that accelerate the generation of normative reports for local regulators."
+        "desc": "`nirium report export` lists payouts, payments and anchors with date and network, plus the transaction when there is one. The public export carries no CIDs: a record's CID belongs to whoever made it."
       },
       "lcp": {
         "title": "Legal Context (LCP)",
@@ -2533,13 +2533,13 @@
       }
     },
     "fintech_law": {
-      "title": "Designed for Regulated Operators",
-      "subtitle": "We provide the infrastructure so regulated operators can prove complete traceability of their automated operations.",
+      "title": "For teams that need to show what their agents did",
+      "subtitle": "The record lives on IPFS and you hold its CID. You decide what to share and with whom.",
       "requirements": {
         "title": "Standard Audit Requirements",
         "items": [
           "Immutable traceability for every operation",
-          "Forensic accreditation of the execution node",
+          "An optional signature that says who recorded it",
           "Cryptographic record of state transitions",
           "Agnostic structure for JSON ingestion",
           "Support for long-term distributed storage"
@@ -2556,7 +2556,7 @@
       "title": "Telemetry Preview",
       "integrity": "Integrity Verified"
     },
-    "disclaimer": "Nirium solely provides the technical software infrastructure. We do not provide legal advice. The interpretation, generation, and submission of reports to regulatory authorities (such as the CNBV) is the exclusive responsibility of the financial operator utilizing the API.",
+    "disclaimer": "Nirium solely provides the technical software infrastructure. We do not provide legal advice. The interpretation, generation, and submission of reports to regulatory authorities (such as the CNBV or the UIF) is the exclusive responsibility of the financial operator utilizing the API.",
     "cta": {
       "title": "Active Audit Requirements?",
       "subtitle": "Export the cryptographic record of your infrastructure in seconds.",
@@ -2601,7 +2601,7 @@
     },
     "hub": {
       "title": "Telemetry Hub",
-      "subtitle": "102 Endpoints architected strictly for institutional autonomous routing and forensic export (for operators subject to Fintech Law).",
+      "subtitle": "Every route below exists on both nodes, checked on 12 Nov 2026: 200 where it is public, 400 or 401 where it needs parameters or a key, 402 where it needs payment, 501 where the mainnet node does not offer it, 451 for Payouts and Treasury from a jurisdiction where they are not offered.",
       "infrastructure": "Core B2B Infrastructure",
       "explorer": "Compliance Explorer",
       "subsystems": "+18 Modular subsystems for Institutional Orchestration"
@@ -2678,14 +2678,14 @@
       "crypto_example": "Stablecoin bridge",
       "nirium": "Nirium + Etherfuse",
       "total_to_user": "Net Liquidity",
-      "explanation": "The USDC ↔ CETES corporate corridor via Etherfuse optimizes B2B treasury. Nirium provides the software infrastructure (flat license fee). Etherfuse charges ~0.20% for CETES execution. The Regulated Partner (ITF/casa de bolsa) sets and collects all financial commissions independently."
+      "explanation": "Nirium provides the software (flat license fee). Etherfuse issues and redeems tokenized CETES under its own terms and fees; Nirium never receives, holds or converts funds."
     },
     "paths": {
       "title": "Two B2B integration flows",
       "path1": {
         "label": "Flow 1",
         "title": "Fintech Onramp (Operators)",
-        "desc": "For regulated fintechs operating fiat-to-crypto flows. Provisioning via Etherfuse with full institutional KYC and reception in corporate wallets.",
+        "desc": "If you start from pesos: you contract directly with Etherfuse, an independent operator, send MXN by SPEI and receive the token in your wallet. Nirium only shows you the instructions.",
         "item1": "KYC is performed by Etherfuse, not Nirium",
         "item2": "You contract with and transfer directly to Etherfuse",
         "item3": "Auditable logs & exports"
@@ -2733,7 +2733,7 @@
   },
   "legal": {
     "disclaimer_short": "Nirium is experimental software on Stellar Testnet. Not financial advice. No yields, dividends, or returns guaranteed. Use at your own risk.",
-    "disclaimer_full": "Nirium is software-only, non-custodial infrastructure and never holds client funds. Non-custodial settlement (x402), audit anchoring and reporting run on Stellar mainnet; autonomous rebalancing runs on mainnet over DeFindex vaults the client owns, invite-only until we have a written legal opinion; NiriumVault, Nirium's own contract, runs on Stellar testnet, audit-gated, until a formal external audit. MPP Charge is experimental and not available on mainnet. Nirium is not financial advice, not an investment product, and not a regulated financial activity. It does not guarantee yields, dividends, asset appreciation, or returns of any kind. Reference rate data displayed (e.g., Etherfuse CETES) is public reference information only — not projections or promises of return. XLM and Stellar assets are volatile. Financial services are provided by regulated partners, not by Nirium.",
+    "disclaimer_full": "Nirium is software-only, non-custodial infrastructure and never holds client funds. Non-custodial settlement (x402), audit anchoring and reporting run on Stellar mainnet. Treasury rebalancing is deployed on mainnet, invite-only until we have a written legal opinion, and so far has only run with the team's own funds (4 rebalances on 6 Aug 2026). NiriumVault, Nirium's own contract, runs on Stellar testnet, audit-gated, until a formal external audit. MPP Charge is experimental and not available on mainnet. Nirium is not financial advice and not an investment product, and it holds no financial licence or authorization. It does not guarantee yields, dividends, asset appreciation, or returns of any kind. Reference rate data displayed (e.g., Etherfuse CETES) is public reference information only - not projections or promises of return. XLM and Stellar assets are volatile. Financial services are provided by independent third parties, not by Nirium.",
     "rate_disclaimer": "Protocol reference rate only. Not a return projection or guarantee.",
     "non_custodial": "Non-custodial. You hold the keys.",
     "testnet_only": "Testnet only. No real funds.",

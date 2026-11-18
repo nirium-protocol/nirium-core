@@ -175,16 +175,16 @@ export default function TreasuryPlainTerms() {
                                 icon: FileCheck,
                                 title: lang('Every move, recorded', 'Cada movimiento, registrado'),
                                 body:  lang(
-                                    'Every action is signed and archived automatically. Export for auditors in one click. Always ready for regulators.',
-                                    'Cada acción queda firmada y archivada automáticamente. Exporta para auditores en un clic. Siempre listo para reguladores.'),
+                                    'Every action is signed and archived automatically. Export for auditors in one click.',
+                                    'Cada acción queda firmada y archivada automáticamente. Exporta para auditores en un clic.'),
                                 link: '/compliance',
                             },
                             {
                                 icon: Building2,
                                 title: lang('Etherfuse converts your MXN — we never touch it', 'Etherfuse convierte tus MXN — nosotros nunca los tocamos'),
                                 body:  lang(
-                                    'To get tokenized CETES you contract directly with Etherfuse, a regulated operator: you send MXN to their CLABE and they issue the token to your wallet. Nirium never receives, holds or converts fiat — we only show you the instructions and read the resulting balance. Sandbox today.',
-                                    'Para tener CETES tokenizados contratas directamente con Etherfuse, operador regulado: tú envías MXN a su CLABE y ellos emiten el token a tu wallet. Nirium nunca recibe, sostiene ni convierte fiat — solo te muestra las instrucciones y lee el saldo resultante. Hoy en sandbox.'),
+                                    'To get tokenized CETES you contract directly with Etherfuse, an independent operator: you send MXN to their CLABE and they issue the token to your wallet. Nirium never receives, holds or converts fiat — we only show you the instructions and read the resulting balance. Sandbox today.',
+                                    'Para tener CETES tokenizados contratas directamente con Etherfuse, operador independiente: tú envías MXN a su CLABE y ellos emiten el token a tu wallet. Nirium nunca recibe, sostiene ni convierte fiat — solo te muestra las instrucciones y lee el saldo resultante. Hoy en sandbox.'),
                                 link: '/ramp',
                             },
                         ].map((feature) => (

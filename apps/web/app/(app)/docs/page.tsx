@@ -851,7 +851,7 @@ function BuilderSection() {
                     </div>
                     <div>
                         <div className="text-stellar-yellow font-bold mb-1">Always Auditable</div>
-                        <p className="text-xs text-gray-500">Every run saved on IPFS — forever, tamper-proof.</p>
+                        <p className="text-xs text-gray-500">Every run saved on IPFS, where any later change shows.</p>
                     </div>
                     <div>
                         <div className="text-stellar-yellow font-bold mb-1">Multi-Coin</div>
@@ -1573,7 +1573,7 @@ function SecuritySection() {
                             Institutional Integrity & Governance
                         </h2>
                         <p className="text-gray-400 leading-relaxed mb-6">
-                            Nirium Protocol operates under the highest integrity standards of the Stellar ecosystem: every action logged, cryptographically chained, and independently verifiable — the evidence layer regulated operators need to run their own compliance process, without building it themselves.
+                            Every action can be logged, hashed and anchored to IPFS, so anyone can check it later without trusting us.
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-black/40 p-4 rounded-xl border border-white/5">
