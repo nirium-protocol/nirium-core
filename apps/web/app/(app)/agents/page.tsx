@@ -91,8 +91,8 @@ export default function AgentsPage() {
                 "Batch USDC/XLM payment (≤100 recipients) + USDC trustline the recipient adds and signs itself",
                 "Pago batch USDC/XLM (≤100 destinatarios) + trustline USDC que el propio destinatario agrega y firma"),
             audit: lang(
-                "Immutable IPFS receipt per run (optional LCP legal layer - pending a legal opinion)",
-                "Recibo IPFS inmutable por corrida (capa legal LCP opcional - pendiente de opinión legal)"),
+                "Tamper-evident IPFS receipt per run (optional LCP legal layer - pending a legal opinion)",
+                "Recibo IPFS por corrida donde cualquier cambio se nota (capa legal LCP opcional - pendiente de opinión legal)"),
             metric: lang(
                 "Mainnet early access · independent service payments only · Freighter-signed",
                 "Mainnet early access · solo pagos de servicios independientes · firmado con Freighter"),
@@ -175,8 +175,8 @@ export default function AgentsPage() {
                 "Audit Node",
                 "Nodo de Auditoría"),
             role: lang(
-                "Anchors a record to IPFS as an immutable, publicly verifiable receipt when the caller asks for it (opt-in per call), and powers institutional-format exports. Optional Legal Context Protocol layer, pending a legal opinion.",
-                "Ancla un registro a IPFS como recibo inmutable y públicamente verificable cuando quien llama lo pide (opcional por llamada), y alimenta exportes con formato institucional. Capa opcional Legal Context Protocol, pendiente de opinión legal."),
+                "Anchors a record to IPFS as a tamper-evident, publicly verifiable receipt when the caller asks for it (opt-in per call), and powers institutional-format exports. Optional Legal Context Protocol layer, pending a legal opinion.",
+                "Ancla un registro a IPFS como recibo públicamente verificable, donde cualquier cambio posterior se nota, cuando quien llama lo pide (opcional por llamada), y alimenta exportes con formato institucional. Capa opcional Legal Context Protocol, pendiente de opinión legal."),
             cycle: lang("On request", "Bajo demanda"),
             trigger: lang("A POST /api/audit/log call, opt-in per call", "Una llamada POST /api/audit/log, opcional en cada llamada"),
             authorized: lang(

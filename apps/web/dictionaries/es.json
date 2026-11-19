@@ -496,7 +496,7 @@
       },
       "archive": {
         "title": "Registros Perfectos",
-        "desc": "Cada movimiento queda guardado para siempre. Listo para compartirlo con tu auditor."
+        "desc": "Ancla cualquier movimiento y obtén un recibo que cualquiera puede comprobar. Listo para compartirlo con tu auditor."
       }
     },
     "elo_title_1": "AUDITORÍA DE AGENTES",
@@ -511,7 +511,7 @@
     "contracts_subtitle": "Infraestructura descentralizada verificable. Audita en tiempo real los 2 contratos inteligentes principales que operan el protocolo en Stellar.",
     "contract_role_vault": "Custodia multifirma (Non-Custodial)",
     "contract_role_sentinel": "Motor de validación de invariantes",
-    "contract_role_elo": "Registro inmutable de reputación",
+    "contract_role_elo": "Registro de reputación en cadena",
     "contract_role_marketplace": "Registro de estrategias de ejecución",
     "contract_role_settlement": "Motor de liquidación x402 y MPP",
     "sdk_title_1": "INTEGRACIÓN",
@@ -579,7 +579,7 @@
       },
       "analytics": {
         "title": "Audit Trail On-Chain",
-        "desc": "Registros inmutables anclados en IPFS, listos para integraciones de reportería y auditorías institucionales."
+        "desc": "Registros anclados en IPFS donde cualquier cambio posterior se nota, listos para integraciones de reportería y auditorías institucionales."
       },
       "agents": {
         "title": "Ejecución 24/7",
@@ -697,7 +697,7 @@
           },
           "forensic_treasury": {
             "name": "Hub de Auditoría de Tesorería",
-            "tagline": "Monitoreo de tesorería corporativa inmutable en tiempo real. Usa el Audit Trail (IPFS) para generar reportes exportables bajo demanda.",
+            "tagline": "Monitoreo de tesorería corporativa con recibos que delatan cualquier cambio. Usa el Audit Trail (IPFS) para generar reportes exportables bajo demanda.",
             "stack": [
               "Webhooks",
               "Audit Trail"
@@ -844,7 +844,7 @@
           },
           "audit": {
             "label": "Audit Trail",
-            "desc": "Ancla registros inmutables en IPFS."
+            "desc": "Ancla el hash de un registro en IPFS; cualquier cambio posterior se nota."
           },
           "payroll": {
             "label": "Payouts",
@@ -1354,7 +1354,7 @@
         },
         "payroll": {
           "title": "Dispersiones y Payouts",
-          "desc": "Dispersa una tesorería a hasta 100 destinatarios en un lote firmado - non-custodial, con recibo IPFS inmutable por corrida."
+          "desc": "Dispersa una tesorería a hasta 100 destinatarios en un lote firmado - non-custodial, con un recibo IPFS por corrida donde cualquier cambio posterior se nota."
         }
       },
       "transactions_title": "Traza de Auditoría (Stellar)",
@@ -1405,7 +1405,7 @@
           "items": [
             "Base de datos cloud para estado de esquemas y logs",
             "Caché local para lecturas UI de baja latencia",
-            "IPFS para registros de auditoría inmutables",
+            "IPFS para registros de auditoría donde cualquier cambio se nota",
             "Sincronización triple mantenida de forma continua"
           ]
         },
@@ -1520,7 +1520,7 @@
       "run_title": "Qué Desencadena 'Ejecutar'",
       "run_desc": "Todas las operaciones se ejecutan como una unidad atómica - si algún paso falla, el esquema completo se revierte. Sin estado parcial.",
       "run_items": {
-        "ipfs": "Esquema comprometido en IPFS para registro de auditoría inmutable",
+        "ipfs": "Esquema anclado en IPFS como registro de auditoría donde cualquier cambio se nota",
         "export": "Exportación JSON para inspección externa o compartir",
         "rails": "Riel de pago: on-chain (el tramo fiat lo opera Etherfuse)"
       },
@@ -1529,7 +1529,7 @@
         "timing": "Lógica de Disparo: Por calendario, webhook o evento on-chain de Stellar",
         "brain": "Motor Estratégico: Delegar decisiones al nodo; facturación x402 por llamada API",
         "work": "Despliegue de Capital: Suministrar liquidez o liquidar cargos MPP por request",
-        "storage": "Capa de Cumplimiento: Almacenamiento seguro, log IPFS inmutable de operaciones",
+        "storage": "Capa de Cumplimiento: Almacenamiento seguro, log de operaciones en IPFS donde cualquier cambio se nota",
         "checks": "Controles de Riesgo: Alertar umbrales, aplicar límites, notificaciones webhook"
       },
       "why_title": "Ventajas del Protocolo",
@@ -1543,7 +1543,7 @@
           "desc": "Operaciones Stellar se ejecutan atómicamente."
         },
         "audit": {
-          "title": "Auditabilidad Inmutable",
+          "title": "Auditabilidad Verificable",
           "desc": "Historial de ejecución en IPFS donde cualquier cambio se nota."
         },
         "multi": {
@@ -1620,7 +1620,7 @@
       "security_checklist": {
         "ssl": "SSL TLS 1.3",
         "encryption": "Encriptación AES-256 en reposo",
-        "ipfs": "Registro de auditoría IPFS inmutable",
+        "ipfs": "Registro de auditoría en IPFS donde cualquier cambio se nota",
         "soc2": "Registro de auditoría verificable por terceros"
       },
       "contracts_title": "Direcciones de Contratos Inteligentes",
@@ -1855,13 +1855,13 @@
         }
       },
       "recording": {
-        "title": "Registro de Eventos Inmutable",
+        "title": "Registro de Eventos Verificable",
         "desc": "Todas las transacciones de Nirium son públicamente verificables en el libro de Stellar. Los logs off-chain están firmados criptográficamente y almacenados de forma independiente.",
         "proof": "Cualquier cambio se nota, por construcción criptográfica"
       },
       "ipfs": {
-        "title": "Registro de Auditoría Inmutable (IPFS)",
-        "desc": "Las cadenas de decisión de los nodos son transparentes. Cada paso de razonamiento y acción de ejecución se compromete permanentemente en IPFS - reconstruible en cualquier momento.",
+        "title": "Registro de Auditoría Verificable (IPFS)",
+        "desc": "Las cadenas de decisión de los nodos no se esconden. Cuando una corrida se ancla, sus decisiones y acciones van a IPFS como un registro que cualquiera puede comprobar contra su CID: si cambia después, ya no coincide.",
         "items": [
           "Los registros no pueden ser modificados post-compromiso",
           "Cada registro está firmado por la clave criptográfica del nodo",
@@ -1895,7 +1895,7 @@
             {
               "id": "03",
               "name": "IPFS (Protocol Archive)",
-              "desc": "El reporte completo se sube a IPFS. Recibes un CID inmutable. Cualquier auditor o regulador puede verificar el reporte sin tu intervención."
+              "desc": "El reporte completo se sube a IPFS y recibes su CID. Si el reporte cambia, ya no coincide con ese CID. Cualquier auditor o regulador puede verificar el reporte sin tu intervención."
             },
             {
               "id": "04",
@@ -1929,7 +1929,7 @@
         },
         {
           "name": "Hub de Auditoría de Tesorería",
-          "desc": "Monitoreo de tesorería corporativa inmutable en tiempo real. Usa Protocol Archive (IPFS) para generar reportes exportables bajo demanda.",
+          "desc": "Monitoreo de tesorería corporativa con recibos que delatan cualquier cambio. Usa Protocol Archive (IPFS) para generar reportes exportables bajo demanda.",
           "diff": "Standard",
           "code": "// Rastro de auditoría vía IPFS\nvault.onEvent(async (e) => {\n  const cid = await ipfs.pin(e.signature);\n  await elo.verify(cid);\n});"
         },
@@ -2103,7 +2103,7 @@
           "description": "AJUSTA DINÁMICAMENTE LAS POSICIONES EN POOLS DE LIQUIDEZ PARA MINIMIZAR IMPERMANENT LOSS Y OPTIMIZAR GENERACIÓN DE FEES."
         },
         "ipfs-blackbox-logger": {
-          "name": "Logger Inmutable en IPFS",
+          "name": "Logger Verificable en IPFS",
           "description": "REGISTRA PRUEBAS CRIPTOGRÁFICAS DE CADA ACCIÓN ON-CHAIN EN IPFS PARA AUDITORÍAS."
         }
       }
@@ -2308,7 +2308,7 @@
       "title": "AUDITORÍA DE CUMPLIMIENTO",
       "subtitle": "INTEGRIDAD DE RED (ON-CHAIN)",
       "wallets_ready": "BÓVEDAS CORPORATIVAS ASEGURADAS",
-      "record_status": "Logging Inmutable & Ético: ACTIVO"
+      "record_status": "Logging Verificable & Ético: ACTIVO"
     }
   },
   "ramp": {
@@ -2374,7 +2374,7 @@
   "agents": {
     "title": "INFRAESTRUCTURA DE NODOS B2B",
     "subtitle": "Todos los eventos de ejecución están anclados criptográficamente en un {strong}. Infraestructura 100% auditable, verificable on-chain.",
-    "permanent_record_strong": "registro inmutable de auditoría",
+    "permanent_record_strong": "registro de auditoría donde cualquier cambio se nota",
     "status_online": "SISTEMA OPERATIVO: {v} // SEGURO",
     "stellar_connection": "Nodo Stellar RPC",
     "latency": "Latencia de Ejecución",
@@ -2384,7 +2384,7 @@
       "connection": "Enlace de Red",
       "engine": "Motor de Ejecución (Soroban)",
       "storage": "Almacenamiento Criptográfico",
-      "record": "Registro Inmutable",
+      "record": "Registro Verificable",
       "running": "OPERATIVO",
       "protected": "PROTEGIDO",
       "measuring": "evaluando latencia...",
@@ -2395,12 +2395,12 @@
       "moves_per_minute": "TRANSACCIONES POR MINUTO (TELEMETRÍA EN VIVO)"
     },
     "record_panel": {
-      "title": "LOG DE AUDITORÍA INMUTABLE",
+      "title": "LOG DE AUDITORÍA VERIFICABLE",
       "desc": "Las operaciones que decides anclar se escriben en IPFS. Cada registro se identifica por su contenido, así que cualquier cambio posterior se nota, y una firma opcional dice quién lo registró.",
       "saved": "Eventos Indexados",
       "lives": "Capa de Persistencia",
       "how_long": "Periodo de Retención",
-      "forever": "Permanente e Inmutable"
+      "forever": "Comprobable contra su CID"
     },
     "console": {
       "title": "Consola de Aprovisionamiento",
