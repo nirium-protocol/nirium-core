@@ -80,8 +80,8 @@ flowchart TB
 
 | Product | Status |
 |---|---|
-| x402 | Live on mainnet ([last settled payment 29 Sep 2026](https://stellar.expert/explorer/public/account/GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP)) |
-| Audit Trail | Live on mainnet (last anchor 12 Nov 2026) |
+| x402 | Live on mainnet ([last settled payment 18 Nov 2026](https://stellar.expert/explorer/public/account/GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP)) |
+| Audit Trail | Live on mainnet (last anchor 18 Nov 2026) |
 | Reporting | Live on mainnet |
 | Treasury Rebalance | Mainnet, invite-only (4 self-funded rebalances, last 6 Aug 2026) |
 | Payouts | Mainnet, invite-only (no mainnet runs yet) |
@@ -413,7 +413,7 @@ Verifiable at [Stellar Expert](https://stellar.expert/explorer/public).
 ## Side Projects
 
 ### /build: Startup Ideas Hub
-Interactive dashboard with 12 production-ready startup ideas buildable on the Nirium API and SDKs, with code examples in TypeScript, Python, cURL, and MCP.
+Interactive dashboard with 12 startup ideas buildable on the Nirium API and SDKs, with code examples in TypeScript, Python, cURL, and MCP.
 
 Live: [nirium.xyz/build](https://nirium.xyz/build)
 
