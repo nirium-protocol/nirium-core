@@ -12,7 +12,7 @@ const USE_CASES = [
     },
     {
         title: "Recibos de auditoría verificables",
-        body: "Cada pago puede anclar evidencia inmutable en IPFS, útil para cualquier socio de Pollar que necesite mostrar cumplimiento sin construir esa pieza desde cero.",
+        body: "Cada pago puede anclar evidencia en IPFS donde cualquier cambio posterior se nota, útil para cualquier socio de Pollar que necesite mostrar cumplimiento sin construir esa pieza desde cero.",
     },
     {
         title: "Liquidación entre agentes, dentro de apps de consumo",

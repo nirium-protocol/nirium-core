@@ -7,6 +7,10 @@
 > the binding Cámara de Comercio de la Ciudad de México clause of the
 > previous text. Governing law (§6, Mexico) is unchanged.
 >
+> **Updated 19 November 2026:** §5 says the IPFS receipt is tamper-evident (a
+> changed record no longer matches its hash), not immutable, and that the payment
+> itself is shown by the Stellar ledger. The `atrHash` in the discovery file was recomputed.
+>
 > This document is the reference artifact for the Legal Context Protocol
 > (LCP · https://legalcontextprotocol.org). Its SHA-256 is the LCP `atrHash`
 > published at `/.well-known/legal-context.json`. **If this text changes, the
@@ -55,12 +59,14 @@ skipped and are not paid. Skipping is a safety control, not an error.
 
 ## 5. Records and integrity (IPFS + LCP)
 
-For every settled run, Nirium anchors an **immutable IPFS receipt** containing the
-per-recipient breakdown, totals, network, and transaction hash, together with a
-**SHA-256 content hash** of that record. These terms are bound to that receipt via
-the LCP `atrHash`, which identifies the exact version of this document in force at
-the time of the transaction. The IPFS receipt proves *what* was paid; this
-document and its `atrHash` prove *under which terms*.
+For every settled run, Nirium anchors a **tamper-evident IPFS receipt** containing
+the per-recipient breakdown, totals, network, and transaction hash, together with a
+**SHA-256 content hash** of that record. If the record is changed, it no longer
+matches its hash or CID; anchoring does not stop anyone from changing a copy. The
+payment itself (payer, recipient, amount, transaction hash) is already public on
+the Stellar ledger. These terms are bound to that receipt via the LCP `atrHash`,
+which identifies the exact version of this document in force at the time of the
+transaction: this document and its `atrHash` show *under which terms*.
 
 ## 6. Governing law
 

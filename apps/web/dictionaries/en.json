@@ -496,7 +496,7 @@
       },
       "archive": {
         "title": "Perfect Records",
-        "desc": "Every move is saved forever. Ready to share with your auditor."
+        "desc": "Anchor any move and get a receipt anyone can check. Ready to share with your auditor."
       }
     },
     "elo_title_1": "AGENT AUDIT",
@@ -511,7 +511,7 @@
     "contracts_subtitle": "Verifiable decentralized infrastructure. Real-time audit of the 2 core smart contracts operating the protocol on Stellar.",
     "contract_role_vault": "Non-Custodial Multisig Vault",
     "contract_role_sentinel": "Invariant validation engine",
-    "contract_role_elo": "Immutable reputation registry",
+    "contract_role_elo": "On-chain reputation registry",
     "contract_role_marketplace": "Execution strategy registry",
     "contract_role_settlement": "x402 and MPP settlement engine",
     "sdk_title_1": "NATIVE",
@@ -579,7 +579,7 @@
       },
       "analytics": {
         "title": "On-Chain Audit Trail",
-        "desc": "Immutable records anchored to IPFS, ready for institutional audits and reporting integrations."
+        "desc": "Tamper-evident records anchored to IPFS, ready for institutional audits and reporting integrations."
       },
       "agents": {
         "title": "24/7 Execution",
@@ -697,7 +697,7 @@
           },
           "forensic_treasury": {
             "name": "Treasury Audit Hub",
-            "tagline": "Real-time, immutable corporate treasury monitoring. Uses the Audit Trail (IPFS) to generate exportable audit reports on demand.",
+            "tagline": "Corporate treasury monitoring with tamper-evident receipts. Uses the Audit Trail (IPFS) to generate exportable audit reports on demand.",
             "stack": [
               "Webhooks",
               "Audit Trail"
@@ -844,7 +844,7 @@
           },
           "audit": {
             "label": "Audit Trail",
-            "desc": "Anchor immutable records to IPFS."
+            "desc": "Anchor a record's hash to IPFS; any later change shows."
           },
           "payroll": {
             "label": "Payouts",
@@ -1354,7 +1354,7 @@
         },
         "payroll": {
           "title": "Payouts & Disbursements",
-          "desc": "Fan-out one treasury to up to 100 recipients in a signed batch - non-custodial, with an immutable IPFS receipt per run."
+          "desc": "Fan-out one treasury to up to 100 recipients in a signed batch - non-custodial, with a tamper-evident IPFS receipt per run."
         }
       },
       "transactions_title": "Audit Trail (Stellar)",
@@ -1520,7 +1520,7 @@
       "run_title": "What \"Execute\" Triggers",
       "run_desc": "All operations execute as a single atomic unit - if any step fails, the entire schema reverts. No partial state.",
       "run_items": {
-        "ipfs": "Schema committed to IPFS for immutable audit record",
+        "ipfs": "Schema anchored to IPFS as a tamper-evident audit record",
         "export": "JSON export for external inspection or sharing",
         "rails": "SPEI / on-chain payment rail selection"
       },
@@ -1529,7 +1529,7 @@
         "timing": "Trigger Logic: Schedule-based, webhook-driven, or Stellar event-triggered",
         "brain": "Strategic Engine: Delegate decisions to node; x402 billed per API call",
         "work": "Capital Deployment: Supply liquidity or settle MPP charges per request",
-        "storage": "Compliance Layer: Secure storage, IPFS immutable log of all operations",
+        "storage": "Compliance Layer: Secure storage, tamper-evident IPFS log of operations",
         "checks": "Risk Controls: Flag threshold breaches, enforce limits, webhook alerts"
       },
       "why_title": "Protocol Advantages",
@@ -1543,7 +1543,7 @@
           "desc": "Stellar operations execute atomically behind the schema."
         },
         "audit": {
-          "title": "Immutable Auditability",
+          "title": "Verifiable Auditability",
           "desc": "Tamper-evident IPFS execution history."
         },
         "multi": {
@@ -1620,7 +1620,7 @@
       "security_checklist": {
         "ssl": "SSL TLS 1.3",
         "encryption": "AES-256 encryption at rest",
-        "ipfs": "Permanent IPFS audit log",
+        "ipfs": "Tamper-evident IPFS audit log",
         "soc2": "Third-party verifiable audit trail"
       },
       "contracts_title": "Smart Contract Addresses",
@@ -1855,13 +1855,13 @@
         }
       },
       "recording": {
-        "title": "Immutable Event Log",
+        "title": "Tamper-Evident Event Log",
         "desc": "All Nirium transactions are publicly verifiable on the Stellar ledger. Off-chain logs are cryptographically signed and stored independently.",
         "proof": "Tamper-evident by cryptographic construction"
       },
       "ipfs": {
-        "title": "Immutable Audit Record (IPFS)",
-        "desc": "Node decision chains are not hidden. Every reasoning step and execution action is permanently committed to IPFS - fully reconstructable at any time.",
+        "title": "Tamper-Evident Audit Record (IPFS)",
+        "desc": "Node decision chains are not hidden. When a run is anchored, its decisions and actions go to IPFS as a record anyone can check against its CID: if it changes later, it no longer matches.",
         "items": [
           "Records cannot be modified post-commitment",
           "Each record signed by the node's cryptographic key",
@@ -1895,7 +1895,7 @@
             {
               "id": "03",
               "name": "IPFS (Protocol Archive)",
-              "desc": "The complete report is uploaded to IPFS. You receive an immutable CID. Any auditor or regulator can verify the report without your intervention."
+              "desc": "The complete report is uploaded to IPFS and you receive its CID. If the report changes, it no longer matches that CID. Any auditor or regulator can verify the report without your intervention."
             },
             {
               "id": "04",
@@ -1929,7 +1929,7 @@
         },
         {
           "name": "Treasury Audit Hub",
-          "desc": "Real-time, immutable corporate treasury monitoring. Uses Protocol Archive (IPFS) to generate exportable audit reports on demand.",
+          "desc": "Corporate treasury monitoring with tamper-evident receipts. Uses Protocol Archive (IPFS) to generate exportable audit reports on demand.",
           "diff": "Standard",
           "code": "// Audit trail via IPFS\nvault.onEvent(async (e) => {\n  const cid = await ipfs.pin(e.signature);\n  await elo.verify(cid);\n});"
         },
@@ -2103,7 +2103,7 @@
           "description": "DYNAMICALLY ADJUSTS LIQUIDITY POOL POSITIONS TO MINIMIZE IMPERMANENT LOSS AND OPTIMIZE FEE GENERATION."
         },
         "ipfs-blackbox-logger": {
-          "name": "IPFS Immutable Logger",
+          "name": "IPFS Tamper-Evident Logger",
           "description": "COMMITS CRYPTOGRAPHIC PROOFS OF EVERY ON-CHAIN ACTION TO IPFS FOR AUDIT."
         }
       }
@@ -2308,7 +2308,7 @@
       "title": "COMPLIANCE AUDIT",
       "subtitle": "NETWORK INTEGRITY (ON-CHAIN)",
       "wallets_ready": "SECURED CORPORATE VAULTS",
-      "record_status": "Immutable & Ethical Logging: ACTIVE"
+      "record_status": "Tamper-Evident & Ethical Logging: ACTIVE"
     }
   },
   "ramp": {
@@ -2374,7 +2374,7 @@
   "agents": {
     "title": "B2B EXECUTION NODES",
     "subtitle": "All execution events are cryptographically anchored in an {strong}. 100% auditable infrastructure, verifiable on-chain.",
-    "permanent_record_strong": "immutable audit registry",
+    "permanent_record_strong": "tamper-evident audit record",
     "status_online": "SYSTEM OPERATIONAL: {v} // SECURE",
     "stellar_connection": "Stellar RPC Node",
     "latency": "Execution Latency",
@@ -2384,7 +2384,7 @@
       "connection": "Network Link",
       "engine": "Execution Engine (Soroban)",
       "storage": "Cryptographic Storage",
-      "record": "Immutable Ledger",
+      "record": "Tamper-Evident Record",
       "running": "OPERATIONAL",
       "protected": "PROTECTED",
       "measuring": "evaluating latency...",
@@ -2395,12 +2395,12 @@
       "moves_per_minute": "TRANSACTIONS PER MINUTE (LIVE TELEMETRY)"
     },
     "record_panel": {
-      "title": "IMMUTABLE AUDIT LOG",
+      "title": "TAMPER-EVIDENT AUDIT LOG",
       "desc": "Operations you choose to anchor are written to IPFS. Each record is content-addressed, so any later change shows, and an optional signature says who recorded it.",
       "saved": "Events Indexed",
       "lives": "Persistence Layer",
       "how_long": "Retention Period",
-      "forever": "Permanent & Immutable"
+      "forever": "Checkable against its CID"
     },
     "console": {
       "title": "Provisioning Console",

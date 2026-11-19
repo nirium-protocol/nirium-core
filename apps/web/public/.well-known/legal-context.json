@@ -1,8 +1,8 @@
 {
-  "x-status": "governing law (§6, Mexico) and dispute resolution (§7, courts of Mexico City; arbitration only by written agreement) match Terms §5 product-wide; §2 says \"independent\" third-party operators since 2026-11-16",
+  "x-status": "governing law (§6, Mexico) and dispute resolution (§7, courts of Mexico City; arbitration only by written agreement) match Terms §5 product-wide; §2 says \"independent\" third-party operators since 2026-11-16; §5 says tamper-evident receipt, not immutable, since 2026-11-19",
   "terms": "https://nirium.xyz/legal/payroll-terms-v1.md",
   "termsFormat": "text/markdown",
-  "atrHash": "sha-256:c84c949791d17a7a1e850d6b5d59cafbddcdfdd93f2ec0a613e00c462302ee11",
+  "atrHash": "sha-256:e3c110bf4d4ab5fcf3acc54cd8dbbeb017db377409f09bf0512d54c681c0b423",
   "acceptanceRequired": false,
   "disputeResolution": {
     "clauseId": "NIRIUM-TERMS-S5",
