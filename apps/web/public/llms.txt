@@ -9,13 +9,13 @@
 - MPP Charge (Machine Payments Protocol): experimental, verified on testnet, untested on mainnet. For paid access on mainnet, use x402.
 - NiriumVault, Nirium's own contract, stays on testnet until an external audit.
 
-## Packages (versions checked 2026-11-16)
-- npm: nirium 0.19.6, nirium-mcp 0.6.8, nirium-cli 3.2.4, nirium-pollar-adapter 0.6.5
-- PyPI: nirium 0.12.6
+## Packages (versions checked 2026-11-20)
+- npm: nirium 0.19.6, nirium-mcp 0.6.9, nirium-cli 3.2.6, nirium-pollar-adapter 0.6.5
+- PyPI: nirium 0.12.7
 
 ## CLI (nirium-cli)
 - `nirium anchor --hash <hex> | --file <path> | --record <json>`: anchor to IPFS via an Audit Trail node; `--sign --key-env <VAR>` adds an ed25519 attestation.
-- `nirium verify <cid>`: checks hash and signature locally; tries several IPFS gateways in order.
+- `nirium verify <cid>`: checks hash and signature locally; tries several IPFS gateways in order. `--require-signature` (3.2.6+) fails any document without a valid agent signature.
 - `nirium report summary` / `nirium report export anchors|payments|payroll`: your own records from the Reporting node (not certified regulatory reporting).
 
 ## Links

@@ -557,6 +557,12 @@ $ npx nirium-cli verify QmaofB6naeySxZsgA4R4p8YWzz3fujTitAa1ndJ1PQjbme --evidenc
                                     "Firmado con una llave de testnet desechable generada para esta página (GBJYCLT2AEWUTDKRETUTYHNNEH45QL4B6TFY6GKLKT4KQ57SHMSE7LFL). Corre npx nirium-cli verify sobre este CID, sin flags."
                                 )}
                             />
+                            <p>
+                                {lang(
+                                    "An unsigned record still passes on its recomputed hash, with the signature reported as ABSENT. If you only trust receipts your agents signed, add --require-signature (nirium-cli 3.2.6 or newer): an unsigned document then fails.",
+                                    "Un record sin firma igual pasa por su hash recalculado, con la firma reportada como ABSENT. Si solo confías en recibos firmados por tus agentes, agrega --require-signature (nirium-cli 3.2.6 o más nuevo): un documento sin firma entonces falla."
+                                )}
+                            </p>
 
                             <p className="!mb-2 !mt-8"><strong className="text-white">{lang("Anchor from the terminal (nirium-cli 3.1.0+).", "Anclar desde la terminal (nirium-cli 3.1.0 o más nuevo).")}</strong></p>
                             <p>
