@@ -358,9 +358,9 @@ An invalid signature returns **400 and nothing is anchored**: IPFS has no delete
 | Python | [nirium (PyPI)](https://pypi.org/project/nirium/) | 0.12.7 | `pip install nirium` |
 | MCP server | [nirium-mcp (npm)](https://www.npmjs.com/package/nirium-mcp) | 0.6.9 | `npx nirium-mcp` |
 | Pollar adapter | [nirium-pollar-adapter (npm)](https://www.npmjs.com/package/nirium-pollar-adapter) | 0.6.5 | `npm install nirium-pollar-adapter` |
-| CLI | [nirium-cli (npm)](https://www.npmjs.com/package/nirium-cli) | 3.2.5 | `npm install -g nirium-cli` |
+| CLI | [nirium-cli (npm)](https://www.npmjs.com/package/nirium-cli) | 3.2.6 | `npm install -g nirium-cli` |
 
-Versions checked against the npm and PyPI registries on 19 Nov 2026. These packages are released from [nirium-protocol/nirium](https://github.com/nirium-protocol/nirium).
+Versions checked against the npm and PyPI registries on 20 Nov 2026. These packages are released from [nirium-protocol/nirium](https://github.com/nirium-protocol/nirium).
 
 > The two SDKs share full Treasury parity (12 methods, `proposeTreasuryRebalance()`/`propose_treasury_rebalance()` included) since 10-sep-2026. `x402Serve()` stays TypeScript-only - it's Express middleware, server-side Node, with no meaningful equivalent in an async Python client. Going the other way, Python ships a resilient, auto-reconnecting WebSocket client (backoff, jitter, dedup) and a LangChain `BaseTool` (`pip install nirium[langchain]`) that TypeScript doesn't have yet - the gap runs both directions, not just one.
 
