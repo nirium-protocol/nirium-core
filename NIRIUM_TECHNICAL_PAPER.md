@@ -40,7 +40,7 @@ Layer 2 - Intelligence & API
 Layer 3 - Settlement
   Soroban Smart Contracts (2 deployed: NiriumVault + NiriumProtocol, Testnet, audit-gated)
   Stellar SDEX / Soroswap / Blend
-  Audit Storage (HMAC-SHA256 signed immutable records, anchored to IPFS)
+  Audit Storage (tamper-evident records anchored to IPFS, optionally ed25519-signed; HMAC-SHA256 is used for webhooks)
   Supabase (persistence layer)
 ```
 

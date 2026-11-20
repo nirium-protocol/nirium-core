@@ -34,7 +34,7 @@ This is the full Nirium monorepo: the Soroban contracts, the nirium.xyz web app,
 | # | Node | Status | Network | What it does |
 |---|---|---|---|---|
 | 1 | **Settlement** (x402 active; MPP Charge experimental) | x402 ✅ Active · MPP ⚠️ Experimental | both | Per-request micropayments for AI agents. Pay for others' APIs with `initX402()` today - x402 has confirmed mainnet settlements (see the evidence table below). MPP Charge is implemented but experimental: verified on testnet on 15 Oct 2026 with settled payments in pull and push mode (it had rejected a valid payment on 1 Oct); mainnet is unverified. **Update, 2026-10-07:** this previously said charging for your own with `x402Serve()` was invite-only, same gate as Treasury and Payouts - there is no such gate. `x402Serve()` is a general-purpose library that runs on the integrator's own server; Nirium does not operate or gate it. Third-party use is an open legal question, with no written legal opinion yet - compliance is the integrator's own responsibility. |
-| 2 | **Audit Trail** | ✅ Active | both | Evidence anchored to IPFS as immutable receipts, optionally **signed by the agent that produced it** (ed25519 over a domain-separated statement), so the CID proves not just *that* a fact is unaltered but *who declared it*. |
+| 2 | **Audit Trail** | ✅ Active | both | Evidence anchored to IPFS as tamper-evident receipts (a changed document no longer matches its CID), optionally **signed by the agent that produced it** (ed25519 over a domain-separated statement), so the CID proves not just *that* a fact is unaltered but *who declared it*. |
 | 3 | **Payouts** | ✅ Active (mainnet invite-only) | both | Non-custodial batch disbursements, up to 100 recipients per transaction. Mainnet is invite-only; independent service payments only (contractors, freelancers, B2B); never subordinate-employee salary. A milestone variant (Trustless Work Multi-Release - one contract, a distinct receiver per milestone) runs on testnet: `GET /api/payroll/escrow/info`. |
 | 4 | **Treasury Rebalance** | ✅ Active (mainnet invite-only) | both | Moves idle capital into a CETES strategy and back, on its own, over a **DeFindex vault the client owns**. Live on mainnet, invite-only until a written legal opinion. |
 | 5 | **Reporting** | ✅ Active | both | Institutional-format summaries and CSV/JSON exports over anchored receipts. Read-only; regulatory filings remain the client's responsibility. |
@@ -264,7 +264,7 @@ Fintech / Institution (B2B / A2A)
         |
         v
   [Supabase] ← logs, auth_keys, webhooks, payroll_runs, treasury_vaults, subscriptions
-  [IPFS / Pinata] ← immutable receipts; daily digest of confirmed executions
+  [IPFS / Pinata] ← tamper-evident receipts; daily digest of confirmed executions
 ```
 
 ---
