@@ -563,6 +563,12 @@ $ npx nirium-cli verify QmaofB6naeySxZsgA4R4p8YWzz3fujTitAa1ndJ1PQjbme --evidenc
                                     "Un record sin firma igual pasa por su hash recalculado, con la firma reportada como ABSENT. Si solo confías en recibos firmados por tus agentes, agrega --require-signature (nirium-cli 3.2.6 o más nuevo): un documento sin firma entonces falla."
                                 )}
                             </p>
+                            <p>
+                                {lang(
+                                    "Keep your own copy. A receipt stays on IPFS only while someone pins it. Today Nirium pins every receipt on Pinata; a second copy on Filebase is built but not active until that account is on a paid plan (GET /api/audit/info shows the live state). The anchor response includes the exact document that was pinned: nirium anchor --save receipt.json writes it, nirium cid receipt.json --expect <CID> shows it is the original (nirium-cli 3.2.7 or newer), and adding those bytes back to IPFS gives the same CID.",
+                                    "Guarda tu propia copia. Un recibo sigue en IPFS solo mientras alguien lo mantenga fijado. Hoy Nirium fija cada recibo en Pinata; una segunda copia en Filebase ya está construida pero no está activa hasta que esa cuenta pase a un plan de pago (GET /api/audit/info muestra el estado en vivo). La respuesta del anclaje incluye el documento exacto que se fijó: nirium anchor --save receipt.json lo guarda, nirium cid receipt.json --expect <CID> muestra que es el original (nirium-cli 3.2.7 o más nuevo), y volver a subir esos bytes a IPFS da el mismo CID."
+                                )}
+                            </p>
 
                             <p className="!mb-2 !mt-8"><strong className="text-white">{lang("Anchor from the terminal (nirium-cli 3.1.0+).", "Anclar desde la terminal (nirium-cli 3.1.0 o más nuevo).")}</strong></p>
                             <p>
