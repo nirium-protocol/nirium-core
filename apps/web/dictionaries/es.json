@@ -41,24 +41,56 @@
     "group_treasury": "TESORERÍA",
     "group_developer": "DESARROLLADORES",
     "product_menu": "Producto",
-    "verifyAudit": "Verificar recibo"
+    "verifyAudit": "Verificar recibo",
+    "stats": "Estadísticas de uso"
   },
   "verifyAudit": {
     "badge": "Audit Trail",
     "title_pre": "Verificar un",
     "title_span": "Audit Trail",
-    "subtitle": "Pega un CID anclado por el Audit Trail Node de Nirium y confirma de forma independiente qué declara, cuándo se ancló y, si el record se recalculó y comparó (no solo se mostró), si todavía coincide.",
+    "subtitle": "Pega un CID anclado por el Audit Trail Node de Nirium y confirma de forma independiente qué declara, cuándo se ancló y, si el registro se recalculó y comparó (no solo se mostró), si todavía coincide.",
     "scope_note": "Esto es una búsqueda de un solo registro, no un feed público de todos los anclajes: un CID que alguien ancló para su propia evidencia (el paquete de auditoría de un tercero, por ejemplo) no está pensado para navegación abierta, así que solo se muestra cuando ya tienes su CID.",
+    "proves_title": "Qué prueba un recibo que el ledger no",
+    "ledger_title": "Stellar ya prueba",
+    "ledger_items": [
+        "Quién le pagó a quién, qué activo y cuánto",
+        "Que lo autorizó quien pagó (su firma)",
+        "Que se liquidó, en qué ledger y a qué hora",
+        "Que nadie lo puede cambiar después",
+        "Una referencia corta, si el pago lleva memo (hasta 28 caracteres o un hash)"
+    ],
+    "receipt_title": "Un recibo agrega",
+    "receipt_items": [
+        "Lo que no cabe en un memo: \"0.02 USDC por GET /signals, petición r-123, respuesta entregada\"",
+        "Un pago que nunca ocurrió: si una política rechaza un cobro de $25, no hay transacción; la decisión se puede anclar como recibo",
+        "Registros que nunca tocan la cadena: la cotización de un socio, la evidencia detrás de la liberación de un escrow, la factura u orden que se pagó, o qué versión de los términos aceptó un usuario",
+        "Evidencia privada: solo su hash es público; el archivo se queda contigo y quien lo reciba puede comprobar que coincide",
+        "Quién responde por él: firmado con la propia llave de Stellar de quien lo declara; cualquiera puede comprobar que lo dijo quien firmó, no Nirium, y si alguien lo cambia después se nota"
+    ],
+    "proves_footer": "Si solo necesitas probar la transferencia, enlaza la transacción. Un recibo muestra que un registro no cambió desde que se ancló; no prueba que lo que dice sea verdad.",
+    "design_notes_link": "Notas de diseño",
+    "planned_label": "PLANEADO · AÚN NO CONSTRUIDO",
+    "planned_title": "Lo que agregará la verificación",
+    "planned_items": [
+        "Anclas en Stellar mismo: cada lote de recibos deja una raíz Merkle en un contrato de Soroban, así un recibo se prueba solo con Stellar y su hora viene del ledger, no del reloj de nuestro servidor",
+        "Recibos de decisiones de política integrados: cada ALLOW o DENY del hook anclado automáticamente, incluidos los pagos rechazados que nunca se firmaron (AgentLedger ya ancla sus propias decisiones a mano)",
+        "Un solo formato de recibo para pagos en Stellar, pagos x402 y liberaciones de escrow",
+        "Conciliación que marca un pago sin recibo, o un recibo sin pago"
+    ],
+    "planned_footer": "Nada de esto está en vivo todavía. Todo lo que está arriba de este recuadro funciona hoy.",
     "input_label": "CID o URL del gateway de IPFS",
     "input_placeholder": "Qm... o https://cualquier-gateway/ipfs/Qm...",
     "button": "Verificar",
     "button_loading": "Verificando…",
     "example_intro": "¿No tienes un CID?",
-    "example_button": "Prueba con un ejemplo",
+    "example_button": "Anclaje de prueba de Nirium",
+    "example_tia_button": "Cotización firmada por un socio",
+    "example_payment_button": "Recibo de un pago (testnet)",
+    "example_refused_button": "Un pago que nunca ocurrió",
     "example_or": "o",
     "example_anchor_link": "ancla el tuyo",
     "example_guide_suffix": "(guía).",
-    "example_note": "El ejemplo es un anclaje de prueba propio de Nirium en mainnet.",
+    "example_note": "El anclaje de prueba es un autotest propio de Nirium en mainnet. La cotización está firmada con la propia llave de TIA en mainnet: un registro que nunca toca la cadena. El recibo de pago es un autotest de Nirium en testnet: su registro solo repite la transacción, por eso la prueba del pago es la transacción misma. El pago que nunca ocurrió es el recibo propio de AgentLedger, en mainnet, de un pago que su política bloqueó: no hay transacción, así que el recibo es el único registro de la decisión.",
     "searching_title": "Buscando este CID en IPFS…",
     "searching_hint": "La propagación del gateway puede tardar de 60 a 90 segundos justo después de anclar. Reintentando automáticamente (intento {attempt}/{max}).",
     "retry_button": "Intentar de nuevo",
@@ -68,18 +100,19 @@
     "error_generic": "Algo salió mal leyendo este registro. Intenta de nuevo.",
     "new_lookup": "Verificar otro CID",
     "result": {
-        "verdict_match": "El record coincide con el hash declarado",
-        "verdict_mismatch": "El record NO coincide con el hash declarado",
-        "verdict_no_record": "Anclaje encontrado, sin record embebido que recalcular",
+        "verdict_match": "El registro coincide con el hash declarado",
+        "verdict_mismatch": "El registro NO coincide con el hash declarado",
+        "verdict_no_record": "Anclaje encontrado, sin registro embebido que recalcular",
         "field_cid": "CID",
         "field_hash": "SHA-256 declarado del contenido",
         "field_network": "Red",
         "field_anchored_at": "Anclado el",
-        "field_tag": "Tag",
+        "field_tag": "Etiqueta",
         "field_schema": "Esquema del documento",
         "field_tx": "Transacción vinculada",
+        "tx_note": "El pago en sí lo prueba esta transacción en Stellar.",
         "no_record_note": "Este anclaje solo declara un hash. La evidencia original vive con quien lo ancló, no dentro de este documento. No hay nada embebido aquí que recalcular; si tienes esa evidencia, compárala abajo sin subirla.",
-        "record_label": "Record embebido",
+        "record_label": "Registro embebido",
         "view_raw": "Ver JSON crudo en IPFS",
         "copy": "Copiar",
         "copied": "Copiado",
@@ -277,7 +310,7 @@
         "h_close": "Ve y compruébalo",
         "close_p1": "Cada link de arriba resuelve a algo que no tienes que creernos por nuestra palabra - un explorador de bloques en vivo, un repositorio público de GitHub, una página de documentación que controla DeFindex, no nosotros. Decodifica la transacción. Lee el contrato. Si algo aquí no resiste como este post dice que resiste, vale la pena saberlo - para ti y para nosotros.",
         "where_label": "Dónde estamos",
-        "where_body": "El Treasury Node de Nirium corre en mainnet como RebalanceManager sobre un vault de DeFindex estructurado para que un cliente lo posea - invite-only mientras se resuelve una pregunta legal específica abierta bajo la ley mexicana de prevención de lavado de dinero (fracción XVI del art. 17 de la LFPIORPI, como la define el art. 24 Bis 4 de sus Reglas de Carácter General) sobre intermediación de activos virtuales, con un camino público firmado por el cliente (propose-and-sign) disponible para cualquiera hoy. x402 liquida en testnet y en mainnet (la liquidación más reciente en mainnet: 29 sep 2026), y el anclaje de auditoría corre en las dos redes. Corrección (20 oct 2026): una versión anterior de este post decía que MPP estaba en vivo en mainnet. MPP Charge solo está verificado en testnet. El rebalanceo de Treasury ha corrido en mainnet 4 veces, el 6 ago 2026, con fondos del propio equipo - el vault de hoy es del propio equipo, autofinanciado, todavía no de un cliente externo. Corregido el 16 nov 2026: este post describía el estatus regulatorio de Etherfuse y de Circle, decía que este flujo convierte USDC en CETES y llamaba a la transacción 'auditada y confirmada en producción'. Esos pasajes se quitaron o se reescribieron: no habíamos verificado nosotros las afirmaciones regulatorias de terceros, la bóveda tiene un solo activo y no convierte, y qué cubrió una auditoría lo dice el auditor."
+        "where_body": "El Treasury Node de Nirium corre en mainnet como RebalanceManager sobre un vault de DeFindex estructurado para que un cliente lo posea - invite-only mientras se resuelve una pregunta legal específica abierta bajo la ley mexicana de prevención de lavado de dinero (fracción XVI del art. 17 de la LFPIORPI, como la define el art. 24 Bis 4 de sus Reglas de Carácter General) sobre intermediación de activos virtuales, con un camino público firmado por el cliente (propose-and-sign) disponible para cualquiera hoy. x402 liquida en testnet y en mainnet (la liquidación más reciente en mainnet: 18 nov 2026), y el anclaje de auditoría corre en las dos redes. Corrección (20 oct 2026): una versión anterior de este post decía que MPP estaba en vivo en mainnet. MPP Charge solo está verificado en testnet. El rebalanceo de Treasury ha corrido en mainnet 4 veces, el 6 ago 2026, con fondos del propio equipo - el vault de hoy es del propio equipo, autofinanciado, todavía no de un cliente externo. Corregido el 16 nov 2026: este post describía el estatus regulatorio de Etherfuse y de Circle, decía que este flujo convierte USDC en CETES y llamaba a la transacción 'auditada y confirmada en producción'. Esos pasajes se quitaron o se reescribieron: no habíamos verificado nosotros las afirmaciones regulatorias de terceros, la bóveda tiene un solo activo y no convierte, y qué cubrió una auditoría lo dice el auditor."
       },
       "x402-outage-verify-it-yourself": {
         "tag": "Liquidación",
@@ -317,7 +350,7 @@
         "h_close": "Ve y compruébalo",
         "close_p1": "Cada link de arriba resuelve a algo que no tienes que creernos por nuestra palabra - un explorador de bloques en vivo, un hilo de issue de GitHub, nuestra propia entrada de devlog con las fechas y la causa raíz explicadas. Decodifica las transacciones. Lee el hilo. Si algo aquí no resiste como este post dice que resiste, vale la pena saberlo - para ti y para nosotros.",
         "where_label": "Dónde estamos",
-        "where_body": "x402 liquida en testnet y en mainnet (la liquidación más reciente en mainnet: 29 sep 2026) - los mismos endpoints, el mismo cliente, el mismo header, nada cambió por este incidente salvo que una falla del lado del facilitador ahora llega a nuestros propios logs en el momento en que ocurre, no después de que alguien más la note primero. Actualización, 2026-10-04 (verificado contra el changelog de nirium 0.16.0 ese día): este párrafo decía originalmente que MPP Charge también corre en vivo en mainnet. Era incorrecto: MPP Charge es experimental y no está disponible en mainnet."
+        "where_body": "x402 liquida en testnet y en mainnet (la liquidación más reciente en mainnet: 18 nov 2026) - los mismos endpoints, el mismo cliente, el mismo header, nada cambió por este incidente salvo que una falla del lado del facilitador ahora llega a nuestros propios logs en el momento en que ocurre, no después de que alguien más la note primero. Actualización, 2026-10-04 (verificado contra el changelog de nirium 0.16.0 ese día): este párrafo decía originalmente que MPP Charge también corre en vivo en mainnet. Era incorrecto: MPP Charge es experimental y no está disponible en mainnet."
       }
     }
   },
@@ -866,13 +899,13 @@
             "name": "Python SDK",
             "sub": "PyPI · nirium",
             "cmd": "pip install nirium",
-            "badge": "v0.12.6"
+            "badge": "v0.12.7"
           },
           "mcp": {
             "name": "Servidor MCP",
             "sub": "Claude Desktop · Cursor · cualquier cliente MCP",
             "cmd": "npx nirium-mcp",
-            "badge": "v0.6.8"
+            "badge": "v0.6.9"
           },
           "rest": {
             "name": "REST API",
@@ -1180,7 +1213,7 @@
       },
       "restricted_jurisdictions": {
         "title": "8. Jurisdicciones restringidas y sanciones",
-        "content": "Nirium Protocol opera desde México, a cargo de sus fundadores, sin persona moral constituida a la fecha, y no ofrece sus servicios en jurisdicciones donde constituirían actividad regulada, sin importar cómo esté construido el software. Se prohíbe el acceso desde jurisdicciones con sanciones integrales, jurisdicciones con llamado a la acción del GAFI y China continental. En el Espacio Económico Europeo, el Reino Unido y Estados Unidos, mientras no haya una opinión legal por escrito, Payouts no se ofrece en ninguna red y el nodo de Tesorería no se ofrece en mainnet; el nodo de Tesorería en testnet sigue disponible como demostración, y retirar de una bóveda que ya es tuya nunca está restringido ahí. Al usar cualquier servicio de Nirium declaras, cada vez, que no estás ubicado ni resides en una jurisdicción prohibida y que no eres persona sancionada ni actúas por cuenta de una. Nirium puede bloquear el acceso por medios técnicos, incluida la geolocalización por IP, y puede negar o terminar el servicio. Como Nirium nunca guarda fondos, terminar el servicio nunca deja activos atrapados: tus llaves, cuentas y bóvedas siguen funcionando sin nosotros. Rige la política completa: /legal/restricted-jurisdictions-v1.md."
+        "content": "Nirium Protocol opera desde México, a cargo de sus fundadores, sin persona moral constituida a la fecha, y no ofrece sus servicios en jurisdicciones donde constituirían actividad regulada, sin importar cómo esté construido el software. Se prohíbe el acceso desde jurisdicciones con sanciones integrales, jurisdicciones con llamado a la acción del GAFI y China continental. En el Espacio Económico Europeo, el Reino Unido y Estados Unidos, mientras no haya una opinión legal por escrito, Payouts y el nodo de Tesorería no se ofrecen en mainnet; en testnet los dos siguen disponibles como demostración, y retirar de una bóveda que ya es tuya nunca está restringido ahí. Al usar cualquier servicio de Nirium declaras, cada vez, que no estás ubicado ni resides en una jurisdicción prohibida y que no eres persona sancionada ni actúas por cuenta de una. Nirium puede bloquear el acceso por medios técnicos, incluida la geolocalización por IP, y puede negar o terminar el servicio. Como Nirium nunca guarda fondos, terminar el servicio nunca deja activos atrapados: tus llaves, cuentas y bóvedas siguen funcionando sin nosotros. Rige la política completa: /legal/restricted-jurisdictions-v1.md."
       },
       "intellectual_property": {
         "title": "9. Código abierto y marca",
@@ -1211,12 +1244,12 @@
   "risk_disclosure": {
     "title": "Aviso de riesgos",
     "badge": "Aviso de riesgos",
-    "last_updated": "Última actualización: 16 de noviembre de 2026",
+    "last_updated": "Última actualización: 19 de noviembre de 2026",
     "mandatory": "Lee esto antes de usar Nirium: es software de código abierto experimental en Stellar. Tú firmas tus propias transacciones y puedes perder fondos.",
     "sections": {
       "execution": {
         "title": "1. Rebalanceo autónomo (Tesorería)",
-        "content": "Si activas el rebalanceo autónomo, nombras al agente de Nirium como RebalanceManager de tu propia bóveda de DeFindex. Ese rol solo puede mover fondos entre tu bóveda y sus estrategias: no puede retirarlos, y puedes quitárselo cuando quieras. Aun así puede actuar en un mal momento: el agente puede decidir mal, llegar tarde o detenerse, y los nodos que lo corren pueden caerse. Alguien que obtuviera la llave del agente podría mover fondos entre tu bóveda y sus estrategias, nunca sacarlos de la bóveda. En mainnet esto es solo por invitación, igual que desplegar o fondear una bóveda desde este sitio; retirar de una bóveda que ya es tuya nunca está restringido."
+        "content": "Si activas el rebalanceo autónomo, nombras al agente de Nirium como RebalanceManager de tu propia bóveda de DeFindex. Ese rol solo puede mover fondos entre tu bóveda y sus estrategias: no puede retirarlos, y puedes quitárselo cuando quieras. Aun así puede actuar en un mal momento: el agente puede decidir mal, llegar tarde o detenerse, y los nodos que lo corren pueden caerse. Alguien que obtuviera la llave del agente podría mover fondos entre tu bóveda y sus estrategias, o hacer un intercambio dentro de la bóveda (el rol lo permite; el código de Nirium nunca lo envía) y perder valor por deslizamiento, pero nunca sacar fondos de la bóveda. En mainnet esto es solo por invitación, igual que desplegar o fondear una bóveda desde este sitio; retirar de una bóveda que ya es tuya nunca está restringido."
       },
       "contracts": {
         "title": "2. Contratos inteligentes y protocolos de terceros",
@@ -1236,7 +1269,7 @@
       },
       "governance": {
         "title": "6. Legal y regulatorio",
-        "content": "Nirium ofrece software y no custodia fondos. Si el rebalanceo autónomo y Payouts caen en la fracción XVI del artículo 17 de la LFPIORPI (activos virtuales) es una pregunta abierta, todavía sin opinión legal por escrito; los dos siguen solo por invitación en mainnet hasta que se responda. Cada parte cumple la ley por sus propios clientes: esta página no le pasa a nadie las obligaciones legales de otro. Se prohíbe el acceso desde jurisdicciones con sanciones integrales, jurisdicciones con llamado a la acción del GAFI y China continental. En el Espacio Económico Europeo, el Reino Unido y Estados Unidos, Payouts no se ofrece en ninguna red y Tesorería no se ofrece en mainnet. Política completa: /legal/restricted-jurisdictions-v1.md. Esto no es asesoría legal ni financiera."
+        "content": "Nirium ofrece software y no custodia fondos. Si el rebalanceo autónomo y Payouts caen en la fracción XVI del artículo 17 de la LFPIORPI (activos virtuales) es una pregunta abierta, todavía sin opinión legal por escrito; los dos siguen solo por invitación en mainnet hasta que se responda. Cada parte cumple la ley por sus propios clientes: esta página no le pasa a nadie las obligaciones legales de otro. Se prohíbe el acceso desde jurisdicciones con sanciones integrales, jurisdicciones con llamado a la acción del GAFI y China continental. En el Espacio Económico Europeo, el Reino Unido y Estados Unidos, Payouts y Tesorería no se ofrecen en mainnet; en testnet siguen disponibles como demostración. Política completa: /legal/restricted-jurisdictions-v1.md. Esto no es asesoría legal ni financiera."
       }
     },
     "footer": "Usar Nirium significa que leíste estos riesgos. Nada en esta página limita los derechos que te da la ley."
@@ -1755,7 +1788,7 @@
             "desc": "Telemetría global: clientes WS concurrentes, suscripciones activas."
           },
           {
-            "desc": "Stream en tiempo real. Tipos de mensaje: señal, log de ejecución, heartbeat."
+            "desc": "Stream de señales. Tipos de mensaje: señal, log de ejecución, heartbeat. El endpoint hospedado no está aceptando conexiones por ahora."
           }
         ],
         "compliance": [
@@ -2241,11 +2274,11 @@
   "strategy_builder": {
     "upgrade_banner": {
       "preview": "Modo preview - el lienzo compone el esquema; la ejecución real corre en el nodo. La tesorería autónoma ya está desplegada en mainnet sobre una bóveda DeFindex pensada para que sea tuya (la de hoy es nuestra, con fondos propios), solo por invitación hasta tener una opinión legal por escrito. NiriumVault, el contrato propio, sigue en testnet hasta la auditoría externa.",
-      "upgrade": "Actualizar"
+      "upgrade": "Solicitar acceso"
     },
     "deploy_gate": {
       "title": "Solo vista previa · mainnet por invitación",
-      "plan": "Growth"
+      "plan": "Solicitar acceso"
     }
   },
   "analytics": {
@@ -2443,7 +2476,7 @@
     },
     "built_safe": {
       "title": "Garantías Éticas y de Protocolo",
-      "desc": "Los nodos de ejecución enrutan a través de contratos inteligentes en Stellar aplicando ejecución atómica. Todas las transiciones de estado se registran inmutablemente, alineándose con el Código de Conducta de Stellar."
+      "desc": "Los nodos de ejecución enrutan a través de contratos inteligentes en Stellar con ejecución atómica, y cada cambio de estado queda registrado en el ledger de Stellar."
     },
     "audit": {
       "preparing": "Compilando reporte de auditoría...",
@@ -2528,7 +2561,7 @@
         ]
       },
       "stats": {
-        "fintechs": "Anclajes en mainnet (16-nov-2026)",
+        "fintechs": "Anclajes en mainnet (18-nov-2026)",
         "integration": "Hash del contenido",
         "cost": "Firma opcional",
         "automated": "Dónde vive el registro"
@@ -2580,11 +2613,11 @@
     "mcp": {
       "title": "Servidor MCP",
       "subtitle": "Conecta Claude Desktop o Cursor a los nodos de Nirium: datos de mercado, anclajes de Audit Trail, Reporting y herramientas de Treasury. Las herramientas gratis funcionan sin llave; Treasury y el control del loop piden API key, y el rebalanceo autónomo en mainnet es por invitación.",
-      "tools_count": "25 herramientas (nirium-mcp 0.6.8)"
+      "tools_count": "25 herramientas (nirium-mcp 0.6.9)"
     },
     "hub": {
       "title": "Referencia de la API",
-      "subtitle": "Cada ruta de abajo existe en los dos nodos, revisado el 12 nov 2026: 200 donde es pública, 400 o 401 donde pide parámetros o llave, 402 donde pide pago, 501 donde el nodo de mainnet no la ofrece, 451 para Payouts y Tesorería desde una jurisdicción donde no se ofrecen.",
+      "subtitle": "Cada ruta de abajo existe en los dos nodos, revisado el 12 nov 2026: 200 donde es pública, 400 o 401 donde pide parámetros o llave, 402 donde pide pago, 501 donde el nodo de mainnet no la ofrece, 451 para Payouts y Tesorería desde una jurisdicción donde no se ofrecen (para el EEE, el Reino Unido y Estados Unidos, solo en mainnet desde el 18 nov 2026).",
       "infrastructure": "Rutas principales",
       "explorer": "Por área",
       "subsystems": "+18 Subsistemas modulares para Orquestación Institucional"
