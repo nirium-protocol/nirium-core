@@ -377,7 +377,7 @@
     "ignite_protocol": "LAUNCH INTERFACE",
     "connection_established": "CONNECTION STABLE",
     "connection_connecting": "CONNECTING...",
-    "kernel_version": "NIRIUM v0.19.6 (Nov 2026)",
+    "kernel_version": "NIRIUM v0.19.7 (Nov 2026)",
     "soroban_verified": "SOROBAN VERIFIED",
     "testnet_live": "STELLAR TESTNET ACTIVE",
     "powered_by": "Powered by Stellar · Secured by Open Source",
@@ -893,19 +893,19 @@
             "name": "TypeScript SDK",
             "sub": "NPM · nirium",
             "cmd": "npm install nirium",
-            "badge": "v0.19.6"
+            "badge": "v0.19.7"
           },
           "py": {
             "name": "Python SDK",
             "sub": "PyPI · nirium",
             "cmd": "pip install nirium",
-            "badge": "v0.12.7"
+            "badge": "v0.12.8"
           },
           "mcp": {
             "name": "MCP Server",
             "sub": "Claude Desktop · Cursor · any MCP client",
             "cmd": "npx nirium-mcp",
-            "badge": "v0.6.9"
+            "badge": "v0.6.10"
           },
           "rest": {
             "name": "REST API",
@@ -986,7 +986,7 @@
   },
   "dashboard": {
     "title": "OPERATOR DASHBOARD",
-    "version_live": "v0.19.6",
+    "version_live": "v0.19.7",
     "fleet_status": "Infrastructure Monitoring",
     "active_agents": "B2B Execution Nodes",
     "total_profit": "Structural Savings (Spread)",
@@ -1359,7 +1359,7 @@
         "item3": "Continuous execution without UI blocking",
         "item4": "Ideal for 24/7 corporate float optimization"
       },
-      "features_title": "Architecture Modules (v0.19.6)",
+      "features_title": "Architecture Modules (v0.19.7)",
       "features": {
         "builder": {
           "title": "Treasury Builder (Visual)",
@@ -2051,7 +2051,7 @@
       "stats": {
         "alpha": "Execution Savings (Spread)",
         "liquidity": "Operational Float",
-        "secure_kernel": "B2B KERNEL v0.19.6"
+        "secure_kernel": "B2B KERNEL v0.19.7"
       },
       "buttons": {
         "backtest": "SIMULATE",
@@ -2613,7 +2613,7 @@
     "mcp": {
       "title": "MCP server",
       "subtitle": "Connect Claude Desktop or Cursor to Nirium's nodes: market data, Audit Trail anchors, Reporting and Treasury tools. Free tools work without a key; Treasury and loop control need an API key, and autonomous rebalancing on mainnet is invite-only.",
-      "tools_count": "25 tools (nirium-mcp 0.6.9)"
+      "tools_count": "25 tools (nirium-mcp 0.6.10)"
     },
     "hub": {
       "title": "API reference",
