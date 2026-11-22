@@ -752,7 +752,7 @@ export default function TreasuryVaultConsole() {
                 {/* Inspeccionar */}
                 <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 space-y-4">
                     <h2 className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-500">
-                        {network === 'mainnet' ? lang('2 · Check your vault or withdraw', '2 · Revisa tu bóveda o retira') : lang('2 · Verify, deposit and rebalance', '2 · Verifica, deposita y rebalancea')}
+                        {network === 'mainnet' ? lang('Check your vault or withdraw', 'Revisa tu bóveda o retira') : lang('2 · Verify, deposit and rebalance', '2 · Verifica, deposita y rebalancea')}
                     </h2>
                     <div className="flex gap-2">
                         <input value={lookup} onChange={(e) => setLookup(e.target.value)} spellCheck={false}
@@ -1018,8 +1018,8 @@ export default function TreasuryVaultConsole() {
                             'On mainnet, rebalancing is not triggered from here. It is called by the RebalanceManager - the agent, with its own key - and it can only move funds between the strategies already inside your vault.',
                             'En mainnet el rebalanceo no se dispara desde aquí. Lo llama el RebalanceManager - el agente, con su propia llave - y solo puede mover fondos entre las estrategias que ya están dentro de tu bóveda.')
                         : lang(
-                            'On testnet you can ask the agent to Invest or Unwind with the buttons above, to see it work. It signs with its own key and can only move funds between the vault and its strategy. On mainnet there is no button: the agent decides on its own.',
-                            'En testnet puedes pedirle al agente Invertir o Sacar de la estrategia con los botones de arriba, para verlo funcionar. Firma con su propia llave y solo puede mover fondos entre la bóveda y su estrategia. En mainnet no hay botón: el agente decide solo.')}{' '}
+                            'On testnet you can ask the agent to Invest or Unwind with the buttons above, to see it work. It signs with its own key and can only move funds between the vault and its strategy. On mainnet there is no button: the agent decides on its own, only on vaults where autonomous rebalancing is switched on, which on mainnet is invite-only.',
+                            'En testnet puedes pedirle al agente Invertir o Sacar de la estrategia con los botones de arriba, para verlo funcionar. Firma con su propia llave y solo puede mover fondos entre la bóveda y su estrategia. En mainnet no hay botón: el agente decide solo, únicamente en bóvedas donde el rebalanceo autónomo está encendido, y en mainnet eso es por invitación.')}{' '}
                     <Link href="/treasury" className="text-stellar-teal hover:underline">
                         {lang('How the node works', 'Cómo funciona el nodo')}
                     </Link>

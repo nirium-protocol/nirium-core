@@ -62,7 +62,7 @@ function ensureInit() {
             projectId: "8505f6eaaa44b34387416821007c224f",
             metadata: {
                 name: 'Nirium Protocol',
-                description: 'Institutional-grade autonomous Stellar Strategic Fleet.',
+                description: 'Payments, verifiable receipts and treasury tools on Stellar.',
                 url: origin,
                 icons: [`${origin}/icon.png`]
             }

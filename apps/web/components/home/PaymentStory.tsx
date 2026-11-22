@@ -22,8 +22,8 @@ const STEPS: Step[] = [
         es: "Antes de firmar nada, tu motor de políticas dice permitir, esperar a un humano o negar.",
     },
     {
-        en: "Only on allow does it sign the payment - testnet today.",
-        es: "Solo si permite, firma el pago - hoy en testnet.",
+        en: "Only on allow does it sign the payment.",
+        es: "Solo si permite, firma el pago.",
     },
     {
         en: "x402Serve() checks it and lets the request through.",

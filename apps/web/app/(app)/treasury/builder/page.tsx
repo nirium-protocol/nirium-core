@@ -141,7 +141,6 @@ function StrategyBuilderInner() {
             color: 'from-purple-500 to-indigo-600',
             items: [
                 { type: 'condition', label: 'CLIENT_SIGNATURE', icon: 'Shield' },
-                { type: 'condition', label: 'TEAM_APPROVAL', icon: 'CheckSquare' },
                 { type: 'action', label: 'ONCHAIN_AUDIT', icon: 'Fingerprint' },
             ]
         },
@@ -840,7 +839,7 @@ export default function StrategyBuilderPro() {
         // superior del layout (3.75rem).
         <main className="h-[calc(100dvh_-_var(--top-chrome)_-_3.75rem)] lg:h-[calc(100dvh_-_2.25rem_-_var(--banner-h,0px))] min-h-[560px] w-full bg-black text-white flex flex-col font-sans selection:bg-stellar-teal/30 overflow-hidden">
 
-            {/* Growth plan preview banner */}
+            {/* Preview banner - mainnet is invite-only, not unlocked by a plan */}
             <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2 bg-stellar-yellow/10 border-b border-stellar-yellow/20">
                 <div className="flex items-center gap-2 text-xs text-stellar-yellow">
                     <Zap className="w-3.5 h-3.5 shrink-0" />
@@ -849,7 +848,7 @@ export default function StrategyBuilderPro() {
                     </span>
                 </div>
                 <Link
-                    href="/pricing"
+                    href="mailto:niriumprotocol@gmail.com?subject=Treasury%20on%20mainnet%20%E2%80%94%20request%20access"
                     className="shrink-0 flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#0b0b0b] bg-stellar-yellow px-2.5 py-1 rounded-full hover:bg-stellar-yellow/90 transition-colors"
                 >
                     {t.strategy_builder.upgrade_banner.upgrade}
@@ -871,7 +870,7 @@ export default function StrategyBuilderPro() {
                             {t.strategy_builder.deploy_gate.title}
                         </span>
                         <Link
-                            href="/pricing"
+                            href="mailto:niriumprotocol@gmail.com?subject=Treasury%20on%20mainnet%20%E2%80%94%20request%20access"
                             className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#0b0b0b] bg-stellar-yellow px-3 py-1.5 rounded-full hover:bg-stellar-yellow/90 transition-colors"
                         >
                             {t.strategy_builder.deploy_gate.plan}

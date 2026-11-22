@@ -27,7 +27,7 @@ export const OG_SECTIONS: Record<string, OgSection> = {
         kind: "section",
         kicker: "x402 on Stellar",
         headline: "Payment, audit and execution rails on Stellar.",
-        support: "For apps, backends and AI agents. Charge per request, prove every move.",
+        support: "For apps, backends and AI agents. Charge per request, prove what the chain doesn't show.",
         chips: ["Non-custodial: your keys, your funds", "Testnet + mainnet"],
         accent: "yellow",
         alt: "Nirium - payment, audit and execution rails on Stellar for apps, backends and AI agents",

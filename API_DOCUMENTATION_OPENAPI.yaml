@@ -51,30 +51,30 @@ info:
 
     ## Base URLs
 
-    - **Production:** `https://nirium-agent.fly.dev`
-    - **Staging:** `https://api-staging.nirium.xyz`
-    - **Local Dev:** `http://localhost:3002`
+    - **Testnet agent:** `https://nirium-agent.fly.dev`
+    - **Mainnet agent:** `https://nirium-agent-mainnet.fly.dev` (receive-only)
+    - **Local Dev:** `http://localhost:3001`
 
     ## Support
 
-    - **Documentation:** https://docs.nirium.xyz
+    - **Documentation:** https://nirium.xyz/docs
     - **Email:** niriumprotocol@gmail.com
-    - **Discord:** https://discord.gg/nirium
+    - **Discord:** https://discord.gg/gAAznKrSQZ
   contact:
     name: Nirium Protocol Support
     email: niriumprotocol@gmail.com
     url: https://nirium.xyz
   license:
-    name: MIT
+    name: Apache-2.0
     url: https://github.com/nirium-protocol/nirium-core/blob/main/LICENSE
 
 servers:
   - url: https://nirium-agent.fly.dev
-    description: Production Server
-  - url: https://api-staging.nirium.xyz
-    description: Staging Server
-  - url: http://localhost:3002
-    description: Local Development
+    description: Testnet agent (full feature set)
+  - url: https://nirium-agent-mainnet.fly.dev
+    description: Mainnet agent (receive-only; holds no signing key, so signals and execute answer 501)
+  - url: http://localhost:3001
+    description: Local development
 
 tags:
   - name: Public
@@ -99,6 +99,80 @@ tags:
     description: Health checks and system configuration
 
 paths:
+  # ========================================
+  # EXECUTION NODES, AUDIT TRAIL, REPORTING, x402
+  # Added 22 Nov 2026 after checking each route against the live agents.
+  # Request and response shapes: the nirium SDK README
+  # (https://github.com/nirium-protocol/nirium/tree/main/packages/sdk).
+  # ========================================
+  /api/nodes:
+    get:
+      tags: [Public]
+      summary: Execution nodes, their status, custody model and network
+      responses:
+        '200': { description: Node list }
+  /api/audit/info:
+    get:
+      tags: [Public]
+      summary: Audit Trail node info, including which pinning copies are live
+      responses:
+        '200': { description: Node info }
+  /api/audit/log:
+    post:
+      tags: [Public]
+      summary: Anchor a record or a hash to IPFS and return its CID (tamper-evident, optionally signed by the caller's own key)
+      description: Anchor hashes, not personal data. An invalid signature returns 400 and nothing is anchored. Rate limited to 20 requests/min.
+      responses:
+        '200': { description: CID and content hash }
+        '400': { description: Invalid record or signature; nothing anchored }
+        '429': { description: Rate limited }
+  /api/reporting/info:
+    get:
+      tags: [Public]
+      summary: Reporting node info
+      responses:
+        '200': { description: Node info }
+  /api/reporting/summary:
+    get:
+      tags: [Public]
+      summary: Read-only summary of payouts, received payments and anchors, by network
+      responses:
+        '200': { description: Summary }
+  /api/treasury/info:
+    get:
+      tags: [Public]
+      summary: Treasury node info (mainnet execution is invite-only)
+      responses:
+        '200': { description: Node info }
+  /api/payroll/info:
+    get:
+      tags: [Public]
+      summary: Payouts node info (mainnet is invite-only)
+      responses:
+        '200': { description: Node info }
+  /api/v1/premium/signals:
+    get:
+      tags: [Market Data]
+      summary: Paid signals over x402, 0.02 USDC (testnet only)
+      responses:
+        '200': { description: Paid response }
+        '402': { description: x402 payment requirements in the PAYMENT-REQUIRED header }
+        '501': { description: Not available on the mainnet agent }
+  /api/v1/premium/market:
+    get:
+      tags: [Market Data]
+      summary: Paid market data over x402, 0.05 USDC (testnet and mainnet)
+      responses:
+        '200': { description: Paid response }
+        '402': { description: x402 payment requirements in the PAYMENT-REQUIRED header }
+  /api/v1/premium/execute:
+    post:
+      tags: [Execution]
+      summary: Paid strategy execution over x402, 0.25 USDC (testnet only)
+      responses:
+        '200': { description: Paid response }
+        '402': { description: x402 payment requirements in the PAYMENT-REQUIRED header }
+        '501': { description: Not available on the mainnet agent }
   # ========================================
   # PUBLIC ENDPOINTS
   # ========================================

@@ -117,7 +117,9 @@ export async function GET() {
             typeof l.message === 'string' ? { ...l, message: redactPrivateAnchorLog(l.message) } : l,
         );
 
-        return NextResponse.json(publicFeed);
+        // CDN cache: every open /agents or /dashboard tab polls this route; one run per
+        // 10 s serves all of them instead of one run per tab per poll.
+        return NextResponse.json(publicFeed, { headers: { 'Cache-Control': 'public, max-age=0, s-maxage=10, stale-while-revalidate=20' } });
     } catch (e) {
         console.error('[API /logs] GET Error:', e);
         return NextResponse.json([], { status: 200 });

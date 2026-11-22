@@ -31,24 +31,25 @@ export const TIER_B_COUNTRIES = new Set([
     'GB', 'US',
 ]);
 
-// Política v1.1 (8-nov-2026), §1 y §4:
-// - Treasury en testnet SÍ se ofrece en Tier B, como demostración: tokens sin valor.
-// - Payouts NO se ofrece en ninguna red: los términos de Payouts, que se aceptan en
-//   cada corrida, incluyen declarar que no estás en Tier B. Abrir Payouts en testnet
-//   pide cambiar primero esos términos.
+// Política v1.4 (18-nov-2026), §1 y §4:
+// - Treasury y Payouts en testnet SÍ se ofrecen en Tier B, como demostración:
+//   tokens sin valor. Treasury desde la v1.1 (8-nov); Payouts desde la v1.4, cuando
+//   los términos de Payouts v1.4 limitaron a mainnet la declaración de no estar en
+//   Tier B.
+// - En mainnet los dos siguen cerrados en Tier B hasta tener una opinión legal.
 export type GatedProduct = 'treasury' | 'payouts';
 
 /** 451 si el visitante está en Tier B y la operación aplica; null si puede seguir. */
 export function tierBBlock(req: NextRequest, network: 'mainnet' | 'testnet', product: GatedProduct): NextResponse | null {
     const country = (req.headers.get('x-vercel-ip-country') || '').toUpperCase();
     if (!country || !TIER_B_COUNTRIES.has(country)) return null;
-    if (product === 'treasury' && network === 'testnet') return null;
+    if (network === 'testnet') return null;
     return NextResponse.json(
         {
             error: 'unavailable_for_legal_reasons',
             message: product === 'treasury'
                 ? 'The Treasury node is not offered on mainnet in your jurisdiction pending a written legal opinion. It is available on testnet as a demonstration, and withdrawing from your own vault is always available. Settlement, Audit and Reporting remain available.'
-                : 'Payouts is not offered in your jurisdiction pending a written legal opinion. Settlement, Audit and Reporting remain available.',
+                : 'Payouts is not offered on mainnet in your jurisdiction pending a written legal opinion. It is available on testnet as a demonstration. Settlement, Audit and Reporting remain available.',
             jurisdiction: country,
             policy: 'https://nirium.xyz/legal/restricted-jurisdictions-v1.md',
             contact: 'niriumprotocol@gmail.com',

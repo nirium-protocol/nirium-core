@@ -365,8 +365,8 @@ export default function PayrollPage() {
                         declaración que nadie leyó no declara nada. */}
                     <p className="text-[11px] text-white/35 leading-relaxed mb-5 -mt-3">
                         {lang(
-                            'By continuing you represent, on this and every occasion of use, that you are not located in or a resident of a prohibited jurisdiction, that you are not a sanctioned person or acting for one, and that Payouts is not offered where you are (today this excludes the EEA, the UK and the US). Nirium relies on this.',
-                            'Al continuar declaras, en esta y en cada ocasión de uso, que no te encuentras ni resides en una jurisdicción prohibida, que no eres una persona sancionada ni actúas por cuenta de una, y que Payouts no se ofrece donde estás (hoy quedan fuera el EEE, el Reino Unido y Estados Unidos). Nirium confía en esta declaración.')}
+                            'By continuing you represent, on this and every occasion of use, that you are not located in or a resident of a prohibited jurisdiction, that you are not a sanctioned person or acting for one, and, on mainnet, that Payouts is offered where you are (today mainnet excludes the EEA, the UK and the US; testnet is open there as a demonstration). Nirium relies on this.',
+                            'Al continuar declaras, en esta y en cada ocasión de uso, que no te encuentras ni resides en una jurisdicción prohibida, que no eres una persona sancionada ni actúas por cuenta de una, y, en mainnet, que Payouts se ofrece donde estás (hoy mainnet excluye al EEE, el Reino Unido y Estados Unidos; testnet está abierto ahí como demostración). Nirium confía en esta declaración.')}
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -454,8 +454,8 @@ export default function PayrollPage() {
                                     className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.015] px-4 py-3">
                                     <div className="min-w-0">
                                         <p className="font-mono text-sm text-white/80">
-                                            {run.totalAmount} {run.asset}
-                                            <span className="text-white/30"> · {run.recipientCount} {p.runs.recipients}</span>
+                                            {Number.isFinite(Number(run.totalAmount)) ? Number(run.totalAmount).toLocaleString('en-US', { maximumFractionDigits: 7 }) : run.totalAmount} {run.asset}
+                                            <span className="text-white/30"> · {run.recipientCount} {Number(run.recipientCount) === 1 ? lang('recipient', 'destinatario') : lang('recipients', 'destinatarios')}</span>
                                         </p>
                                     </div>
                                     <div className="flex gap-3 font-mono text-xs shrink-0">

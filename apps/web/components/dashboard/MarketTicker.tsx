@@ -3,7 +3,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 
-const API_URL = process.env.NEXT_PUBLIC_AGENT_API_URL || 'https://nirium-agent.fly.dev';
+// 19-nov-2026: el ticker muestra mercado (precio XLM, spread del SDEX) y el único mercado real es
+// mainnet. Leía NEXT_PUBLIC_AGENT_API_URL (el agente de testnet), cuyo libro daba un spread fijo de
+// 150.5 bps contra ~11 bps de mainnet. Misma regla que app/api/market/route.ts (12-nov).
+const API_URL = process.env.NEXT_PUBLIC_MARKET_AGENT_URL || 'https://nirium-agent-mainnet.fly.dev';
 const POLL_INTERVAL = 4_000;
 
 interface TickerItem {
