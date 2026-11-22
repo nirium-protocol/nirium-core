@@ -271,7 +271,7 @@ Use case: AI agent dynamically moves capital between USDC (US yield) and CETES (
 
 Nirium's path arbitrage engine operates on Stellar SDEX - the deepest on-chain order book for XLM/USDC. Gas: ~$0.000001 per operation.
 
-Nirium charges a fixed software license fee (platform subscription + per-API-call pricing) - never a percentage of assets under management or transaction volume. Financial execution fees (FX spread, settlement) are set and collected by the regulated operator (e.g. Etherfuse), not by Nirium. See Section 12 for the full fee structure.
+Nirium charges a fixed software license fee (platform subscription + per-API-call pricing) - never a percentage of assets under management or transaction volume. Financial execution fees (FX spread, settlement) are set and collected by an independent operator (e.g. Etherfuse), not by Nirium. See Section 12 for the full fee structure.
 
 ---
 
@@ -382,8 +382,10 @@ Key tables: `agent_logs`, `auth_keys`, `nirium_swarm_agents`, `sandbox_accounts`
 - Payouts: flat software fee per disbursement run - never a percentage of the amount disbursed
 - Agent/vault deployment: 12.5 XLM one-time
 
-**Legal classification (software-only):**
-All revenue streams are classified as software licensing under LRITF Art. 22, LMV Arts. 225-226, and Banxico Circular 4/2019. Nirium never touches transactional flow or holds funds. Financial commissions (FX spread, CETES conversion, ~0.20% at Etherfuse) are set and collected entirely by the regulated operator, not by Nirium.
+**Legal posture (software-only, pending a written legal opinion):**
+Our own reading, not a legal opinion: every revenue stream above is a software fee, and Nirium never touches the transactional flow or holds funds. Whether Mexican law (LRITF, LMV, LFPIORPI) treats any of it otherwise is an open question until a written legal opinion exists. Financial commissions (FX spread, CETES conversion, ~0.20% at Etherfuse) are set and collected entirely by the independent operator, not by Nirium.
+
+**Update, 2026-11-22:** this paragraph previously said all revenue streams "are classified as software licensing" under specific articles, as if that were settled. It is our reading, not a legal opinion, and it now says so.
 
 ---
 

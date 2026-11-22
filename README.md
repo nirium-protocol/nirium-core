@@ -336,7 +336,7 @@ Agent action or third-party event
     → verifiable by anyone holding only the CID
 ```
 
-An invalid signature returns **400 and nothing is anchored**: IPFS has no delete, so a false attestation would be permanent. Third-party apps anchor through `POST /api/audit/log`. Anchor **hashes, not raw personal data**.
+An invalid signature returns **400 and nothing is anchored**: nobody can guarantee deletion from IPFS (anyone with the CID may have kept a copy), so a false attestation could outlive any correction. Third-party apps anchor through `POST /api/audit/log`. Anchor **hashes, not raw personal data**.
 
 ### Live Market Ticker (Reference Data)
 
