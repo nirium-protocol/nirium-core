@@ -176,6 +176,10 @@ export default function ReceiptsSettlements({ language, children }: { language: 
                                                 {/* Nombre corto en integraciones ("AgentLedger"): el largo se cortaba en celular. */}
                                                 <p className="text-xs font-bold text-white truncate" title={p.label}>
                                                     {p.kind === "internal" ? p.label : (p.shortName || p.label)}
+                                                    {/* 21-nov-2026 (D8): AgentLedger salía dos veces (dos wallets) sin forma de distinguirlas. */}
+                                                    {p.kind !== "internal" && payers.filter((q) => q.kind !== "internal" && (q.shortName || q.label) === (p.shortName || p.label)).length > 1 && (
+                                                        <span className="font-mono font-normal text-gray-500"> · {p.address.slice(0, 4)}</span>
+                                                    )}
                                                 </p>
                                                 <p className="text-[10px] text-gray-500 font-mono">
                                                     {p.count} · {L("last", "último")} {fmtDate(p.lastAt, es)}

@@ -102,8 +102,8 @@ const NODE_ROWS: NodeRow[] = [
     },
     {
         node: 'Audit Trail',
-        en: "You send a SHA-256 hash, or a small record of up to 8 KB, and it is pinned to IPFS. You get back a CID, which is the hash of the content, so nobody, Nirium included, can change what it points to. An optional signature with your own Stellar key proves who declared it, and invalid signatures are rejected. It holds no funds. IPFS records can't be deleted: send hashes, not personal data.",
-        es: 'Mandas un hash SHA-256, o un registro chico de hasta 8 KB, y se fija en IPFS. Recibes un CID, que es el hash del contenido, así que nadie, ni Nirium, puede cambiar a qué apunta. Una firma opcional con tu propia llave de Stellar prueba quién lo declaró, y las firmas inválidas se rechazan. No toca fondos. Lo que va a IPFS no se puede borrar: manda hashes, no datos personales.',
+        en: "You send a SHA-256 hash, or a small record of up to 8 KB, and it is pinned to IPFS. You get back a CID, which is the hash of the content, so nobody, Nirium included, can change what it points to. An optional signature with your own Stellar key proves who declared it, and invalid signatures are rejected. It holds no funds. We can't guarantee anything is deleted from IPFS: send hashes, not personal data.",
+        es: 'Mandas un hash SHA-256, o un registro chico de hasta 8 KB, y se fija en IPFS. Recibes un CID, que es el hash del contenido, así que nadie, ni Nirium, puede cambiar a qué apunta. Una firma opcional con tu propia llave de Stellar prueba quién lo declaró, y las firmas inválidas se rechazan. No toca fondos. No podemos garantizar que se borre de IPFS: manda hashes, no datos personales.',
         mainEn: 'Free and rate-limited during the beta.',
         mainEs: 'Gratis y con límite de uso durante la beta.',
         testEn: 'Free and rate-limited during the beta.',
@@ -290,8 +290,8 @@ export default function SecurityPage() {
                         <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                         <p className="text-sm text-white/70">
                             {lang(
-                                "What goes to IPFS can't be deleted, by us or anyone. Send a hash of your evidence, not personal data.",
-                                'Lo que va a IPFS no se puede borrar, ni por nosotros ni por nadie. Manda un hash de tu evidencia, no datos personales.')}
+                                "Nirium can't guarantee that anything is deleted from IPFS: anyone with the CID may have kept a copy. So send a hash of your evidence, not personal data. The other way round, a file nobody pins can become unavailable: keep your own copy with nirium anchor --save receipt.json. (Corrected on 21 Nov 2026: this used to say what goes to IPFS can't be deleted, by us or anyone.)",
+                                'Nirium no puede garantizar que algo se borre de IPFS: cualquiera con el CID puede haber guardado una copia. Por eso manda un hash de tu evidencia, no datos personales. Y al revés, un archivo que nadie fija puede dejar de estar disponible: guarda tu propia copia con nirium anchor --save recibo.json. (Corregido el 21 nov 2026: antes decía que lo que va a IPFS no se puede borrar, ni por nosotros ni por nadie.)')}
                         </p>
                     </div>
                     <div className="mt-6 flex flex-wrap justify-center gap-x-5 gap-y-2">
@@ -405,7 +405,7 @@ export default function SecurityPage() {
                                 {[
                                     lang("Nirium's admin key can pause the whole contract (every vault) in an emergency", 'La llave admin de Nirium puede pausar todo el contrato (todas las bóvedas) en una emergencia'),
                                     lang('While paused, nobody can withdraw, deposit or close a vault, including you. Pausing never moves funds', 'En pausa, nadie puede retirar, depositar ni cerrar una bóveda, tampoco tú. Pausar nunca mueve fondos'),
-                                    lang('The contract supports a 2-of-3 pause (admin plus one cosigner). It is not active yet: no cosigners are registered (checked on-chain, 8 Nov 2026), so today the admin pauses alone. Registering them is planned', 'El contrato admite una pausa 2-de-3 (admin más un cosignatario). Todavía no está activa: no hay cosignatarios registrados (revisado en la cadena, 8 nov 2026), así que hoy el admin pausa solo. Registrarlos está planeado'),
+                                    lang('The contract supports a 2-of-3 pause (admin plus one cosigner). It is not active yet: no cosigners are registered on contract CDMFURE6… (checked on-chain, 21 Nov 2026), so today the admin pauses alone. Registering them is planned', 'El contrato admite una pausa 2-de-3 (admin más un cosignatario). Todavía no está activa: no hay cosignatarios registrados en el contrato CDMFURE6… (revisado en la cadena, 21 nov 2026), así que hoy el admin pausa solo. Registrarlos está planeado'),
                                     lang('Cosigners are contract-wide and set by the admin, not by each vault owner', 'Los cosignatarios son de todo el contrato y los fija el admin, no cada dueño de bóveda'),
                                 ].map((x) => (
                                     <li key={x} className="flex items-start gap-2">
@@ -563,7 +563,7 @@ export default function SecurityPage() {
                             <CheckCircle2 className="w-5 h-5 text-emerald-400 mb-3" />
                             <div className="text-sm font-bold mb-2">{lang('DeFindex (mainnet)', 'DeFindex (mainnet)')}</div>
                             <div className="text-2xl font-black text-emerald-400 mb-1">{lang('OtterSec, Mar 2025', 'OtterSec, mar 2025')}</div>
-                            <p className="text-xs text-white/50">{lang("Third-party contract, audited by its authors' auditor", 'Contrato de terceros, auditado por el auditor de sus autores')}</p>
+                            <p className="text-xs text-white/50">{lang("Third-party contract; the audit is published by its authors (PaltaLabs) in their repo", 'Contrato de terceros; la auditoría la publican sus autores (PaltaLabs) en su repo')}</p>
                         </div>
                         <div className="p-5 rounded-xl border border-amber-500/20 bg-amber-500/[0.03]">
                             <AlertTriangle className="w-5 h-5 text-amber-400 mb-3" />

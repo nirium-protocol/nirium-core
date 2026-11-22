@@ -1028,7 +1028,7 @@
     },
     "vault_control": {
       "title": "NiriumVault (testnet)",
-      "locked": "LOCKED (ALLOCATED)",
+      "locked": "Locked: create your vault first",
       "unlocked": "OPERATIONAL LIQUIDITY",
       "create_vault": "+ CREATE VAULT",
       "deposit": "Supply Liquidity",
@@ -1091,7 +1091,7 @@
       "dismiss": "DISMISS"
     },
     "telemetry_feed": {
-      "title": "B2B Integration Telemetry",
+      "title": "Agent log",
       "waiting": "WAITING FOR AGENT LOGS...",
       "uplink": "Agent log feed"
     },
@@ -2537,11 +2537,11 @@
       },
       "chain": {
         "title": "Signature (ed25519, optional)",
-        "desc": "Whoever records it can sign it with an ed25519 key, the same kind Stellar wallets use. Anyone with the CID can check who signed it."
+        "desc": "Whoever records it can sign it with an ed25519 key, the same kind Stellar wallets use. Anyone with the CID can check which key signed it."
       },
       "ipfs": {
         "title": "Stored on IPFS",
-        "desc": "The record is published on IPFS and gets a CID. Anyone, an auditor included, can fetch it and check the hash on their own, without asking Nirium."
+        "desc": "The record is published on IPFS and gets a CID. Anyone, an auditor included, can fetch it and check the hash on their own, without asking Nirium. IPFS keeps it while someone pins it; keep your own copy with `nirium anchor --save receipt.json` and check it with `nirium cid`."
       },
       "cnbv": {
         "title": "Export (CSV or JSON)",
@@ -2555,18 +2555,19 @@
     "fintech_law": {
       "title": "For teams that need to show what their agents did",
       "subtitle": "The record lives on IPFS and you hold its CID. You decide what to share and with whom.",
+      "ledger_note": "A payment is already public on the ledger; the receipt keeps what isn't there: what it was for, what your policy decided (including refused payments) and off-chain records.",
       "requirements": {
         "title": "What each record gives you",
         "items": [
           "A content hash that exposes any later change",
-          "An optional signature that says who recorded it",
+          "An optional signature that says which key recorded it",
           "A CID on IPFS that anyone can check at /verify",
           "An export in CSV or JSON for your own systems",
           "Your funds and keys never pass through Nirium"
         ]
       },
       "stats": {
-        "fintechs": "Mainnet anchors (18 Nov 2026)",
+        "fintechs": "Mainnet anchors",
         "integration": "Content hash",
         "cost": "Optional signature",
         "automated": "Where the record lives"
@@ -2574,8 +2575,8 @@
     },
     "preview": {
       "title": "What the export looks like",
-      "integrity": "Example",
-      "note": "Example output. Real rows have the same columns."
+      "integrity": "Real output, mainnet, 21 Nov 2026",
+      "note": "The first three rows the command returned on 21 Nov 2026. The export carries no CIDs."
     },
     "disclaimer": "Nirium solely provides the technical software infrastructure. We do not provide legal advice. The interpretation, generation, and submission of reports to regulatory authorities (such as the CNBV or the UIF) is the exclusive responsibility of the financial operator utilizing the API.",
     "cta": {
@@ -2756,10 +2757,10 @@
   "payroll": {
     "eyebrow": "Execution Node · Payouts",
     "title": "Payouts / Disbursements",
-    "subtitle": "Pay up to 100 recipients - contractors, freelancers, B2B payouts - from one company wallet in a single signed batch. Nirium builds the transaction, you sign it in your wallet. Every run is anchored to IPFS.",
+    "subtitle": "Pay up to 100 recipients per batch (99 if the batch carries a fee) - contractors, freelancers, B2B payouts - from one company wallet in a single signed batch. Nirium builds the transaction, you sign it in your wallet. Every run is anchored to IPFS.",
     "badges": {
       "nonCustodial": "Non-custodial",
-      "batch": "≤100 / batch",
+      "batch": "up to 100 / batch (99 with a fee)",
       "ipfs": "IPFS receipt",
       "lcp": "LCP · legal opinion pending",
       "testnet": "Testnet",
@@ -2774,14 +2775,14 @@
       "privateAccessNote": "Payouts on mainnet uses real funds, signed by the company, and is invite-only. Invited companies run it through the API with an API key Nirium authorizes; it can't be run from this page. Recipients can still add their USDC trustline below."
     },
     "pricing": {
-      "label": "Pricing (after your Beta)",
+      "label": "Pricing (after the beta)",
       "tier1": "/mo - licence for up to 250 records/mo",
       "tier2": "/mo - licence for up to 1,000 records/mo",
       "note": "During your Beta there's no charge at all - only the Stellar network's minimum fee. What Nirium licenses is software: a fixed monthly fee banded by the volume your licence permits, never a percentage of what you disburse and never a charge per payment, per transaction or per settlement. Beyond 1,000 records/mo, talk to us."
     },
     "terms": {
       "accept": "I accept the Payouts Terms - independent service payments only (contractors, freelancers, B2B), never subordinate-employee salary; tax and labor obligations remain mine.",
-      "link": "Payouts Terms v1.3"
+      "link": "Payouts Terms v1.4"
     },
     "clientInfo": {
       "title": "Client identification (mainnet)",

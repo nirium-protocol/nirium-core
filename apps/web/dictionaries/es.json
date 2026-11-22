@@ -1028,7 +1028,7 @@
     },
     "vault_control": {
       "title": "NiriumVault (testnet)",
-      "locked": "BLOQUEADO (ASIGNADO)",
+      "locked": "Bloqueado: crea tu bóveda primero",
       "unlocked": "LIQUIDEZ OPERATIVA",
       "create_vault": "+ CREAR BÓVEDA",
       "deposit": "Aportar Liquidez",
@@ -1091,7 +1091,7 @@
       "dismiss": "CERRAR"
     },
     "telemetry_feed": {
-      "title": "Telemetría de Integración B2B",
+      "title": "Registro del agente",
       "waiting": "ESPERANDO LOGS DEL AGENTE...",
       "uplink": "Feed de logs del agente"
     },
@@ -2537,11 +2537,11 @@
       },
       "chain": {
         "title": "Firma (ed25519, opcional)",
-        "desc": "Quien registra puede firmarlo con una llave ed25519, del mismo tipo que usan las wallets de Stellar. Cualquiera con el CID puede comprobar quién firmó."
+        "desc": "Quien registra puede firmarlo con una llave ed25519, del mismo tipo que usan las wallets de Stellar. Cualquiera con el CID puede comprobar qué llave lo firmó."
       },
       "ipfs": {
         "title": "Guardado en IPFS",
-        "desc": "El registro se publica en IPFS y recibe un CID. Cualquiera, un auditor incluido, puede traerlo y revisar el hash por su cuenta, sin pedirle nada a Nirium."
+        "desc": "El registro se publica en IPFS y recibe un CID. Cualquiera, un auditor incluido, puede traerlo y revisar el hash por su cuenta, sin pedirle nada a Nirium. IPFS lo guarda mientras alguien lo fija; guarda tu propia copia con `nirium anchor --save recibo.json` y compruébala con `nirium cid`."
       },
       "cnbv": {
         "title": "Exportación (CSV o JSON)",
@@ -2555,18 +2555,19 @@
     "fintech_law": {
       "title": "Para equipos que necesitan mostrar lo que hicieron sus agentes",
       "subtitle": "El registro vive en IPFS y tú tienes su CID. Tú decides qué compartir y con quién.",
+      "ledger_note": "Un pago ya es público en el ledger; el recibo guarda lo que no está ahí: para qué fue, qué decidió tu política (incluidos los pagos rechazados) y los registros fuera de la cadena.",
       "requirements": {
         "title": "Lo que te da cada registro",
         "items": [
           "Un hash del contenido que delata cualquier cambio posterior",
-          "Una firma opcional que dice quién lo registró",
+          "Una firma opcional que dice qué llave lo registró",
           "Un CID en IPFS que cualquiera puede revisar en /verify",
           "Un export en CSV o JSON para tus propios sistemas",
           "Tus fondos y tus llaves nunca pasan por Nirium"
         ]
       },
       "stats": {
-        "fintechs": "Anclajes en mainnet (18-nov-2026)",
+        "fintechs": "Anclajes en mainnet",
         "integration": "Hash del contenido",
         "cost": "Firma opcional",
         "automated": "Dónde vive el registro"
@@ -2574,8 +2575,8 @@
     },
     "preview": {
       "title": "Así se ve el export",
-      "integrity": "Ejemplo",
-      "note": "Salida de ejemplo. Las filas reales tienen las mismas columnas."
+      "integrity": "Salida real, mainnet, 21 nov 2026",
+      "note": "Las tres primeras filas que dio el comando el 21 nov 2026. El exporte no trae CIDs."
     },
     "disclaimer": "Nirium proporciona únicamente la infraestructura técnica de software. No proveemos asesoría legal. La interpretación, generación y presentación de reportes ante autoridades regulatorias (como la CNBV o la UIF) es responsabilidad exclusiva del operador financiero que utiliza la API.",
     "cta": {
@@ -2756,10 +2757,10 @@
   "payroll": {
     "eyebrow": "Nodo de Ejecución · Payouts",
     "title": "Dispersiones / Payouts",
-    "subtitle": "Paga hasta 100 destinatarios - contratistas, freelancers, pagos B2B - desde una sola wallet de la empresa, en un solo lote firmado. Nirium arma la transacción, tú la firmas en tu wallet. Cada corrida se ancla a IPFS.",
+    "subtitle": "Paga hasta 100 destinatarios por lote (99 si el lote lleva comisión) - contratistas, freelancers, pagos B2B - desde una sola wallet de la empresa, en un solo lote firmado. Nirium arma la transacción, tú la firmas en tu wallet. Cada corrida se ancla a IPFS.",
     "badges": {
-      "nonCustodial": "Non-custodial",
-      "batch": "≤100 / lote",
+      "nonCustodial": "Sin custodia",
+      "batch": "hasta 100 / lote (99 con comisión)",
       "ipfs": "Recibo IPFS",
       "lcp": "LCP · opinión legal pendiente",
       "testnet": "Testnet",
@@ -2774,14 +2775,14 @@
       "privateAccessNote": "Payouts en mainnet usa fondos reales, firmados por la empresa, y es solo por invitación. Las empresas invitadas lo corren por API con una API key que Nirium autoriza; no se puede correr desde esta página. Los destinatarios sí pueden agregar su trustline de USDC abajo."
     },
     "pricing": {
-      "label": "Precio (después de tu Beta)",
+      "label": "Precio (después de la beta)",
       "tier1": "/mes - licencia hasta 250 registros/mes",
       "tier2": "/mes - licencia hasta 1,000 registros/mes",
       "note": "Durante la Beta no se cobra nada - solo el fee mínimo de la red de Stellar. Lo que Nirium licencia es software: cuota mensual fija por el volumen que tu licencia permite, nunca un porcentaje de lo que dispersas y nunca un cargo por pago, por transacción ni por liquidación. Arriba de 1,000 registros/mes, hablemos."
     },
     "terms": {
       "accept": "Acepto los Términos de Payouts - solo pagos por prestación independiente de servicios (contratistas, freelancers, B2B), nunca salario de empleados subordinados; mis obligaciones fiscales y laborales siguen siendo mías.",
-      "link": "Términos de Payouts v1.3"
+      "link": "Términos de Payouts v1.4"
     },
     "clientInfo": {
       "title": "Identificación del cliente (mainnet)",

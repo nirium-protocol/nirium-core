@@ -62,7 +62,7 @@ type AnalyticsLog = { time: string; source: string; type: string; msg: string; t
 
 const ANALYTICS_LOGS: AnalyticsLog[] = [
     { time: '00:25:44', source: 'REBALANCE_NODE', type: 'info', msg: `Scan - CETES ${CETES_REFERENCE_RATE_PCT}% (Etherfuse fixed reference, ${CETES_REFERENCE_DATE_LABEL_EN}) vs idle USDC | base fee 100 stroops.` },
-    { time: '00:25:46', source: 'REBALANCE_NODE', type: 'success', msg: 'Threshold condition met (>2.5%). The agent calls rebalance() on the owner\'s DeFindex vault: Invest into its own strategy - no swap, no destination address.' },
+    { time: '00:25:46', source: 'REBALANCE_NODE', type: 'success', msg: `CETES reference ${CETES_REFERENCE_RATE_PCT}% (fixed, Etherfuse, ${CETES_REFERENCE_DATE_LABEL_EN}, not live) is above the 2.5% rule threshold. Rule condition only, not a recommendation. The agent calls rebalance() on the owner's DeFindex vault: Invest into its own strategy - no swap, no destination address.` },
     { time: '00:25:48', source: 'AUDIT_NODE', type: 'audit', msg: 'Transaction confirmed on-chain before it is logged. Anchoring a receipt of it is opt-in, per call.' },
     { time: '00:30:12', source: 'PAYOUTS_NODE', type: 'payment', msg: 'Batch prepared: unsigned XDR built server-side. The client signs it with their own wallet - Nirium never holds the key.' },
     { time: '00:30:15', source: 'PAYOUTS_NODE', type: 'success', msg: 'Batch submitted. One signature, every transfer in a single Stellar transaction.' },
@@ -200,13 +200,13 @@ export default function AnalyticsPage() {
                                 </span>
                             </h1>
                             <p className="text-gray-500 font-mono text-xs mt-2 uppercase tracking-widest">
-                                {language === 'es' ? 'Recibos, cobros y actividad por nodo' : 'Receipts, settlements and node activity'} // VAULT: {accountStr ? `${accountStr.slice(0, 8)}...${accountStr.slice(-4)}` : (language === 'es' ? 'conecta tu wallet' : 'connect your wallet')}
+                                {language === 'es' ? 'Recibos, cobros y actividad por nodo' : 'Receipts, settlements and node activity'}
                             </p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3 px-6 py-3 bg-[#121212] border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">
-                        <span className="text-gray-500">{language === 'es' ? 'Lecturas on-chain · contratos en testnet' : 'On-chain reads · testnet contracts'}</span>
+                        <span className="text-gray-500">{language === 'es' ? 'Lecturas on-chain de mainnet y testnet · NiriumVault solo en testnet' : 'On-chain reads from mainnet and testnet · NiriumVault on testnet only'}</span>
                     </div>
                 </header>
 
@@ -344,11 +344,8 @@ export default function AnalyticsPage() {
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-black text-gray-500 uppercase tracking-[0.3em] flex items-center gap-3">
                                 <Activity className="w-4 h-4 text-stellar-teal" />
-                                Agent Activity // Autonomous Feed
+                                {language === 'es' ? 'Ejemplo de un recorrido del agente (no es en vivo)' : 'Example agent run (not live)'}
                             </h3>
-                            <span className="text-[10px] font-black text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 uppercase tracking-widest">
-                                SAMPLE
-                            </span>
                         </div>
                         
                         <div className="bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[600px]">
@@ -357,7 +354,7 @@ export default function AnalyticsPage() {
                                     inventado. El feed real y en vivo está en el dashboard;
                                     esto es una muestra de la forma que tienen las entradas. */}
                                 <div className="flex items-center gap-4">
-                                    <span className="text-amber-400">SAMPLE_TRACE</span>
+                                    <span className="text-amber-400">{language === 'es' ? 'Ejemplo' : 'Example'}</span>
                                     <span>
                                         {language === 'es' ? 'Feed en vivo en el dashboard' : 'Live feed in the dashboard'}
                                     </span>
@@ -413,12 +410,12 @@ export default function AnalyticsPage() {
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2 text-[10px] font-black text-gray-300 uppercase tracking-widest">
                                     <ShieldCheck className="w-4 h-4 text-green-500" />
-                                    Non-Custodial Integrity
+                                    {language === 'es' ? 'Sin custodia' : 'Non-custodial'}
                                 </div>
                                 <p className="text-[10px] text-gray-500 leading-relaxed pl-6">
                                     {language === 'es'
-                                        ? <>Cada recibo lleva su hash SHA-256 y se ancla en IPFS. Cualquiera puede comprobarlo en <a href="/verify" className="text-stellar-teal hover:underline">/verify</a>.<br/>Alineado con el Código de Conducta de Stellar.</>
-                                        : <>Each receipt carries its SHA-256 hash and is anchored to IPFS. Anyone can check it at <a href="/verify" className="text-stellar-teal hover:underline">/verify</a>.<br/>Aligned with the Stellar Code of Conduct.</>}
+                                        ? <>Cada recibo lleva su hash SHA-256 y se ancla en IPFS. Cualquiera puede comprobarlo en <a href="/verify" className="text-stellar-teal hover:underline">/verify</a>.<br/>Si alguien cambia un recibo, se nota: el CID deja de coincidir. Guarda tu copia con <code>nirium anchor --save recibo.json</code>.<br/>Alineado con el Código de Conducta de Stellar.</>
+                                        : <>Each receipt carries its SHA-256 hash and is anchored to IPFS. Anyone can check it at <a href="/verify" className="text-stellar-teal hover:underline">/verify</a>.<br/>If someone changes a receipt, it shows: the CID stops matching. Keep your copy with <code>nirium anchor --save receipt.json</code>.<br/>Aligned with the Stellar Code of Conduct.</>}
                                 </p>
                             </div>
                             
@@ -471,7 +468,7 @@ export default function AnalyticsPage() {
                                                 rel="noopener noreferrer"
                                                 className="text-stellar-teal font-black hover:underline flex items-center gap-1"
                                             >
-                                                VERIFY_ON_EXPLORER
+                                                {language === 'es' ? 'Ver en el explorador' : 'View on explorer'}
                                                 <ExternalLink size={8} />
                                             </a>
                                             <span className="text-gray-600">TX: {log.tx.slice(0, 6)}…{log.tx.slice(-4)}</span>

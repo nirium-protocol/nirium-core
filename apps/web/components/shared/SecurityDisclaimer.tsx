@@ -19,9 +19,17 @@ export default function SecurityDisclaimer() {
                         {lang("Security Status", "Estado de Seguridad")}
                     </h3>
                     <p className="text-white/50 text-xs leading-relaxed max-w-3xl">
+                        {/* 21-nov-2026 (G4): "ya auditadas" iba sin fuente. */}
                         {lang(
-                            "Non-custodial nodes (settlement, audit, reporting) run on mainnet without holding funds. Payouts also runs on mainnet, invite-only until we have a written legal opinion. Treasury rebalancing runs on mainnet over DeFindex vaults (third-party, already audited), invite-only. NiriumVault, Nirium's own vault contract, has not yet undergone a formal third-party audit and stays on testnet until one is completed.",
-                            "Los nodos no custodiales (liquidación, auditoría, reportes) corren en mainnet sin custodiar fondos. Payouts también corre en mainnet, solo por invitación hasta tener una opinión legal por escrito. El rebalanceo de tesorería corre en mainnet sobre bóvedas de DeFindex (de terceros, ya auditadas), solo por invitación. NiriumVault, el contrato de bóveda propio de Nirium, todavía no tiene una auditoría formal de un tercero y sigue solo en testnet hasta que se complete una."
+                            "Non-custodial nodes (settlement, audit, reporting) run on mainnet without holding funds. Payouts also runs on mainnet, invite-only until we have a written legal opinion. Treasury rebalancing runs on mainnet over DeFindex vaults (third-party, ",
+                            "Los nodos no custodiales (liquidación, auditoría, reportes) corren en mainnet sin custodiar fondos. Payouts también corre en mainnet, solo por invitación hasta tener una opinión legal por escrito. El rebalanceo de tesorería corre en mainnet sobre bóvedas de DeFindex (de terceros, "
+                        )}
+                        <a href="https://github.com/paltalabs/defindex/blob/main/audits/2025_03_18_ottersec_defindex_audit.pdf" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">
+                            {lang("audited by OtterSec, March 2025", "auditadas por OtterSec, marzo de 2025")}
+                        </a>
+                        {lang(
+                            "), invite-only. NiriumVault, Nirium's own vault contract, has not yet undergone a formal third-party audit and stays on testnet until one is completed.",
+                            "), solo por invitación. NiriumVault, el contrato de bóveda propio de Nirium, todavía no tiene una auditoría formal de un tercero y sigue solo en testnet hasta que se complete una."
                         )}
                     </p>
                 </div>

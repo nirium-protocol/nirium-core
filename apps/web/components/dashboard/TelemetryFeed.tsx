@@ -4,7 +4,7 @@ import { Activity, ShieldCheck, Zap, Globe, Lock, Cpu } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function TelemetryFeed({ thoughts = [] }: { thoughts?: any[] }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     return (
         <div className="bg-[#050505] border border-white/10 rounded-xl flex flex-col max-h-[480px] overflow-hidden shadow-2xl">
@@ -17,7 +17,7 @@ export default function TelemetryFeed({ thoughts = [] }: { thoughts?: any[] }) {
                         <h3 className="text-sm font-bold text-white uppercase tracking-widest">{t.dashboard.telemetry_feed.title}</h3>
                         <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                            <span className="text-[10px] text-green-500/80 font-mono font-medium tracking-wide">ACTIVE_TELEMETRY</span>
+                            <span className="text-[10px] text-green-500/80 font-mono font-medium tracking-wide">{language === 'es' ? 'En vivo' : 'Live'}</span>
                         </div>
                     </div>
                 </div>

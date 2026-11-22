@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, ExternalLink, Loader2, RefreshCcw } from "lucide-react";
+import { statsText } from '@/lib/statsEs';
 import { useLanguage } from "@/context/LanguageContext";
 import NodeActivity from "@/components/analytics/NodeActivity";
 
@@ -337,7 +338,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                             </span>}
                                             {xs.integrationTests.map((t) => (
                                                 <span key={t.address} className="block text-amber-300/80">
-                                                    {lang('Integration test', 'Prueba de integración')} · {fmtDate(t.firstAt, lang)}{t.lastAt.slice(0, 10) !== t.firstAt.slice(0, 10) ? ` - ${fmtDate(t.lastAt, lang)}` : ''}: {t.count} {lang('settlements', 'liquidaciones')}. {t.note}
+                                                    {lang('Integration test', 'Prueba de integración')} · {fmtDate(t.firstAt, lang)}{t.lastAt.slice(0, 10) !== t.firstAt.slice(0, 10) ? ` - ${fmtDate(t.lastAt, lang)}` : ''}: {t.count} {lang('settlements', 'liquidaciones')}. {statsText(t.note, language)}
                                                 </span>
                                             ))}
                                         </span>
@@ -421,8 +422,8 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                 >
                                                     {p.address.slice(0, 8)}…{p.address.slice(-6)}
                                                 </a>
-                                                {p.label && <span className="text-white/80 ml-2">{p.label}</span>}
-                                                <p className="text-white/50 mt-0.5 leading-relaxed">{p.note}</p>
+                                                {p.label && <span className="text-white/80 ml-2">{statsText(p.label, language)}</span>}
+                                                <p className="text-white/50 mt-0.5 leading-relaxed">{statsText(p.note, language)}</p>
                                                 {p.kind !== 'internal' && fundingSentence(p, lang) && (
                                                     <p className="text-amber-300/80 mt-0.5 leading-relaxed">{fundingSentence(p, lang)}</p>
                                                 )}
@@ -490,7 +491,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                     sourceUrl={py?.humanUrl ?? 'https://pypistats.org/packages/nirium'}
                                     sourceLabel={py?.fullHistory
                                         ? lang('total since the first release, pypistats.org', 'total desde el primer release, pypistats.org')
-                                        : lang('last 180 days (all pypistats keeps), pypistats.org', 'últimos 180 días (lo único que conserva pypistats), pypistats.org')}
+                                        : 'pypistats.org'}
                                     footnote={
                                         <span className="text-xs text-white/40">
                                             {py && (py.fullHistory
@@ -501,6 +502,10 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                     }
                                 />
                             </div>
+                            {/* 21-nov-2026 (T3) */}
+                            <p className="text-xs text-white/40 mt-4">
+                                {lang('npm and PyPI downloads include automated installs (CI, mirrors, bots): they measure reach, not users.', 'Las descargas de npm y PyPI incluyen instalaciones automáticas (CI, espejos, bots): miden alcance, no usuarios.')}
+                            </p>
                         </div>
                     </section>
 
@@ -563,28 +568,28 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-widest border ${i.checks.ok ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
                                                             {i.checks.ok
                                                                 ? lang('checks: all live', 'chequeos: todos en vivo')
-                                                                : lang(`FAILED: ${failing.map((c) => c.label).join('; ')}`, `FALLÓ: ${failing.map((c) => c.label).join('; ')}`)}
+                                                                : lang(`FAILED: ${failing.map((c) => c.label).join('; ')}`, `FALLÓ: ${failing.map((c) => statsText(c.label, language)).join('; ')}`)}
                                                         </span>
                                                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-widest border ${i.network === 'unknown' ? 'bg-white/5 text-white/40 border-white/10' : 'bg-amber-400/10 text-amber-400 border-amber-400/20'}`}>
                                                             {i.network}
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <p className="text-xs text-white/50 mb-1">{i.description}</p>
-                                                <p className="text-xs text-white/40 font-mono mb-3">{i.badge}</p>
+                                                <p className="text-xs text-white/50 mb-1">{statsText(i.description, language)}</p>
+                                                <p className="text-xs text-white/40 font-mono mb-3">{statsText(i.badge, language)}</p>
                                                 <ul className="mb-3 space-y-0.5">
                                                     {i.checks.items.map((c) => (
                                                         <li key={c.label} className={`text-[11px] font-mono ${c.ok ? 'text-white/40' : 'text-red-400'}`}>
-                                                            {c.ok ? '\u2713' : '\u2717'} {c.label}{c.detail ? ` - ${c.detail}` : ''}
+                                                            {c.ok ? '\u2713' : '\u2717'} {statsText(c.label, language)}{c.detail ? ` - ${c.detail}` : ''}
                                                         </li>
                                                     ))}
                                                 </ul>
                                                 {i.origin && (
                                                     <p className="text-xs text-white/50 mb-3">
-                                                        {i.origin.text}{' '}
+                                                        {statsText(i.origin.text, language)}{' '}
                                                         {i.origin.links.map((l) => (
                                                             <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline mr-2">
-                                                                {l.label}{l.status ? ` (${l.status})` : ''}
+                                                                {statsText(l.label, language)}{l.status ? ` (${l.status})` : ''}
                                                             </a>
                                                         ))}
                                                     </p>
@@ -595,7 +600,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                     </a>
                                                     {i.links.map((l) => (
                                                         <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="text-xs text-stellar-teal hover:underline inline-flex items-center gap-1">
-                                                            {l.label} <ExternalLink className="w-3 h-3" />
+                                                            {statsText(l.label, language)} <ExternalLink className="w-3 h-3" />
                                                         </a>
                                                     ))}
                                                 </div>
@@ -770,7 +775,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                             </div>
                                                         ))}
                                                         {L.ok && L.found.length === 0 && (
-                                                            <p className="text-white/40">{lang('none of this wallet\u2019s settlements appear in the ledger window read', 'ninguna liquidación de esta wallet aparece en la ventana del ledger leída')}</p>
+                                                            <p className="text-white/40">{lang(`The window read is the ${L.entriesRead} most recent entries of its ledger; this wallet\u2019s ${t.count} settlements (${fmtDate(t.firstAt, lang)} - ${fmtDate(t.lastAt, lang)}) are on Horizon, in the payers table above.`, `La ventana leída son las ${L.entriesRead} entradas más recientes de su ledger; las ${t.count} liquidaciones de esta wallet (${fmtDate(t.firstAt, lang)} - ${fmtDate(t.lastAt, lang)}) están en Horizon, en la tabla de pagadores de arriba.`)}</p>
                                                         )}
                                                     </div>
                                                 );
@@ -871,7 +876,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                     <a href="/stats/history.json" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">/stats/history.json</a>
                                     {lang(', and the rendered page is sent to the ', ', y la página renderizada se manda al ')}
                                     <a href="https://web.archive.org/web/2/https://nirium.xyz/stats" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">Wayback Machine</a>
-                                    {lang('. Anyone can compare what this page said on a past date against what it says today.', '. Cualquiera puede comparar lo que esta página decía en una fecha pasada contra lo que dice hoy.')}
+                                    {lang('. Anyone can compare what this page said on a past date against what it says today. If the daily snapshot fails, the gap stays visible in the history; a missed day is never filled in afterwards.', '. Cualquiera puede comparar lo que esta página decía en una fecha pasada contra lo que dice hoy. Si un día falla la instantánea, el hueco queda a la vista en el historial; un día perdido nunca se rellena después.')}
                                 </li>
                             </ul>
                         </div>

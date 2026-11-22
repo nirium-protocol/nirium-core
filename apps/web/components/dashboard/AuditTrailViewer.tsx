@@ -107,11 +107,11 @@ export default function AuditTrailViewer() {
                         <Shield className="w-4 h-4 text-emerald-400" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-white uppercase tracking-widest">Tamper-Evident Audit Trail</h3>
+                        <h3 className="text-sm font-bold text-white uppercase tracking-widest">{lang('Audit Trail · tamper-evident', 'Audit Trail · si alguien cambia un recibo, se nota')}</h3>
                         <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                             <span className="text-[10px] text-emerald-500/80 font-mono font-medium tracking-wide">
-                                IPFS_PINATA // {total} {lang("NIRIUM'S OWN", 'PROPIOS DE NIRIUM')}
+                                {lang(`Pinned on IPFS (Pinata) · ${total} of Nirium's own`, `Fijados en IPFS (Pinata) · ${total} propios de Nirium`)}
                             </span>
                         </div>
                     </div>

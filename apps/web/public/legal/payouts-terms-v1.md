@@ -1,6 +1,6 @@
 # Nirium Payouts - Terms of Use (v1.4)
 
-**Effective:** July 10, 2026 · **Last updated:** November 16, 2026 · **Jurisdiction:** Mexico · **Stage:** Mainnet early access (invite-only)
+**Effective:** July 10, 2026 · **Last updated:** November 18, 2026 · **Jurisdiction:** Mexico · **Stage:** Mainnet early access (invite-only)
 
 By building or submitting a payout run through the Nirium Payouts / Disbursement node (`POST /api/payroll/run` with `acknowledgeTerms: true`), you (the "Client") accept these terms and the [Restricted Jurisdictions & Sanctions Policy](/legal/restricted-jurisdictions-v1.md), which forms part of this agreement.
 
