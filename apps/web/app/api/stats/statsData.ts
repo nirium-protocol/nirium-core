@@ -1112,6 +1112,15 @@ export async function getStatsData() {
                 since: reporting.mainnet?.period?.from ?? ALL_TIME_FROM,
                 source: `https://nirium-agent-mainnet.fly.dev/api/reporting/summary?network=mainnet&from=${ALL_TIME_FROM}`,
             },
+            // Lo que Reporting puede exportar hoy en mainnet (CSV o JSON): pagos
+            // cobrados, recibos anclados y lotes de Payouts, del mismo resumen.
+            reportingRecords: !reporting.mainnet ? null : {
+                payments: reporting.mainnet.payments?.count ?? 0,
+                anchors: reporting.mainnet.anchors?.count ?? 0,
+                payrollRuns: reporting.mainnet.payroll?.settledRuns ?? 0,
+                total: (reporting.mainnet.payments?.count ?? 0) + (reporting.mainnet.anchors?.count ?? 0) + (reporting.mainnet.payroll?.settledRuns ?? 0),
+                export: 'https://nirium-agent-mainnet.fly.dev/api/reporting/export?network=mainnet&type=payments&format=csv',
+            },
             escrowReleases: !x402 ? null : {
                 count: x402.escrowReleases.length,
                 items: x402.escrowReleases,

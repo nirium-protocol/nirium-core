@@ -28,6 +28,7 @@ type Stats = {
     treasuryRebalances: null | { total: number; lastAt: string | null; explorer: string };
     auditTrailAnchors: { count: number | null; lastAnchoredAt: string | null };
     payoutsSettledRuns: { count: number | null };
+    reportingRecords?: null | { payments: number; anchors: number; payrollRuns: number; total: number };
 };
 
 // Fuente pública (para los links) y proxy del mismo origen (para leerla sin CORS).
@@ -133,6 +134,16 @@ export default function NodeActivity({ language, network: fixed, breakdownBelow 
             ? stats?.freshness?.reporting?.status === "live" || (!!summary && !summaryFailed)
             : !!summary && !summaryFailed;
 
+    // Registros que Reporting exporta hoy: pagos cobrados + recibos + lotes.
+    const rec = net === "mainnet"
+        ? (stats?.reportingRecords ?? (summary
+            ? { payments: summary.payments?.count ?? 0, anchors: summary.anchors?.count ?? 0, payrollRuns: summary.payroll?.settledRuns ?? 0 }
+            : null))
+        : (summary
+            ? { payments: summary.payments?.count ?? 0, anchors: summary.anchors?.count ?? 0, payrollRuns: summary.payroll?.settledRuns ?? 0 }
+            : null);
+    const recTotal = rec ? rec.payments + rec.anchors + rec.payrollRuns : null;
+
     const x = stats?.x402Settlements;
     const t = stats?.treasuryRebalances;
     const gw = summary?.payments?.byGateway ?? {};
@@ -209,9 +220,10 @@ export default function NodeActivity({ language, network: fixed, breakdownBelow 
                 />
                 <Card
                     node="Reporting"
-                    value={loading ? "-" : reportingOk ? L("Live", "En vivo") : L("Not responding", "No responde")}
+                    value={loading ? "-" : typeof recTotal === "number" && reportingOk ? String(recTotal) : reportingOk ? L("Live", "En vivo") : L("Not responding", "No responde")}
                     lines={[
-                        L("Public summary API that feeds the Audit Trail and Payouts cards", "API pública de resumen que alimenta las tarjetas de Audit Trail y Payouts"),
+                        L("Records you can export as CSV or JSON", "Registros exportables en CSV o JSON"),
+                        rec ? L(`${rec.payments} payments · ${rec.anchors} receipts · ${rec.payrollRuns} payout runs`, `${rec.payments} pagos · ${rec.anchors} recibos · ${rec.payrollRuns} lotes`) : "",
                     ]}
                     href={summaryUrl(net)}
                     linkLabel={L("Open the API", "Abrir la API")}
