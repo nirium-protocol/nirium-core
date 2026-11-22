@@ -196,7 +196,7 @@ export default function AnalyticsPage() {
                                 {/* 16-nov-2026: decía "Treasury Telemetry"; la página ahora abre con recibos y cobros. */}
                                 {language === 'es' ? 'TELEMETRÍA DE LA RED' : 'NETWORK TELEMETRY'}
                                 <span className="text-[10px] not-italic font-black bg-white/5 text-gray-400 border border-white/10 px-3 py-1 rounded-full uppercase tracking-widest">
-                                    v0.19.7
+                                    v0.19.8
                                 </span>
                             </h1>
                             <p className="text-gray-500 font-mono text-xs mt-2 uppercase tracking-widest">

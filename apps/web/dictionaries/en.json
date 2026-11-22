@@ -553,19 +553,19 @@
             "name": "TypeScript SDK",
             "sub": "NPM · nirium",
             "cmd": "npm install nirium",
-            "badge": "v0.19.7"
+            "badge": "v0.19.8"
           },
           "py": {
             "name": "Python SDK",
             "sub": "PyPI · nirium",
             "cmd": "pip install nirium",
-            "badge": "v0.12.8"
+            "badge": "v0.12.9"
           },
           "mcp": {
             "name": "MCP Server",
             "sub": "Claude Desktop · Cursor · any MCP client",
             "cmd": "npx nirium-mcp",
-            "badge": "v0.6.10"
+            "badge": "v0.6.11"
           },
           "rest": {
             "name": "REST API",
@@ -600,7 +600,7 @@
   },
   "dashboard": {
     "title": "OPERATOR DASHBOARD",
-    "version_live": "v0.19.7",
+    "version_live": "v0.19.8",
     "loading_dashboard": "Loading dashboard...",
     "no_helpers": "No active execution nodes.",
     "no_helpers_desc": "Initialize your vault and delegate the agent to activate autonomous rebalancing.",
@@ -1149,7 +1149,7 @@
     "mcp": {
       "title": "MCP server",
       "subtitle": "Connect Claude Desktop or Cursor to Nirium's nodes: market data, Audit Trail anchors, Reporting and Treasury tools. Free tools work without a key; Treasury and loop control need an API key, and autonomous rebalancing on mainnet is invite-only.",
-      "tools_count": "25 tools (nirium-mcp 0.6.10)"
+      "tools_count": "25 tools (nirium-mcp 0.6.11)"
     },
     "hub": {
       "title": "API reference",

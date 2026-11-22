@@ -91,7 +91,7 @@ export default function PollarAdapterDocumentationPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-xl overflow-hidden mb-6">
                         <div className="bg-black p-4">
                             <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">npm</p>
-                            <p className="font-mono text-sm">nirium-pollar-adapter@0.6.5</p>
+                            <p className="font-mono text-sm">nirium-pollar-adapter@0.6.6</p>
                         </div>
                         <div className="bg-black p-4">
                             <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">Peer requerido</p>
@@ -229,7 +229,7 @@ export default function PollarAdapterDocumentationPage() {
                         <a href="https://github.com/nirium-protocol/nirium-pollar-adapter" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>
                         <a href="/" className="hover:text-white transition-colors">nirium.xyz</a>
                     </div>
-                    <span className="text-xs font-mono text-gray-600">nirium-pollar-adapter v0.6.5</span>
+                    <span className="text-xs font-mono text-gray-600">nirium-pollar-adapter v0.6.6</span>
                 </footer>
 
             </div>

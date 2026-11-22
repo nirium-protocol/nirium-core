@@ -10,8 +10,8 @@
 - NiriumVault, Nirium's own contract, stays on testnet until an external audit.
 
 ## Packages (versions checked 2026-11-21)
-- npm: nirium 0.19.7, nirium-mcp 0.6.10, nirium-cli 3.2.7, nirium-pollar-adapter 0.6.5
-- PyPI: nirium 0.12.8
+- npm: nirium 0.19.8, nirium-mcp 0.6.11, nirium-cli 3.2.7, nirium-pollar-adapter 0.6.6
+- PyPI: nirium 0.12.9
 
 ## CLI (nirium-cli)
 - `nirium anchor --hash <hex> | --file <path> | --record <json>`: anchor to IPFS via an Audit Trail node; `--sign --key-env <VAR>` adds an ed25519 attestation; `--save <file>` keeps your own copy of the anchored document (3.2.7+).
