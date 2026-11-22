@@ -11,6 +11,24 @@ import { useLanguage } from "@/context/LanguageContext";
 // el simulador de Etherfuse de verdad respondió bien.
 const STELLAR_ACCOUNT = /^G[A-Z2-7]{55}$/;
 
+// 21-nov-2026 (R1): el tipo de cambio se mostraba al revés. `exchangeRate` de Etherfuse viene en
+// tokens por peso (500 MXN → 433.91 CETES da 0.8678), y la página lo pintaba como pesos por token.
+// Se calcula de los montos de la propia cotización: pesos que pagas / tokens que recibes.
+function fiatPerToken(quote: any): string | null {
+    const src = parseFloat(quote?.sourceAmount ?? quote?.fromAmount);
+    const dst = parseFloat(quote?.destinationAmount ?? quote?.toAmount ?? quote?.targetAmount);
+    return src > 0 && dst > 0 ? (src / dst).toFixed(4) : null;
+}
+
+// 21-nov-2026 (R3): la hora local sin zona era ambigua. "en N min (hh:mm, zona)".
+function expiresLabel(iso: string, lang: (en: string, es: string) => string): string {
+    const at = new Date(iso);
+    if (Number.isNaN(at.getTime())) return '-';
+    const mins = Math.max(0, Math.round((at.getTime() - Date.now()) / 60000));
+    const clock = at.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+    return lang(`in ${mins} min (${clock})`, `en ${mins} min (${clock})`);
+}
+
 export default function FiatRamp() {
     const { t, language } = useLanguage();
     const lang = (en: string, es: string) => (language === 'es' ? es : en);
@@ -126,6 +144,12 @@ export default function FiatRamp() {
             const data = await res.json();
             if (data.error) {
                 const msg = typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error));
+                if (data.code === 'WALLET_NOT_REGISTERED') {
+                    // 21-nov-2026 (R2): antes salía el error crudo en inglés.
+                    throw new Error(lang(
+                        "Etherfuse couldn't register this address in its test environment. Check that it is a testnet address and try again.",
+                        'Etherfuse no pudo registrar esta dirección en su entorno de pruebas. Revisa que sea una dirección de testnet y vuelve a intentar.'));
+                }
                 if (data.code === 'QUOTE_EXPIRED' || res.status === 409) {
                     setError(msg);
                     setQuote(null);
@@ -215,9 +239,8 @@ export default function FiatRamp() {
                                                 <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-1.5 py-0.5 rounded">{lang('Etherfuse sandbox', 'Sandbox de Etherfuse')}</span>
                                             </div>
                                             <div className="text-[10px] text-gray-400 font-mono mb-1">{lang('Token price in the sandbox', 'Precio del token en el sandbox')}: {liveLookup[b.id]?.cost ?? '…'}</div>
-                                            <div className="text-[10px] text-gray-500 font-mono">{/* 12-nov-2026: este TVL es el que devuelve api.sand.etherfuse.com, no el mercado real de
-                                                Etherfuse (el precio de producción ese día era MX$1.19107, el del sandbox MX$1.14907). */}
-                                            {lang("TVL in Etherfuse's test environment - not real money, not Nirium's", 'TVL en el ambiente de pruebas de Etherfuse - no es dinero real ni de Nirium')}: {liveLookup[b.id]?.tvl ?? '…'}</div>
+                                            {/* 19-nov-2026: se quitó el TVL del sandbox de Etherfuse. Aunque decía "no es dinero
+                                                real", un MX$1,000 millones en una captura se lee como tracción y no ayuda a cotizar. */}
                                         </button>
                                     ))}
                                 </div>
@@ -308,10 +331,10 @@ export default function FiatRamp() {
                                     <span className="text-emerald-400 font-mono font-bold text-lg">{(quote.destinationAmount || quote.toAmount || quote.targetAmount || 0)} {selectedBond}</span>
                                 </div>
                                 <div className="pt-2 mt-2 border-t border-white/10 flex justify-between">
-                                    <span className="text-xs text-gray-500">{t.ramp.component.quote.rate}: 1 {selectedBond} = {(parseFloat(quote.exchangeRate) || 1).toFixed(4)} {BONDS.find(b => b.id === selectedBond)?.fiat}</span>
+                                    <span className="text-xs text-gray-500">{t.ramp.component.quote.rate}: 1 {selectedBond} = {fiatPerToken(quote) ?? '-'} {BONDS.find(b => b.id === selectedBond)?.fiat}</span>
                                     {/* Antes decía siempre "expira en 2m", sin dato que lo respaldara. */}
                                     {quote.expiresAt && (
-                                        <span className="text-xs text-gray-500">{lang('Expires', 'Expira')}: {new Date(quote.expiresAt).toLocaleTimeString()}</span>
+                                        <span className="text-xs text-gray-500">{lang('Expires', 'Expira')}: {expiresLabel(quote.expiresAt, lang)}</span>
                                     )}
                                 </div>
                             </div>
@@ -401,7 +424,7 @@ export default function FiatRamp() {
                 </div>
                 <div className="flex flex-col space-y-2.5">
                     <span className="font-black text-gray-400 mb-2 uppercase tracking-widest">{t.ramp.component.legal.agreements}</span>
-                    <a href="https://devnet.etherfuse.com/legal/terms-and-conditions" target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition-colors uppercase font-mono">Terms & Conditions</a>
+                    <a href="https://etherfuse.com/legal/terms-and-conditions" target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition-colors uppercase font-mono">Terms & Conditions</a>
                 </div>
             </div>
         </>

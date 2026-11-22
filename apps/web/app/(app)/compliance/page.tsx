@@ -4,6 +4,7 @@
 'use client';
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
     FileCheck, ArrowRight, Database, Layers, Building2, AlertTriangle,
     ShieldCheck, Download, Fingerprint, Search
@@ -15,6 +16,23 @@ import { ComplianceBanner } from "@/components/ui/ComplianceBanner";
 
 export default function CompliancePage() {
     const { t, language } = useLanguage();
+    // 21-nov-2026 (C1): el conteo estaba fijo en el código ("41") y se quedaba viejo con el
+    // siguiente anclaje. Se lee de /api/stats; si no responde, "-" (nunca un número viejo).
+    const [anchors, setAnchors] = useState<{ count: number; last: string | null } | null>(null);
+    useEffect(() => {
+        let cancelled = false;
+        fetch('/api/stats', { signal: AbortSignal.timeout(15000) })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => {
+                const a = d?.auditTrailAnchors;
+                if (!cancelled && typeof a?.count === 'number') setAnchors({ count: a.count, last: a.lastAnchoredAt ?? null });
+            })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, []);
+    const lastAnchor = anchors?.last
+        ? new Date(anchors.last).toLocaleDateString(language === 'es' ? 'es-MX' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+        : null;
 
     return (
         <main className="min-h-screen bg-black text-white antialiased selection:bg-stellar-teal/30">
@@ -142,6 +160,9 @@ export default function CompliancePage() {
                 {/* THE TARGET MARKET */}
                 <section className="py-24 border-t border-white/5 bg-white/[0.01]">
                     <div className="max-w-4xl mx-auto px-6">
+                        <p className="text-center text-sm text-gray-400 max-w-2xl mx-auto mb-6">
+                            {t.compliance_page.fintech_law.ledger_note}
+                        </p>
                         <h2 className="text-3xl sm:text-5xl font-black text-center uppercase italic tracking-tighter mb-6">
                             {t.compliance_page.fintech_law.title}
                         </h2>
@@ -170,10 +191,13 @@ export default function CompliancePage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
-                                    <div className="text-3xl font-black text-stellar-teal mb-1">36</div>
+                                    <div className="text-3xl font-black text-stellar-teal mb-1" data-testid="anchor-count">{anchors ? anchors.count : '-'}</div>
                                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black leading-tight">
                                         {t.compliance_page.fintech_law.stats.fintechs}
                                     </div>
+                                    {lastAnchor && (
+                                        <div className="text-[10px] text-gray-600 mt-1 font-mono">{language === 'es' ? 'último' : 'last'}: {lastAnchor}</div>
+                                    )}
                                 </div>
                                 <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
                                     <div className="text-3xl font-black text-stellar-teal mb-1">SHA-256</div>
@@ -209,10 +233,11 @@ export default function CompliancePage() {
                         </div>
 
                         {/* Mismas columnas que GET /api/reporting/export?type=anchors (reportingRoutes.ts).
-                            Las filas son de ejemplo y van marcadas como tales. */}
+                            21-nov-2026 (C2): filas reales de `npx nirium-cli@3.2.7 report export anchors
+                            --csv anchors.csv --network mainnet`, corrido ese día (antes eran inventadas). */}
                         <div className="rounded-3xl border border-white/10 bg-[#080808] shadow-2xl overflow-hidden group">
                             <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-white/5 bg-white/[0.02]">
-                                <span className="text-[10px] sm:text-xs text-gray-500 font-mono break-all">$ nirium report export anchors --csv anchors.csv</span>
+                                <span className="text-[10px] sm:text-xs text-gray-500 font-mono break-all">$ nirium report export anchors --csv anchors.csv --network mainnet</span>
                                 <span className="shrink-0 text-[10px] uppercase font-black tracking-widest text-amber-400 px-2 py-0.5 rounded border border-amber-400/30">
                                     {t.compliance_page.preview.integrity}
                                 </span>
@@ -220,9 +245,9 @@ export default function CompliancePage() {
                             <div className="p-8 font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed">
 <pre className="text-teal-950 dark:text-stellar-teal/80">anchored_at,source,network</pre>
 <pre className="text-black dark:text-white">
-{`2026-11-06T18:02:11.000Z,AUDIT_NODE,mainnet
-2026-11-05T21:40:37.000Z,AUDIT_NODE,mainnet
-2026-11-04T16:15:02.000Z,AUDIT_NODE,testnet`}
+{`2026-11-18T20:02:37.202+00:00,AUDIT_NODE,mainnet
+2026-11-18T20:02:29.225+00:00,AUDIT_NODE,mainnet
+2026-11-18T20:02:22.411+00:00,AUDIT_NODE,mainnet`}
 </pre>
                             </div>
                         </div>
@@ -242,7 +267,7 @@ export default function CompliancePage() {
                             </p>
                         </div>
                         <p className="text-sm font-mono text-zinc-500 mt-4">
-                            {language === 'es' ? 'Última actualización: 16 de noviembre de 2026' : 'Last updated: November 16, 2026'}
+                            {language === 'es' ? 'Última actualización: 21 de noviembre de 2026' : 'Last updated: November 21, 2026'}
                         </p>
                     </div>
                 </section>

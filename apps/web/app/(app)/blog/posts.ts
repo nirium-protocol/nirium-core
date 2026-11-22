@@ -8,6 +8,8 @@ export interface BlogPostMeta {
     slug: string;
     date: string;        // ISO date - formatted per-locale at render time
     readMinutes: number;
+    /** Entries that live outside /blog/<slug> (21-nov-2026, NAV2: the workshop recap). */
+    href?: string;
 }
 
 export const posts: BlogPostMeta[] = [
@@ -15,6 +17,12 @@ export const posts: BlogPostMeta[] = [
         slug: "codigo-402-agentes-que-pagan",
         date: "2026-11-06",
         readMinutes: 4,
+    },
+    {
+        slug: "workshop-audit-trail-recap",
+        date: "2026-10-30",
+        readMinutes: 6,
+        href: "/workshop-audit-trail-recap",
     },
     {
         slug: "audit-trail-verify-it-yourself",

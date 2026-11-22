@@ -277,12 +277,13 @@ export default function KeysPage() {
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">API Keys</h1>
                 <p className="text-white/50 mb-6 max-w-xl">
                     {lang(
-                        "Issue real API keys for the Nirium agent - audit anchoring, reporting and authenticated endpoints. One key works on both testnet and mainnet.",
-                        "Emite API keys reales del agente Nirium - anclaje de auditoría, reportería y endpoints autenticados. Una misma key funciona en testnet y mainnet.")}
+                        "Issue real API keys for the Nirium agent - audit anchoring, reporting and authenticated endpoints. One key works on testnet and mainnet for audit anchoring and reporting. On mainnet, Payouts and Treasury need a key Nirium authorizes (invite-only). Today anchoring and Reporting need no key (open beta); the key counts once Audit Trail pricing starts, and for Payouts and Treasury.",
+                        "Emite API keys reales del agente Nirium - anclaje de auditoría, reportería y endpoints autenticados. Una misma key funciona en testnet y mainnet para anclaje y reportería. En mainnet, Payouts y Treasury necesitan una key que Nirium autorice (por invitación). Hoy anclar y consultar Reporting no necesitan key (beta abierta); la key cuenta cuando entre el cobro de Audit Trail y para Payouts y Treasury.")}
                 </p>
                 <div className="flex flex-wrap gap-2 mb-10 font-mono text-[11px]">
                     {[
-                        lang("Free tier · 20 requests/min", "Tier free · 20 requests/min"),
+                        // 21-nov-2026 (K1): decía 20/min; en rutas con key manda TIER_QUOTAS.free (auth.ts).
+                        lang("Free tier · 10 requests/min and 100/day on keyed routes · anchoring and Reporting need no key today", "Tier free · 10 solicitudes/min y 100/día en rutas con key · anclar y Reporting hoy no piden key"),
                         "sk_free_…",
                         lang("Testnet + Mainnet", "Testnet + Mainnet"),
                     ].map((b) => (

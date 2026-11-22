@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, ExternalLink, Loader2, RefreshCcw } from "lucide-react";
+import { statsText } from '@/lib/statsEs';
 import { useLanguage } from "@/context/LanguageContext";
 import NodeActivity from "@/components/analytics/NodeActivity";
 
@@ -114,7 +115,8 @@ interface StatsResponse {
             reposScanned: number;
             campaigns: { count: number; items: { name: string; bountyIssues: number }[] };
             bountyIssues: { total: number };
-            mergedPRs: { count: number; linkedToGrantfoxIssue: number; items: { repo: string; number: number; title: string; url: string; author: string; mergedAt: string; linkedToGrantfoxIssue: boolean }[] };
+            mergedPRs: { count: number; linkedToGrantfoxIssue: number; linkedToWaveIssue?: number; items: { repo: string; number: number; title: string; url: string; author: string; mergedAt: string; linkedToGrantfoxIssue: boolean; linkedToWaveIssue?: boolean }[] };
+            stellarWave?: { issues: number; platformUrl: string };
             closedIssues: { count: number; items: { repo: string; number: number; title: string; url: string; author: string; closedAt: string; grantfoxLabeled: boolean }[] };
             failedRequests: number;
             platformUrl: string;
@@ -336,7 +338,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                             </span>}
                                             {xs.integrationTests.map((t) => (
                                                 <span key={t.address} className="block text-amber-300/80">
-                                                    {lang('Integration test', 'Prueba de integración')} · {fmtDate(t.firstAt, lang)}{t.lastAt.slice(0, 10) !== t.firstAt.slice(0, 10) ? ` - ${fmtDate(t.lastAt, lang)}` : ''}: {t.count} {lang('settlements', 'liquidaciones')}. {t.note}
+                                                    {lang('Integration test', 'Prueba de integración')} · {fmtDate(t.firstAt, lang)}{t.lastAt.slice(0, 10) !== t.firstAt.slice(0, 10) ? ` - ${fmtDate(t.lastAt, lang)}` : ''}: {t.count} {lang('settlements', 'liquidaciones')}. {statsText(t.note, language)}
                                                 </span>
                                             ))}
                                         </span>
@@ -420,8 +422,8 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                 >
                                                     {p.address.slice(0, 8)}…{p.address.slice(-6)}
                                                 </a>
-                                                {p.label && <span className="text-white/80 ml-2">{p.label}</span>}
-                                                <p className="text-white/50 mt-0.5 leading-relaxed">{p.note}</p>
+                                                {p.label && <span className="text-white/80 ml-2">{statsText(p.label, language)}</span>}
+                                                <p className="text-white/50 mt-0.5 leading-relaxed">{statsText(p.note, language)}</p>
                                                 {p.kind !== 'internal' && fundingSentence(p, lang) && (
                                                     <p className="text-amber-300/80 mt-0.5 leading-relaxed">{fundingSentence(p, lang)}</p>
                                                 )}
@@ -489,7 +491,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                     sourceUrl={py?.humanUrl ?? 'https://pypistats.org/packages/nirium'}
                                     sourceLabel={py?.fullHistory
                                         ? lang('total since the first release, pypistats.org', 'total desde el primer release, pypistats.org')
-                                        : lang('last 180 days (all pypistats keeps), pypistats.org', 'últimos 180 días (lo único que conserva pypistats), pypistats.org')}
+                                        : 'pypistats.org'}
                                     footnote={
                                         <span className="text-xs text-white/40">
                                             {py && (py.fullHistory
@@ -500,6 +502,10 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                     }
                                 />
                             </div>
+                            {/* 21-nov-2026 (T3) */}
+                            <p className="text-xs text-white/40 mt-4">
+                                {lang('npm and PyPI downloads include automated installs (CI, mirrors, bots): they measure reach, not users.', 'Las descargas de npm y PyPI incluyen instalaciones automáticas (CI, espejos, bots): miden alcance, no usuarios.')}
+                            </p>
                         </div>
                     </section>
 
@@ -562,28 +568,28 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-widest border ${i.checks.ok ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
                                                             {i.checks.ok
                                                                 ? lang('checks: all live', 'chequeos: todos en vivo')
-                                                                : lang(`FAILED: ${failing.map((c) => c.label).join('; ')}`, `FALLÓ: ${failing.map((c) => c.label).join('; ')}`)}
+                                                                : lang(`FAILED: ${failing.map((c) => c.label).join('; ')}`, `FALLÓ: ${failing.map((c) => statsText(c.label, language)).join('; ')}`)}
                                                         </span>
                                                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-widest border ${i.network === 'unknown' ? 'bg-white/5 text-white/40 border-white/10' : 'bg-amber-400/10 text-amber-400 border-amber-400/20'}`}>
                                                             {i.network}
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <p className="text-xs text-white/50 mb-1">{i.description}</p>
-                                                <p className="text-xs text-white/40 font-mono mb-3">{i.badge}</p>
+                                                <p className="text-xs text-white/50 mb-1">{statsText(i.description, language)}</p>
+                                                <p className="text-xs text-white/40 font-mono mb-3">{statsText(i.badge, language)}</p>
                                                 <ul className="mb-3 space-y-0.5">
                                                     {i.checks.items.map((c) => (
                                                         <li key={c.label} className={`text-[11px] font-mono ${c.ok ? 'text-white/40' : 'text-red-400'}`}>
-                                                            {c.ok ? '\u2713' : '\u2717'} {c.label}{c.detail ? ` - ${c.detail}` : ''}
+                                                            {c.ok ? '\u2713' : '\u2717'} {statsText(c.label, language)}{c.detail ? ` - ${c.detail}` : ''}
                                                         </li>
                                                     ))}
                                                 </ul>
                                                 {i.origin && (
                                                     <p className="text-xs text-white/50 mb-3">
-                                                        {i.origin.text}{' '}
+                                                        {statsText(i.origin.text, language)}{' '}
                                                         {i.origin.links.map((l) => (
                                                             <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline mr-2">
-                                                                {l.label}{l.status ? ` (${l.status})` : ''}
+                                                                {statsText(l.label, language)}{l.status ? ` (${l.status})` : ''}
                                                             </a>
                                                         ))}
                                                     </p>
@@ -594,7 +600,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                     </a>
                                                     {i.links.map((l) => (
                                                         <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="text-xs text-stellar-teal hover:underline inline-flex items-center gap-1">
-                                                            {l.label} <ExternalLink className="w-3 h-3" />
+                                                            {statsText(l.label, language)} <ExternalLink className="w-3 h-3" />
                                                         </a>
                                                     ))}
                                                 </div>
@@ -606,17 +612,17 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                         </section>
                     )}
 
-                    {/* COMMUNITY CONTRIBUTIONS (GrantFox) - never counted as organic adoption; no claim about payment */}
+                    {/* COMMUNITY CONTRIBUTIONS (GrantFox, Stellar Wave) - never counted as organic adoption; no claim about payment */}
                     <section className="py-10 border-t border-white/5">
                         <div className="max-w-5xl mx-auto px-6">
                             <h2 className="text-xl font-bold mb-2">{lang('Community contributions', 'Contribuciones de la comunidad')}</h2>
                             <p className="text-sm text-white/60 mb-1">
-                                {lang('Merged PRs from external contributors in GrantFox campaigns.', 'PRs mergeados de contribuidores externos en campañas de GrantFox.')}
+                                {lang('Merged PRs from external contributors, many of them through incentivized programs: GrantFox campaigns and Stellar Wave on Drips.', 'PRs mergeados de contribuidores externos, muchos de ellos a través de programas con incentivo: campañas de GrantFox y Stellar Wave en Drips.')}
                             </p>
                             <p className="text-xs text-white/40 mb-6">
                                 {lang(
-                                    'Not counted in "external payers" or in "Built with Nirium", and not organic adoption. No amounts are shown, and this page says nothing about whether any bounty was settled - that is decided by GrantFox.',
-                                    'No se cuentan en "pagadores externos" ni en "Built with Nirium", y no son adopción orgánica. No se muestran montos, y esta página no dice nada sobre si algún bounty se liquidó - eso lo decide GrantFox.')}
+                                    'Not counted in "external payers" or in "Built with Nirium", and not organic adoption. No amounts or points are shown, and this page says nothing about whether any reward was settled - GrantFox and Drips decide that.',
+                                    'No se cuentan en "pagadores externos" ni en "Built with Nirium", y no son adopción orgánica. No se muestran montos ni puntos, y esta página no dice nada sobre si alguna recompensa se liquidó - eso lo deciden GrantFox y Drips.')}
                             </p>
                             {!com.available ? (
                                 <div className="rounded-lg border border-red-500/30 bg-red-500/5 text-red-300 text-sm p-4">
@@ -626,7 +632,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                             ) : (
                                 <>
                                     <div className="mb-3"><Stale f={F?.community} lang={lang} /></div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                                         <StatCard
                                             label={lang('GrantFox campaigns (labeled in the repo)', 'Campañas de GrantFox (etiquetadas en el repo)')}
                                             value={com.campaigns.count}
@@ -639,7 +645,14 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                             value={com.mergedPRs.count}
                                             sourceUrl={`https://github.com/nirium-protocol/nirium/pulls?q=is%3Apr+is%3Amerged+-author%3AEras256+-author%3AM0nsxx+-author%3Aapp%2Fdependabot+-author%3Afernando-mendoza`}
                                             sourceLabel="GitHub"
-                                            footnote={<span className="text-xs text-white/40">{com.mergedPRs.linkedToGrantfoxIssue} {lang('linked to a GrantFox-labeled issue', 'vinculados a un issue con etiqueta GrantFox')} · {com.bountyIssues.total} {lang('bounty issues published in total', 'issues de bounty publicados en total')} · {lang('excludes fernando-mendoza (joined the team 2026-10-15)', 'excluye a fernando-mendoza (se unió al equipo el 2026-10-15)')}</span>}
+                                            footnote={<span className="text-xs text-white/40">{com.mergedPRs.linkedToGrantfoxIssue} {lang('linked to a GrantFox-labeled issue', 'vinculados a un issue con etiqueta GrantFox')} · {com.mergedPRs.linkedToWaveIssue ?? 0} {lang('to a Stellar Wave issue', 'a un issue de Stellar Wave')} · {com.bountyIssues.total} {lang('bounty issues published in total', 'issues de bounty publicados en total')} · {lang('excludes fernando-mendoza (joined the team 2026-10-15)', 'excluye a fernando-mendoza (se unió al equipo el 2026-10-15)')}</span>}
+                                        />
+                                        <StatCard
+                                            label={lang('Stellar Wave on Drips (labeled in the repo)', 'Stellar Wave en Drips (etiquetadas en el repo)')}
+                                            value={com.stellarWave?.issues ?? 0}
+                                            sourceUrl="https://github.com/nirium-protocol/nirium/issues?q=label%3A%22Stellar+Wave%22"
+                                            sourceLabel="GitHub"
+                                            footnote={<span className="text-xs text-white/40">{lang('issues open to Wave contributors since Wave 11 (18 Nov 2026); merged PRs are tagged below', 'issues abiertos a contribuidores de la Wave desde la Wave 11 (18 nov 2026); los PRs mergeados se marcan abajo')}</span>}
                                         />
                                         <StatCard
                                             label={lang('Issues opened by external contributors, closed as completed', 'Issues abiertos por contribuidores externos, cerrados como completados')}
@@ -655,9 +668,12 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                             .map((x) => (
                                                 <a key={x.url} href={x.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-4 p-4 hover:bg-white/[0.02] transition-colors">
                                                     <div className="min-w-0">
-                                                        <p className="text-sm text-white break-words">{x.title}</p>
+                                                        <p className="text-sm text-white break-words">{/^niriumtober evidence:\s*$/i.test(x.title) ? lang('Niriumtober evidence (untitled)', 'Evidencia de Niriumtober (sin título)') : x.title}</p>
                                                         <p className="text-xs text-white/40 font-mono mt-0.5">
                                                             {x.kind} · {x.repo}#{x.number} · @{x.author} · {fmtDate(x.at, lang)}
+                                                            {'linkedToWaveIssue' in x && x.linkedToWaveIssue && <span className="ml-2 px-1.5 py-0.5 rounded bg-sky-400/10 text-sky-300 border border-sky-400/20">Stellar Wave</span>}
+                                                            {'linkedToGrantfoxIssue' in x && x.linkedToGrantfoxIssue && <span className="ml-2 px-1.5 py-0.5 rounded bg-orange-400/10 text-orange-300 border border-orange-400/20">GrantFox</span>}
+                                                            {x.kind === 'issue' && /^niriumtober evidence/i.test(x.title) && <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-300 border border-amber-400/20" title={lang('Submission for the Niriumtober badge event', 'Entrega para el evento de badges de Niriumtober')}>Niriumtober</span>}
                                                         </p>
                                                     </div>
                                                     <ArrowUpRight className="w-4 h-4 text-white/30 shrink-0" />
@@ -668,6 +684,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                         {lang('Platform: ', 'Plataforma: ')}
                                         <a href={com.platformUrl} target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">GrantFox</a>
                                         {' · '}{lang('no public page for our specific campaigns was found, so this links the platform, not a campaign.', 'no se encontró una página pública de nuestras campañas, así que esto enlaza la plataforma, no una campaña.')}
+                                        {com.stellarWave && <>{' · '}<a href={com.stellarWave.platformUrl} target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">Stellar Wave (Drips)</a></>}
                                     </p>
                                 </>
                             )}
@@ -721,7 +738,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                 {b.connectorUrl}
                                             </a>
                                             <p className="text-xs text-white/40 mt-3">
-                                                {lang('The badges above describe that demo widget only (their site, synthetic agents, testnet dry-run) - it is separate from AgentLedger\u2019s own wallet, which has made real mainnet x402 payments. Those are integration tests by an independent third party when they happened (Aug-Sep 2026) - its founder, Fer, also joined Nirium part-time in October 2026 - listed apart in the payer table above and shown with real evidence below; they are not counted as external payers or as a paying customer.', 'Los badges de arriba describen solo ese widget de demo (en su sitio, agentes sintéticos, dry-run de testnet) - es distinto de la wallet propia de AgentLedger, que sí ha hecho pagos x402 reales en mainnet. Esos son pruebas de integración de un tercero independiente cuando ocurrieron (ago-sep 2026) - su fundador, Fer, también se unió a Nirium part-time en octubre 2026 - listadas aparte en la tabla de pagadores arriba y mostradas con evidencia real abajo; no se cuentan como pagadores externos ni como cliente de pago.')}
+                                                {lang('The badges above describe that demo widget only (their site, synthetic agents, testnet dry-run) - it is separate from AgentLedger\u2019s own wallet, which has made real mainnet x402 payments. Those are integration tests: by an independent third party when they happened (Aug-Sep 2026), and from a second wallet on 18 Nov 2026, after its founder, Fer, joined Nirium part-time in October 2026 - listed apart in the payer table above and shown with real evidence below; they are not counted as external payers or as a paying customer.', 'Los badges de arriba describen solo ese widget de demo (en su sitio, agentes sintéticos, dry-run de testnet) - es distinto de la wallet propia de AgentLedger, que sí ha hecho pagos x402 reales en mainnet. Esas son pruebas de integración: de un tercero independiente cuando ocurrieron (ago-sep 2026), y desde una segunda wallet el 18 nov 2026, cuando su fundador, Fer, ya trabajaba con Nirium part-time desde octubre 2026 - listadas aparte en la tabla de pagadores arriba y mostradas con evidencia real abajo; no se cuentan como pagadores externos ni como cliente de pago.')}
                                             </p>
                                             {xs.integrationTests.filter((t) => t.ledger).map((t) => {
                                                 const pp = xs.payers.find((x) => x.address === t.address);
@@ -758,7 +775,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                                             </div>
                                                         ))}
                                                         {L.ok && L.found.length === 0 && (
-                                                            <p className="text-white/40">{lang('none of this wallet\u2019s settlements appear in the ledger window read', 'ninguna liquidación de esta wallet aparece en la ventana del ledger leída')}</p>
+                                                            <p className="text-white/40">{lang(`The window read is the ${L.entriesRead} most recent entries of its ledger; this wallet\u2019s ${t.count} settlements (${fmtDate(t.firstAt, lang)} - ${fmtDate(t.lastAt, lang)}) are on Horizon, in the payers table above.`, `La ventana leída son las ${L.entriesRead} entradas más recientes de su ledger; las ${t.count} liquidaciones de esta wallet (${fmtDate(t.firstAt, lang)} - ${fmtDate(t.lastAt, lang)}) están en Horizon, en la tabla de pagadores de arriba.`)}</p>
                                                         )}
                                                     </div>
                                                 );
@@ -848,7 +865,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                     Next, la primera visita después de un rato sin tráfico recibe la versión
                                     anterior mientras se genera la nueva (medido: el snapshot del 8-nov traía
                                     datos de 11 h antes). La hora de generación siempre se muestra arriba. */}
-                                <li>{lang('Every metric is fetched server-side from its source, never hand-edited. The page is regenerated at most every 5 minutes; the first visit after a quiet period can get the previous version while a new one is built - the time it was generated is shown at the top.', 'Cada métrica se obtiene del lado del servidor desde su fuente, nunca se edita a mano. La página se regenera como máximo cada 5 minutos; la primera visita después de un rato sin tráfico puede recibir la versión anterior mientras se genera la nueva - arriba se muestra a qué hora se generó.')}</li>
+                                <li>{lang('Every metric is fetched server-side from its source, never hand-edited. The page is regenerated at most every 30 minutes; the first visit after a quiet period can get the previous version while a new one is built - the time it was generated is shown at the top.', 'Cada métrica se obtiene del lado del servidor desde su fuente, nunca se edita a mano. La página se regenera como máximo cada 30 minutos; la primera visita después de un rato sin tráfico puede recibir la versión anterior mientras se genera la nueva - arriba se muestra a qué hora se generó.')}</li>
                                 <li>{lang('x402 settlements and Treasury rebalances are counted directly from Horizon operations on the mainnet accounts - see the source link on each card.', 'Las liquidaciones x402 y los rebalanceos del Treasury se cuentan directo de las operaciones en Horizon sobre las cuentas de mainnet - ver el link de fuente en cada tarjeta.')}</li>
                                 <li>{lang('GitHub-backed lists (external merged PRs, community contributions) are cached up to 1 hour to stay inside GitHub\u2019s unauthenticated rate limit. A request that fails is shown as a failure, never silently dropped.', 'Las listas que vienen de GitHub (PRs externos mergeados, contribuciones de la comunidad) se cachean hasta 1 hora para no pasarse del límite sin autenticación de GitHub. Una consulta que falla se muestra como falla, nunca se omite en silencio.')}</li>
                                 <li>{lang('Testnet activity has its own section, labeled TESTNET, right after the main mainnet block. It includes automated development and testing traffic, so it is never counted in the mainnet numbers.', 'La actividad de testnet tiene su propia sección, marcada TESTNET, justo después del bloque principal de mainnet. Incluye tráfico automatizado de desarrollo y pruebas, así que nunca se suma a los números de mainnet.')}</li>
@@ -859,7 +876,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                     <a href="/stats/history.json" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">/stats/history.json</a>
                                     {lang(', and the rendered page is sent to the ', ', y la página renderizada se manda al ')}
                                     <a href="https://web.archive.org/web/2/https://nirium.xyz/stats" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">Wayback Machine</a>
-                                    {lang('. Anyone can compare what this page said on a past date against what it says today.', '. Cualquiera puede comparar lo que esta página decía en una fecha pasada contra lo que dice hoy.')}
+                                    {lang('. Anyone can compare what this page said on a past date against what it says today. If the daily snapshot fails, the gap stays visible in the history; a missed day is never filled in afterwards.', '. Cualquiera puede comparar lo que esta página decía en una fecha pasada contra lo que dice hoy. Si un día falla la instantánea, el hueco queda a la vista en el historial; un día perdido nunca se rellena después.')}
                                 </li>
                             </ul>
                         </div>

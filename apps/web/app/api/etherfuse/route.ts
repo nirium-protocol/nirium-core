@@ -173,15 +173,30 @@ export async function POST(req: Request) {
             let cryptoWalletId = walletData?.walletId || walletData?.id || walletData?.cryptoWalletId;
 
             if (!cryptoWalletId) {
-                // 409 or missing id - fetch existing wallets and match by publicKey
-                const listRes = await fetch(`${BASE_URL}/ramp/wallets?customerId=${orgId}&limit=50`, { headers });
-                const listData = await listRes.json().catch(() => ({})) as any;
-                const wallets = listData?.items || listData?.wallets || [];
-                const found = wallets.find((w: any) =>
-                    w.publicKey === walletAddress || w.address === walletAddress || w.walletAddress === walletAddress
-                );
-                cryptoWalletId = found?.walletId || found?.id || found?.cryptoWalletId;
-                console.log('[etherfuse] wallet lookup:', { found, cryptoWalletId });
+                // 21-nov-2026 (R2): antes era `GET /ramp/wallets?customerId=…&limit=50`. Según la doc
+                // de Etherfuse (docs.etherfuse.com/api-reference/wallets/list-wallets), ese GET no
+                // acepta filtros ni límite: devuelve solo la primera página (30). Todas las wallets
+                // de los visitantes viven bajo la misma organización de pruebas, así que pasando de 30
+                // una wallet ya registrada no aparecía (inferencia: no reproducido en el sandbox).
+                // POST /ramp/wallets pagina con pageNumber/pageSize (máximo 100).
+                console.warn('[etherfuse] register wallet returned no id:', { status: walletRes.status, body: walletData });
+                const match = (w: any) => w?.publicKey === walletAddress || w?.address === walletAddress || w?.walletAddress === walletAddress;
+                for (let pageNumber = 0; pageNumber < 50 && !cryptoWalletId; pageNumber++) {
+                    const listRes = await fetch(`${BASE_URL}/ramp/wallets`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({ pageNumber, pageSize: 100 }),
+                    });
+                    const listData = await listRes.json().catch(() => ({})) as any;
+                    const wallets: any[] = listData?.items || listData?.wallets || [];
+                    const found = wallets.find(match);
+                    cryptoWalletId = found?.walletId || found?.id || found?.cryptoWalletId;
+                    const totalPages = Number(listData?.totalPages);
+                    if (!listRes.ok || wallets.length === 0 || (Number.isFinite(totalPages) && pageNumber + 1 >= totalPages)) {
+                        if (!cryptoWalletId) console.warn('[etherfuse] wallet lookup ended without a match:', { status: listRes.status, pageNumber, totalPages: listData?.totalPages });
+                        break;
+                    }
+                }
             }
 
             // Get first active bank account for the org
@@ -190,7 +205,8 @@ export async function POST(req: Request) {
             const bankAccountId = bankData?.items?.[0]?.bankAccountId || bankData?.items?.[0]?.id;
 
             if (!cryptoWalletId) {
-                return NextResponse.json({ error: 'Could not resolve walletId for this address' }, { status: 400 });
+                // El detalle técnico ya va al log de arriba; al usuario, un código que la página traduce.
+                return NextResponse.json({ error: 'Could not resolve walletId for this address', code: 'WALLET_NOT_REGISTERED' }, { status: 400 });
             }
 
             console.log('[etherfuse] order payload:', { orderId, quoteId, cryptoWalletId, bankAccountId });

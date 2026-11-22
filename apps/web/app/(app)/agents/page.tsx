@@ -24,6 +24,19 @@ export default function AgentsPage() {
     const elo = useEloReputation();
     const [eloScore, setEloScore] = useState<number | null>(null);
     const [totalSentinels, setTotalSentinels] = useState<number | null>(null);
+    const [protocols, setProtocols] = useState<{ mainnet: number | null; testnet: number | null }>({ mainnet: null, testnet: null });
+
+    useEffect(() => {
+        let cancelled = false;
+        const read = (url: string) => fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((j) => (typeof j?.current_protocol_version === 'number' ? j.current_protocol_version : null))
+            .catch(() => null);
+        Promise.all([read('https://horizon.stellar.org/'), read('https://horizon-testnet.stellar.org/')]).then(([mainnet, testnet]) => {
+            if (!cancelled) setProtocols({ mainnet, testnet });
+        });
+        return () => { cancelled = true; };
+    }, []);
 
     useEffect(() => {
         eloGetTotalSentinels().then(n => setTotalSentinels(Number(n))).catch(() => {});
@@ -61,9 +74,16 @@ export default function AgentsPage() {
             audit: lang(
                 "SHA-256 + IPFS anchor when a run is recorded (opt-in)",
                 "SHA-256 + anclaje IPFS cuando se registra una corrida (opcional)"),
-            metric: lang(
-                "Health is public - see /api/public/rebalancer-health; a non-zero problem count there is expected when a dependency hiccups, not a silent failure",
-                "Salud pública - ver /api/public/rebalancer-health; un conteo de problemas distinto de cero ahí es esperado cuando falla una dependencia, no una falla silenciosa"),
+            // 21-nov-2026 (G2): era una ruta relativa, que en nirium.xyz da 404.
+            metric: (
+                <>
+                    {lang("Health is public - see ", "Salud pública - ver ")}
+                    <a href="https://nirium-agent-mainnet.fly.dev/api/public/rebalancer-health" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline break-all">nirium-agent-mainnet.fly.dev/api/public/rebalancer-health</a>
+                    {lang(
+                        "; a non-zero problem count there is expected when a dependency hiccups, not a silent failure",
+                        "; un conteo de problemas distinto de cero ahí es esperado cuando falla una dependencia, no una falla silenciosa")}
+                </>
+            ),
             locked: false,
         },
         {
@@ -78,8 +98,8 @@ export default function AgentsPage() {
                 "Disbursement Node (Bulk Payouts)",
                 "Nodo de Dispersión (Pagos Masivos)"),
             role: lang(
-                "Disburse funds from one company wallet to up to 100 recipients (contractors, freelancers, B2B partners) in a single signed batch payment. Non-custodial - the company signs in its own wallet, Nirium never holds funds.",
-                "Dispersa fondos desde una wallet de la empresa a hasta 100 destinatarios (contratistas, freelancers, socios B2B) en un solo lote de pago firmado. Non-custodial - la empresa firma en su propia wallet, Nirium nunca custodia fondos."),
+                "Disburse funds from one company wallet to up to 100 recipients per batch (99 if the batch carries a fee) - contractors, freelancers, B2B partners - in a single signed batch payment. Non-custodial - the company signs in its own wallet, Nirium never holds funds.",
+                "Dispersa fondos desde una wallet de la empresa a hasta 100 destinatarios por lote (99 si el lote lleva comisión) - contratistas, freelancers, socios B2B - en un solo lote de pago firmado. Non-custodial - la empresa firma en su propia wallet, Nirium nunca custodia fondos."),
             cycle: lang("On-demand / per run", "Bajo demanda / por corrida"),
             trigger: lang(
                 "Company builds and signs a payout run",
@@ -88,8 +108,8 @@ export default function AgentsPage() {
                 // No es "sponsored": executePayroll.ts (onboardEmployee) arma un
                 // changeTrust que firma el propio destinatario y su cuenta paga la
                 // reserva. Verificado el 8-nov-2026.
-                "Batch USDC/XLM payment (≤100 recipients) + USDC trustline the recipient adds and signs itself",
-                "Pago batch USDC/XLM (≤100 destinatarios) + trustline USDC que el propio destinatario agrega y firma"),
+                "Batch USDC/XLM payment (up to 100 recipients per batch, 99 if the batch carries a fee) + USDC trustline the recipient adds and signs itself",
+                "Pago batch USDC/XLM (hasta 100 destinatarios por lote, 99 si el lote lleva comisión) + trustline USDC que el propio destinatario agrega y firma"),
             audit: lang(
                 "Tamper-evident IPFS receipt per run (optional LCP legal layer - pending a legal opinion)",
                 "Recibo IPFS por corrida donde cualquier cambio se nota (capa legal LCP opcional - pendiente de opinión legal)"),
@@ -132,8 +152,8 @@ export default function AgentsPage() {
                 "Full decision record via onDecision (ALLOWED/SIGNED/DENY/TIMEOUT/...), kept by the integrator",
                 "Registro completo de la decisión vía onDecision (ALLOWED/SIGNED/DENY/TIMEOUT/...), lo conserva quien integra"),
             metric: lang(
-                "Shipped in the TypeScript package (nirium on npm) - exercised on testnet only so far, not yet run against mainnet traffic. Not a key-custody control, see the roadmap for that",
-                "Publicado en el paquete de TypeScript (nirium en npm) - probado solo en testnet hasta ahora, no se ha corrido todavía contra tráfico de mainnet. No es una custodia remota de la llave, eso está en el roadmap"),
+                "Shipped in the TypeScript package (nirium on npm) - exercised on testnet, and once on mainnet in an integration test by AgentLedger (18 Nov 2026); not yet run against organic mainnet traffic. Not a key-custody control, see the roadmap for that",
+                "Publicado en el paquete de TypeScript (nirium en npm) - probado en testnet, y una vez en mainnet en una prueba de integración de AgentLedger (18 nov 2026); todavía no contra tráfico orgánico de mainnet. No es una custodia remota de la llave, eso está en el roadmap"),
             locked: false,
         },
         {
@@ -159,8 +179,8 @@ export default function AgentsPage() {
                 "Payment receipt logged per call; the settlement hash is on Horizon",
                 "Recibo de pago registrado por llamada; el hash de liquidación está en Horizon"),
             metric: lang(
-                "Nirium's own test endpoint on mainnet, last settled payment 29 Sep 2026. x402Serve() for third parties: written legal opinion pending",
-                "Endpoint de prueba propio de Nirium en mainnet, último pago liquidado el 29 sep 2026. x402Serve() para terceros: opinión legal por escrito pendiente"),
+                "Nirium's own test endpoint on mainnet, last settled payment 18 Nov 2026 (an integration test). x402Serve() for third parties: written legal opinion pending",
+                "Endpoint de prueba propio de Nirium en mainnet, último pago liquidado el 18 nov 2026 (una prueba de integración). x402Serve() para terceros: opinión legal por escrito pendiente"),
             locked: false,
         },
         {
@@ -175,8 +195,8 @@ export default function AgentsPage() {
                 "Audit Node",
                 "Nodo de Auditoría"),
             role: lang(
-                "Anchors a record to IPFS as a tamper-evident, publicly verifiable receipt when the caller asks for it (opt-in per call), and powers institutional-format exports. Optional Legal Context Protocol layer, pending a legal opinion.",
-                "Ancla un registro a IPFS como recibo públicamente verificable, donde cualquier cambio posterior se nota, cuando quien llama lo pide (opcional por llamada), y alimenta exportes con formato institucional. Capa opcional Legal Context Protocol, pendiente de opinión legal."),
+                "Anchors a record to IPFS as a tamper-evident, publicly verifiable receipt when the caller asks for it (opt-in per call), and powers institutional-format exports. Optional Legal Context Protocol layer, pending a legal opinion. Includes Reporting: read-only summaries and exports at /api/reporting/summary and /api/reporting/export.",
+                "Ancla un registro a IPFS como recibo públicamente verificable, donde cualquier cambio posterior se nota, cuando quien llama lo pide (opcional por llamada), y alimenta exportes con formato institucional. Capa opcional Legal Context Protocol, pendiente de opinión legal. Incluye Reporting: resúmenes y exportes de solo lectura en /api/reporting/summary y /api/reporting/export."),
             cycle: lang("On request", "Bajo demanda"),
             trigger: lang("A POST /api/audit/log call, opt-in per call", "Una llamada POST /api/audit/log, opcional en cada llamada"),
             authorized: lang(
@@ -216,8 +236,8 @@ export default function AgentsPage() {
             // CARTJI…Q5SICV vía Soroban RPC): solo AdminAddress, Treasury y
             // contadores; ningún Cosigner1/Cosigner2. O sea, hoy pausa el admin solo.
             role: lang(
-                "Emergency controls of the NiriumVault contract. The contract supports a 2-of-3 pause (admin plus one cosigner), but the testnet deployment has no cosigners registered yet (checked on-chain, 8 Nov 2026), so today pausing or resuming takes the admin's signature alone. Each owner closes their own vault with their own signature. Never runs autonomously.",
-                "Controles de emergencia del contrato NiriumVault. El contrato admite una pausa 2-de-3 (admin más un cosignatario), pero el despliegue de testnet todavía no tiene cosignatarios registrados (revisado en la cadena, 8 nov 2026), así que hoy pausarlo o reanudarlo requiere solo la firma del admin. Cada dueño cierra su propia bóveda con su propia firma. Nunca corre de forma autónoma."),
+                "Emergency controls of the NiriumVault contract. The contract supports a 2-of-3 pause (admin plus one cosigner), but the testnet deployment (contract CDMFURE6…) has no cosigners registered yet (checked on-chain, 21 Nov 2026), so today pausing or resuming takes the admin's signature alone. Each owner closes their own vault with their own signature. Never runs autonomously.",
+                "Controles de emergencia del contrato NiriumVault. El contrato admite una pausa 2-de-3 (admin más un cosignatario), pero el despliegue de testnet (contrato CDMFURE6…) todavía no tiene cosignatarios registrados (revisado en la cadena, 21 nov 2026), así que hoy pausarlo o reanudarlo requiere solo la firma del admin. Cada dueño cierra su propia bóveda con su propia firma. Nunca corre de forma autónoma."),
             cycle: lang("Manual only", "Solo manual"),
             trigger: lang(
                 "Admin request (no cosigners registered yet)",
@@ -289,9 +309,9 @@ export default function AgentsPage() {
                     <div className="flex items-center gap-1.5">
                         <Cpu className="w-3 h-3 text-white/20" />
                         <span className="text-white/40">{lang("Protocol", "Protocolo")}</span>
-                        {/* Verificado 8-nov-2026 contra el último ledger de Horizon: mainnet
-                            protocol_version 29, testnet 30. Antes decía 29 para las dos. */}
-                        <span className="text-white/80 ml-1">{lang("Soroban · 29 mainnet · 30 testnet", "Soroban · 29 mainnet · 30 testnet")}</span>
+                        {/* 21-nov-2026 (G3): antes fijo ("29 mainnet · 30 testnet"); ahora se lee de
+                            Horizon (current_protocol_version), igual que /analytics. Sin dato, "-". */}
+                        <span className="text-white/80 ml-1">Soroban · {protocols.mainnet ?? '-'} mainnet · {protocols.testnet ?? '-'} testnet</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <Globe className="w-3 h-3 text-white/20" />

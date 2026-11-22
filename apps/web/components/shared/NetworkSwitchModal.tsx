@@ -48,7 +48,7 @@ export default function NetworkSwitchModal({ open, onConfirm, onCancel }: Props)
             mainnet: yes,
         },
         {
-            label: lang("Payouts - self-custody batch", "Payouts - lote self-custody"),
+            label: lang("Payouts - self-custody batch", "Payouts - lote sin custodia"),
             testnet: (
                 <span className="text-[10px] font-bold text-white/50">
                     {lang("open", "abierto")}
@@ -67,9 +67,11 @@ export default function NetworkSwitchModal({ open, onConfirm, onCancel }: Props)
             // "live 24/7" era una etiqueta fija, no una lectura: nada en este
             // modal comprueba que el rebalanceador de testnet esté corriendo.
             // "open" dice lo que sí es cierto: cualquiera puede usarlo.
+            // 21-nov-2026 (M1): en testnet no corre ningún rebalanceo autónomo; el botón
+            // Invertir/Sacar de la consola lo pide el dueño (requiere #238 desplegado).
             testnet: (
-                <span className="text-[10px] font-bold text-white/50">
-                    {lang("open", "abierto")}
+                <span className="text-[10px] font-bold text-white/50 leading-tight inline-block">
+                    {lang("deploy and deposit: open · rebalance: you ask for it", "desplegar y depositar: abierto · rebalanceo: lo pides tú")}
                 </span>
             ),
             // Dejó de ser "espera auditoría" el 5-ago: la tesorería autónoma
@@ -146,6 +148,12 @@ export default function NetworkSwitchModal({ open, onConfirm, onCancel }: Props)
                             </div>
                         ))}
                     </div>
+                    {/* 21-nov-2026 (M2): política v1.4 (451 en la API). */}
+                    <p className="text-[11px] text-white/50 leading-relaxed -mt-2">
+                        {lang(
+                            "On mainnet, Payouts and Treasury are not offered in the EEA, the United Kingdom or the United States; on testnet they are, as a demonstration.",
+                            "En mainnet, Payouts y Tesorería no se ofrecen en el EEE, el Reino Unido ni Estados Unidos; en testnet sí, como demostración.")}
+                    </p>
 
                     {/* El feed sale de una tabla de Supabase compartida por los dos
                         boxes, así que no se filtra por red - decirlo evita que un

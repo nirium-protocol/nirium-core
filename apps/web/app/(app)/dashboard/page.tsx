@@ -228,7 +228,8 @@ function DashboardContent() {
             }
         };
         fetchThoughts();
-        const interval = setInterval(fetchThoughts, 8000);
+        // Nothing while the tab is in the background: each poll is a server function run on Vercel.
+        const interval = setInterval(() => { if (document.visibilityState === 'visible') fetchThoughts(); }, 8000);
         return () => clearInterval(interval);
     }, []);
 
@@ -2706,6 +2707,16 @@ function DashboardContent() {
                     <ChevronRight className="w-5 h-5 text-gray-500 shrink-0 transition-transform group-open/treasury:rotate-90" />
                 </summary>
                 <div className="pt-6">
+                {/* 21-nov-2026 (D3): en mainnet esto mostraba herramientas de NiriumVault en cero
+                    (bóvedas 0, nodos 0, comisiones 0.0000). NiriumVault solo existe en testnet. */}
+                {uiNet === 'mainnet' ? (
+                    <div data-testid="mainnet-vault-card" className="glass-panel p-6 rounded-2xl border border-stellar-yellow/20 bg-stellar-yellow/5 max-w-3xl">
+                        <p className="text-sm text-gray-300 leading-relaxed">
+                            {L('NiriumVault lives on testnet. Switch to TEST in the menu to create a vault and try the nodes. On mainnet the treasury is a DeFindex vault you own, invite-only: ', 'NiriumVault vive en testnet. Cambia a TEST en el menú para crear una bóveda y probar los nodos. En mainnet la tesorería es una bóveda de DeFindex tuya, solo por invitación: ')}
+                            <Link href="/security" className="text-stellar-teal hover:underline">/security</Link>.
+                        </p>
+                    </div>
+                ) : (<>
                 <NetworkScopeNote
                     className="mb-8"
                     testnet={{
@@ -2774,7 +2785,7 @@ function DashboardContent() {
             </div>
 
             {/* Real-Time Analytics Bar */}
-            <div className="w-full max-w-[1600px] mx-auto grid grid-cols-1 xs:grid-cols-2 md:grid-cols-5 gap-4 mb-8 relative z-10">
+            <div className="w-full max-w-[1600px] mx-auto grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4 mb-8 relative z-10">
                 <div className="glass-panel p-4 rounded-xl border border-white/5">
                     <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-1">{t.dashboard.stats.secured_capital}</h3>
                     <div className="text-xl font-mono text-white font-bold">
@@ -2787,7 +2798,7 @@ function DashboardContent() {
                 </div>
                 <div className="glass-panel p-4 rounded-xl border border-green-500/20 hover:border-green-500/40 transition-all cursor-pointer" onClick={handleOpenRamp}>
                     <h3 className="text-xs text-green-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                        <span className="text-base">🇲🇽</span> {L('CETES (MXN bonds)', 'CETES (bonos en MXN)')}
+                        <span className="text-base">🇲🇽</span> {L('Tokenized CETES (Etherfuse, independent third party)', 'CETES tokenizados (Etherfuse, tercero independiente)')}
                     </h3>
                     <div className="text-xl font-mono text-green-400 font-bold">
                         {parseFloat(cetesBalance).toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-xs text-gray-500">CETES</span>
@@ -2808,19 +2819,6 @@ function DashboardContent() {
                     </div>
                 </div>
                 <div className="glass-panel p-4 rounded-xl border border-white/5">
-                    <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-1">
-                        {t.dashboard.payment_streams.cetes_reference}
-                    </h3>
-                    <div className="text-xl font-mono text-stellar-teal font-bold flex items-center gap-2">
-                        {(currentMarketState?.etherfuseApy ?? 0) > 0
-                            ? `${currentMarketState!.etherfuseApy.toFixed(2)}%`
-                            : '...'}
-                    </div>
-                    <div className="text-[10px] text-gray-500 mt-1 font-mono">
-                        {t.dashboard.payment_streams.cetes_fixed_ref} · Etherfuse · {language === 'es' ? 'SIN ASESORÍA FINANCIERA' : 'NON-FINANCIAL ADVICE'}
-                    </div>
-                </div>
-                <div className="glass-panel p-4 rounded-xl border border-white/5">
                     <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-1">{t.dashboard.payment_streams.network_fee}</h3>
                     {/* Sin dato, "-". Antes caía a 100 stroops y convertía a USD con un
                         precio de XLM fijo (0.155) que no se actualizaba. */}
@@ -2828,12 +2826,6 @@ function DashboardContent() {
                         {currentMarketState?.baseFee ?? '-'} <span className="text-xs text-gray-500">stroops</span>
                     </div>
                     <div className="text-[10px] text-gray-500 mt-1 font-mono">{language === 'es' ? 'Fee base de la red' : 'Network base fee'}</div>
-                </div>
-                <div className="glass-panel p-4 rounded-xl border border-white/5">
-                    <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-1">{t.dashboard.stats.helpers}</h3>
-                    <div className="text-xl font-mono text-purple-400 font-bold">
-                        {activeStrategies.length + (autoRebalance ? 1 : 0) + (autoExit ? 1 : 0)} <span className="text-xs text-gray-500">{language === 'es' ? 'AGENTES' : 'AGENTS'}</span>
-                    </div>
                 </div>
             </div>
 
@@ -3350,43 +3342,14 @@ function DashboardContent() {
                     </motion.div>
 
                     {/* CETES Reference Rate (replaces Blend/Phoenix) */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.15 }}
-                        className="glass-panel p-4 rounded-xl border border-white/5"
-                    >
-                        <h3 className="text-xs text-gray-400 uppercase tracking-widest mb-3">{t.dashboard.payment_streams.market_rates}</h3>
-                        <div className="bg-white/5 p-3 rounded-lg border border-stellar-teal/10 mb-3">
-                            <div className="text-[10px] text-stellar-teal font-bold mb-2 flex items-center gap-1.5">
-                                {t.dashboard.payment_streams.cetes_reference}
-                            </div>
-                            <div className="flex justify-between items-end">
-                                <span className="text-gray-400 text-xs">{t.dashboard.payment_streams.cetes_rate_label}</span>
-                                <span className="text-stellar-teal font-mono text-xl font-black">
-                                    {(currentMarketState?.etherfuseApy ?? 0) > 0
-                                        ? `${currentMarketState!.etherfuseApy.toFixed(2)}%`
-                                        : '...'}
-                                </span>
-                            </div>
-                            <p className="text-[9px] text-gray-600 mt-1 font-mono">{language === 'es' ? 'SIN ASESORÍA FINANCIERA' : 'NON-FINANCIAL ADVICE'} · {t.dashboard.payment_streams.cetes_fixed_ref}</p>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2">
-                            <div className="bg-white/[0.03] p-2 rounded border border-white/5">
-                                <p className="text-[9px] text-gray-500 uppercase tracking-wider mb-1">{t.dashboard.payment_streams.network_fee}</p>
-                                <p className="text-xs font-mono text-white/70">
-                                    {currentMarketState?.baseFee ? `${currentMarketState.baseFee} stroops` : '-'}
-                                </p>
-                            </div>
-                            {/* 12-nov-2026: aquí iba "Active corridors", siempre en 0: /api/market nunca recibe rutas del agente. */}
-                        </div>
-                    </motion.div>
+                    {/* 21-nov-2026 (D4): aquí se repetían la tasa CETES (queda en el ticker) y el fee de red (queda arriba). */}
 
                     {/* Telemetry Network Thought Process */}
                     <TelemetryFeed thoughts={thoughts} />
                     {/* El Audit Trail subió a la sección de recibos (16-nov-2026). */}
                 </div>
             </div>
+                </>)}
                 </div>
             </details>
 

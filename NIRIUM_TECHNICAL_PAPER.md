@@ -249,7 +249,7 @@ Every agent action follows this pipeline:
 2. HMAC-SHA256 signed (BlackBox Archive)
 3. Written to Supabase (`agent_logs`)
 4. LLM translates to human-readable summary
-5. Record committed to immutable audit storage (decentralized, planned for future release)
+5. Record committed to tamper-evident audit storage (decentralized, planned for future release)
 6. Exportable as encrypted JSON
 
 This dual-format archive (machine-readable + human-readable) enables both technical auditors and institutional directors to independently verify any agent action. Designed specifically so compliance teams need zero blockchain expertise.

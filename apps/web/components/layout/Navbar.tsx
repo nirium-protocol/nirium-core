@@ -59,11 +59,13 @@ export default function Navbar() {
         {
             label: t.nav.group_core,
             items: [
+                { name: t.nav.verifyAudit, href: "/verify",    icon: FileCheck },
                 { name: t.nav.agents,     href: "/agents",     icon: Cpu },
                 { name: t.nav.payroll,    href: "/payouts",    icon: Send },
                 { name: t.nav.security,   href: "/security",   icon: ShieldCheck },
                 { name: t.nav.compliance, href: "/compliance", icon: Shield },
                 { name: t.nav.ecosystem,  href: "/ecosystem",  icon: Network },
+                { name: t.nav.stats,      href: "/stats",      icon: Activity },
             ],
         },
         {
@@ -81,7 +83,6 @@ export default function Navbar() {
                 { name: t.nav.docs,       href: "/docs",       icon: Newspaper },
                 { name: t.nav.developers, href: "/developers", icon: Code2 },
                 { name: t.nav.api,        href: "/keys",       icon: KeyRound },
-                { name: t.nav.verifyAudit, href: "/verify",    icon: FileCheck },
             ],
         },
     ];
@@ -113,7 +114,8 @@ export default function Navbar() {
             }`}>
 
                 {/* ── Logo ── */}
-                <Link href="/" className="flex items-center gap-2 group shrink-0">
+                {/* 21-nov-2026 (SB2): el área ya era todo el logo (hasta 112×48 px); se agregan aria-label y title. */}
+                <Link href="/" aria-label={language === 'es' ? 'Ir al inicio' : 'Go to home'} title={language === 'es' ? 'Ir al inicio' : 'Go to home'} className="flex items-center gap-2 group shrink-0 cursor-pointer">
                     <div className="relative">
                         <div className="absolute inset-0 bg-stellar-teal/10 blur-xl rounded-full group-hover:bg-stellar-teal/30 transition-all" />
                         <div className="relative bg-transparent transition-all group-hover:scale-105 overflow-hidden w-14 xs:w-20 sm:w-28 h-8 xs:h-10 sm:h-12 flex items-center justify-center">
@@ -332,16 +334,6 @@ export default function Navbar() {
                                             <p className="px-3 pt-1.5 pb-1 text-[9px] font-black uppercase tracking-[0.2em] text-white/25">
                                                 {t.nav.wallet_menu_label}
                                             </p>
-                                            <button
-                                                onClick={() => { connect(); setIsWalletOpen(false); }}
-                                                className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-left hover:bg-white/5 transition-colors"
-                                            >
-                                                <Zap className="w-3.5 h-3.5 text-white/50 shrink-0" />
-                                                <span>
-                                                    <span className="block text-[12px] font-semibold text-white">{t.nav.wallet_option_browser}</span>
-                                                    <span className="block text-[10px] text-white/40">{t.nav.wallet_option_browser_hint}</span>
-                                                </span>
-                                            </button>
                                             {pollar.available && (
                                                 <button
                                                     onClick={() => { pollar.openLogin(); setIsWalletOpen(false); }}
@@ -354,6 +346,16 @@ export default function Navbar() {
                                                     </span>
                                                 </button>
                                             )}
+                                            <button
+                                                onClick={() => { connect(); setIsWalletOpen(false); }}
+                                                className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-left hover:bg-white/5 transition-colors"
+                                            >
+                                                <Zap className="w-3.5 h-3.5 text-white/50 shrink-0" />
+                                                <span>
+                                                    <span className="block text-[12px] font-semibold text-white">{t.nav.wallet_option_browser}</span>
+                                                    <span className="block text-[10px] text-white/40">{t.nav.wallet_option_browser_hint}</span>
+                                                </span>
+                                            </button>
                                         </div>
                                     </motion.div>
                                 )}
@@ -512,16 +514,6 @@ export default function Navbar() {
                                             <p className="px-3 pt-1.5 pb-1 text-[9px] font-black uppercase tracking-[0.2em] text-white/25">
                                                 {t.nav.wallet_menu_label}
                                             </p>
-                                            <button
-                                                onClick={() => { connect(); setIsMobileWalletOpen(false); setIsMobileMenuOpen(false); }}
-                                                className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors"
-                                            >
-                                                <Zap className="w-4 h-4 text-white/50 shrink-0" />
-                                                <span>
-                                                    <span className="block text-sm font-semibold text-white">{t.nav.wallet_option_browser}</span>
-                                                    <span className="block text-[11px] text-white/40">{t.nav.wallet_option_browser_hint}</span>
-                                                </span>
-                                            </button>
                                             {pollar.available && (
                                                 <button
                                                     onClick={() => { pollar.openLogin(); setIsMobileWalletOpen(false); setIsMobileMenuOpen(false); }}
@@ -534,6 +526,16 @@ export default function Navbar() {
                                                     </span>
                                                 </button>
                                             )}
+                                            <button
+                                                onClick={() => { connect(); setIsMobileWalletOpen(false); setIsMobileMenuOpen(false); }}
+                                                className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg text-left hover:bg-white/5 transition-colors"
+                                            >
+                                                <Zap className="w-4 h-4 text-white/50 shrink-0" />
+                                                <span>
+                                                    <span className="block text-sm font-semibold text-white">{t.nav.wallet_option_browser}</span>
+                                                    <span className="block text-[11px] text-white/40">{t.nav.wallet_option_browser_hint}</span>
+                                                </span>
+                                            </button>
                                         </div>
                                     )}
                                 </div>

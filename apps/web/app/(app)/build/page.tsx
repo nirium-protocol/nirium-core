@@ -33,18 +33,30 @@ const STARTUP_CARDS = [
     { id: "escrow_fleet",      icon: Handshake,   accent: "#6366F1" },
 ] as const;
 
+// 21-nov-2026 (B1): rutas comprobadas en main ese día (#373, #412, #389, #411, #422 mergeados).
+// Grants Autónomos entra cuando #419 se mergee.
+const COMMUNITY_EXAMPLES: Record<string, { dir: string; related?: { en: string; es: string } }> = {
+    global_payroll: { dir: 'payouts-batch-testnet' },
+    oracle_bridge: { dir: 'build-oracle-x402' },
+    defi_insurance: { dir: 'treasury-vault-monitor' },
+    logistics_settle: { dir: 'build-proof-of-delivery', related: { en: 'proof of delivery with a hash', es: 'prueba de entrega con hash' } },
+    m2m_exchange: { dir: 'openai-agents-x402', related: { en: 'an agent that pays x402 with a cap', es: 'un agente que paga x402 con tope' } },
+};
+
 const API_ENDPOINTS = [
-    { id: "auth",     icon: KeyRound,     path: "/api/auth/keys",           method: "POST" },
-    { id: "market",   icon: LineChart,    path: "/api/market",              method: "GET"  },
-    { id: "exec",     icon: TerminalIcon, path: "/api/execute",             method: "POST" },
+    // 21-nov-2026 (B2): `auth` marca las rutas que piden key, igual que /developers (probado ese día:
+    // /api/webhooks, /api/auth/keys y /api/payroll/run dan 401 sin key).
+    { id: "auth",     icon: KeyRound,     path: "/api/auth/keys",           method: "POST", auth: "key" },
+    { id: "market",   icon: LineChart,    path: "/api/market",              method: "GET",  auth: "key" },
+    { id: "exec",     icon: TerminalIcon, path: "/api/execute",             method: "POST", auth: "signer" },
     { id: "skills",   icon: Brain,        path: "/api/skills",              method: "GET"  },
     // market es el único endpoint x402 que cobra en mainnet; signals es solo testnet.
     { id: "billing",  icon: Coins,        path: "/api/v1/premium/market",   method: "GET"  },
     { id: "settle",   icon: Send,         path: "/api/v1/mpp/signals",      method: "GET"  },
     { id: "vault",    icon: Landmark,     path: "/api/treasury/vaults",     method: "GET"  },
     { id: "audit",    icon: ScrollText,   path: "/api/audit/log",           method: "POST" },
-    { id: "payroll",  icon: Wallet,       path: "/api/payroll/run",         method: "POST" },
-    { id: "webhooks", icon: Webhook,      path: "/api/webhooks",            method: "POST" },
+    { id: "payroll",  icon: Wallet,       path: "/api/payroll/run",         method: "POST", auth: "key" },
+    { id: "webhooks", icon: Webhook,      path: "/api/webhooks",            method: "POST", auth: "key" },
     // Las 10 rutas comprobadas contra packages/agent/src el 9-nov-2026.
 ];
 
@@ -240,6 +252,21 @@ export default function BuildPage() {
                                             </div>
                                         </div>
 
+                                        {/* 21-nov-2026 (B1): ejemplos mergeados en nirium-protocol/nirium (testnet).
+                                            No son uso: son ejemplos que corren la idea o una pieza de ella. */}
+                                        {COMMUNITY_EXAMPLES[card.id] && (
+                                            <a
+                                                href={`https://github.com/nirium-protocol/nirium/tree/main/examples/${COMMUNITY_EXAMPLES[card.id].dir}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block text-[11px] text-gray-400 hover:text-white transition-colors"
+                                            >
+                                                {COMMUNITY_EXAMPLES[card.id].related
+                                                    ? (language === 'es' ? `Pieza relacionada: ${COMMUNITY_EXAMPLES[card.id].related!.es} · ejemplo de la comunidad, testnet ↗` : `Related piece: ${COMMUNITY_EXAMPLES[card.id].related!.en} · community example, testnet ↗`)
+                                                    : (language === 'es' ? 'Ejemplo de la comunidad, testnet ↗' : 'Community example, testnet ↗')}
+                                            </a>
+                                        )}
+
                                         {/* Blueprint link */}
                                         <Link
                                             href="/docs"
@@ -332,6 +359,13 @@ export default function BuildPage() {
                                             <div className="text-[9px] font-mono text-gray-600 group-hover:text-stellar-teal/70 transition-colors truncate">
                                                 {api.path}
                                             </div>
+                                            {'auth' in api && (
+                                                <div className="text-[9px] font-mono text-amber-400/80">
+                                                    {api.auth === 'signer'
+                                                        ? (language === 'es' ? 'pide key y llave firmante · solo testnet' : 'needs a key and a signing key · testnet only')
+                                                        : (language === 'es' ? 'pide key' : 'needs a key')}
+                                                </div>
+                                            )}
                                         </div>
                                     </motion.a>
                                 );
@@ -382,10 +416,9 @@ export default function BuildPage() {
 <span className="text-gray-500">//    (to charge for YOUR API, see x402Serve() in the docs)</span>{"\n"}
 nirium.<span className="text-cyan-400">initX402</span>({"{"} secretKey: process.env.STELLAR_SECRET_KEY {"}"});{"\n"}
 <span className="text-blue-400">const</span> res = <span className="text-purple-400">await</span> nirium.<span className="text-cyan-400">x402Fetch</span>(<span className="text-green-400">'https://your-api.com/paid-endpoint'</span>);{"\n\n"}
-<span className="text-gray-500">// 3. Subscribe to the testnet loop's signals over WebSocket</span>{"\n"}
-nirium.<span className="text-cyan-400">subscribe</span>((signal) =&gt; {"{"}{"\n"}
-{"  "}console.<span className="text-cyan-400">log</span>(<span className="text-green-400">'Signal:'</span>, signal);{"\n"}
-{"}"});
+<span className="text-gray-500">// 3. Anchor the hash of a record only you hold (Audit Trail)</span>{"\n"}
+<span className="text-blue-400">const</span> receipt = <span className="text-purple-400">await</span> nirium.<span className="text-cyan-400">anchorAuditRecord</span>({"{"} hash: <span className="text-green-400">'&lt;sha-256 of your record&gt;'</span>, tag: <span className="text-green-400">'my-app'</span> {"}"});{"\n"}
+<span className="text-gray-500">// receipt.cid: anyone can check it at nirium.xyz/verify</span>
 </code>
                             </pre>
                         </motion.div>

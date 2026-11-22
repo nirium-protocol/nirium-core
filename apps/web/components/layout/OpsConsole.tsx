@@ -132,7 +132,9 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
 
     useEffect(() => {
         fetchLogs();
-        const poll = setInterval(fetchLogs, 4000);
+        // 10 s (was 4 s), and nothing while the tab is in the background: each poll is a
+        // server function run on Vercel.
+        const poll = setInterval(() => { if (document.visibilityState === 'visible') fetchLogs(); }, 10_000);
         return () => clearInterval(poll);
     }, [fetchLogs]);
 
@@ -275,7 +277,8 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
                                                 isSettlement ? 'bg-stellar-yellow/20 text-stellar-yellow' :
                                                 'bg-white/10 text-gray-400'
                                             }`}>
-                                                {log.agent_id}
+                                                {/* 21-nov-2026 (D7): "INTELLIGENCE" era jerga; es el log del agente. */}
+                                                {isIntelligence ? lang('Agent', 'Agente') : log.agent_id}
                                             </span>
                                             {/* 12-nov-2026: el mensaje se corta en el primer '|', y ahí iba
                                                 network=testnet. Sin esto, "x402 payment received" (nuestro agente

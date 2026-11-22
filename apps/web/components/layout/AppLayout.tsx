@@ -34,12 +34,14 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
             label: "CORE",
             items: [
                 { href: "/",                 label: t.nav.home,        icon: Home,            accent: "#3B82F6" },
+                { href: "/verify",           label: t.nav.verifyAudit, icon: FileCheck,       accent: "#10B981" },
                 { href: "/dashboard",        label: t.nav.dashboard,   icon: LayoutDashboard, accent: "#2DEBE8" },
                 { href: "/analytics",        label: t.nav.analytics,   icon: BarChart2,       accent: "#2DEBE8", badge: "BETA" },
                 { href: "/agents",           label: t.nav.agents,      icon: Cpu,             accent: "#FFD700" },
                 { href: "/payouts",          label: t.nav.payroll,     icon: Send,            accent: "#2DEBE8" },
                 { href: "/security",         label: t.nav.security,    icon: ShieldCheck,     accent: "#10B981" },
                 { href: "/compliance",       label: t.nav.compliance,  icon: Shield,          accent: "#2DEBE8" },
+                { href: "/stats",            label: t.nav.stats,       icon: Activity,        accent: "#10B981" },
             ]
         },
         {
@@ -57,7 +59,6 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                 { href: "/docs",             label: t.nav.docs,        icon: BookOpen,        accent: "#8B5CF6" },
                 { href: "/developers",       label: t.nav.developers,  icon: Code2,           accent: "#6366F1" },
                 { href: "/keys",             label: t.nav.apikeys,     icon: KeyRound,        accent: "#FFD23F" },
-                { href: "/verify",           label: t.nav.verifyAudit, icon: FileCheck,       accent: "#10B981" },
             ]
         }
     ];
@@ -65,14 +66,23 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
     return (
         <aside className="w-64 h-full bg-nirium-obsidian border-r border-white/[0.06] flex flex-col">
             {/* Logo */}
-            <div className="flex items-center justify-between px-5 py-5 border-b border-white/[0.06] shrink-0">
-                <Link href="/" className="flex items-center gap-2 group">
+            {/* 21-nov-2026 (SB1): antes solo respondía el ícono de 28 px; un clic al lado no hacía
+                nada. Ahora todo el bloque es el enlace a "/", menos el botón X del panel móvil. */}
+            <div className="flex items-stretch justify-between border-b border-white/[0.06] shrink-0">
+                <Link
+                    href="/"
+                    onClick={onClose}
+                    aria-label={language === 'es' ? 'Ir al inicio' : 'Go to home'}
+                    title={language === 'es' ? 'Ir al inicio' : 'Go to home'}
+                    data-testid="sidebar-home-link"
+                    className="flex-1 flex items-center gap-2 px-5 py-5 cursor-pointer group hover:bg-white/[0.04] transition-colors"
+                >
                     <div className="overflow-hidden flex items-center">
-                        <img src="/brand/icon.svg" alt="Nirium" className="h-7 w-auto object-contain" />
+                        <img src="/brand/icon.svg" alt="Nirium" className="h-7 w-auto object-contain group-hover:opacity-80 transition-opacity" />
                     </div>
                 </Link>
                 {onClose && (
-                    <button onClick={onClose} className="lg:hidden p-1 text-white/30 hover:text-white">
+                    <button onClick={onClose} aria-label={language === 'es' ? 'Cerrar menú' : 'Close menu'} className="lg:hidden px-5 text-white/30 hover:text-white">
                         <X size={16} />
                     </button>
                 )}
@@ -199,16 +209,6 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                                 <p className="px-2.5 pt-1 pb-1 text-[9px] font-black uppercase tracking-[0.2em] text-white/25">
                                     {t.nav.wallet_menu_label}
                                 </p>
-                                <button
-                                    onClick={() => { connect(); setWalletOpen(false); }}
-                                    className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-left hover:bg-white/5 transition-colors"
-                                >
-                                    <Zap className="w-3.5 h-3.5 text-white/50 shrink-0" />
-                                    <span>
-                                        <span className="block text-[12px] font-semibold text-white">{t.nav.wallet_option_browser}</span>
-                                        <span className="block text-[10px] text-white/40">{t.nav.wallet_option_browser_hint}</span>
-                                    </span>
-                                </button>
                                 {pollar.available && (
                                     <button
                                         onClick={() => { pollar.openLogin(); setWalletOpen(false); }}
@@ -221,6 +221,16 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                                         </span>
                                     </button>
                                 )}
+                                <button
+                                    onClick={() => { connect(); setWalletOpen(false); }}
+                                    className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-left hover:bg-white/5 transition-colors"
+                                >
+                                    <Zap className="w-3.5 h-3.5 text-white/50 shrink-0" />
+                                    <span>
+                                        <span className="block text-[12px] font-semibold text-white">{t.nav.wallet_option_browser}</span>
+                                        <span className="block text-[10px] text-white/40">{t.nav.wallet_option_browser_hint}</span>
+                                    </span>
+                                </button>
                             </div>
                         )}
                         <button

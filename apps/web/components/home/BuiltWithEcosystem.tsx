@@ -64,14 +64,18 @@ const BUILT_WITH_GROUPS: BuiltWithGroup[] = [
                 name: 'AgentLedger',
                 logo: '/partners/agentledger.png',
                 tone: 'experimental',
-                badge: { en: 'Policy hook: testnet proven, mainnet pending', es: 'Hook de políticas: probado en testnet, mainnet pendiente' },
+                badge: { en: 'Policy hook: testnet and mainnet proven', es: 'Hook de políticas: probado en testnet y mainnet' },
                 tags: ['Agent governance', 'Policy hook', 'x402'],
                 description: {
-                    en: "Spend governance for AI agent wallets: caps, human approvals, a decision log. Uses the policy hook in x402Fetch() to approve, hold or reject each payment before it's signed: ALLOW and WAIT-then-approval settled on testnet, and a concurrent DENY was refused - all on testnet; the same policy-hook test on mainnet hasn't run yet. Separately, its wallet made 15 integration-test payments to Nirium on mainnet (Aug to Sep 2026), governed by its own engine before the hook existed; that wallet was initially funded by Nirium's founder. Its founder, Fer Mendoza, joined the Nirium team in October 2026.",
-                    es: 'Gobernanza de gasto para wallets de agentes de IA: topes, aprobaciones humanas, bitácora de decisiones. Usa el hook policy de x402Fetch() para aprobar, retener o rechazar cada pago antes de firmarlo: ALLOW y WAIT-luego-aprobación se liquidaron en testnet, y un DENY concurrente fue rechazado - todo en testnet; la misma prueba del hook de políticas en mainnet todavía no corre. Aparte, su wallet hizo 15 pagos de prueba de integración a Nirium en mainnet (ago a sep 2026), gobernados por su propio motor antes de que existiera el hook; esa wallet la fondeó al inicio el fundador de Nirium. Su fundador, Fer Mendoza, se unió al equipo de Nirium en octubre de 2026.',
+                    en: "Spend governance for AI agent wallets: caps, human approvals, a decision log. Uses the policy hook in x402Fetch() to approve, hold or reject each payment before it's signed: on testnet, ALLOW and WAIT-then-approval settled and a concurrent DENY was refused. On mainnet, on 2026-11-18: an ALLOW, a HOLD that settled only after the owner approved it, and a concurrent pair where one payment settled and the other was blocked and never signed - 3 settlements, and five signed Audit Trail receipts for those decisions, the BLOCK being a receipt for a payment that never happened. Separately, its wallet made 15 integration-test payments to Nirium on mainnet (Aug to Sep 2026), governed by its own engine before the hook existed; that wallet was initially funded by Nirium's founder. Its founder, Fer Mendoza, joined the Nirium team in October 2026, so this is team activity, not independent demand.",
+                    es: 'Gobernanza de gasto para wallets de agentes de IA: topes, aprobaciones humanas, bitácora de decisiones. Usa el hook policy de x402Fetch() para aprobar, retener o rechazar cada pago antes de firmarlo: en testnet, ALLOW y WAIT-luego-aprobación se liquidaron y un DENY concurrente fue rechazado. En mainnet, el 18-nov-2026: un ALLOW, un HOLD que se liquidó solo después de que el dueño lo aprobó, y un par concurrente donde un pago se liquidó y el otro se bloqueó y nunca se firmó - 3 liquidaciones y cinco recibos firmados en el Audit Trail para esas decisiones; el del BLOCK es el recibo de un pago que nunca ocurrió. Aparte, su wallet hizo 15 pagos de prueba de integración a Nirium en mainnet (ago a sep 2026), gobernados por su propio motor antes de que existiera el hook; esa wallet la fondeó al inicio el fundador de Nirium. Su fundador, Fer Mendoza, se unió al equipo de Nirium en octubre de 2026, así que esto es actividad del equipo, no demanda independiente.',
                 },
-                evidenceUrl: 'https://stellar.expert/explorer/testnet/tx/63fe315ad191c12d8baab4e7d146dc4b8cd7bb0c0ce97261799021eb5163b71d',
-                evidenceLabel: { en: 'tx 63fe315a... - successful, 2026-10-09', es: 'tx 63fe315a... - successful, 2026-10-09' },
+                evidenceUrl: 'https://stellar.expert/explorer/public/tx/0f6250773f9c3311bb27da64f5194c06e5d24cf2507d234a9df8c17ad156994b',
+                evidenceLabel: { en: 'mainnet tx 0f625077... - allowed and settled, 2026-11-18', es: 'tx mainnet 0f625077... - permitido y liquidado, 18-nov-2026' },
+                secondaryEvidenceUrl: 'https://nirium.xyz/verify?cid=QmS5q2NvZ2K2StLB3KCWRdkBtnZ5rHAJrQAez2PnKAPwTk',
+                secondaryEvidenceLabel: { en: 'BLOCK receipt QmS5q2Nv... - a payment that never happened', es: 'Recibo del BLOCK QmS5q2Nv... - un pago que nunca ocurrió' },
+                tertiaryEvidenceUrl: 'https://stellar.expert/explorer/testnet/tx/63fe315ad191c12d8baab4e7d146dc4b8cd7bb0c0ce97261799021eb5163b71d',
+                tertiaryEvidenceLabel: { en: 'testnet tx 63fe315a... - 2026-10-09', es: 'tx testnet 63fe315a... - 9-oct-2026' },
             },
             {
                 name: 'TIA',
@@ -80,13 +84,30 @@ const BUILT_WITH_GROUPS: BuiltWithGroup[] = [
                 badge: { en: 'Audit Trail, 7 real anchors', es: 'Audit Trail, 7 anclajes reales' },
                 tags: ['Audit Trail', 'x402Serve'],
                 description: {
-                    en: "An external integrator (TIA) anchors a signed receipt of its quotes in the Audit Trail - 7 real anchors to date (2026-10-18, 2026-10-23, two on 2026-11-02, two on 2026-11-06 and 2026-11-12, mainnet), signed with two TIA keys of its own. It also sells with Nirium: its public backend charges 0.10 USDC per call on mainnet with x402Serve() (endpoint /premium/fx), paid straight to TIA's own account - Nirium is not in the path. The wallets behind its x402 payments are TIA's own test accounts, confirmed by its founder - not a real client.",
-                    es: 'Un integrador externo (TIA) ancla un recibo firmado de sus cotizaciones en el Audit Trail - 7 anclajes reales a la fecha (18-oct-2026, 23-oct-2026, dos el 2-nov-2026, dos el 6-nov-2026 y 12-nov-2026, mainnet), firmados con dos llaves propias de TIA. También vende con Nirium: su backend público cobra 0.10 USDC por llamada en mainnet con x402Serve() (endpoint /premium/fx), y el pago llega directo a la cuenta de TIA, sin pasar por Nirium. Las wallets detrás de sus pagos x402 son cuentas de prueba propias de TIA, confirmadas por su fundador - no un cliente real.',
+                    en: "An external integrator (TIA) anchors a signed receipt of its quotes in the Audit Trail - 7 real anchors to date (2026-10-18, 2026-10-23, two on 2026-11-02, two on 2026-11-06 and one on 2026-11-12, mainnet), signed with two TIA keys of its own. It also sells with Nirium: its public backend charges 0.10 USDC per call on mainnet with x402Serve() (endpoint /premium/fx), paid straight to TIA's own account - Nirium is not in the path. The wallets behind its x402 payments are TIA's own test accounts, confirmed by its founder - not a real client. Charging on mainnet is TIA's decision and its compliance is its own; Nirium does not promote that for third parties until it has a written legal opinion. Its founder also contributes to Nirium through Stellar Wave and GrantFox.",
+                    es: 'Un integrador externo (TIA) ancla un recibo firmado de sus cotizaciones en el Audit Trail - 7 anclajes reales a la fecha (18-oct-2026, 23-oct-2026, dos el 2-nov-2026, dos el 6-nov-2026 y uno el 12-nov-2026, mainnet), firmados con dos llaves propias de TIA. También vende con Nirium: su backend público cobra 0.10 USDC por llamada en mainnet con x402Serve() (endpoint /premium/fx), y el pago llega directo a la cuenta de TIA, sin pasar por Nirium. Las wallets detrás de sus pagos x402 son cuentas de prueba propias de TIA, confirmadas por su fundador - no un cliente real. Cobrar en mainnet es decisión de TIA y su cumplimiento es suyo; Nirium no lo promueve para terceros hasta tener una opinión legal por escrito. Su fundador también contribuye a Nirium a través de Stellar Wave y GrantFox.',
                 },
                 evidenceUrl: 'https://gateway.pinata.cloud/ipfs/QmZ9bQxXLqoCvAQ6AtRChd18MS9YkjBF6MbT9k5e84PTTv',
                 evidenceLabel: { en: 'CID QmZ9bQxX... - anchored 2026-11-12', es: 'CID QmZ9bQxX... - anclado 12-nov-2026' },
                 secondaryEvidenceUrl: 'https://github.com/Edgadafi/remesa-liquidez/blob/bb9d14b53c37b0662697a8a4c8a4c9c62826764a/backend/src/app.ts#L165',
                 secondaryEvidenceLabel: { en: 'x402Serve() in TIA\'s public backend', es: 'x402Serve() en el backend público de TIA' },
+            },
+            {
+                name: 'AgentRail',
+                logo: '/partners/agentrail.png',
+                tone: 'experimental',
+                badge: { en: 'Audit Trail receipts, testnet', es: 'Recibos de Audit Trail, testnet' },
+                tags: ['Agent payments', 'Audit Trail', 'Soroban'],
+                description: {
+                    en: "Scoped allowances and micro-settlement for AI agents on Soroban. Its library can anchor a receipt for a spend or a proof-of-task check in the Audit Trail: opt-in, off the payment path, and only the receipt's SHA-256 leaves the agent. Nirium wrote that receipts provider (AgentRail #68 and #70) and AgentRail's maintainer merged it; AgentRail then built its own on-chain pipeline on top (#71): a real testnet payment whose agent signs its own receipt (2026-11-19). Testnet only; the receipts live in the repo and are not in the npm release yet (0.1.0). A letter of intent was signed on 2026-11-04: a statement of intent, not a paid pilot. Its founder also contributes to Nirium through Stellar Wave.",
+                    es: 'Asignaciones acotadas y micro-liquidación para agentes de IA en Soroban. Su librería puede anclar en el Audit Trail un recibo de un gasto o de una prueba de tarea: opcional, fuera del camino del pago, y del agente solo sale el SHA-256 del recibo. Nirium escribió ese proveedor de recibos (AgentRail #68 y #70) y el mantenedor de AgentRail lo mergeó; después AgentRail construyó encima su propio pipeline en cadena (#71): un pago real en testnet cuyo agente firma su propio recibo (19-nov-2026). Solo testnet; los recibos están en el repo y todavía no en la versión de npm (0.1.0). Se firmó una carta de intención el 4-nov-2026: una declaración de intención, no un piloto pagado. Su fundador también contribuye a Nirium a través de Stellar Wave.',
+                },
+                evidenceUrl: 'https://nirium.xyz/verify?cid=QmaYP7Lr2kRGLrdPHf1BYwLz7nSk9aC4xyU8s2ageGypm4',
+                evidenceLabel: { en: 'Receipt QmaYP7Lr... - signed by AgentRail\'s agent, 2026-11-19', es: 'Recibo QmaYP7Lr... - firmado por el agente de AgentRail, 19-nov-2026' },
+                secondaryEvidenceUrl: 'https://stellar.expert/explorer/testnet/tx/14e72e04051d75430933d4245cb9dbfdd14e0c79bcaff0bd58a2f2839562385b',
+                secondaryEvidenceLabel: { en: 'testnet tx 14e72e04... - the spend behind it', es: 'tx testnet 14e72e04... - el gasto detrás del recibo' },
+                tertiaryEvidenceUrl: 'https://github.com/SorobanAgents/agentrail/pull/71',
+                tertiaryEvidenceLabel: { en: 'SorobanAgents/agentrail#71 - merged 2026-11-19', es: 'SorobanAgents/agentrail#71 - mergeado 19-nov-2026' },
             },
         ],
     },
@@ -105,11 +126,11 @@ const BUILT_WITH_GROUPS: BuiltWithGroup[] = [
                 badge: { en: 'Every x402 settlement', es: 'Cada liquidación x402' },
                 tags: ['x402 facilitator', 'Mainnet'],
                 description: {
-                    en: 'x402 payment facilitator - verifies and settles on-chain, with sponsored fees. Every x402 payment route on the agent, testnet and mainnet, delegates verify/settle to their hosted facilitator. Last mainnet settlement through it: 29 Sep 2026.',
-                    es: 'Facilitador de pagos x402 - verifica y liquida en cadena, con fees patrocinados. Toda ruta de pago x402 del agente, en testnet y mainnet, delega verify/settle a su facilitador hospedado. Última liquidación en mainnet a través de él: 29-sep-2026.',
+                    en: 'x402 payment facilitator - verifies and settles on-chain, with sponsored fees. Every x402 payment route on the agent, testnet and mainnet, delegates verify/settle to their hosted facilitator. Last mainnet settlement through it: 18 Nov 2026.',
+                    es: 'Facilitador de pagos x402 - verifica y liquida en cadena, con fees patrocinados. Toda ruta de pago x402 del agente, en testnet y mainnet, delega verify/settle a su facilitador hospedado. Última liquidación en mainnet a través de él: 18-nov-2026.',
                 },
-                evidenceUrl: 'https://stellar.expert/explorer/public/tx/b34630f6637d6773ad4f7378dac8690ae6d1809173ff9c9541d22165aeef5788',
-                evidenceLabel: { en: 'mainnet tx b34630f6... - 2026-09-29', es: 'tx mainnet b34630f6... - 29-sep-2026' },
+                evidenceUrl: 'https://stellar.expert/explorer/public/tx/0f6250773f9c3311bb27da64f5194c06e5d24cf2507d234a9df8c17ad156994b',
+                evidenceLabel: { en: 'mainnet tx 0f625077... - 2026-11-18', es: 'tx mainnet 0f625077... - 18-nov-2026' },
             },
             {
                 name: 'DeFindex',
@@ -117,8 +138,8 @@ const BUILT_WITH_GROUPS: BuiltWithGroup[] = [
                 badge: { en: 'Mainnet, test vault only', es: 'Mainnet, bóveda de prueba' },
                 tags: ['Treasury', 'Soroban vaults'],
                 description: {
-                    en: "Yield vaults on Soroban, with roles separated by contract design. The agent holds only the RebalanceManager role of a vault structured for the client to own (today's is our own test vault) - that role can't withdraw funds or change roles, by contract. 4 real rebalances, all on 2026-08-06, none since - mainnet, test vault only, no clients yet.",
-                    es: 'Bóvedas de rendimiento en Soroban, con roles separados por diseño de contrato. El agente sostiene solo el rol RebalanceManager de una bóveda pensada para que sea del cliente (hoy es nuestra bóveda de prueba) - ese rol no puede retirar fondos ni cambiar roles, por contrato. 4 rebalanceos reales, todos el 6-ago-2026, ninguno desde entonces - mainnet, bóveda de prueba, sin clientes.',
+                    en: "Yield vaults on Soroban, with roles separated by contract design. The agent holds only the RebalanceManager role of a vault structured for the client to own (today's is our own test vault) - that role can't withdraw funds or change roles, by contract. It can swap inside the vault; Nirium's code doesn't send swaps. 4 real rebalances, all on 2026-08-06, none since - mainnet, test vault only, no clients yet.",
+                    es: 'Bóvedas de rendimiento en Soroban, con roles separados por diseño de contrato. El agente sostiene solo el rol RebalanceManager de una bóveda pensada para que sea del cliente (hoy es nuestra bóveda de prueba) - ese rol no puede retirar fondos ni cambiar roles, por contrato. Puede hacer swaps dentro de la bóveda; el código de Nirium no los envía. 4 rebalanceos reales, todos el 6-ago-2026, ninguno desde entonces - mainnet, bóveda de prueba, sin clientes.',
                 },
                 evidenceUrl: 'https://nirium-agent-mainnet.fly.dev/api/treasury/vault/CAMDXG6L4LXLXXV675KZSHM3BMSETZ4NVMC7JYIQCZ2JTG54OMSK57MH',
                 evidenceLabel: { en: 'vault roles, live API', es: 'roles de la bóveda, API en vivo' },
@@ -141,8 +162,8 @@ const BUILT_WITH_GROUPS: BuiltWithGroup[] = [
                 badge: { en: 'Mixed, testnet proven', es: 'Mixto, probado en testnet' },
                 tags: ['Escrow', 'Soroban', 'Payouts'],
                 description: {
-                    en: "Programmable milestone-based escrows on Soroban. 9 of our research PRs merged by their maintainer, plus a Multi-Release escrow integration for Payouts tested end to end on testnet. Deploy also tested on mainnet, but the automatic approve/release signer never ran there - full rollout on hold pending the same written legal opinion on Art. 24 Bis 4 as Treasury. A letter of intent was signed in October 2026: a statement of intent, not a paid pilot. A testnet pilot gates milestone release on anchored evidence: an agent checks the record's hash, its milestone and the service provider's signature before approving and releasing, and refused one milestone that failed. Written up as a research note, backed by 6 on-chain testnet transaction hashes.",
-                    es: 'Escrows de pago programables en Soroban (milestone-based). 9 PRs de investigación propios mergeados por su maintainer, más una integración del escrow Multi-Release para Payouts probada de punta a punta en testnet. El deploy también se probó en mainnet, pero el firmante automático de approve/release nunca corrió ahí - rollout completo en pausa hasta tener la misma opinión legal por escrito sobre el Art. 24 Bis 4 que Treasury. Se firmó una carta de intención en octubre de 2026: es una declaración de intención, no un piloto de pago. Un piloto en testnet condiciona la liberación de milestones a evidencia anclada: un agente revisa el hash del registro, su milestone y la firma del proveedor de servicio antes de aprobar y liberar, y rechazó un milestone que no pasó. Documentado como nota de investigación, respaldada por 6 hashes de transacciones on-chain en testnet.',
+                    en: "Programmable milestone-based escrows on Soroban. 9 of our research PRs merged by their maintainer, plus a Multi-Release escrow integration for Payouts tested end to end on testnet. Deploy also tested on mainnet, but the automatic approve/release signer never ran there - full rollout on hold pending the same written legal opinion as Treasury, on fraction XVI of article 17 of the LFPIORPI (article 24 Bis 4 of its Rules defines facilitation). A letter of intent was signed in October 2026: a statement of intent, not a paid pilot. A testnet pilot gates milestone release on anchored evidence: an agent checks the record's hash, its milestone and the service provider's signature before approving and releasing, and refused one milestone that failed. Written up as a research note, backed by 6 on-chain testnet transaction hashes.",
+                    es: 'Escrows de pago programables en Soroban (milestone-based). 9 PRs de investigación propios mergeados por su maintainer, más una integración del escrow Multi-Release para Payouts probada de punta a punta en testnet. El deploy también se probó en mainnet, pero el firmante automático de approve/release nunca corrió ahí - rollout completo en pausa hasta tener la misma opinión legal por escrito que Treasury, sobre la fracción XVI del art. 17 de la LFPIORPI (el art. 24 Bis 4 de sus Reglas define la facilitación). Se firmó una carta de intención en octubre de 2026: es una declaración de intención, no un piloto de pago. Un piloto en testnet condiciona la liberación de milestones a evidencia anclada: un agente revisa el hash del registro, su milestone y la firma del proveedor de servicio antes de aprobar y liberar, y rechazó un milestone que no pasó. Documentado como nota de investigación, respaldada por 6 hashes de transacciones on-chain en testnet.',
                 },
                 evidenceUrl: 'https://github.com/Trustless-Work/agentic-escrow-research/pull/13',
                 evidenceLabel: { en: 'PRs #1-4 merged 2026-09-21, #9 merged 2026-11-02, #10-11 merged 2026-11-04, #12-13 merged 2026-11-05', es: 'PRs #1-4 mergeados 2026-09-21, #9 mergeado 2026-11-02, #10-11 mergeados 2026-11-04, #12-13 mergeados 2026-11-05' },
@@ -168,8 +189,8 @@ const BUILT_WITH_GROUPS: BuiltWithGroup[] = [
                 badge: { en: 'Every Audit Trail receipt', es: 'Cada recibo de Audit Trail' },
                 tags: ['IPFS', 'Audit Trail'],
                 description: {
-                    en: "Pinata pins every Audit Trail receipt to IPFS. Filebase's dedicated gateway is the first one /verify, this site and the CLI's nirium verify read from, with Pinata, ipfs.io and dweb.link as fallbacks. The CID is the hash of the content, so every gateway has to serve the same bytes.",
-                    es: 'Pinata fija en IPFS cada recibo de Audit Trail. El gateway dedicado de Filebase es el primero del que leen /verify, este sitio y nirium verify del CLI, con Pinata, ipfs.io y dweb.link de respaldo. El CID es el hash del contenido, así que cualquier gateway tiene que servir los mismos bytes.',
+                    en: "Pinata pins every Audit Trail receipt to IPFS. Filebase's dedicated gateway is the first one /verify, this site and the CLI's nirium verify read from, with Pinata, ipfs.io and dweb.link as fallbacks. The CID is the hash of the content, so every gateway has to serve the same bytes. A second copy on Filebase is ready but inactive until we move to a paid plan (live status at /api/audit/info). Keep your own copy with nirium anchor --save receipt.json.",
+                    es: 'Pinata fija en IPFS cada recibo de Audit Trail. El gateway dedicado de Filebase es el primero del que leen /verify, este sitio y nirium verify del CLI, con Pinata, ipfs.io y dweb.link de respaldo. El CID es el hash del contenido, así que cualquier gateway tiene que servir los mismos bytes. Una segunda copia en Filebase está lista pero inactiva hasta pasar a un plan de pago (estado en vivo en /api/audit/info). Guarda tu propia copia con nirium anchor --save recibo.json.',
                 },
                 evidenceUrl: 'https://nirium.myfilebase.com/ipfs/QmZ9bQxXLqoCvAQ6AtRChd18MS9YkjBF6MbT9k5e84PTTv',
                 evidenceLabel: { en: 'A receipt via the Filebase gateway', es: 'Un recibo por el gateway de Filebase' },
@@ -308,7 +329,8 @@ export default function BuiltWithEcosystem({ heading = true }: { heading?: boole
                                 </div>
                             ) : (
                                 <div className="rounded-xl border border-dashed border-white/15 px-6 py-8 text-sm text-white/40 text-left">
-                                    {lang('None yet.', 'Ninguna por ahora.')}{' '}
+                                    {/* 21-nov-2026 (E2): decía "Ninguna por ahora" mientras /stats lista a TIA vendiendo con x402Serve. */}
+                                    {lang('Outside the integrations above (TIA sells its own API with x402Serve), none yet.', 'Fuera de las integraciones de arriba (TIA vende su propia API con x402Serve), ninguna por ahora.')}{' '}
                                     <a href="mailto:niriumprotocol@gmail.com" className="text-stellar-teal/80 hover:text-stellar-teal underline underline-offset-2">
                                         {lang('Built something on Nirium? Tell us.', '¿Construiste algo sobre Nirium? Cuéntanos.')}
                                     </a>

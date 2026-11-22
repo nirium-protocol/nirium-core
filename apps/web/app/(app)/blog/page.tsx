@@ -59,7 +59,7 @@ export default function BlogPage() {
                                 transition={{ duration: 0.5, delay: 0.1 + i * 0.07 }}
                             >
                                 <Link
-                                    href={`/blog/${post.slug}`}
+                                    href={post.href ?? `/blog/${post.slug}`}
                                     className="group block rounded-2xl border border-white/10 bg-white/[0.02] p-6 md:p-8 hover:border-stellar-teal/30 hover:bg-white/[0.04] transition-all"
                                 >
                                     <div className="flex items-center gap-3 mb-4 text-[11px] font-mono uppercase tracking-widest text-white/40">
