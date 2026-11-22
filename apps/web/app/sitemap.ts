@@ -31,7 +31,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/privacy',
         '/terms',
         '/risk-disclosure',
-        '/how-to-use',
         '/build',
         '/blog',
         '/compliance',

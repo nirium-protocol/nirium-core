@@ -99,12 +99,15 @@ export default function Footer() {
             <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest mb-2">{lang("Legal & Compliance", "Legal y Compliance")}</h4>
             <ul className="space-y-3">
               <li><Link href="/disclaimers" className="text-sm text-zinc-400 hover:text-amber-400 transition-colors">{lang("Mandatory Disclaimers", "Avisos obligatorios")}</Link></li>
-              <li><Link href="/risk-disclosure" className="text-sm text-zinc-400 hover:text-amber-400 transition-colors">{lang("Risk Disclosure (CETES)", "Aviso de riesgo (CETES)")}</Link></li>
+              <li><Link href="/risk-disclosure" className="text-sm text-zinc-400 hover:text-amber-400 transition-colors">{lang("Risk disclosure", "Aviso de riesgos")}</Link></li>
               <li><Link href="/privacy" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Privacy Policy (LFPDPPP)", "Aviso de privacidad (LFPDPPP)")}</Link></li>
               <li><Link href="/terms" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Terms of Service", "Términos de servicio")}</Link></li>
               <li><a href="/legal/restricted-jurisdictions-v1.md" target="_blank" rel="noopener noreferrer" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Restricted Jurisdictions", "Jurisdicciones restringidas")}</a></li>
               <li><Link href="/coc" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Code of Conduct", "Código de conducta")}</Link></li>
-              <li><Link href="/compliance" className="text-sm text-zinc-400 hover:text-white transition-colors">Compliance Hub</Link></li>
+              {/* 21-nov-2026 (F2): "Compliance Hub" sonaba a servicios de cumplimiento, que Nirium no da. */}
+              <li><Link href="/compliance" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Audit Trail: receipts and exports", "Audit Trail: recibos y exportes")}</Link></li>
+              {/* 21-nov-2026 (NAV1) */}
+              <li><Link href="/branding-nirium" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Brand kit", "Kit de marca")}</Link></li>
             </ul>
           </div>
         </div>

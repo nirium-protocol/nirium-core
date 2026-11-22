@@ -56,7 +56,6 @@ The agent API URL defaults to `https://nirium-agent.fly.dev`. For local dev set 
 | `/leaderboard` | Agent leaderboard with ELO ranking |
 | `/build` | Startup Ideas Hub - developer toolkit, code examples (TS/Py/cURL/MCP) |
 | `/ramp` | Fiat on-ramp (MXN → CETES → USDC via Etherfuse) |
-| `/how-to-use` | Getting started guide |
 | `/manifesto` | Protocol manifesto |
 | `/plugins` | Plugin management |
 | `/terms` | Terms of Service |
