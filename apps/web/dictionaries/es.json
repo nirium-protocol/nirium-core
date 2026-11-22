@@ -2646,7 +2646,7 @@
       "badge": "Una bóveda DeFindex que es tuya",
       "title": "Nodo de Tesorería",
       "subtitle": "Mueve los fondos quietos de tu bóveda (USDC o CETES) a su estrategia de Blend y de regreso cuando el rendimiento cruza los umbrales que tú fijas. La bóveda es tuya; Nirium solo tiene el rol que reacomoda dentro de ella.",
-      "invite_note": "En mainnet, el rebalanceo autónomo y desplegar o fondear una bóveda desde este sitio o la API son solo por invitación hasta tener una opinión legal por escrito. En testnet todo está abierto.",
+      "invite_note": "En mainnet, el rebalanceo autónomo y desplegar o fondear una bóveda desde este sitio o la API son solo por invitación hasta tener una opinión legal por escrito. En testnet puedes desplegar, depositar y pedir movimientos sin invitación.",
       "invite_badge": "Solo por invitación",
       "request_access": "Solicitar acceso →"
     },
@@ -2662,7 +2662,7 @@
       },
       "step3": {
         "title": "El agente firma dentro de tu bóveda",
-        "body": "Cuando el rendimiento cruza un umbral, el agente firma Invertir o Sacar de la estrategia con su propia llave. Esas llamadas solo mueven dinero entre la bóveda y su estrategia: no aceptan dirección de destino, así que nada puede salir de la bóveda."
+        "body": "Cuando el rendimiento cruza un umbral, el agente firma Invertir o Sacar de la estrategia con su propia llave. Esas llamadas solo mueven dinero entre la bóveda y su estrategia: no aceptan dirección de destino, así que nada puede salir de la bóveda. Nuestro código solo manda Invertir y Sacar. El rol de DeFindex también permite swaps dentro de la bóveda, nunca hacia afuera: ver /security. En testnet lo pides tú con un botón en la consola y el agente firma dentro de tu bóveda; en mainnet decide solo, cada 10 minutos, por invitación, en las bóvedas que su dueño autorizó (hoy, una: la nuestra)."
       },
       "step4": {
         "title": "Se liquida en Stellar",
@@ -2700,7 +2700,7 @@
       "path1": {
         "label": "Flujo 1",
         "title": "Obtén CETES vía Etherfuse",
-        "desc": "Si empiezas desde pesos: contratas directo con Etherfuse, operador independiente, envías MXN por SPEI y recibes el token en tu wallet. Nirium solo te muestra las instrucciones.",
+        "desc": "Si empiezas desde pesos: contratas directo con Etherfuse, operador independiente, envías MXN por SPEI y recibes el token en tu wallet. Nirium solo te muestra las instrucciones. Hoy funciona con el entorno de pruebas de Etherfuse.",
         "item1": "El KYC lo hace Etherfuse, no Nirium",
         "item2": "Tú contratas y transfieres directo a Etherfuse",
         "item3": "Nirium nunca recibe ni convierte pesos"
@@ -2723,7 +2723,7 @@
     },
     "cta": {
       "title": "Pruébalo en testnet",
-      "subtitle": "Despliega una bóveda tuya, deposita USDC de prueba y mira al agente moverlo.",
+      "subtitle": "Despliega una bóveda tuya, deposita USDC de prueba y pide al agente Invertir o Sacar: míralo firmar dentro de tu bóveda (testnet).",
       "start": "Abrir la consola de la bóveda",
       "pricing": "Ver precios"
     }

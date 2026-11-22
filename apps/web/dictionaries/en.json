@@ -2646,7 +2646,7 @@
       "badge": "A DeFindex vault you own",
       "title": "Treasury Node",
       "subtitle": "Moves your vault's idle funds (USDC or CETES) into its Blend strategy and back when the yield crosses the thresholds you set. The vault is yours; Nirium only holds the role that rebalances inside it.",
-      "invite_note": "On mainnet, autonomous rebalancing and deploying or funding a vault from this site or the API are invite-only until we have a written legal opinion. On testnet everything is open.",
+      "invite_note": "On mainnet, autonomous rebalancing and deploying or funding a vault from this site or the API are invite-only until we have a written legal opinion. On testnet you can deploy, deposit and ask for moves without an invitation.",
       "invite_badge": "Invite-only",
       "request_access": "Request access →"
     },
@@ -2662,7 +2662,7 @@
       },
       "step3": {
         "title": "The agent signs inside your vault",
-        "body": "When the yield crosses a threshold, the agent signs Invest or Unwind with its own key. Those calls only move money between the vault and its strategy: they take no destination address, so nothing can leave the vault."
+        "body": "When the yield crosses a threshold, the agent signs Invest or Unwind with its own key. Those calls only move money between the vault and its strategy: they take no destination address, so nothing can leave the vault. Our code only sends Invest and Unwind. The DeFindex role also allows swaps inside the vault, never out of it: see /security. On testnet you ask for it with a button in the console and the agent signs inside your vault; on mainnet it decides on its own, every 10 minutes, invite-only, in the vaults their owner authorized (today, one: ours)."
       },
       "step4": {
         "title": "Settles on Stellar",
@@ -2700,7 +2700,7 @@
       "path1": {
         "label": "Flow 1",
         "title": "Get CETES via Etherfuse",
-        "desc": "If you start from pesos: you contract directly with Etherfuse, an independent operator, send MXN by SPEI and receive the token in your wallet. Nirium only shows you the instructions.",
+        "desc": "If you start from pesos: you contract directly with Etherfuse, an independent operator, send MXN by SPEI and receive the token in your wallet. Nirium only shows you the instructions. Today this runs against Etherfuse's test environment.",
         "item1": "KYC is performed by Etherfuse, not Nirium",
         "item2": "You contract with and transfer directly to Etherfuse",
         "item3": "Nirium never receives or converts pesos"
@@ -2723,7 +2723,7 @@
     },
     "cta": {
       "title": "Try it on testnet",
-      "subtitle": "Deploy a vault you own, deposit test USDC and watch the agent move it.",
+      "subtitle": "Deploy a vault you own, deposit test USDC and ask the agent to Invest or Unwind: watch it sign inside your vault (testnet).",
       "start": "Open the vault console",
       "pricing": "See pricing"
     }
