@@ -74,7 +74,7 @@ Core functions:
 
 ### 3.2 NiriumProtocol - Unified Registry Contract
 
-**Contract ID:** `CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5`
+**Contract ID:** `CBKCTMTCCZQIPEESLHHEZKXYSPWNO24NEG33T2XSAAAHPISBND5CNSXX` (testnet, deployed 25 Oct 2026, replacing `CC2TU5BDTKTPRRRQPEF77I54XYHFQ25XGIRO2TCWKSR7NRJDFR5L5NR5`)
 
 A single consolidated contract covering what were originally separate concerns, merged to reduce audit surface and cost:
 

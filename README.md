@@ -85,10 +85,10 @@ flowchart TB
 | Reporting | Live on mainnet |
 | Treasury Rebalance | Mainnet, invite-only (4 self-funded rebalances, last 6 Aug 2026) |
 | Payouts | Mainnet, invite-only (no mainnet runs yet) |
-| Policy hook (pre-sign `ALLOW`/`DENY`) | Experimental |
+| Policy hook (pre-sign `ALLOW`/`DENY`) | Experimental (TypeScript SDK; Python SDK since 0.12.9) |
 | MPP Charge | Testnet only |
 
-The detailed tables below back each row with a transaction hash or a live endpoint - this one is just the summary. Statuses checked against Horizon and the live API on 15 Nov 2026.
+The detailed tables below back each row with a transaction hash or a live endpoint - this one is just the summary. Statuses checked against Horizon and the live API on 22 Nov 2026.
 
 ### Mainnet (real value)
 
@@ -96,7 +96,7 @@ The detailed tables below back each row with a transaction hash or a live endpoi
 |---|---|---|
 | API box | Live, **receive-only, holds no signing key**, enforced at startup | [`/health`](https://nirium-agent-mainnet.fly.dev/health) · [`/api/nodes`](https://nirium-agent-mainnet.fly.dev/api/nodes) |
 | x402: first real payment | Settled 9 Jul 2026 | [`8a2487b8…d73170`](https://stellar.expert/explorer/public/tx/8a2487b8545e02324ced5d902fa350f0f5d8c2d5d2210272506a320b36d73170) |
-| x402: most recent settled payment | 29 Sep 2026, checked against the recipient account on 10 Nov 2026 | [`GCLBBPON…ZWKBHP`](https://stellar.expert/explorer/public/account/GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP) |
+| x402: most recent settled payment | 18 Nov 2026 (AgentLedger's mainnet test of the pre-sign policy hook; its founder works with Nirium part-time), checked against the recipient account on 22 Nov 2026 | [`GCLBBPON…ZWKBHP`](https://stellar.expert/explorer/public/account/GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP) |
 | x402: paid from a social login (Pollar) | Settled 5 Aug 2026, holding **zero XLM** end to end | [`e4fa3df9…16ed9`](https://stellar.expert/explorer/public/tx/e4fa3df9cb225a4d7f64dd0082eb38218ada4b4af3378f288989a5d4b1116ed9) |
 | `nirium-pollar-adapter`: end-to-end from a clean npm install | Settled 27 Jul 2026, standard Stellar keypair signer (the pluggable-signer test, not Pollar-specific) | [`48136451…3795e`](https://stellar.expert/explorer/public/tx/4813645165d15af1e503d66ef84d826e83fff235d4f98c3f6eba8a4e7c83795e) · receipt [`QmRzgTtVPg…`](https://gateway.pinata.cloud/ipfs/QmRzgTtVPg5a5pipi8npfpXt81xiGG5Ue5Rygd6Fye1aon) · **Update, 2026-10-07:** the receipt above no longer resolves on the Pinata gateway (404 on two checks). The original bytes are not kept in this repo, so it was not re-pinned under the same CID. The payment itself is verifiable on Stellar Expert. **Update, 2026-11-10:** the receipt resolves again - 200 on both the Pinata gateway and `nirium.myfilebase.com`. |
 | MPP Charge | **Experimental**: implemented, `charge.enabled: true` on both networks; **testnet verified 2026-10-15** with settled payments in pull and push mode ([`b8c4ed56…`](https://stellar.expert/explorer/testnet/tx/b8c4ed568f6eb41321b97d251d7f3727c57570a226d187e3675a9df03496e3ed), [`96d43d6f…`](https://stellar.expert/explorer/testnet/tx/96d43d6f4cf38fbd3a4df2c2bb6625e650c0d0509184d86c1e42c7e6ebdf242c)); mainnet unverified, no confirmed mainnet settlement (**Update, 2026-10-07, checked live against Horizon and `/api/v1/mpp/info`:** this row previously read "Live: `market` charges and delivers" without a transaction hash, unlike every other row in this table. A 2026-10-01 end-to-end test found the testnet box rejecting real payment proofs with `verification-failed`, including a push flow where the payment settled on-chain but the content was never delivered; the root cause was not determined. No MPP Charge-tagged credit appears anywhere in the mainnet recipient's payment history, past or since. **Update, 2026-10-15:** re-tested with `nirium@0.16.1` against the testnet box: `pull` and `push` both settled and delivered, so the 1 Oct failure no longer reproduces. Mainnet is still untested.) | [`/api/v1/mpp/info`](https://nirium-agent-mainnet.fly.dev/api/v1/mpp/info) |
@@ -193,12 +193,13 @@ Traction is **self-generated and independently verifiable**. It does not depend 
 - **Open API + free sandbox keys**, so any developer can integrate and exercise the contracts directly.
 - **Real upstream engagement** - issues we filed and fixes we shipped against the
   Stellar and x402 ecosystems, most recent first. Every row links to the public thread;
-  every row's status was re-checked against the GitHub API on 2026-11-10 and still
+  every row's status was re-checked against the GitHub API on 2026-11-22 and still
   matches what it says. A list of merged upstream pull requests is also kept in the
   [nirium README](https://github.com/nirium-protocol/nirium#readme).
 
   | Date | Where | What we reported / did | Outcome |
   |------|-------|------------------------|---------|
+  | 2026-11-19 | [x402-foundation/x402#4321](https://github.com/x402-foundation/x402/issues/4321) | The Stellar `exact` facilitator rejects every payment to a muxed (`M...`) `payTo`, because it does not read CAP-67 transfer events. Proposed fix in draft [#4322](https://github.com/x402-foundation/x402/pull/4322). | Open; the fix PR stays a draft until a maintainer reviews it. The same gap in the MPP SDK was filed independently as [stellar/stellar-mpp-sdk#89](https://github.com/stellar/stellar-mpp-sdk/issues/89) (open). |
   | 2026-10-22 | [x402-foundation/x402#3338](https://github.com/x402-foundation/x402/pull/3338) | A documented ceiling on `SettlementOverrides.amount` (never more than `PaymentRequirements.amount`) was never actually enforced. Fix lives in `@x402/core`'s resource server, upstream of any one integrator. | **Merged** by maintainer `CarsonRoscoe`. Team-wide upstream contribution, not exclusive to this product - the same author also ships Periplo on x402, and both projects' own traction docs cite this merge. |
   | 2026-10-22 | [x402-foundation/x402#3339](https://github.com/x402-foundation/x402/pull/3339) | Docs: `areFeesSponsored: false` is accepted on the Stellar scheme constructor with no validation, and the resulting limitation wasn't cross-referenced where a developer would read it. Fix lives in `@x402/mechanisms/stellar`'s facilitator scheme, the shared Stellar mechanism every x402-on-Stellar integrator imports. | **Merged** by maintainer `CarsonRoscoe`. Team-wide upstream contribution, not exclusive to this product - see the #3338 note above. |
   | 2026-09-09 | [stellar/stellar-mpp-sdk#68](https://github.com/stellar/stellar-mpp-sdk/issues/68) | Two mainnet SAC contract addresses in the official MPP SDK fail Stellar's own StrKey validation (`USDC_SAC_MAINNET` 54 chars, `XLM_SAC_MAINNET` 55) - we wrote the fix. | **Merged** as [#69](https://github.com/stellar/stellar-mpp-sdk/pull/69). Follow-up [#72](https://github.com/stellar/stellar-mpp-sdk/pull/72) (contributor jeesunikim, open) derives the literals from asset code + network passphrase so the typo class can't recur. |
@@ -360,9 +361,9 @@ An invalid signature returns **400 and nothing is anchored**: nobody can guarant
 | Pollar adapter | [nirium-pollar-adapter (npm)](https://www.npmjs.com/package/nirium-pollar-adapter) | 0.6.6 | `npm install nirium-pollar-adapter` |
 | CLI | [nirium-cli (npm)](https://www.npmjs.com/package/nirium-cli) | 3.2.7 | `npm install -g nirium-cli` |
 
-Versions checked against the npm and PyPI registries on 21 Nov 2026. These packages are released from [nirium-protocol/nirium](https://github.com/nirium-protocol/nirium).
+Versions checked against the npm and PyPI registries on 22 Nov 2026. These packages are released from [nirium-protocol/nirium](https://github.com/nirium-protocol/nirium).
 
-> The two SDKs share full Treasury parity (12 methods, `proposeTreasuryRebalance()`/`propose_treasury_rebalance()` included) since 10-sep-2026. `x402Serve()` stays TypeScript-only - it's Express middleware, server-side Node, with no meaningful equivalent in an async Python client. Going the other way, Python ships a resilient, auto-reconnecting WebSocket client (backoff, jitter, dedup) and a LangChain `BaseTool` (`pip install nirium[langchain]`) that TypeScript doesn't have yet - the gap runs both directions, not just one.
+> The two SDKs share full Treasury parity (12 methods, `proposeTreasuryRebalance()`/`propose_treasury_rebalance()` included) since 10-sep-2026. `x402Serve()` stays TypeScript-only - it's Express middleware, server-side Node, with no meaningful equivalent in an async Python client. Both SDKs include a resilient, auto-reconnecting WebSocket client (backoff, jitter, dedup; `ResilientSignalClient` in TypeScript), though the hosted stream at `/ws/signals` did not accept connections when checked on 18 Nov 2026. Python also ships a LangChain `BaseTool` (`pip install nirium[langchain]`) that TypeScript doesn't have.
 
 ```typescript
 import { Agent } from 'nirium';
@@ -371,7 +372,7 @@ const agent = new Agent({ apiKey: 'sk_inst_...', baseUrl: 'https://nirium-agent.
 const market = await agent.getMarket();
 const nodes = await agent.getNodes();
 await agent.anchorAuditRecord({ hash: '...' });
-agent.subscribe(signal => console.log(signal));
+agent.subscribe(signal => console.log(signal)); // hosted stream not accepting connections as of 18 Nov 2026
 ```
 
 ```python
@@ -393,7 +394,7 @@ async def main():
 asyncio.run(main())
 ```
 
-See [SDKs.md](SDKs.md) for full SDK documentation.
+Full SDK documentation: the package READMEs in nirium-protocol/nirium, [TypeScript](https://github.com/nirium-protocol/nirium/tree/main/packages/sdk) and [Python](https://github.com/nirium-protocol/nirium/tree/main/packages/sdk-python).
 
 ---
 
@@ -450,7 +451,7 @@ nirium-core/                   (public repo)
 ├── packages/sdk-python/       → copy of the Python SDK (PyPI: nirium; released from nirium-protocol/nirium)
 ├── nirium-soroban-contracts/  → Soroban contracts (Rust): NiriumVault + NiriumProtocol, both deployed on testnet, 5 fuzz targets
 ├── packages/policy-account/   → Soroban policy account (Rust), scopes a key to one vault
-├── .github/workflows/         → CI, release, security-gate, desktop release
+├── .github/workflows/         → CI, release, security-gate, desktop release, NiriumVault verified release
 │
 ├── packages/agent/            → [private] Express 5 API, 102 endpoints (101 HTTP + 1 WebSocket); only its types are published here
 ├── packages/mcp/              → [public] MCP server, 25 tools (npm: nirium-mcp)
@@ -512,7 +513,7 @@ Nirium received two Stellar Community Fund Instawards, through the Stellar Ambas
 | `x402Serve()`, charge for your own API in one call | ✅ Shipped in SDK. **Update, 2026-10-07:** previously said third-party use was invite-only during legal review - there is no such gate. It's a general-purpose library the integrator runs on their own server; Nirium does not operate or gate it; compliance is theirs |
 | Agent attestation in the audit trail (signed evidence) | ✅ Shipped |
 | Treasury node on mainnet over a client-owned DeFindex vault | ✅ Live, invite-only until a written legal opinion |
-| Legal opinion on the treasury node (MX + cross-border) | 🔄 In progress: gates opening it beyond invite-only |
+| Legal opinion on the treasury node (MX + cross-border) | ⏳ Pending: no lawyer engaged yet; a written opinion gates opening it beyond invite-only |
 | Etherfuse, enterprise KYB onboarding | **Update, 2026-10-14:** this row previously read "In progress". Etherfuse told us they cannot commit to a partnership or KYB track at this time, only co-marketing. Closed, not in progress. |
 | Stellar Community Fund Build Award | 🔄 Submitted for SCF #46 on 9 Nov 2026, in review |
 | Formal independent audit of NiriumVault | Planned, ahead of any NiriumVault mainnet deployment |
@@ -533,9 +534,9 @@ Nirium received two Stellar Community Fund Instawards, through the Stellar Ambas
 
 | Document | Description |
 |---|---|
-| [SDKs.md](SDKs.md) | Full TypeScript + Python SDK documentation |
+| [SDKs.md](SDKs.md) | Historical SDK notes (SDK 0.5.0); the maintained docs are the package READMEs in nirium-protocol/nirium |
 | [API_DOCUMENTATION_OPENAPI.yaml](API_DOCUMENTATION_OPENAPI.yaml) | OpenAPI specification |
-| [MCP_INTEGRATION_GUIDE.md](MCP_INTEGRATION_GUIDE.md) | MCP server, 25 tools for Claude Desktop / Cursor |
+| [MCP_INTEGRATION_GUIDE.md](MCP_INTEGRATION_GUIDE.md) | Historical MCP guide (v0.4.0); the maintained one is the [nirium-mcp README](https://github.com/nirium-protocol/nirium/tree/main/packages/mcp) (25 tools) |
 | [INTERNAL_SECURITY_AUDIT.md](INTERNAL_SECURITY_AUDIT.md) | Internal security self-review: method, findings, fixes, out of scope |
 | [NIRIUM_TECHNICAL_PAPER.md](NIRIUM_TECHNICAL_PAPER.md) | Technical whitepaper |
 | [SECURITY.md](SECURITY.md) | Responsible vulnerability disclosure policy |
@@ -557,7 +558,7 @@ curl https://nirium-agent.fly.dev/api/sandbox/status \
   -H "x-api-key: YOUR_SANDBOX_KEY"
 
 # WebSocket signal stream (hosted endpoint not accepting connections as of 21 Nov 2026;
-# run your own agent and use ws://localhost:3002/ws/signals?token=YOUR_JWT)
+# run your own agent and use ws://localhost:3001/ws/signals?token=YOUR_JWT)
 ```
 
 ---
@@ -586,4 +587,4 @@ This project operates under the [Stellar Community Fund](https://stellar.gitbook
 
 ---
 
-*Nirium Protocol: experimental software. Not financial advice. NiriumVault is testnet-only and audit-gated; the mainnet treasury node runs over a client-owned, third-party audited DeFindex vault in a role that cannot withdraw. Updated November 15, 2026.*
+*Nirium Protocol: experimental software. Not financial advice. NiriumVault is testnet-only and audit-gated; the mainnet treasury node runs over a client-owned, third-party audited DeFindex vault in a role that cannot withdraw. Updated November 22, 2026.*
