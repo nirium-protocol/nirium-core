@@ -38,6 +38,8 @@ import { MAINNET_API_URL, PROOF_TX_HASH, PROOF_TX_URL } from "@/lib/constants";
 // Ojo, visto en la misma prueba: el facilitador de testnet respondió 504 en
 // 6 de 9 intentos y aun así liquidó el pago, así que el cliente pagó y recibió
 // 402. Es del facilitador, no del snippet, pero quien lo pruebe puede verlo.
+// Verificación externa de holistis: sus 21 casos y su resultado público (19-nov-2026).
+const HOLISTIS_RESULT_URL = 'https://github.com/nirium-protocol/nirium/pull/396#issuecomment-7016710117';
 const SNIPPET_TESTNET_TX = '97f11e97d81924b8874f4643bcb59720cc59dfc4248beae5059422b7ae800b90';
 const SNIPPET_TESTNET_TX_URL = `https://stellar.expert/explorer/testnet/tx/${SNIPPET_TESTNET_TX}`;
 
@@ -180,6 +182,13 @@ export default function Home() {
                     cta: lang('verify it, 2026-11-12', 'verifícalo, 2026-11-12'),
                     href: TIA_ANCHOR_URL,
                 },
+                {
+                    icon: ShieldCheck,
+                    title: lang('Checked from outside: an independent reviewer verified our receipts with their own code', 'Revisado por fuera: un revisor independiente comprobó nuestros recibos con su propio código'),
+                    detail: lang('21 test cases · nirium-protocol/nirium#396', '21 casos de prueba · nirium-protocol/nirium#396'),
+                    cta: lang('their result, 2026-11-19', 'su resultado, 2026-11-19'),
+                    href: HOLISTIS_RESULT_URL,
+                },
             ],
         },
         {
@@ -318,8 +327,8 @@ export default function Home() {
                         <h2 className="text-2xl sm:text-3xl font-bold">{lang('Prove what the chain doesn\'t show', 'Demuestra lo que la cadena no muestra')}</h2>
                         <p className="mt-3 text-white/60 max-w-2xl">
                             {lang(
-                                'A Stellar payment is already public on the ledger. Audit Trail covers what is not: what your policy decided, including payments it refused and never signed, a record of what each payment bought, and any document or event off chain. Anyone can check it from a hash alone.',
-                                'Un pago en Stellar ya es público en el ledger. Audit Trail cubre lo que no está ahí: lo que decidió tu política, incluidos los pagos que rechazó y nunca firmó, un registro de qué compró cada pago, y cualquier documento o evento fuera de la cadena. Cualquiera lo revisa solo con el hash.')}
+                                'A Stellar payment is already public on the ledger. Audit Trail covers what is not: what your policy decided, including payments it refused and never signed, a record of what each payment bought, and any document or event off chain. Anyone can check it from a hash alone, and if anyone changes a receipt, it shows: the CID no longer matches.',
+                                'Un pago en Stellar ya es público en el ledger. Audit Trail cubre lo que no está ahí: lo que decidió tu política, incluidos los pagos que rechazó y nunca firmó, un registro de qué compró cada pago, y cualquier documento o evento fuera de la cadena. Cualquiera lo revisa solo con el hash, y si alguien cambia un recibo, se nota: el CID deja de coincidir.')}
                         </p>
                         <div className="mt-6">
                             <CodeBlock
@@ -331,6 +340,16 @@ export default function Home() {
                         </div>
                         <p className="mt-3 text-xs text-emerald-400/80">
                             {lang('Live on mainnet · free during beta.', 'En vivo en mainnet · gratis durante beta.')}
+                        </p>
+                        <p className="mt-3 text-xs text-white/50 leading-relaxed max-w-2xl">
+                            {/* 21-nov-2026: IPFS guarda un archivo solo mientras alguien lo fija. Hoy lo fija
+                                Pinata; la segunda copia en Filebase está lista pero inactiva (plan de pago),
+                                por eso aquí solo se promete lo que ya funciona: la copia del propio cliente. */}
+                            {lang('Keep your own copy: ', 'Guarda tu propia copia: ')}
+                            <code className="font-mono text-stellar-teal/80">nirium anchor --save receipt.json</code>
+                            {lang('. If IPFS ever loses it, ', '. Si algún día IPFS la pierde, ')}
+                            <code className="font-mono text-stellar-teal/80">nirium cid receipt.json</code>
+                            {lang(' shows it is the original, without relying on us.', ' demuestra que es el original, sin depender de nosotros.')}
                         </p>
                         <a href={REFUSED_ANCHOR_URL} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-xs text-stellar-teal/80 hover:text-stellar-teal">
                             {lang('Verify a receipt for a payment that never happened (AgentLedger blocked it, mainnet, 18 Nov 2026)', 'Verifica el recibo de un pago que nunca ocurrió (AgentLedger lo bloqueó, mainnet, 18 nov 2026)')} <ExternalLink className="w-3 h-3" />
