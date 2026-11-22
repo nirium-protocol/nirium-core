@@ -81,7 +81,7 @@ export function renderOgImage() {
                             textTransform: "uppercase",
                         }}
                     >
-                        HackMeridian
+                        HackMeridian · accepted
                     </div>
                 </div>
 

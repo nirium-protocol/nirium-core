@@ -12,7 +12,7 @@ type Feature = { en: string; es: string };
 
 const FEATURES_FREE: Feature[] = [
     { en: 'Testnet vault (NiriumVault on Soroban)', es: 'Vault testnet (NiriumVault en Soroban)' },
-    { en: 'Free API key: 20 requests/min',  es: 'API key gratis: 20 requests/min' },
+    { en: 'Free API key: 10 requests/min and 100/day on keyed routes; anchoring and Reporting need no key today', es: 'API key gratis: 10 solicitudes/min y 100/día en rutas con key; anclar y Reporting hoy no piden key' },
     { en: 'Audit trail (SHA-256 · IPFS)',  es: 'Audit trail (SHA-256 · IPFS)' },
     { en: 'Payouts node (batch disbursement)', es: 'Nodo de dispersiones (batch)' },
     { en: 'Package access (npm: nirium)',       es: 'Acceso al paquete (npm: nirium)' },
@@ -44,7 +44,7 @@ const FEATURES_MAINNET: Feature[] = [
     // es como cobra un procesador de pagos, y contradecía los propios términos.
     // Ahora es licencia mensual por capacidad - misma economía, otra forma jurídica.
     { en: 'Batch payouts - monthly software licence by permitted volume ($99 up to 250 records/mo, $249 up to 1,000), never a per-payment charge and never a percentage of what you disburse; mainnet is private Beta, invite-only (early access: network fee only today)', es: 'Payouts en lote - licencia mensual de software por volumen permitido ($99 hasta 250 registros/mes, $249 hasta 1,000), nunca un cargo por pago ni un porcentaje de lo que dispersas; mainnet en Beta privada, solo por invitación (early access: hoy solo fee de red)' },
-    { en: 'Audit anchoring - free during beta. Anchor hashes, not personal data: IPFS cannot be edited or deleted', es: 'Anclaje de auditoría - gratis en beta. Ancla hashes, no datos personales: IPFS no se edita ni se borra' },
+    { en: 'Audit anchoring - free during beta. Anchor hashes, not personal data: we can\'t guarantee anything is deleted from IPFS.', es: 'Anclaje de auditoría - gratis en beta. Ancla hashes, no datos personales: no podemos garantizar que algo se borre de IPFS.' },
     { en: 'Reporting API - free (read-only). Institutional format; what you file with a regulator remains yours to decide', es: 'API de reportería - gratis (lectura). Formato institucional; lo que presentes ante un regulador lo decides tú' },
     { en: 'Settled on-chain in USDC, per request', es: 'Liquidado on-chain en USDC, por request' },
     { en: 'Not offered in restricted jurisdictions - see the policy before you integrate', es: 'No se ofrece en jurisdicciones restringidas - revisa la política antes de integrar' },
@@ -92,7 +92,7 @@ type ComparisonRow = {
 
 const COMPARISON: ComparisonRow[] = [
     { feature: { en: 'Treasury vault',   es: 'Bóveda de tesorería' }, free: { en: 'NiriumVault (testnet)', es: 'NiriumVault (testnet)' }, growth: { en: 'DeFindex (mainnet, invite-only)', es: 'DeFindex (mainnet, por invitación)' }, enterprise: 'Custom' },
-    { feature: { en: 'API rate limit',   es: 'Límite de API'       }, free: '20 req/min', growth: { en: 'Higher, per account', es: 'Más alto, por cuenta' }, enterprise: { en: 'By agreement', es: 'Por acuerdo' } },
+    { feature: { en: 'API rate limit',   es: 'Límite de API'       }, free: { en: '10 req/min · 100/day (keyed routes)', es: '10 req/min · 100/día (rutas con key)' }, growth: { en: 'Higher, per account', es: 'Más alto, por cuenta' }, enterprise: { en: 'By agreement', es: 'Por acuerdo' } },
     { feature: { en: 'Signing model',    es: 'Modelo de firma'     }, free: { en: 'Your key withdraws; the agent spends up to a cap you set (NiriumVault)', es: 'Tu llave retira; el agente gasta hasta un tope que tú fijas (NiriumVault)' }, growth: { en: 'Your keys + revocable rebalance role', es: 'Tus llaves + rol de rebalanceo revocable' }, enterprise: { en: 'Configurable', es: 'Configurable' } },
     { feature: { en: 'Institutional export',      es: 'Export institucional'        }, free: '✓', growth: '✓', enterprise: '✓' },
     { feature: { en: 'IPFS anchoring',   es: 'Anclaje IPFS'        }, free: { en: 'Free during beta', es: 'Gratis en beta' }, growth: '✓', enterprise: '✓' },
@@ -426,9 +426,20 @@ export default function PricingPage() {
                             },
                             {
                                 q: lang('When does the treasury vault reach mainnet?', '¿Cuándo llega el vault de tesorería a mainnet?'),
-                                a: lang(
-                                    'NiriumVault, Nirium’s own vault contract, stays on testnet until it clears a formal external Soroban audit - by design, not by limitation. Treasury rebalancing on mainnet runs over DeFindex vaults (third-party, already audited), invite-only. The non-custodial nodes above did not need that gate because they never hold funds.',
-                                    'NiriumVault, el contrato de bóveda propio de Nirium, permanece en testnet hasta pasar una auditoría externa formal de Soroban - por diseño, no por limitación. El rebalanceo de tesorería en mainnet corre sobre bóvedas de DeFindex (de terceros, ya auditadas), solo por invitación. Los nodos no custodiales de arriba no requieren esa compuerta porque nunca custodian fondos.'),
+                                // 21-nov-2026 (PRC3): "ya auditadas" iba sin fuente.
+                                a: (
+                                    <>
+                                        {lang(
+                                            'NiriumVault, Nirium’s own vault contract, stays on testnet until it clears a formal external Soroban audit - by design, not by limitation. Treasury rebalancing on mainnet runs over DeFindex vaults (third-party, ',
+                                            'NiriumVault, el contrato de bóveda propio de Nirium, permanece en testnet hasta pasar una auditoría externa formal de Soroban - por diseño, no por limitación. El rebalanceo de tesorería en mainnet corre sobre bóvedas de DeFindex (de terceros, ')}
+                                        <a href="https://github.com/paltalabs/defindex/blob/main/audits/2025_03_18_ottersec_defindex_audit.pdf" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">
+                                            {lang('audited by OtterSec, March 2025', 'auditadas por OtterSec, marzo de 2025')}
+                                        </a>
+                                        {lang(
+                                            '), invite-only. The non-custodial nodes above did not need that gate because they never hold funds.',
+                                            '), solo por invitación. Los nodos no custodiales de arriba no requieren esa compuerta porque nunca custodian fondos.')}
+                                    </>
+                                ),
                             },
                             {
                                 q: lang('Does Nirium custody my funds?', '¿Nirium custodia mis fondos?'),

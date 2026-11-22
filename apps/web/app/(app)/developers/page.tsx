@@ -48,11 +48,11 @@ function CodeBlock({ code, lang: langLabel = "typescript" }: { code: string; lan
 
 const INSTALL_CODE = `npm install nirium`;
 
-const QUICKSTART_CODE = `import { Agent } from "nirium";
+const QUICKSTART_CODE = `import { Agent, receiptCid } from "nirium";
 
 const agent = new Agent({
   apiKey: process.env.NIRIUM_API_KEY,
-  baseUrl: "https://nirium-agent.fly.dev",
+  baseUrl: "https://nirium-agent.fly.dev", // mainnet: https://nirium-agent-mainnet.fly.dev
 });
 
 // Live market data - rates attributed to their source
@@ -62,22 +62,24 @@ const market = await agent.getMarket();
 const nodes = await agent.getNodes();
 
 // Anchor evidence to IPFS and get a verifiable CID back
-const { cid } = await agent.anchorAuditRecord({ hash: "<sha256>" });`;
+const { cid, document } = await agent.anchorAuditRecord({ hash: "<sha256>" });
+// keep \`document\`: receiptCid(document) === cid, even if IPFS loses it`;
 
 const X402_CODE = `import { Agent } from "nirium";
 
-const agent = new Agent({ baseUrl: "https://nirium-agent.fly.dev" });
+const agent = new Agent({ baseUrl: "https://nirium-agent.fly.dev" }); // mainnet: https://nirium-agent-mainnet.fly.dev
 
 // PAY for an x402 API. The 402, the signature and the retry
 // happen underneath - you just await a fetch.
 agent.initX402({
   secretKey: process.env.STELLAR_SECRET_KEY,   // testnet key with test USDC
-  network: "stellar:testnet",
+  network: "stellar:testnet",                   // mainnet: "stellar:pubnet", real USDC
 });
 
 // Nirium's own test endpoint: 0.05 test USDC on testnet.
 const res = await agent.x402Fetch(
   "https://nirium-agent.fly.dev/api/v1/premium/market",
+  // mainnet: "https://nirium-agent-mainnet.fly.dev/api/v1/premium/market" (0.05 real USDC)
 );
 const data = await res.json();
 
@@ -127,7 +129,8 @@ const MCP_CODE = `// Claude Desktop: claude_desktop_config.json
   }
 }
 // NIRIUM_API_KEY and STELLAR_SECRET_KEY are optional: free tools work
-// without them. Use a testnet key with test USDC for paid tools.`;
+// without them. Use a testnet key with test USDC for paid tools.
+// mainnet: AGENT_API_URL=https://nirium-agent-mainnet.fly.dev (paid tools spend real USDC)`;
 
 // Cada ruta de esta tabla existe y fue probada contra la API viva: 200 donde es
 // pública, 401 donde pide credencial, 402 donde pide pago x402, 400 donde faltan
@@ -193,16 +196,11 @@ const MCP_TOOLS = [
 ];
 
 
-// 9-nov-2026: los ejemplos siguen el switch TEST/MAIN. Precio leído en vivo ese día:
-// 0.05 USDC (500000) en los dos endpoints premium/market, stellar:testnet y stellar:pubnet.
-function forNetwork(code: string, isMain: boolean) {
-    if (!isMain) return code;
-    return code
-        .split('https://nirium-agent.fly.dev').join('https://nirium-agent-mainnet.fly.dev')
-        .split('"stellar:testnet"').join('"stellar:pubnet"')
-        .split('// testnet key with test USDC').join('// mainnet key with real USDC')
-        .split("// Nirium's own test endpoint: 0.05 test USDC on testnet.").join("// Nirium's own endpoint: 0.05 real USDC on mainnet.")
-        .split('Use a testnet key with test USDC for paid tools.').join('Paid tools spend real USDC on mainnet.');
+// 21-nov-2026 (DEV1): antes los ejemplos seguían el switch TEST/MAIN, así que con MAIN elegido
+// copiar y pegar gastaba USDC real, mientras el CTA dice "Empieza en testnet". Ahora siempre
+// apuntan a testnet y traen la URL de mainnet como comentario.
+function forNetwork(code: string, _isMain: boolean) {
+    return code;
 }
 
 export default function DevelopersPage() {
@@ -279,7 +277,7 @@ export default function DevelopersPage() {
                     <ComplianceBanner />
                     <NetworkScopeNote className="mt-6"
                         testnet={{ en: "Code examples point at the testnet agent (nirium-agent.fly.dev). Switch to MAIN in the menu for mainnet.", es: "Los ejemplos de código apuntan al agente de testnet (nirium-agent.fly.dev). Cambia a MAIN en el menú para mainnet." }}
-                        mainnet={{ en: "Code examples point at the mainnet agent (nirium-agent-mainnet.fly.dev) and spend real USDC. The contract list further down is testnet only.", es: "Los ejemplos de código apuntan al agente de mainnet (nirium-agent-mainnet.fly.dev) y gastan USDC real. La lista de contratos más abajo es solo de testnet." }} />
+                        mainnet={{ en: "Code examples stay on testnet (nirium-agent.fly.dev) even with MAIN selected, so copying them never spends real USDC; each one has the mainnet URL as a comment. The contract list further down is testnet only.", es: "Los ejemplos de código se quedan en testnet (nirium-agent.fly.dev) aunque elijas MAIN, así copiarlos nunca gasta USDC real; cada uno trae la URL de mainnet como comentario. La lista de contratos más abajo es solo de testnet." }} />
                 </div>
 
                 {/* QUICKSTART */}
@@ -625,9 +623,10 @@ export default function DevelopersPage() {
                                         cat: language === 'es' ? 'Audit Trail y Reporting' : 'Audit Trail & Reporting',
                                         icon: Shield,
                                         eps: [
-                                            { m: 'POST', p: '/api/audit/log', d: 'Anchor a record to IPFS, optionally agent-signed', de: 'Ancla un registro en IPFS, con firma opcional del agente', s: 'PUBLIC' },
+                                            { m: 'POST', p: '/api/audit/log', d: 'Anchor a record to IPFS, optionally agent-signed. Limit 20 per minute; since 21 Nov 2026 it also returns the exact document pinned (document)', de: 'Ancla un registro en IPFS, con firma opcional del agente. Límite 20 por minuto; desde el 21 nov 2026 devuelve también el documento exacto fijado (document)', s: 'PUBLIC' },
                                             { m: 'GET', p: '/api/audit/info', d: 'Audit node metadata and limits', de: 'Datos y límites del nodo de auditoría', s: 'PUBLIC' },
                                             { m: 'GET', p: '/api/reporting/summary', d: 'Summary by period and network', de: 'Resumen por periodo y red', s: 'PUBLIC' },
+                                            { m: 'GET', p: '/api/reporting/info', d: 'What Reporting exposes and its limits', de: 'Qué expone Reporting y sus límites', s: 'PUBLIC' },
                                             { m: 'GET', p: '/api/reporting/export', d: 'Rows behind the summary, no CIDs', de: 'Filas detrás del resumen, sin CIDs', s: 'PUBLIC' },
                                         ]
                                     },
@@ -771,8 +770,8 @@ export default function DevelopersPage() {
                                 <CodeBlock lang="bash" code={`curl https://nirium.xyz/api/stats`} />
                                 <p className="mt-4 text-xs text-gray-500 leading-relaxed">
                                     {lang(
-                                        'Server-rendered, cached 5 minutes (Cache-Control: s-maxage=300) - this is only to keep GitHub’s search rate limit off real traffic, not to mask staleness; generatedAt is a real per-request timestamp.',
-                                        'Renderizado en el servidor, cache de 5 min (Cache-Control: s-maxage=300) - solo para no golpear el rate limit de búsqueda de GitHub con tráfico real, no para ocultar datos viejos; generatedAt es la hora real de cada request.')}
+                                        'Server-rendered, kept up to 30 minutes on Vercel\u2019s CDN (s-maxage=1800, stale-while-revalidate=3600; the header you see says max-age=0 because the CDN keeps the s-maxage). The first request after a quiet period can get the previous copy while a new one is built, so check generatedAt: it says when the copy you got was built. The cache only keeps GitHub’s search rate limit off real traffic; it is not there to hide staleness.',
+                                        'Renderizado en el servidor, se guarda hasta 30 min en el CDN de Vercel (s-maxage=1800, stale-while-revalidate=3600; el encabezado que ves dice max-age=0 porque el CDN se queda con el s-maxage). La primera petición después de un rato sin tráfico puede recibir la copia anterior mientras se genera la nueva, así que revisa generatedAt: dice cuándo se generó la copia que recibiste. La caché solo evita golpear el rate limit de búsqueda de GitHub con tráfico real; no está para ocultar datos viejos.')}
                                 </p>
                             </div>
                             <div className="rounded-2xl border border-white/10 bg-white/[0.01] p-6">

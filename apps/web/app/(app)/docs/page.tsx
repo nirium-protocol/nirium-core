@@ -250,8 +250,8 @@ function DocsContent() {
                         <Section id="what-it-is" kicker={lang("01 · Overview", "01 · Resumen")} title={lang("What Nirium Is", "Qué es Nirium")} icon={Shield}>
                             <p>
                                 {lang(
-                                    "Nirium anchors evidence - a payment, an API response, a milestone decision - as a sha-256 hash pinned to IPFS, with an optional ed25519 signature attesting who produced it. The result is a ",
-                                    "Nirium ancla evidencia (un pago, la respuesta de una API, la decisión de un hito) como un hash sha-256 anclado en IPFS, con una firma ed25519 opcional que certifica quién lo produjo. El resultado es un "
+                                    "Nirium anchors evidence - a payment, an API response, a milestone decision - as a sha-256 hash pinned to IPFS, with an optional ed25519 signature that shows which key signed it. The result is a ",
+                                    "Nirium ancla evidencia (un pago, la respuesta de una API, la decisión de un hito) como un hash sha-256 anclado en IPFS, con una firma ed25519 opcional que muestra qué llave lo firmó. El resultado es un "
                                 )}
                                 <strong className="text-white">{lang("receipt", "recibo")}</strong>
                                 {lang(
@@ -282,8 +282,8 @@ function DocsContent() {
                         <Section id="quickstart" kicker={lang("02 · Quickstart", "02 · Inicio rápido")} title={lang("Quickstart (5 min)", "Inicio rápido (5 min)")} icon={Terminal}>
                             <p>
                                 {lang(
-                                    "Every command below ran against the live agent on 29-oct-2026. Swap the base URL to switch networks: ",
-                                    "Cada comando de abajo corrió contra el agente en vivo el 29-oct-2026. Cambia la URL base para cambiar de red: "
+                                    "Every command below ran against the live agent on 21-nov-2026. Swap the base URL to switch networks: ",
+                                    "Cada comando de abajo corrió contra el agente en vivo el 21-nov-2026. Cambia la URL base para cambiar de red: "
                                 )}
                                 <code>{TESTNET_BASE}</code>{" "}
                                 {lang("for testnet, ", "para testnet, ")}
@@ -313,13 +313,36 @@ curl -X POST ${TESTNET_BASE}/api/audit/log \\
 `}</CodeBlock>
                             <CodeBlock label={lang("response, verbatim", "respuesta, textual")}>{`
 {
-  "cid": "Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX",
-  "gatewayUrl": "https://gateway.pinata.cloud/ipfs/Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX",
-  "content_sha256": "68117b8d5b9cad107ac9df653bc5fb23451696f97268facc6e049c89831650ac",
-  "anchoredAt": "2026-10-29T22:07:13.605Z",
+  "cid": "QmehRz7Xab8Cg27fypBiffVgW11Yoac6BJcgd3g1pH5V7m",
+  "gatewayUrl": "https://gateway.pinata.cloud/ipfs/QmehRz7Xab8Cg27fypBiffVgW11Yoac6BJcgd3g1pH5V7m",
+  "content_sha256": "26a1d68440440d4ff02ac75c60ffebd7a6cb471b1634d25c8221609bcb6c4d55",
+  "anchoredAt": "2026-11-21T22:18:49.010Z",
+  "document": {
+    "version": "1.1.0",
+    "node": "audit-external",
+    "content_sha256": "26a1d68440440d4ff02ac75c60ffebd7a6cb471b1634d25c8221609bcb6c4d55",
+    "record": { "doc_type": "invoice", "amount_usd": 42, "ref": "your-reference" },
+    "network": "stellar:testnet",
+    "tag": "demo",
+    "anchoredAt": "2026-11-21T22:18:49.010Z"
+  },
+  "keep": "Save \`document\` as JSON.stringify(document), no trailing newline. If IPFS ever loses this CID, adding those bytes again (CIDv0) gives back the same CID.",
   "verify": "fetch the gatewayUrl and recompute sha-256 over your original evidence"
 }
 `}</CodeBlock>
+                            <p className="text-sm">
+                                {lang(
+                                    "Indented here for reading; the API answers on one line. Update, 21 Nov 2026: since that day the response also carries ",
+                                    "Con sangría aquí para leerla; la API responde en una sola línea. Actualización, 21 nov 2026: desde ese día la respuesta trae también "
+                                )}
+                                <code>document</code>{lang(" (the exact document pinned) and ", " (el documento exacto que se fijó) y ")}<code>keep</code>
+                                {lang(
+                                    ". The response shown here before (29 Oct 2026) came from a request with a different ",
+                                    ". La respuesta que se mostraba antes (29 oct 2026) venía de una solicitud con otro "
+                                )}
+                                <code>ref</code>
+                                {lang(", so its hash did not match the command above; this one does.", ", así que su hash no coincidía con el comando de arriba; esta sí.")}
+                            </p>
 
                             <p className="!mb-2"><strong className="text-white">{lang("3. Verify it in the browser.", "3. Verifícalo en el navegador.")}</strong></p>
                             <p>
@@ -341,11 +364,11 @@ curl -X POST ${TESTNET_BASE}/api/audit/log \\
                             <p className="!mb-2"><strong className="text-white">{lang("4. Verify it independently, from the terminal.", "4. Verifícalo de forma independiente, desde la terminal.")}</strong></p>
                             <CodeBlock label={lang("install once", "instala una vez")}>{`npm install -g nirium-cli`}</CodeBlock>
                             <CodeBlock label={lang("real output", "salida real")}>{`
-$ npx nirium-cli verify Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX
+$ npx nirium-cli verify QmehRz7Xab8Cg27fypBiffVgW11Yoac6BJcgd3g1pH5V7m
 🔍 Nirium Audit Verifier
-CID:            Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX
+CID:            QmehRz7Xab8Cg27fypBiffVgW11Yoac6BJcgd3g1pH5V7m
 --------------------------------------------------
-✔ HASH:        MATCH (68117b8d5b9cad10...)
+✔ HASH:        MATCH (26a1d68440440d4f...)
 ℹ SIGNATURE:   ABSENT (No agent attestation embedded)
 --------------------------------------------------
 ✅ VERIFICATION PASSED
@@ -355,15 +378,15 @@ CID:            Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX
                                     "That output came from ",
                                     "Esa salida vino de "
                                 )}
-                                <code>nirium-cli@3.1.1</code>{" "}
+                                <code>nirium-cli@3.2.7</code>{" "}
                                 {lang(
                                     "installed fresh via ",
                                     "instalado de cero vía "
                                 )}
                                 <code>npx</code>{" "}
                                 {lang(
-                                    "on 7 Nov 2026, not from a local build - it independently refetched the CID and recomputed the hash itself. With no flags it tries Filebase's dedicated gateway, then Pinata, ipfs.io and dweb.link, so one slow or rate-limited gateway doesn't fail the check. Pass ",
-                                    "el 7 de noviembre de 2026, no de una compilación local: volvió a traer el CID por su cuenta y recalculó el hash él mismo. Sin flags prueba el gateway dedicado de Filebase, luego Pinata, ipfs.io y dweb.link, así un gateway lento o con límite de uso no tumba la verificación. Usa "
+                                    "on 21 Nov 2026, not from a local build - it independently refetched the CID and recomputed the hash itself. With no flags it tries Filebase's dedicated gateway, then Pinata, ipfs.io and dweb.link, so one slow or rate-limited gateway doesn't fail the check. Pass ",
+                                    "el 21 de noviembre de 2026, no de una compilación local: volvió a traer el CID por su cuenta y recalculó el hash él mismo. Sin flags prueba el gateway dedicado de Filebase, luego Pinata, ipfs.io y dweb.link, así un gateway lento o con límite de uso no tumba la verificación. Usa "
                                 )}
                                 <code>--gateway</code>{" "}
                                 {lang(
@@ -438,6 +461,20 @@ CID:            Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX
                                     {lang(
                                         ", compact (no whitespace), in whatever key insertion order your object had. To recompute it yourself, stringify your object in the same key order and hash the UTF-8 bytes.",
                                         " estándar, compacto (sin espacios), en el mismo orden de llaves que tenía tu objeto. Para recalcularlo tú mismo, convierte tu objeto a string en el mismo orden de llaves y saca el hash de los bytes UTF-8."
+                                    )}{" "}
+                                    {lang(
+                                        "If the document carries the key ",
+                                        "Si el documento trae la llave "
+                                    )}
+                                    <code>record</code>
+                                    {lang(
+                                        ", even as ",
+                                        ", aunque sea "
+                                    )}
+                                    <code>null</code>
+                                    {lang(
+                                        ", it is verified in record mode (sha-256 of JSON.stringify(record)). That's what the CLI has done since 3.2.6 and the GitHub Action does too; /verify does it once V1 ships.",
+                                        ", se verifica como modo record (sha-256 de JSON.stringify(record)). Así lo hacen la CLI desde 3.2.6 y el GitHub Action; /verify lo hará con V1."
                                     )}
                                 </li>
                             </ul>
@@ -640,6 +677,12 @@ $ npx nirium-cli verify QmS1dJaMat4yWfMJ2HwYGkNMUxQD2fF7unUgFTnuLmRPfh \\
                                 {lang(
                                     "It reports on the whole node, not on one account. Its counts include Nirium's own test anchors, so they are not a count of users - who anchored what is listed in Evidence (§9). It is not certified regulatory reporting: anything filed with an authority stays the client's responsibility, and every response says so in its disclaimer field.",
                                     "Reporta sobre todo el nodo, no sobre una cuenta. Sus conteos incluyen los anclajes de prueba de Nirium, así que no son un conteo de usuarios; quién ancló qué está en Evidencia (§9). No es un reporte regulatorio certificado: lo que se presente ante una autoridad sigue siendo responsabilidad del cliente, y cada respuesta lo dice en su campo disclaimer."
+                                )}
+                            </p>
+                            <p className="text-sm">
+                                {lang(
+                                    "21 Nov 2026: payments count only received charges. Before, they also counted rejected attempts (3 on mainnet, from 6 Sep 2026: 42 instead of 39).",
+                                    "21 nov 2026: los pagos cuentan solo cobros recibidos. Antes también contaban intentos rechazados (3 en mainnet, del 6 sep 2026: 42 en vez de 39)."
                                 )}
                             </p>
 
@@ -1019,8 +1062,8 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
                                 )}
                                 <code>npx nirium-cli verify</code>{" "}
                                 {lang(
-                                    "against each CID above. Both wallets in the underlying payments belong to TIA (integration tests, not customer payments).",
-                                    "contra cada CID de arriba. Las dos wallets de los pagos de fondo pertenecen a TIA (pruebas de integración, no pagos de clientes)."
+                                    "against each CID above. The first two receipts each link a payment (18 and 23 Oct 2026); TIA confirmed that both wallets in those two payments are its own, so they are integration tests, not customer payments.",
+                                    "contra cada CID de arriba. Los dos primeros recibos enlazan cada uno un pago (18 y 23 oct 2026); TIA confirmó que las dos wallets de esos pagos son suyas, así que son pruebas de integración, no pagos de clientes."
                                 )}
                             </p>
 
@@ -1124,8 +1167,8 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
                             <ul className="list-disc pl-5 space-y-2">
                                 <li>
                                     {lang(
-                                        "MPP Charge is wired on both networks, but has only been exercised with a settled payment on testnet so far - treat MPP on mainnet as unverified until a mainnet settlement hash exists.",
-                                        "MPP Charge está conectado en las dos redes, pero solo se ha probado con un pago liquidado en testnet hasta ahora: trata a MPP en mainnet como no verificado hasta que exista un hash de liquidación en mainnet."
+                                        "MPP Charge is wired on both networks, but has only been tested on testnet: several settled charges on 15 Oct 2026 (see §9), none on mainnet - treat MPP on mainnet as unverified until a mainnet settlement hash exists.",
+                                        "MPP Charge está conectado en las dos redes, pero solo se ha probado en testnet: varios cobros liquidados el 15 oct 2026 (ver §9), ninguno en mainnet; trata a MPP en mainnet como no verificado hasta que exista un hash de liquidación en mainnet."
                                     )}
                                 </li>
                                 <li>{lang("The pre-sign policy hook (§7, #96) has run on mainnet once, in an integration test by AgentLedger (18 Nov 2026), not against organic traffic.", "El hook de política antes de firmar (§7, #96) se ha corrido una vez en mainnet, en una prueba de integración de AgentLedger (18 nov 2026), no contra tráfico orgánico.")}</li>

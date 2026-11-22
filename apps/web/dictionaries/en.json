@@ -234,7 +234,7 @@
       "limit2_h": "What it does not prove",
       "limit2_p": "It does not prove that the content is true. It does not say who is behind a G key in real life. The anchoredAt field is the time the box wrote into the document, not an independent timestamp.",
       "limit3_h": "Anchor hashes, not personal data",
-      "limit3_p": "IPFS records cannot be deleted. Anchor the hash of your evidence. The optional record field is capped at 8KB, and you are responsible for what you put in it.",
+      "limit3_p": "We can't guarantee anything is deleted from IPFS: anchor the hash of your evidence, not personal data. The optional record field is capped at 8KB, and you are responsible for what you put in it.",
       "limit4_h": "Free, with limits",
       "limit4_p": "Free during the beta and rate-limited. The box sets the network, not the request: it anchors on whichever network it runs on, mainnet or testnet, never the one the client asks for.",
       "h_mainnet": "The same run, on mainnet",
@@ -259,7 +259,7 @@
         "h_pitch": "The pitch, beat by beat",
         "pitch_hook_quote": "As a founder, I was my own treasurer - and I slept. So did the money.",
         "pitch_hook_attr": "- Giovanny Amador, opening the pitch",
-        "pitch_problem": "We opened with a problem every Mexican founder feels: corporate cash sits idle. It loses roughly 10% a year to inflation while it sleeps in an account, and keeping it productive is a 24/7 manual job nobody has time for.",
+        "pitch_problem": "We opened with a problem every Mexican founder feels: corporate cash sits idle. It loses value to inflation while it sleeps in an account, and keeping it productive is a 24/7 manual job nobody has time for.",
         "pitch_solution": "Then the turn - Nirium wakes the money that sleeps. An autonomous agent moves idle USDC into CETES, Mexican sovereign debt, through Etherfuse, and back to liquid the moment it is needed: instantly, and without a treasury desk.",
         "pitch_team": "We closed on the team: Giovanny Amador (Founder) and Monserrat Mendoza (Co-founder). A team that has already shipped together.",
         "h_presented": "What we presented",
@@ -271,7 +271,7 @@
         "h_takeaway": "What we took away",
         "takeaway_p1": "Beyond the pitch, the value of La Arena was the conversations it opened - with investors and ecosystem operators who understand both the Stellar stack and the Mexican regulatory context. Those are the relationships that turn a working testnet protocol into a funded, audited, mainnet product. We left with new threads to pull, and a clearer read on what institutional partners need to see next: verifiable adoption, not promises.",
         "where_label": "Where we are",
-        "where_body": "Nirium runs an autonomous agent on Stellar testnet and published TypeScript and Python SDKs. On mainnet, x402 payments, Audit Trail and Reporting already run, receive-only and non-custodial; MPP is experimental. NiriumVault, our own treasury contract, remains audit-gated. Backed by the Stellar ecosystem: two-time Stellar Community Fund Instawards recipient (via the Stellar Ambassador Program) and an active Stellar Mexico Ambassador. Updated 21 Oct 2026: 'regulated partners' now reads 'regulated third parties'. Updated 16 Nov 2026: 'regulated' now reads 'independent' where this post described Etherfuse and other third parties, because we have not checked their regulatory status ourselves. The product also changed since May: today the Treasury node moves a vault's funds into the vault's own strategy and back, one asset per vault, and does not convert USDC into CETES."
+        "where_body": "Nirium runs an autonomous agent on Stellar testnet and published TypeScript and Python SDKs. On mainnet, x402 payments, Audit Trail and Reporting already run, receive-only and non-custodial; MPP is experimental. NiriumVault, our own treasury contract, remains audit-gated. Backed by the Stellar ecosystem: two-time Stellar Community Fund Instawards recipient (via the Stellar Ambassador Program) and an active Stellar Mexico Ambassador. Updated 21 Oct 2026: 'regulated partners' now reads 'regulated third parties'. Updated 16 Nov 2026: 'regulated' now reads 'independent' where this post described Etherfuse and other third parties, because we have not checked their regulatory status ourselves. The product also changed since May: today the Treasury node moves a vault's funds into the vault's own strategy and back, one asset per vault, and does not convert USDC into CETES. Note, 21 Nov 2026: this describes what we presented in May. Today each vault holds one asset (USDC or CETES) and the agent only moves it between idle and the strategy, without converting one into the other; see /treasury. We also removed an unsourced \"roughly 10% a year to inflation\"."
       },
       "treasury-node-verify-it-yourself": {
         "tag": "Treasury",
@@ -320,7 +320,7 @@
       "x402-outage-verify-it-yourself": {
         "tag": "Settlement",
         "title": "Mainnet x402 Was Down for 32 Days: Don't Trust Us, Verify the Fix",
-        "excerpt": "Every paid mainnet request against Nirium's x402 endpoints failed for 32 days - not from our code, but from a stale RPC URL inside a facilitator we don't operate. Here's the root cause, the two independent real payments that prove it's fixed, and the permanent logging hook we shipped so the next one doesn't take a month to notice.",
+        "excerpt": "Every paid mainnet request against Nirium's x402 endpoints failed for 32 days - not from our code, but from a stale RPC URL inside a facilitator we don't operate. Here's the root cause, the two real payments (one ours, one from AgentLedger, then an independent third party) that prove it's fixed, and the permanent logging hook we shipped so the next one doesn't take a month to notice.",
         "h1": "Mainnet x402 Was Down for 32 Days: Don't Trust Us, Verify the Fix",
         "fact_date": "Sep 11, 2026",
         "fact_network": "Stellar mainnet",
@@ -329,8 +329,8 @@
         "p2": "Nothing here is a summary you have to take on faith. Every transaction hash, GitHub comment, and file below is a link - go check it.",
         "h_fact": "The fact, in plain terms",
         "fact_p1": "Starting around August 10, 2026, every mainnet x402 settlement against Nirium's paid endpoints - and against every other integrator using the same hosted facilitator - began failing with `unexpected_verify_error`, a catch-all for an unhandled exception inside the facilitator's own `verify()` call. Not a rejected payment: the facilitator never got far enough to evaluate one. Isolation testing that day, and every day after, showed the same pattern: the identical client and payload settled cleanly on testnet, and failed the same way on mainnet, every single time.",
-        "fact_p2": "We filed OpenZeppelin/relayer-plugin-x402-facilitator#47 on August 19. Three independent integrators - us, AgentLedger, and a third party - converged on the exact same finding across a month of silence on two official OpenZeppelin channels. What actually broke it open wasn't the thread or a support-forum post: it was tagging, by handle and directly, the two maintainers we'd verified were still active elsewhere in the org. One replied within a day.",
-        "fact_p3": "The root cause, once posted: the hosted pubnet facilitator instance was pointed at a stale RPC URL, so `verify()` threw before it ever reached the payload. We retested the same afternoon with a real settlement against our own mainnet endpoint - clean `200`, confirmed on Horizon. A second, fully independent team ran the identical test the next day, with the same result. Two teams, two payments, two different days, one root cause:",
+        "fact_p2": "We filed OpenZeppelin/relayer-plugin-x402-facilitator#47 on August 19. Three integrators - us, AgentLedger and a third party - converged on the exact same finding across a month of silence on two official OpenZeppelin channels. What actually broke it open wasn't the thread or a support-forum post: it was tagging, by handle and directly, the two maintainers we'd verified were still active elsewhere in the org. One replied within a day.",
+        "fact_p3": "The root cause, once posted: the hosted pubnet facilitator instance was pointed at a stale RPC URL, so `verify()` threw before it ever reached the payload. We retested the same afternoon with a real settlement against our own mainnet endpoint - clean `200`, confirmed on Horizon. A second team (AgentLedger, then an independent third party) ran the identical test the next day, with the same result. Two teams, two payments, two different days, one root cause:",
         "evidence_label": "Check it yourself",
         "evidence_tx1_label": "Our retest, confirmed on Horizon",
         "evidence_tx2_label": "AgentLedger's confirmation, next day (an integration test from a wallet Nirium's founder funded)",
@@ -343,7 +343,7 @@
         "h_impact": "What this means, actor by actor",
         "impact_intro": "This isn't one story - it's a different, specific claim for each party near it. Here's what each one can actually check.",
         "impact_openzeppelin_h": "For OpenZeppelin",
-        "impact_openzeppelin_p": "A hosted facilitator carries real operational weight - every integrator's paid traffic routes through it, and a silent misconfiguration on their side is invisible from ours until someone reports it from outside. Once tagged directly, the actual fix (correcting the pubnet RPC URL) landed within two days, and it's held under two independent teams' real settlements since. That outcome matters more than how long the silence lasted.",
+        "impact_openzeppelin_p": "A hosted facilitator carries real operational weight - every integrator's paid traffic routes through it, and a silent misconfiguration on their side is invisible from ours until someone reports it from outside. Once tagged directly, the actual fix (correcting the pubnet RPC URL) landed within two days, and it's held under two teams' real settlements since. That outcome matters more than how long the silence lasted.",
         "impact_fernando_h": "For Fernando / AgentLedger",
         "impact_fernando_p": "His own mainnet payment hit this exact outage on September 4, blocked by something entirely outside his control or ours. He stayed in the thread, retried the day after the fix shipped, and posted his own confirmation - a second real settlement, from a second account, with the same clean result.",
         "impact_stellar_h": "For Stellar as an ecosystem",
@@ -353,7 +353,7 @@
         "impact_nirium_h": "For Nirium",
         "impact_nirium_p": "We shipped a server-side logging hook mid-outage - `onAfterVerify`/`onVerifyFailure` on the facilitator client, writing every rejection reason and payer address into our own logs instead of only being visible from outside. It stays in place permanently, not as a workaround for this specific bug: it's the difference between finding the next facilitator regression ourselves and waiting for another integrator to report it first.",
         "h_close": "Go check it",
-        "close_p1": "Every link above resolves to something you don't have to take our word for - a live block explorer, a GitHub issue thread, our own devlog entry with the dates and root cause spelled out. Decode the transactions. Read the thread. If something here doesn't hold up the way this post says it does, that's worth knowing - for you and for us.",
+        "close_p1": "Every link above resolves to something you don't have to take our word for - a live block explorer, a GitHub issue thread, our own devlog entry with the dates and root cause spelled out. Decode the transactions. Read the thread. If something here doesn't hold up the way this post says it does, that's worth knowing - for you and for us.\n\nNote, 21 Nov 2026: when this happened (Aug-Sep 2026), AgentLedger was an independent third party; its founder, Fer, joined Nirium part-time in October 2026. That is why this post no longer calls the three integrators or the two payments \"independent\".",
         "where_label": "Where we are",
         "where_body": "x402 settles on both testnet and mainnet (latest mainnet settlement: 18 Nov 2026) - the same endpoints, the same client, the same header, nothing changed by this incident except that a facilitator-side failure now lands in our own logs the moment it happens instead of after someone else notices first. Update, 2026-10-04 (checked against the nirium 0.16.0 changelog that day): this paragraph originally said MPP Charge also runs live on mainnet. That was wrong: MPP Charge is experimental and not available on mainnet."
       }
@@ -2623,7 +2623,7 @@
     },
     "hub": {
       "title": "API reference",
-      "subtitle": "Every route below exists on both nodes, checked on 12 Nov 2026: 200 where it is public, 400 or 401 where it needs parameters or a key, 402 where it needs payment, 501 where the mainnet node does not offer it, 451 for Payouts and Treasury from a jurisdiction where they are not offered (for the EEA, the UK and the US, only on mainnet since 18 Nov 2026).",
+      "subtitle": "Every route below exists on both nodes, checked on 21 Nov 2026: 200 where it is public, 400 or 401 where it needs parameters or a key, 402 where it needs payment, 501 where the mainnet node does not offer it, 451 for Payouts and Treasury from a jurisdiction where they are not offered (for the EEA, the UK and the US, only on mainnet since 18 Nov 2026).",
       "infrastructure": "Main routes",
       "explorer": "By area",
       "subsystems": "+18 Modular subsystems for Institutional Orchestration"
@@ -2850,12 +2850,12 @@
   },
   "nirium_play_page": {
     "eyebrow": "NIRIUM · PLAY",
-    "eyebrow_event": "HackMeridian Lisbon",
+    "eyebrow_event": "Accepted to HackMeridian Lisbon (we did not attend)",
     "title": "Pay-per-action, inside the game.",
     "subtitle": "x402 on Stellar, running for real inside Unity - not a mockup. A player pays $0.02 for one action, the signature is verified on-chain, and the game unlocks the result in seconds.",
     "badge_settled": "Settled on Stellar testnet",
     "badge_stack": "Unity 6 + Soroban",
-    "badge_bugs": "4 real bugs found and fixed",
+    "badge_bugs": "3 real bugs fixed (plus 2 doc gaps)",
     "play_cta": "Play the demo",
     "flow_title": "How it works",
     "flow_note": "The same flow that runs in the x402 reference example, adapted to Stellar's Unity SDK.",

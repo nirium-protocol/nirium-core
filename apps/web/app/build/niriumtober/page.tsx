@@ -25,7 +25,16 @@ const REPO = "https://github.com/nirium-protocol/nirium";
 const CONTACT = "niriumprotocol@gmail.com";
 const TESTNET_BOX = "https://nirium-agent.fly.dev";
 const MAINNET_BOX = "https://nirium-agent-mainnet.fly.dev";
-const AGENDA_URL = "https://calendly.com/vaiogioss/nirium-mentoring";
+// 21-nov-2026 (NT2): insignias otorgadas, leídas de los comentarios del equipo en los issues de
+// evidencia (las 6 son Builder; ninguna Mainnet Builder ni Contributor). No se inventan nombres.
+const NIRIUMTOBER_BUILDERS = [
+    { user: "angeldavid218", issue: 211 },
+    { user: "santy8151", issue: 222 },
+    { user: "zzzbedream", issue: 233 },
+    { user: "CodeDeityX", issue: 234 },
+    { user: "Edgadafi", issue: 239 },
+    { user: "Saago-Dev", issue: 243 },
+];
 const KEYS_URL = "https://nirium.xyz/keys";
 const SKILL_URL = "https://github.com/nirium-protocol/nirium/blob/main/skills/nirium-agentic-payments/SKILL.md";
 // Probado el 21-oct-2026 con un HOME temporal: deja el archivo idéntico al del repo,
@@ -785,6 +794,24 @@ export default function NiriumtoberPage() {
                             className="w-36 md:w-72 h-auto shrink-0 drop-shadow-[0_0_40px_rgba(249,115,22,0.35)]"
                         />
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-5 text-center md:text-left">
+                            {/* 21-nov-2026 (NT1/NT2): el evento terminó el 2-nov; la página se leía como abierta. */}
+                            <div data-testid="niriumtober-ended" className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-left text-sm text-amber-100 space-y-1">
+                                <p className="font-bold">
+                                    {lang(
+                                        "Niriumtober ended on 2 Nov 2026. This page stays as a record: the steps still work on testnet, but badges and the prize are no longer handed out.",
+                                        "Niriumtober terminó el 2 nov 2026. Esta página queda como registro: los pasos siguen funcionando en testnet, pero ya no se entregan insignias ni el premio.")}
+                                </p>
+                                <p className="text-amber-100/80">
+                                    {lang("Results: 6 participants earned the Builder badge (", "Resultados: 6 participantes ganaron la insignia Builder (")}
+                                    {NIRIUMTOBER_BUILDERS.map((b, i) => (
+                                        <span key={b.issue}>
+                                            {i > 0 && ', '}
+                                            <a href={`https://github.com/nirium-protocol/nirium/issues/${b.issue}`} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">@{b.user}</a>
+                                        </span>
+                                    ))}
+                                    {lang("). Champion: under review; we'll post it here once decided.", "). Champion: en revisión; lo anunciamos aquí cuando se decida.")}
+                                </p>
+                            </div>
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs font-bold">
                                 <span className="text-orange-300">{lang("🎃 Niriumtober · Oct 22 to Nov 2", "🎃 Niriumtober · 22 oct al 2 nov")}</span>
                                 {countdown && (
@@ -805,12 +832,13 @@ export default function NiriumtoberPage() {
                                 <a href="#start" onClick={() => { track("niriumtober_start"); niriumtoberHit("start"); }} className={btnPrimary}>
                                     {lang("Start in 5 minutes", "Empieza en 5 minutos")} <ArrowRight className="w-4 h-4" />
                                 </a>
-                                <a href={AGENDA_URL} target="_blank" rel="noopener noreferrer" className={btnGhost}>
-                                    <CalendarClock className="w-4 h-4" /> {lang("Book office hours", "Agenda office hours")}
-                                </a>
+                                {/* 21-nov-2026 (NT1): office hours terminaron con el evento. */}
+                                <span aria-disabled="true" className={`${btnGhost} opacity-40 pointer-events-none`}>
+                                    <CalendarClock className="w-4 h-4" /> {lang("Office hours (ended)", "Office hours (terminaron)")}
+                                </span>
                             </div>
                             <div className="space-y-1 text-xs text-gray-400">
-                                <p>{lang("17K+ package downloads on npm and PyPI · 2 SCF Instawards · Open source", "17K+ descargas de paquetes en npm y PyPI · 2 SCF Instawards · Open source")}</p>
+                                <p>{lang("17K+ package downloads on npm and PyPI as of 16 Nov 2026 · 2 SCF Instawards · Open source", "17K+ descargas de paquetes en npm y PyPI al 16 nov 2026 · 2 SCF Instawards · Open source")}</p>
                                 <p className="text-gray-500">{lang("No cash prizes. The Champion gets a hoodie.", "Sin premios en dinero. Champion se lleva una sudadera.")}</p>
                             </div>
                         </motion.div>
@@ -1404,7 +1432,7 @@ export default function NiriumtoberPage() {
                     <div className="rounded-xl bg-[#0A0A0A] border border-white/10 p-4 space-y-1">
                         <div className="text-[10px] font-mono uppercase tracking-widest text-gray-500 mb-1">{lang("Contact", "Contacto")}</div>
                         <a href={`mailto:${CONTACT}`} className="flex items-center gap-1.5 text-sm text-white hover:text-orange-200 break-all"><Mail className="w-4 h-4 shrink-0" /> {CONTACT}</a>
-                        <a href={AGENDA_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-white hover:text-orange-200"><CalendarClock className="w-4 h-4 shrink-0" /> {lang("Office hours", "Office hours")}</a>
+                        <span aria-disabled="true" className="flex items-center gap-1.5 text-sm text-white/40"><CalendarClock className="w-4 h-4 shrink-0" /> {lang("Office hours (ended)", "Office hours (terminaron)")}</span>
                     </div>
                     <div className="rounded-xl bg-[#0A0A0A] border border-white/10 p-4 space-y-1">
                         <div className="text-[10px] font-mono uppercase tracking-widest text-gray-500 mb-1">{lang("Links", "Links")}</div>
