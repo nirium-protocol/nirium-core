@@ -684,8 +684,8 @@ $ npx nirium-cli report summary --from 2026-11-01 --to 2026-11-07 \\
 `}</CodeBlock>
                             <p>
                                 {lang(
-                                    "Payments is 0 for that week because the last mainnet payment receipt from Nirium's x402 endpoint is from 29 Sep 2026. ",
-                                    "Payments da 0 esa semana porque el último recibo de pago en mainnet del endpoint x402 de Nirium es del 29 sep 2026. "
+                                    "Payments is 0 for that week because no payment settled on Nirium's mainnet x402 endpoint between 29 Sep and 18 Nov 2026. ",
+                                    "Payments da 0 esa semana porque ningún pago se liquidó en el endpoint x402 de mainnet de Nirium entre el 29 sep y el 18 nov 2026. "
                                 )}
                                 <code>export anchors</code>{" "}
                                 {lang(
@@ -892,7 +892,7 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
                                 )}
                             </p>
                             <p>
-                                <strong className="text-white">{lang("Status: exercised on testnet only so far.", "Estado: probado solo en testnet por ahora.")}</strong>{" "}
+                                <strong className="text-white">{lang("Status: exercised on testnet, and once on mainnet.", "Estado: probado en testnet, y una vez en mainnet.")}</strong>{" "}
                                 {lang(
                                     "Verified against a throwaway testnet key: an ",
                                     "Verificado contra una llave de testnet desechable: una decisión "
@@ -901,8 +901,8 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
                                 {lang("decision settled on-chain, while ", "liquidó en cadena, mientras que un ")}
                                 <code>DENY</code>{" "}
                                 {lang(
-                                    "and an expired decision left the balance untouched. It has not yet been run against mainnet traffic.",
-                                    "y una decisión expirada dejaron el saldo intacto. Todavía no se ha corrido contra tráfico de mainnet."
+                                    "and an expired decision left the balance untouched. On 18 Nov 2026 AgentLedger ran the same three cases on mainnet with its own wallet (an ALLOW, a HOLD released after human approval, and a concurrent pair where one was blocked); its receipts for the HOLD and the block record payments that never happened. It has not run against organic mainnet traffic.",
+                                    "y una decisión expirada dejaron el saldo intacto. El 18 nov 2026 AgentLedger corrió los mismos tres casos en mainnet con su propia wallet (un ALLOW, un HOLD liberado tras aprobación humana y un par concurrente donde uno se bloqueó); sus recibos del HOLD y del bloqueo registran pagos que nunca ocurrieron. No se ha corrido contra tráfico orgánico de mainnet."
                                 )}
                             </p>
                         </Section>
@@ -967,26 +967,30 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
                                 {lang("The x402 payment account ", "La cuenta de cobro x402 ")}
                                 <code className="break-all">GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP</code>{" "}
                                 {lang(
-                                    "shows 36 settled x402 payments between 9 Jul and 29 Sep 2026 (confirmed against Horizon: 37 successful ",
-                                    "muestra 36 pagos x402 liquidados entre el 9 de julio y el 29 de septiembre de 2026 (confirmado contra Horizon: 37 operaciones "
+                                    "shows 39 settled x402 payments between 9 Jul and 18 Nov 2026 (confirmed against Horizon: the account's successful ",
+                                    "muestra 39 pagos x402 liquidados entre el 9 de julio y el 18 de noviembre de 2026 (confirmado contra Horizon: las "
                                 )}
                                 <code>invoke_host_function</code>{" "}
                                 {lang(
-                                    "operations total, but one of those is the Trustless Work escrow release listed separately below, not an x402 payment; plus the account's own funding tx). ",
-                                    "exitosas en total, pero una de ellas es el release de escrow de Trustless Work listado por separado abajo, no un pago x402; más la transacción de fondeo de la propia cuenta). "
+                                    "operations, minus the Trustless Work escrow release listed separately below, which is not an x402 payment, and the account's own funding tx). ",
+                                    "operaciones exitosas de la cuenta, menos el release de escrow de Trustless Work listado por separado abajo, que no es un pago x402, y la transacción de fondeo de la propia cuenta). "
                                 )}
                                 <strong className="text-white">{lang(
                                     "Stated honestly: these are our own tests and integration tests, not independent paying customers yet.",
                                     "Dicho de frente: estas son nuestras propias pruebas y pruebas de integración, todavía no clientes independientes que paguen."
                                 )}</strong>{" "}
                                 {lang(
-                                    "The most recent batch, below, exercised the payment path through an external policy engine.",
-                                    "La tanda más reciente, abajo, probó el camino de pago a través de un motor de políticas externo."
+                                    "The two most recent batches, below, went through an external policy engine: on 29 Sep before the pre-sign hook existed, and on 18 Nov through it.",
+                                    "Las dos tandas más recientes, abajo, pasaron por un motor de políticas externo: el 29 sep, antes de que existiera el hook, y el 18 nov, a través de él."
                                 )}
                             </p>
                             <EvidenceTable rows={[
                                 { proves: lang("x402 payment, first of the 29 Sep integration-test batch", "Pago x402, el primero de la tanda de pruebas de integración del 29 de sep"), ref: "18f7dcab48087800cefb319a04c17291376df053805763fe3e952d472e32fb91", date: "2026-09-29", link: "https://stellar.expert/explorer/public/tx/18f7dcab48087800cefb319a04c17291376df053805763fe3e952d472e32fb91" },
-                                { proves: lang("x402 payment, last of the same batch - also the most recent of all 36 x402 payments", "Pago x402, el último de la misma tanda, también el más reciente de los 36 pagos x402"), ref: "b34630f6637d6773ad4f7378dac8690ae6d1809173ff9c9541d22165aeef5788", date: "2026-09-29", link: "https://stellar.expert/explorer/public/tx/b34630f6637d6773ad4f7378dac8690ae6d1809173ff9c9541d22165aeef5788" },
+                                { proves: lang("x402 payment, last of the same batch", "Pago x402, el último de la misma tanda"), ref: "b34630f6637d6773ad4f7378dac8690ae6d1809173ff9c9541d22165aeef5788", date: "2026-09-29", link: "https://stellar.expert/explorer/public/tx/b34630f6637d6773ad4f7378dac8690ae6d1809173ff9c9541d22165aeef5788" },
+                                { proves: lang("x402 payment through the pre-sign hook, AgentLedger mainnet integration test (ALLOW) - first of 3", "Pago x402 a través del hook, prueba de integración de AgentLedger en mainnet (ALLOW), el primero de 3"), ref: "ed5a41cf0b504a674ac621845767994d333aa253b9f9f3f7c5133df389e6d5d4", date: "2026-11-18", link: "https://stellar.expert/explorer/public/tx/ed5a41cf0b504a674ac621845767994d333aa253b9f9f3f7c5133df389e6d5d4" },
+                                { proves: lang("Same run, last of the 3 - also the most recent of all 39 x402 payments", "Misma corrida, el último de los 3, también el más reciente de los 39 pagos x402"), ref: "0f6250773f9c3311bb27da64f5194c06e5d24cf2507d234a9df8c17ad156994b", date: "2026-11-18", link: "https://stellar.expert/explorer/public/tx/0f6250773f9c3311bb27da64f5194c06e5d24cf2507d234a9df8c17ad156994b" },
+                                { proves: lang("Same run: AgentLedger's signed receipt for the HOLD - a payment that never happened while it waited", "Misma corrida: recibo firmado de AgentLedger del HOLD, un pago que no ocurrió mientras esperaba"), ref: "QmYUakxc4ZvBS5e3pyQAdzZBm6DAKBEPWrLPGoCeX7uyeW", date: "2026-11-18", link: "https://gateway.pinata.cloud/ipfs/QmYUakxc4ZvBS5e3pyQAdzZBm6DAKBEPWrLPGoCeX7uyeW" },
+                                { proves: lang("Same run: AgentLedger's signed receipt for the blocked payment - no transaction exists, only the receipt records the decision", "Misma corrida: recibo firmado de AgentLedger del pago bloqueado; no existe transacción, solo el recibo registra la decisión"), ref: "QmS5q2NvZ2K2StLB3KCWRdkBtnZ5rHAJrQAez2PnKAPwTk", date: "2026-11-18", link: "https://gateway.pinata.cloud/ipfs/QmS5q2NvZ2K2StLB3KCWRdkBtnZ5rHAJrQAez2PnKAPwTk" },
                                 { proves: lang("External integrator receipt: TIA anchors a signed exchange-rate quote (used with TIA's permission)", "Recibo de un integrador externo: TIA ancla una cotización de tipo de cambio firmada (usado con permiso de TIA)"), ref: "QmVWZM1i9qusiTfNAT9QdSFYJNEwQUXtnWuSkrCqRAnGEu", date: "2026-10-18", link: "https://gateway.pinata.cloud/ipfs/QmVWZM1i9qusiTfNAT9QdSFYJNEwQUXtnWuSkrCqRAnGEu" },
                                 { proves: lang("Same integration, second anchored quote", "Misma integración, segunda cotización anclada"), ref: "QmWnt7mQNYB6RgFW9AUPxHsw1B5GerR6bJPHiCZXQLKdCH", date: "2026-10-23", link: "https://gateway.pinata.cloud/ipfs/QmWnt7mQNYB6RgFW9AUPxHsw1B5GerR6bJPHiCZXQLKdCH" },
                                 { proves: lang("Same integration, third receipt - TIA's second key (GBMCX...), tag niriumtober", "Misma integración, tercer recibo - la segunda llave de TIA (GBMCX...), etiqueta niriumtober"), ref: "QmaueB7meg4yxUDfhbE3v6aJTStjNQ8zWgshxXrchReQJ2", date: "2026-11-02", link: "https://gateway.pinata.cloud/ipfs/QmaueB7meg4yxUDfhbE3v6aJTStjNQ8zWgshxXrchReQJ2" },
@@ -1052,12 +1056,13 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
 
                             <p className="!mb-2 !mt-8"><strong className="text-white">{lang("Upstream contributions", "Contribuciones a proyectos externos")}</strong></p>
                             <p>{lang(
-                                "Merged in repositories Nirium does not control - each confirmed via the GitHub API (re-checked 9 Nov 2026). All were merged by the repository's maintainers except stellar-dev-skill #150, which Stellar's triage bot reviewed and merged:",
-                                "Mergeadas en repositorios que Nirium no controla, cada una confirmada contra la API de GitHub (revisado otra vez el 9 nov 2026). Todas las mergearon los mantenedores del repositorio, salvo stellar-dev-skill #150, que revisó y mergeó el bot de triage de Stellar:")}</p>
+                                "Merged in repositories Nirium does not control - each confirmed via the GitHub API (re-checked 19 Nov 2026). All were merged by the repository's maintainers except stellar-dev-skill #150 and #191, which Stellar's triage bot reviewed and merged:",
+                                "Mergeadas en repositorios que Nirium no controla, cada una confirmada contra la API de GitHub (revisado otra vez el 19 nov 2026). Todas las mergearon los mantenedores del repositorio, salvo stellar-dev-skill #150 y #191, que revisó y mergeó el bot de triage de Stellar:")}</p>
                             <ul className="list-disc pl-5 space-y-1.5 text-sm">
                                 <li><a href="https://github.com/stellar/stellar-dev-skill/pull/96" target="_blank" rel="noopener noreferrer">stellar/stellar-dev-skill #96</a> - {lang("Nirium added to the community skills catalog.", "Nirium se agregó al catálogo de skills de la comunidad.")}</li>
                                 <li><a href="https://github.com/stellar/stellar-dev-skill/pull/97" target="_blank" rel="noopener noreferrer">stellar/stellar-dev-skill #97</a> - {lang("production patterns for x402 + MPP.", "patrones de producción para x402 + MPP.")}</li>
                                 <li><a href="https://github.com/stellar/stellar-dev-skill/pull/150" target="_blank" rel="noopener noreferrer">stellar/stellar-dev-skill #150</a> - {lang("correction to a production claim in that same guide.", "corrección a un reclamo de producción en esa misma guía.")}</li>
+                                <li><a href="https://github.com/stellar/stellar-dev-skill/pull/191" target="_blank" rel="noopener noreferrer">stellar/stellar-dev-skill #191</a> - {lang("Nirium's catalog card pointed at the renamed repo.", "la ficha de Nirium en el catálogo apunta al repo con su nombre nuevo.")}</li>
                                 <li><a href="https://github.com/stellar/stellar-mpp-sdk/pull/69" target="_blank" rel="noopener noreferrer">stellar/stellar-mpp-sdk #69</a> - {lang("fixed two invalid mainnet SAC constants.", "corrigió dos constantes SAC de mainnet inválidas.")}</li>
                                 <li><a href="https://github.com/pollar-xyz/pollar-apps/pull/30" target="_blank" rel="noopener noreferrer">pollar-xyz/pollar-apps #30</a> - {lang("Nirium x402 adapter demo app.", "app de demo del adaptador x402 de Nirium.")}</li>
                                 <li>
@@ -1072,6 +1077,7 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
                                     <a href="https://github.com/Trustless-Work/agentic-escrow-research/pull/13" target="_blank" rel="noopener noreferrer">#13</a>{" "}
                                     - {lang("agent-escrow use cases and research notes from Nirium's mainnet and testnet evidence (#9-#13 merged 2-5 Nov 2026; #3, #12 and #13 by M0nsxx).", "casos de uso de agente-escrow y notas de investigación con evidencia de mainnet y testnet de Nirium (#9-#13 mergeadas del 2 al 5 nov 2026; #3, #12 y #13 de M0nsxx).")}
                                 </li>
+                                <li><a href="https://github.com/SorobanAgents/agentrail/pull/68" target="_blank" rel="noopener noreferrer">SorobanAgents/agentrail #68</a>, <a href="https://github.com/SorobanAgents/agentrail/pull/70" target="_blank" rel="noopener noreferrer">#70</a> - {lang("opt-in public receipts for agent spends and proof-of-task, and a --receipt flag for the sandbox demo (merged 17-18 Nov 2026 by the AgentRail maintainer).", "recibos públicos opcionales para gastos de agentes y prueba de tarea, y una opción --receipt para el demo (mergeados el 17 y 18 nov 2026 por el mantenedor de AgentRail).")}</li>
                             </ul>
                             <p className="text-sm">
                                 {lang(
@@ -1115,7 +1121,7 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
                                         "MPP Charge está conectado en las dos redes, pero solo se ha probado con un pago liquidado en testnet hasta ahora: trata a MPP en mainnet como no verificado hasta que exista un hash de liquidación en mainnet."
                                     )}
                                 </li>
-                                <li>{lang("The pre-sign policy hook (§7, #96) has likewise only been exercised on testnet.", "El hook de política antes de firmar (§7, #96) de igual forma solo se ha probado en testnet.")}</li>
+                                <li>{lang("The pre-sign policy hook (§7, #96) has run on mainnet once, in an integration test by AgentLedger (18 Nov 2026), not against organic traffic.", "El hook de política antes de firmar (§7, #96) se ha corrido una vez en mainnet, en una prueba de integración de AgentLedger (18 nov 2026), no contra tráfico orgánico.")}</li>
                                 <li>
                                     <code>/api/audit/log</code>{" "}
                                     {lang(

@@ -132,7 +132,9 @@ export default function OpsConsole({ isExpanded, onToggleExpand, walletAddress, 
 
     useEffect(() => {
         fetchLogs();
-        const poll = setInterval(fetchLogs, 4000);
+        // 10 s (was 4 s), and nothing while the tab is in the background: each poll is a
+        // server function run on Vercel.
+        const poll = setInterval(() => { if (document.visibilityState === 'visible') fetchLogs(); }, 10_000);
         return () => clearInterval(poll);
     }, [fetchLogs]);
 

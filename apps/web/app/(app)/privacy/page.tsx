@@ -41,6 +41,7 @@ function AvisoEs() {
         <li><strong>Payouts en mainnet:</strong> la razón social, el RFC y el nombre del representante legal del cliente, y por cada corrida las direcciones de los destinatarios, los montos, el activo y el hash de la transacción.</li>
         <li><strong>Solicitudes de acceso y contacto:</strong> los datos que nos envíes para pedir acceso o escribirnos (por ejemplo empresa, RFC, nombre del representante, correo y teléfono).</li>
         <li><strong>Tesorería:</strong> las direcciones de las bóvedas y de sus responsables (Manager), para mostrarte tus bóvedas.</li>
+        <li><strong>Demo de CETES (/ramp):</strong> la dirección de Stellar que escribes, que enviamos al ambiente de pruebas de Etherfuse, con la cuenta de prueba de Nirium, para pedir la cotización y la orden.</li>
         <li><strong>Audit Trail:</strong> el hash que anclas y, en modo record, el JSON que envías (hasta 8 KB), que queda publicado en IPFS para cualquiera que tenga el CID. No incluyas datos personales en un registro.</li>
         <li><strong>Datos técnicos:</strong> la dirección IP de cada petición, que se usa en el momento para limitar la frecuencia de uso y para aplicar las restricciones por jurisdicción; nuestros proveedores de alojamiento guardan registros de peticiones por un tiempo limitado. También medimos visitas de forma agregada (ver la sección 7).</li>
       </ul>
@@ -58,7 +59,7 @@ function AvisoEs() {
       <p>Hay una finalidad más que no es necesaria para el servicio: medir de forma agregada cuántas visitas recibe el sitio, para mejorarlo. Esa medición no usa cookies ni arma un perfil tuyo (ver la sección 7). Si aun así te opones, escríbenos a <strong>{CONTACT}</strong>.</p>
 
       <H2>4. Encargados y transferencias</H2>
-      <p>No vendemos tus datos. Los tratan, por cuenta nuestra y solo para operar el servicio, estos proveedores (encargados), que pueden estar fuera de México: Supabase (base de datos), Fly.io (servidores del agente), Vercel (alojamiento del sitio y medición de visitas), Pinata (almacenamiento en IPFS), Filebase (lectura de IPFS) y Google (el correo con el que nos escribes).</p>
+      <p>No vendemos tus datos. Los tratan, por cuenta nuestra y solo para operar el servicio, estos proveedores (encargados), que pueden estar fuera de México: Supabase (base de datos), Fly.io (servidores del agente), Vercel (alojamiento del sitio y medición de visitas), Pinata (almacenamiento en IPFS), Filebase (lectura de IPFS), QuickNode (acceso del agente a la red de Stellar), Etherfuse (su ambiente de pruebas, solo para la demo de CETES) y Google (el correo con el que nos escribes).</p>
       <p>No transferimos tus datos a otros terceros. La única excepción sería una autoridad competente cuando una ley lo exija (artículo 36, fracción I, de la ley), por ejemplo los datos de identificación de un cliente de Payouts en mainnet; esa transferencia no requiere tu consentimiento.</p>
       <p>Hay servicios de terceros que tratan tus datos como responsables independientes, bajo sus propios avisos: Pollar, si inicias sesión con correo o Google; Etherfuse, que hace su propio KYC si contratas CETES con ellos; y tu proveedor de wallet. Nirium no recibe tus datos de inicio de sesión ni tu KYC.</p>
       <p><strong>Información pública por naturaleza:</strong> las direcciones de wallet y las transacciones en Stellar son públicas, y lo que se ancla en IPFS queda disponible para cualquiera que tenga el CID. Nirium no puede borrar ni modificar esa información una vez publicada en la red o en IPFS.</p>
@@ -104,6 +105,7 @@ function NoticeEn({ onSpanish }: { onSpanish: () => void }) {
         <li><strong>Payouts on mainnet:</strong> the client&rsquo;s legal name, RFC (Mexican tax ID) and legal representative&rsquo;s name, and for each run the recipients&rsquo; addresses, amounts, asset and transaction hash.</li>
         <li><strong>Access requests and contact:</strong> the data you send us to request access or write to us (for example company, RFC, representative&rsquo;s name, email and phone).</li>
         <li><strong>Treasury:</strong> vault addresses and their Manager addresses, to show you your vaults.</li>
+        <li><strong>CETES demo (/ramp):</strong> the Stellar address you type, which we send to Etherfuse&apos;s test environment, under Nirium&apos;s test account, to get the quote and the order.</li>
         <li><strong>Audit Trail:</strong> the hash you anchor and, in record mode, the JSON you send (up to 8 KB), which is published on IPFS for anyone with the CID. Do not put personal data in a record.</li>
         <li><strong>Technical data:</strong> the IP address of each request, used at that moment for rate limiting and to apply jurisdiction restrictions; our hosting providers keep request logs for a limited time. We also measure visits in aggregate (see section 7).</li>
       </ul>
@@ -121,7 +123,7 @@ function NoticeEn({ onSpanish }: { onSpanish: () => void }) {
       <p>One more purpose is not necessary for the service: measuring, in aggregate, how many visits the site gets, to improve it. That measurement uses no cookies and builds no profile of you (see section 7). If you still object, write to <strong>{CONTACT}</strong>.</p>
 
       <H2>4. Processors and transfers</H2>
-      <p>We do not sell your data. These providers (processors), which may be located outside Mexico, process it on our behalf and only to run the service: Supabase (database), Fly.io (agent servers), Vercel (site hosting and visit measurement), Pinata (IPFS storage), Filebase (reading from IPFS) and Google (the email you write to us at).</p>
+      <p>We do not sell your data. These providers (processors), which may be located outside Mexico, process it on our behalf and only to run the service: Supabase (database), Fly.io (agent servers), Vercel (site hosting and visit measurement), Pinata (IPFS storage), Filebase (reading from IPFS), QuickNode (the agent&apos;s access to the Stellar network), Etherfuse (its test environment, only for the CETES demo) and Google (the email you write to us at).</p>
       <p>We do not transfer your data to any other third party. The only exception would be a competent authority when a law requires it (article 36, section I, of the law), for example the identification data of a Payouts client on mainnet; that transfer does not need your consent.</p>
       <p>Some third-party services process your data as independent controllers, under their own notices: Pollar, if you sign in with email or Google; Etherfuse, which runs its own KYC if you contract CETES with them; and your wallet provider. Nirium does not receive your sign-in data or your KYC.</p>
       <p><strong>Public by nature:</strong> wallet addresses and transactions on Stellar are public, and what is anchored on IPFS is available to anyone with the CID. Nirium cannot delete or change that information once it is on the network or on IPFS.</p>
@@ -159,7 +161,7 @@ export default function PrivacyPage() {
             {es ? "Aviso de Privacidad" : "Privacy Notice"}
           </h1>
           <p className="text-sm font-mono text-zinc-500">
-            {es ? "Última actualización: 16 de noviembre de 2026" : "Last updated: November 16, 2026"}
+            {es ? "Última actualización: 19 de noviembre de 2026" : "Last updated: November 19, 2026"}
           </p>
         </div>
 

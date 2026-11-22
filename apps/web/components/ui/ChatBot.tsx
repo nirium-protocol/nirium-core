@@ -26,9 +26,9 @@ const ChatBot = () => {
         if (messages.length === 0) {
             let greeting = "";
             if (language === 'es') {
-                greeting = "¡Hola! Soy Nirium Guide. Respondo con una base de respuestas preparadas, no soy un modelo de lenguaje. Te ayudo a encontrar lo que buscas en el sitio. Recuerda: no doy asesoría financiera.";
+                greeting = "¡Hola! Soy Nirium Guide. Respondo con una base de respuestas preparadas, no soy un modelo de lenguaje. Te ayudo a encontrar lo que buscas en el sitio. Pregúntame por: verificar un recibo, Audit Trail, x402, Payouts, Treasury, precios o en qué países funciona. Recuerda: no doy asesoría financiera.";
             } else {
-                greeting = "Hi! I'm Nirium Guide. I answer from a prepared set of responses, not a language model. I can help you find your way around the site. Remember: I do not provide financial advice.";
+                greeting = "Hi! I'm Nirium Guide. I answer from a prepared set of responses, not a language model. I can help you find your way around the site. Ask me about: verifying a receipt, Audit Trail, x402, Payouts, Treasury, pricing or where it works. Remember: I do not provide financial advice.";
             }
             
             setMessages([
@@ -80,21 +80,28 @@ const ChatBot = () => {
 
     const getAIResponse = (query: string, lang: string) => {
         const q = query.toLowerCase();
-        
-        // Canned answers, last checked against the site 12 Nov 2026
+
+        // Canned answers, last checked against the site 19 Nov 2026. Each one only repeats
+        // what the linked page already says - this guide never states a fact of its own.
         const kb: Record<string, any> = {
             es: {
-                home: "**Nirium** son rieles no custodiales de pago, auditoría y ejecución sobre Stellar.\n\nEl usuario controla sus llaves. Impulsado por **x402 + Soroban**.\n\n→ [Inicio](/) · [Treasury](/treasury) · [Docs](/docs)",
+                home: "El ledger de Stellar ya prueba quién pagó, cuánto y cuándo. **Nirium guarda lo que falta**: para qué fue cada pago, los pagos que tu política rechazó y nunca firmó, los registros fuera de la cadena y quién responde por ellos.\n\nSon rieles de pago, auditoría y ejecución para apps, backends y agentes de IA. No custodial: tus llaves, tus fondos.\n\n→ [Verifica un recibo](/verify) · [Docs](/docs)",
+                verify: "Pega un CID en [/verify](/verify), sin cuenta. Comprueba que el registro **no cambió** desde que se ancló y, si viene firmado, **quién lo declaró**. No prueba que su contenido sea verdad.\n\nAhí hay un ejemplo de un pago que nunca ocurrió: su política lo bloqueó, no hay transacción, y solo el recibo guarda la decisión.\n\nCómo anclar los tuyos: [Docs](/docs).",
+                payouts: "[Payouts](/payouts) paga hasta **100 destinatarios** (contratistas, freelancers, pagos B2B; no es nómina de empleados) desde la wallet de una empresa, en un solo lote que **tú firmas**. Cada corrida se ancla en IPFS.\n\nEn testnet está abierto. En mainnet es **solo por invitación**.",
+                pricing: "Planes y precios en [/pricing](/pricing). Nirium **nunca cobra un porcentaje** del dinero que mueves o guardas.",
+                x402: "Con **x402** una API cobra por request en Stellar: responde 402 con el precio, el cliente paga en USDC y repite la llamada.\n\nNirium tiene endpoints x402 en mainnet y SDKs para pagar o cobrar: [Developers](/developers) · [Docs > Vendedores x402](/docs#x402-sellers). MPP Charge es experimental: verificado en testnet, no en mainnet.",
+                jurisdictions: "Audit Trail, Reporting y x402 corren en mainnet. **Payouts y Treasury en mainnet** son por invitación y no se ofrecen en el EEE, el Reino Unido ni EE.UU.; en **testnet** siguen abiertos ahí como demostración.\n\nEl acceso está bloqueado desde jurisdicciones con sanciones integrales, las que tienen un llamado a la acción del GAFI y China continental. Detalle en [Avisos legales](/disclaimers).",
+                stats: "Las cifras en vivo están en [/stats](/stats), cada una con su fuente para que la compruebes.",
                 dashboard: "El [Dashboard](/dashboard) muestra el estado de cada nodo.\n\nLos datos salen en vivo de la API del agente, no de una maqueta.",
                 marketplace: "Un marketplace de plantillas de política para tesorería es solo una idea: **no está construido y no tiene fecha**.\n\nLo que sí existe hoy está en [Tesorería](/treasury).",
                 treasury: "La sección de [Tesorería](/treasury) mueve el saldo ocioso de una bóveda de DeFindex pensada para que sea tuya (USDC o CETES, un solo activo por bóveda) hacia su estrategia y de regreso. Nunca cambia un activo por otro.\n\nNirium solo tiene el rol de rebalanceo: no puede retirar fondos y tú puedes revocarlo. En mainnet es **solo por invitación** hasta tener una opinión legal por escrito; la bóveda activa hoy es de Nirium, con fondos propios.",
+                builder: "El [Treasury Builder](/treasury/builder) es una **vista previa**: arma el esquema de la automatización, y la ejecución corre en el nodo. En mainnet es por invitación.",
                 analytics: "La sección de [Analytics](/analytics) enlaza transacciones reales de mainnet en Stellar Expert, junto a vistas de ejemplo marcadas como tales.",
                 fiat: "Para obtener CETES tokenizados contratas directamente con **Etherfuse**, operador independiente: tú le transfieres a su CLABE y ellos emiten el token a tu wallet.\n\n**Nirium nunca recibe, sostiene ni convierte fiat** - solo muestra la instrucción y lee el saldo. El KYC lo hace Etherfuse. Hoy en entorno de pruebas: [ver flujo](/ramp).",
                 devs: "La sección de [Developers](/developers) expone una **API REST** (las rutas principales están listadas ahí), SDK TypeScript/Python, servidor MCP para Claude/Cursor, y soporte nativo para **x402** (cliente MPP Charge: experimental).",
                 docs: {
                     overview: "Documentación de Nirium: [Ver Documentación](/docs).",
                     api: "API: obtén una key gratis en [/keys](/keys) y sigue el [Inicio rápido](/docs#quickstart).",
-                    blueprints: "Ejemplo de vendedor x402 listo para copiar en [Docs > Vendedores x402](/docs#x402-sellers).",
                     architecture: "Qué es Nirium y cómo encaja cada pieza: [Docs > Resumen](/docs#what-it-is).",
                     contracts: "Contrato y capacidades de la bóveda: [Security](/security).",
                     agent: "Estado real de cada nodo: [Agents](/agents).",
@@ -105,20 +112,26 @@ const ChatBot = () => {
                 },
                 scf: "Nirium ha recibido dos Instawards del SCF y sigue:\n\n**· Código de Conducta de Stellar**\n**· Sin garantías de rendimiento**\n\nMás info en [Código de Conducta](/coc).",
                 compliance: "La página de [Compliance](/compliance) reúne la evidencia verificable de Nirium.\n\nAnclar un registro es **opcional, por llamada**: hash SHA-256 del registro → anclado en IPFS → exportable JSON, con firma ed25519 opcional de quién lo declaró. Cualquiera lo comprueba en [/verify](/verify).",
-                default: "Soy el asistente técnico de Nirium. Puedo guiarte a:\n\n[Dashboard](/dashboard) · [Treasury](/treasury) · [Developers](/developers) · [Docs](/docs) · [Compliance](/compliance)\n\n¿Qué necesitas?"
+                default: "Soy Nirium Guide. Puedo llevarte a:\n\n[Verifica un recibo](/verify) · [Payouts](/payouts) · [Treasury](/treasury) · [Developers](/developers) · [Docs](/docs) · [Precios](/pricing)\n\n¿Qué necesitas?"
             },
             en: {
-                home: "**Nirium** is non-custodial payment, audit and execution rails on Stellar.\n\nUsers control their keys. Powered by **x402 + Soroban**.\n\n→ [Home](/) · [Treasury](/treasury) · [Docs](/docs)",
+                home: "Stellar's ledger already proves who paid, how much and when. **Nirium keeps what it can't**: what each payment was for, the payments your policy refused and never signed, off-chain records, and who stands behind them.\n\nPayment, audit and execution rails for apps, backends and AI agents. Non-custodial: your keys, your funds.\n\n→ [Verify a receipt](/verify) · [Docs](/docs)",
+                verify: "Paste a CID at [/verify](/verify), no account needed. It checks the record **has not changed** since it was anchored and, if it is signed, **who declared it**. It does not prove its contents are true.\n\nThere's an example of a payment that never happened: its policy blocked it, there is no transaction, and only the receipt records the decision.\n\nHow to anchor your own: [Docs](/docs).",
+                payouts: "[Payouts](/payouts) pays up to **100 recipients** (contractors, freelancers, B2B payouts; not employee payroll) from one company wallet, in a single batch **you sign**. Every run is anchored to IPFS.\n\nOpen on testnet. On mainnet it is **invite-only**.",
+                pricing: "Plans and prices are at [/pricing](/pricing). Nirium **never charges a percentage** of the money you move or hold.",
+                x402: "With **x402** an API charges per request on Stellar: it answers 402 with the price, the client pays in USDC and retries.\n\nNirium runs x402 endpoints on mainnet and has SDKs to pay or charge: [Developers](/developers) · [Docs > x402 Sellers](/docs#x402-sellers). MPP Charge is experimental: verified on testnet, not on mainnet.",
+                jurisdictions: "Audit Trail, Reporting and x402 run on mainnet. **Payouts and Treasury on mainnet** are invite-only and not offered in the EEA, the UK or the US; on **testnet** they stay open there as a demonstration.\n\nAccess is blocked from comprehensively sanctioned jurisdictions, those under a FATF call for action, and mainland China. Details in [Legal Disclaimers](/disclaimers).",
+                stats: "Live counts are at [/stats](/stats), each with its source so you can check it.",
                 dashboard: "The [Dashboard](/dashboard) shows the status of each node.\n\nThe data is pulled live from the agent's API, not a mock.",
                 marketplace: "A marketplace of treasury policy templates is only an idea: **it is not built and has no date**.\n\nWhat exists today is on [Treasury](/treasury).",
                 treasury: "The [Treasury](/treasury) section moves a DeFindex vault's idle funds (USDC or CETES, one asset per vault) into its strategy and back. The vault is structured for you to own, and it never swaps one asset for the other.\n\nNirium holds only the rebalance role: it cannot withdraw funds and you can revoke it. On mainnet it is **invite-only** until we have a written legal opinion; today's live vault is Nirium's own, self-funded.",
+                builder: "The [Treasury Builder](/treasury/builder) is a **preview**: it composes the automation schema, and execution runs in the node. Mainnet is invite-only.",
                 analytics: "The [Analytics](/analytics) section links real mainnet transactions on Stellar Expert, next to sample views that are labeled as such.",
                 fiat: "To get tokenized CETES you contract directly with **Etherfuse**, an independent operator: you transfer to their CLABE and they issue the token to your wallet.\n\n**Nirium never receives, holds or converts fiat** - we only show the instruction and read the balance. KYC is done by Etherfuse. Test environment today: [see the flow](/ramp).",
                 devs: "The [Developers](/developers) section exposes a **REST API** (the main routes are listed there), TypeScript/Python SDK, MCP server for Claude/Cursor, and native **x402** support (MPP Charge client: experimental).",
                 docs: {
                     overview: "Nirium documentation: [View Documentation](/docs).",
                     api: "API: get a free key at [/keys](/keys) and follow the [Quickstart](/docs#quickstart).",
-                    blueprints: "A copy-ready x402 seller example: [Docs > x402 Sellers](/docs#x402-sellers).",
                     architecture: "What Nirium is and how the pieces fit: [Docs > Overview](/docs#what-it-is).",
                     contracts: "Vault contract and capabilities: [Security](/security).",
                     agent: "Real status of each node: [Agents](/agents).",
@@ -129,37 +142,48 @@ const ChatBot = () => {
                 },
                 scf: "Nirium has received two SCF Instawards and follows:\n\n**· The Stellar Code of Conduct**\n**· No yield guarantees**\n\nRead more at [Code of Conduct](/coc).",
                 compliance: "The [Compliance](/compliance) page gathers Nirium's verifiable evidence.\n\nAnchoring a record is **opt-in, per call**: SHA-256 hash of the record → IPFS-anchored → JSON export, with an optional ed25519 signature attesting who declared it. Anyone can check it at [/verify](/verify).",
-                default: "I'm Nirium's technical assistant. I can guide you to:\n\n[Dashboard](/dashboard) · [Treasury](/treasury) · [Developers](/developers) · [Docs](/docs) · [Compliance](/compliance)\n\nWhat do you need?"
+                default: "I'm Nirium Guide. I can take you to:\n\n[Verify a receipt](/verify) · [Payouts](/payouts) · [Treasury](/treasury) · [Developers](/developers) · [Docs](/docs) · [Pricing](/pricing)\n\nWhat do you need?"
             }
         };
 
         const currentKB = kb[lang as keyof typeof kb] || kb.en;
+        const has = (...words: string[]) => words.some((w) => q.includes(w));
+        // Short country codes need word boundaries: "us" is inside "use", "uk" inside other words.
+        const country = /\b(us|usa|uk|eu|eea)\b/.test(q) || has('estados unidos', 'ee.uu', 'eeuu', 'europ', 'reino unido', 'united states', 'jurisdic', 'sanction', 'sanción', 'sancion', 'geobloq', 'geoblock', 'país', 'pais', 'country', 'countries');
 
-        if (q.includes('qué es') || q.includes('que es') || q.includes('what is')) return currentKB.home;
+        if (has('qué es', 'que es', 'what is')) return currentKB.home;
+        if (country) return currentKB.jurisdictions;
+        if (has('verif', 'receipt', 'recibo', 'audit trail', 'anchor', 'ancla') || /cid/.test(q)) return currentKB.verify;
 
         // Documentation sub-topics
-        if (q.includes('doc') || q.includes('guía') || q.includes('guide')) {
-            if (q.includes('api') || q.includes('key')) return currentKB.docs.api;
-            if (q.includes('arch') || q.includes('fleet') || q.includes('kernel')) return currentKB.docs.architecture;
-            if (q.includes('contrat') || q.includes('soroban') || q.includes('direcc')) return currentKB.docs.contracts;
-            if (q.includes('report')) return currentKB.docs.reporting;
-            if (q.includes('agent') || q.includes('node') || q.includes('nodo')) return currentKB.docs.agent;
-            if (q.includes('build') || q.includes('regla') || q.includes('visual')) return currentKB.docs.builder;
-            if (q.includes('secur') || q.includes('segur') || q.includes('audit')) return currentKB.docs.security;
-            if (q.includes('front') || q.includes('react') || q.includes('ui')) return currentKB.docs.frontend;
+        if (has('doc', 'guía', 'guide')) {
+            if (has('api', 'key')) return currentKB.docs.api;
+            if (has('architec', 'arquitec')) return currentKB.docs.architecture;
+            if (has('contrat', 'contract', 'soroban')) return currentKB.docs.contracts;
+            if (has('report')) return currentKB.docs.reporting;
+            if (has('agent', 'node', 'nodo')) return currentKB.docs.agent;
+            if (has('build', 'regla', 'visual')) return currentKB.docs.builder;
+            if (has('secur', 'segur', 'audit')) return currentKB.docs.security;
+            if (has('front', 'react') || /ui/.test(q)) return currentKB.docs.frontend;
             return currentKB.docs.overview;
         }
 
-        if (q.includes('dash') || q.includes('panel')) return currentKB.dashboard;
-        if (q.includes('market') || q.includes('estrat') || q.includes('strat') || q.includes('kernel')) return currentKB.marketplace;
-        if (q.includes('treas') || q.includes('tesor') || q.includes('vault') || q.includes('bóveda')) return currentKB.treasury;
-        if (q.includes('analyt') || q.includes('analit') || q.includes('data')) return currentKB.analytics;
-        if (q.includes('fiat') || q.includes('ramp') || q.includes('hub') || q.includes('cetes') || q.includes('spei') || q.includes('mxn')) return currentKB.fiat;
-        if (q.includes('compli') || q.includes('cnbv') || q.includes('audit') || q.includes('hmac')) return currentKB.compliance;
-        if (q.includes('dev') || q.includes('sdk') || q.includes('endpoint')) return currentKB.devs;
-        if (q.includes('api') || q.includes('prueb')) return currentKB.docs.api;
-        if (q.includes('build') || q.includes('blueprint') || q.includes('construir') || q.includes('visual')) return currentKB.docs.builder;
-        if (q.includes('scf') || q.includes('award') || q.includes('conducta') || q.includes('norma') || q.includes('rule') || q.includes('conduct')) return currentKB.scf;
+        if (has('payout', 'payroll', 'nómina', 'nomina', 'dispers', 'disburs', 'contractor', 'contratista', 'batch', 'lote')) return currentKB.payouts;
+        if (has('price', 'pricing', 'precio', 'cost', 'cuesta', 'tarifa', 'plans', 'planes')) return currentKB.pricing;
+        if (has('x402', '402', 'mpp', 'charge', 'cobrar', 'per request', 'por request')) return currentKB.x402;
+        if (has('builder', 'schema', 'esquema')) return currentKB.builder;
+        if (has('dash', 'panel')) return currentKB.dashboard;
+        if (has('market', 'plantilla', 'template')) return currentKB.marketplace;
+        if (has('treas', 'tesor', 'vault', 'bóveda', 'boveda', 'strat', 'estrat', 'rebal')) return currentKB.treasury;
+        if (has('stats', 'estadíst', 'estadist', 'download', 'descarga')) return currentKB.stats;
+        if (has('analyt', 'analít', 'analit')) return currentKB.analytics;
+        if (has('fiat', 'ramp', 'cetes', 'spei', 'mxn', 'etherfuse')) return currentKB.fiat;
+        if (has('mainnet', 'testnet')) return currentKB.jurisdictions;
+        if (has('compli', 'cnbv', 'audit')) return currentKB.compliance;
+        if (has('dev', 'sdk', 'endpoint', 'mcp')) return currentKB.devs;
+        if (has('api', 'key', 'llave')) return currentKB.docs.api;
+        if (has('build', 'construir', 'visual')) return currentKB.docs.builder;
+        if (has('scf', 'award', 'conducta', 'norma', 'rule', 'conduct')) return currentKB.scf;
 
         return currentKB.default;
     };

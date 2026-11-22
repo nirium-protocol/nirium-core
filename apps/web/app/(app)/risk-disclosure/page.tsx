@@ -10,7 +10,7 @@ export default function RiskDisclosurePage() {
     const risk = t.risk_disclosure || {
         title: "Risk Disclosure",
         badge: "Risk notice",
-        last_updated: "Last updated: November 16, 2026",
+        last_updated: "Last updated: November 19, 2026",
         mandatory: "Read this before using Nirium: it is experimental open-source software on Stellar.",
         sections: {},
         footer: "Using Nirium means you have read these risks."

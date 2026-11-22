@@ -24,6 +24,12 @@ const RETRY_DELAY_MS = 9000; // 10 attempts * 9s ≈ the 60-90s gateway propagat
 // deliberate self-test, not a partner's evidence, so it's safe to point
 // visitors at from this page and always resolves to the full green result.
 const EXAMPLE_CID = 'QmaAXCmpqaptjDTJoRPcyFBUywrvuA7GfLyArVaQwd5VDM';
+// A partner's (TIA) own signed quote on mainnet - a record that never touches the chain.
+const EXAMPLE_TIA_CID = 'QmVWZM1i9qusiTfNAT9QdSFYJNEwQUXtnWuSkrCqRAnGEu';
+// A Nirium self-test payment receipt on testnet that links its settled transaction.
+const EXAMPLE_PAYMENT_CID = 'QmboKKkuwck3zvRx2bqnzUdDFkrEtc1VUHo6rrzm9nyBtD';
+// AgentLedger's mainnet receipt for a payment its policy blocked (18 Nov 2026): no transaction exists.
+const EXAMPLE_REFUSED_CID = 'QmS5q2NvZ2K2StLB3KCWRdkBtnZ5rHAJrQAez2PnKAPwTk';
 
 type Phase = 'idle' | 'searching' | 'found' | 'error_invalid' | 'error_not_found' | 'error_not_audit_doc' | 'error_generic';
 type AttestationState = 'checking' | 'valid' | 'invalid' | 'none' | 'error';
@@ -292,6 +298,33 @@ function VerifyContent() {
                             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                             {tv.example_button}
                         </button>
+                        <button
+                            type="button"
+                            onClick={() => { setCidInput(EXAMPLE_TIA_CID); startLookup(EXAMPLE_TIA_CID); }}
+                            disabled={isSearching}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                            {tv.example_tia_button}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setCidInput(EXAMPLE_PAYMENT_CID); startLookup(EXAMPLE_PAYMENT_CID); }}
+                            disabled={isSearching}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                            {tv.example_payment_button}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setCidInput(EXAMPLE_REFUSED_CID); startLookup(EXAMPLE_REFUSED_CID); }}
+                            disabled={isSearching}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                            {tv.example_refused_button}
+                        </button>
                         <span>
                             {tv.example_or}{' '}
                             <Link href="/docs#quickstart" className="text-emerald-400 hover:text-emerald-300 transition-colors">
@@ -484,15 +517,18 @@ function VerifyContent() {
                                     </FieldRow>
                                 )}
                                 {doc.txHash && (
-                                    <FieldRow icon={ExternalLink} label={tv.result.field_tx}>
-                                        <a
-                                            href={explorerTxUrl(doc.txHash, doc.network)}
-                                            target="_blank" rel="noopener noreferrer"
-                                            className="text-sm text-emerald-400 hover:text-emerald-300 font-mono truncate inline-flex items-center gap-1.5"
-                                        >
-                                            {doc.txHash.slice(0, 16)}…<ExternalLink className="w-3 h-3" />
-                                        </a>
-                                    </FieldRow>
+                                    <>
+                                        <FieldRow icon={ExternalLink} label={tv.result.field_tx}>
+                                            <a
+                                                href={explorerTxUrl(doc.txHash, doc.network)}
+                                                target="_blank" rel="noopener noreferrer"
+                                                className="text-sm text-emerald-400 hover:text-emerald-300 font-mono truncate inline-flex items-center gap-1.5"
+                                            >
+                                                {doc.txHash.slice(0, 16)}…<ExternalLink className="w-3 h-3" />
+                                            </a>
+                                        </FieldRow>
+                                        <p className="text-[11px] text-gray-600 -mt-2 pb-2">{tv.result.tx_note}</p>
+                                    </>
                                 )}
 
                                 <div className="pt-2">
@@ -574,6 +610,83 @@ function VerifyContent() {
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                {/* What a receipt proves vs. what Stellar already proves */}
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.05 }}
+                    className="bg-[#121212] border border-white/5 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 mb-8"
+                >
+                    <h2 className="text-sm font-black text-white uppercase tracking-widest mb-5">
+                        {tv.proves_title}
+                    </h2>
+                    <div className="grid sm:grid-cols-2 gap-6">
+                        <div>
+                            <h3 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-3">
+                                {tv.ledger_title}
+                            </h3>
+                            <ul className="space-y-2">
+                                {tv.ledger_items.map((item, i) => (
+                                    <li key={i} className="flex items-start gap-2 text-xs text-gray-400 leading-relaxed">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-gray-600 shrink-0 mt-0.5" />
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 className="text-[10px] font-black text-emerald-400/80 uppercase tracking-[0.2em] mb-3">
+                                {tv.receipt_title}
+                            </h3>
+                            <ul className="space-y-2">
+                                {tv.receipt_items.map((item, i) => (
+                                    <li key={i} className="flex items-start gap-2 text-xs text-gray-400 leading-relaxed">
+                                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400/70 shrink-0 mt-0.5" />
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                    <p className="text-[11px] text-gray-600 leading-relaxed mt-6 pt-5 border-t border-white/5">
+                        {tv.proves_footer}
+                    </p>
+                    <a
+                        href="https://github.com/nirium-protocol/nirium/blob/main/docs/DESIGN-FAQ.md"
+                        target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 transition-colors mt-3"
+                    >
+                        {tv.design_notes_link}<ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                </motion.div>
+
+                {/* Planned - not built yet, kept visually apart from what already works */}
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.07 }}
+                    className="border border-dashed border-white/10 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 mb-8"
+                >
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 text-gray-500 text-[9px] font-black uppercase tracking-[0.2em] mb-4">
+                        <Clock className="w-3 h-3" />
+                        {tv.planned_label}
+                    </div>
+                    <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">
+                        {tv.planned_title}
+                    </h2>
+                    <ul className="space-y-2 mb-5">
+                        {tv.planned_items.map((item, i) => (
+                            <li key={i} className="flex items-start gap-2 text-xs text-gray-500 leading-relaxed">
+                                <span className="w-1 h-1 rounded-full bg-gray-600 shrink-0 mt-1.5" />
+                                <span>{item}</span>
+                            </li>
+                        ))}
+                    </ul>
+                    <p className="text-[11px] text-gray-600 leading-relaxed pt-4 border-t border-dashed border-white/10">
+                        {tv.planned_footer}
+                    </p>
+                </motion.div>
             </div>
         </main>
     );

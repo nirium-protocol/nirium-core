@@ -132,8 +132,8 @@ export default function AgentsPage() {
                 "Full decision record via onDecision (ALLOWED/SIGNED/DENY/TIMEOUT/...), kept by the integrator",
                 "Registro completo de la decisión vía onDecision (ALLOWED/SIGNED/DENY/TIMEOUT/...), lo conserva quien integra"),
             metric: lang(
-                "Shipped in the TypeScript package (nirium on npm) - exercised on testnet only so far, not yet run against mainnet traffic. Not a key-custody control, see the roadmap for that",
-                "Publicado en el paquete de TypeScript (nirium en npm) - probado solo en testnet hasta ahora, no se ha corrido todavía contra tráfico de mainnet. No es una custodia remota de la llave, eso está en el roadmap"),
+                "Shipped in the TypeScript package (nirium on npm) - exercised on testnet, and once on mainnet in an integration test by AgentLedger (18 Nov 2026); not yet run against organic mainnet traffic. Not a key-custody control, see the roadmap for that",
+                "Publicado en el paquete de TypeScript (nirium en npm) - probado en testnet, y una vez en mainnet en una prueba de integración de AgentLedger (18 nov 2026); todavía no contra tráfico orgánico de mainnet. No es una custodia remota de la llave, eso está en el roadmap"),
             locked: false,
         },
         {
@@ -159,8 +159,8 @@ export default function AgentsPage() {
                 "Payment receipt logged per call; the settlement hash is on Horizon",
                 "Recibo de pago registrado por llamada; el hash de liquidación está en Horizon"),
             metric: lang(
-                "Nirium's own test endpoint on mainnet, last settled payment 29 Sep 2026. x402Serve() for third parties: written legal opinion pending",
-                "Endpoint de prueba propio de Nirium en mainnet, último pago liquidado el 29 sep 2026. x402Serve() para terceros: opinión legal por escrito pendiente"),
+                "Nirium's own test endpoint on mainnet, last settled payment 18 Nov 2026 (an integration test). x402Serve() for third parties: written legal opinion pending",
+                "Endpoint de prueba propio de Nirium en mainnet, último pago liquidado el 18 nov 2026 (una prueba de integración). x402Serve() para terceros: opinión legal por escrito pendiente"),
             locked: false,
         },
         {

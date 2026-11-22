@@ -382,10 +382,9 @@ export default function BuildPage() {
 <span className="text-gray-500">//    (to charge for YOUR API, see x402Serve() in the docs)</span>{"\n"}
 nirium.<span className="text-cyan-400">initX402</span>({"{"} secretKey: process.env.STELLAR_SECRET_KEY {"}"});{"\n"}
 <span className="text-blue-400">const</span> res = <span className="text-purple-400">await</span> nirium.<span className="text-cyan-400">x402Fetch</span>(<span className="text-green-400">'https://your-api.com/paid-endpoint'</span>);{"\n\n"}
-<span className="text-gray-500">// 3. Subscribe to the testnet loop's signals over WebSocket</span>{"\n"}
-nirium.<span className="text-cyan-400">subscribe</span>((signal) =&gt; {"{"}{"\n"}
-{"  "}console.<span className="text-cyan-400">log</span>(<span className="text-green-400">'Signal:'</span>, signal);{"\n"}
-{"}"});
+<span className="text-gray-500">// 3. Anchor the hash of a record only you hold (Audit Trail)</span>{"\n"}
+<span className="text-blue-400">const</span> receipt = <span className="text-purple-400">await</span> nirium.<span className="text-cyan-400">anchorAuditRecord</span>({"{"} hash: <span className="text-green-400">'&lt;sha-256 of your record&gt;'</span>, tag: <span className="text-green-400">'my-app'</span> {"}"});{"\n"}
+<span className="text-gray-500">// receipt.cid: anyone can check it at nirium.xyz/verify</span>
 </code>
                             </pre>
                         </motion.div>

@@ -170,7 +170,7 @@ export default function CompliancePage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
-                                    <div className="text-3xl font-black text-stellar-teal mb-1">36</div>
+                                    <div className="text-3xl font-black text-stellar-teal mb-1">41</div>
                                     <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black leading-tight">
                                         {t.compliance_page.fintech_law.stats.fintechs}
                                     </div>

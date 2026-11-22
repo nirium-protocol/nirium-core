@@ -34,12 +34,14 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
             label: "CORE",
             items: [
                 { href: "/",                 label: t.nav.home,        icon: Home,            accent: "#3B82F6" },
+                { href: "/verify",           label: t.nav.verifyAudit, icon: FileCheck,       accent: "#10B981" },
                 { href: "/dashboard",        label: t.nav.dashboard,   icon: LayoutDashboard, accent: "#2DEBE8" },
                 { href: "/analytics",        label: t.nav.analytics,   icon: BarChart2,       accent: "#2DEBE8", badge: "BETA" },
                 { href: "/agents",           label: t.nav.agents,      icon: Cpu,             accent: "#FFD700" },
                 { href: "/payouts",          label: t.nav.payroll,     icon: Send,            accent: "#2DEBE8" },
                 { href: "/security",         label: t.nav.security,    icon: ShieldCheck,     accent: "#10B981" },
                 { href: "/compliance",       label: t.nav.compliance,  icon: Shield,          accent: "#2DEBE8" },
+                { href: "/stats",            label: t.nav.stats,       icon: Activity,        accent: "#10B981" },
             ]
         },
         {
@@ -57,7 +59,6 @@ export function AppSidebar({ onClose }: { onClose?: () => void }) {
                 { href: "/docs",             label: t.nav.docs,        icon: BookOpen,        accent: "#8B5CF6" },
                 { href: "/developers",       label: t.nav.developers,  icon: Code2,           accent: "#6366F1" },
                 { href: "/keys",             label: t.nav.apikeys,     icon: KeyRound,        accent: "#FFD23F" },
-                { href: "/verify",           label: t.nav.verifyAudit, icon: FileCheck,       accent: "#10B981" },
             ]
         }
     ];

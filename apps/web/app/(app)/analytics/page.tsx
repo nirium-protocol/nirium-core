@@ -450,6 +450,7 @@ export default function AnalyticsPage() {
                                     // 16-nov-2026: el Policy Gate no publica contadores; su única evidencia es esta corrida
                                     // de testnet (Horizon: SUCCESS, 2026-10-01T01:20:42Z). Los casos DENY y stale no firmaron nada.
                                     { net: 'testnet' as const, date: '2026-10-01', tx: 'eefd57995733c29fd1ba8244b783419015af642073e9c918a0d732a6bb81a6b3', msg: 'Policy Gate - ALLOW signed and settled (0.02 USDC); the DENY and stale cases in the same run signed nothing' },
+                                    { net: 'mainnet' as const, date: '2026-11-18', tx: 'ed5a41cf0b504a674ac621845767994d333aa253b9f9f3f7c5133df389e6d5d4', msg: 'Policy Gate on mainnet - AgentLedger integration test: ALLOW settled (0.05 USDC); its HOLD and block receipts record payments that never happened' },
                                 ].map((log) => (
                                     <div key={log.tx} className="p-4 bg-black/40 border border-white/5 rounded-2xl font-mono text-[10px] space-y-2 group hover:border-stellar-teal/30 transition-all">
                                         <div className="flex justify-between items-center text-gray-600">

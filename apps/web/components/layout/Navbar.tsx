@@ -59,11 +59,13 @@ export default function Navbar() {
         {
             label: t.nav.group_core,
             items: [
+                { name: t.nav.verifyAudit, href: "/verify",    icon: FileCheck },
                 { name: t.nav.agents,     href: "/agents",     icon: Cpu },
                 { name: t.nav.payroll,    href: "/payouts",    icon: Send },
                 { name: t.nav.security,   href: "/security",   icon: ShieldCheck },
                 { name: t.nav.compliance, href: "/compliance", icon: Shield },
                 { name: t.nav.ecosystem,  href: "/ecosystem",  icon: Network },
+                { name: t.nav.stats,      href: "/stats",      icon: Activity },
             ],
         },
         {
@@ -81,7 +83,6 @@ export default function Navbar() {
                 { name: t.nav.docs,       href: "/docs",       icon: Newspaper },
                 { name: t.nav.developers, href: "/developers", icon: Code2 },
                 { name: t.nav.api,        href: "/keys",       icon: KeyRound },
-                { name: t.nav.verifyAudit, href: "/verify",    icon: FileCheck },
             ],
         },
     ];

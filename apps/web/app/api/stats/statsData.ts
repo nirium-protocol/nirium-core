@@ -67,6 +67,13 @@ const KNOWN_PAYERS: Record<string, { kind: PayerKind; label: string; shortName: 
         note: "Integration tests by AgentLedger - the operator identified these settlements as theirs, in public, on OpenZeppelin/relayer-plugin-x402-facilitator#47. Wallet initially funded by Nirium's founder. AgentLedger was an independent third party when these settlements happened (Aug-Sep 2026); its founder, Fer, also joined Nirium part-time in October 2026.",
         evidenceUrl: 'https://github.com/OpenZeppelin/relayer-plugin-x402-facilitator/issues/47#issuecomment-5644298533',
     },
+    GA7KZG5E62RYGJMBTCPE63NXTGSRFZDDNTFYL7CIA7WIRIH3UBH4AWKR: {
+        kind: 'integration-test',
+        label: 'AgentLedger (@fernando-mendoza), second agent wallet',
+        shortName: 'AgentLedger',
+        note: "Mainnet test of the pre-sign policy hook by AgentLedger on 18 Nov 2026: an ALLOW, a HOLD released after the owner's approval, and a concurrent pair where one was blocked. The operator shared this wallet and the signed receipts with us directly, and its public ledger names the agent nirium-mainnet-agent. AgentLedger's founder, Fer, has worked with Nirium part-time since October 2026, so this is not organic adoption.",
+        evidenceUrl: 'https://github.com/nirium-protocol/nirium/blob/main/EVIDENCE.md',
+    },
 };
 
 // Explicit allowlist of external merged PRs, each hand-verified to be
@@ -100,6 +107,13 @@ const EXTERNAL_MERGED_PRS: Array<{ owner: string; repo: string; number: number }
     { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 12 },
     { owner: 'Trustless-Work', repo: 'agentic-escrow-research', number: 13 },
     { owner: 'stellar', repo: 'stellar-dev-skill', number: 150 },
+    // 19-nov-2026: AgentRail #68 (opt-in Audit Trail receipts provider) y #70, de Eras256,
+    // mergeados por sparkysolutions10-pixel (AgentRail) el 17 y 18-nov; stellar-dev-skill#191
+    // (tarjeta de Nirium -> repo renombrado nirium-protocol/nirium), mergeado por el bot
+    // stellar-doxie el 19-nov. Confirmados contra el registro de contribuciones de Nirium.
+    { owner: 'SorobanAgents', repo: 'agentrail', number: 68 },
+    { owner: 'SorobanAgents', repo: 'agentrail', number: 70 },
+    { owner: 'stellar', repo: 'stellar-dev-skill', number: 191 },
 ];
 
 // "Built with Nirium" - third parties selling their own API over x402 via
@@ -614,11 +628,12 @@ async function getExternalMergedPRs() {
 
 // Community contributions to OUR repos (nirium-protocol/*), from the GitHub
 // API, live. The team is excluded by handle (Eras256, M0nsxx) and bots by
-// account type. These are merged PRs from external contributors in GrantFox
-// campaigns - NOT organic adoption, so they never feed "external payers" or
-// "Built with Nirium". No bounty amounts are read or shown, and nothing here
-// says whether any bounty was settled: that is decided by GrantFox after each
-// campaign and cannot be verified from GitHub.
+// account type. Many of these PRs come from incentivized programs: GrantFox
+// campaigns (issues labeled "GrantFox OSS") and Stellar Wave on Drips (issues
+// labeled "Stellar Wave", 18-nov-2026 on). Neither is organic adoption, so they
+// never feed "external payers" or "Built with Nirium". No bounty amounts or
+// Wave points are read or shown, and nothing here says whether any reward was
+// settled: GrantFox and Drips decide that, and it can't be verified from GitHub.
 const GH_ORG = 'nirium-protocol';
 const TEAM_HANDLES = new Set(['eras256', 'm0nsxx']);
 // Joined the team mid-stream. PRs from before the join date are genuine
@@ -639,9 +654,13 @@ async function getCommunityContributions() {
     const repos: string[] = (reposRes.data as any[]).filter((r) => !r.private && !r.archived).map((r) => r.name as string);
 
     let failures = 0;
+    // Up to 10 pages of 100. It was 3, and nirium-protocol/nirium passed 300
+    // issues + PRs in Nov 2026, so issues #1-#82 (where almost all GrantFox
+    // bounty issues live) were never read and /stats showed 1 bounty issue
+    // instead of 42 (found 18-nov-2026).
     const pages = async (path: string) => {
         const all: any[] = [];
-        for (let page = 1; page <= 3; page++) {
+        for (let page = 1; page <= 10; page++) {
             const r = await ghJson(`https://api.github.com/repos/${GH_ORG}/${path}${path.includes('?') ? '&' : '?'}per_page=100&page=${page}`);
             if (!r.ok) { failures++; break; }
             all.push(...(r.data as any[]));
@@ -660,13 +679,14 @@ async function getCommunityContributions() {
 
     const perRepo = await Promise.all(
         repos.map(async (repo) => {
-            const [pulls, issues, labels] = await Promise.all([
+            const [pulls, issues] = await Promise.all([
                 pages(`${repo}/pulls?state=closed`),
                 pages(`${repo}/issues?state=all`),
-                pages(`${repo}/labels`),
             ]);
             const grantfoxIssueList = issues.filter((i) => !i.pull_request && (i.labels ?? []).some((l: any) => l.name === 'GrantFox OSS'));
             const grantfoxIssues = new Set<number>(grantfoxIssueList.map((i) => i.number as number));
+            const waveIssueList = issues.filter((i) => !i.pull_request && (i.labels ?? []).some((l: any) => l.name === 'Stellar Wave'));
+            const waveIssues = new Set<number>(waveIssueList.map((i) => i.number as number));
             // Campaign of each bounty issue, from its own labels. Bare
             // "Official Campaign" = the first campaign; "Official Campaign | X"
             // and a bare "Third Campaign" label both name campaign X. An issue
@@ -696,6 +716,7 @@ async function getCommunityContributions() {
                         author: p.user.login as string,
                         mergedAt: p.merged_at as string,
                         linkedToGrantfoxIssue: [...refs].some((n) => grantfoxIssues.has(n)),
+                        linkedToWaveIssue: [...refs].some((n) => waveIssues.has(n)),
                     };
                 });
             const closedIssues = issues
@@ -709,8 +730,7 @@ async function getCommunityContributions() {
                     closedAt: i.closed_at as string,
                     grantfoxLabeled: (i.labels ?? []).some((l: any) => l.name === 'GrantFox OSS'),
                 }));
-            void labels;
-            return { mergedPRs, closedIssues, bountyByCampaign, bountyIssueTotal };
+            return { mergedPRs, closedIssues, bountyByCampaign, bountyIssueTotal, waveIssueTotal: waveIssueList.length };
         }),
     );
 
@@ -721,18 +741,25 @@ async function getCommunityContributions() {
     const campaignOrder = ['Official Campaign', 'FWC26', 'Third Campaign'];
     const campaigns = Object.keys(bountyByCampaign).sort((a, b) => ((campaignOrder.indexOf(a) + 1) || 99) - ((campaignOrder.indexOf(b) + 1) || 99) || a.localeCompare(b));
     const bountyIssuesTotal = perRepo.reduce((t, r) => t + r.bountyIssueTotal, 0);
+    const waveIssuesTotal = perRepo.reduce((t, r) => t + r.waveIssueTotal, 0);
 
     return {
         available: true as const,
         reposScanned: repos.length,
         campaigns: { count: campaigns.length, items: campaigns.map((name) => ({ name, bountyIssues: bountyByCampaign[name] })) },
         bountyIssues: { total: bountyIssuesTotal },
-        mergedPRs: { count: mergedPRs.length, linkedToGrantfoxIssue: mergedPRs.filter((p) => p.linkedToGrantfoxIssue).length, items: mergedPRs },
+        mergedPRs: {
+            count: mergedPRs.length,
+            linkedToGrantfoxIssue: mergedPRs.filter((p) => p.linkedToGrantfoxIssue).length,
+            linkedToWaveIssue: mergedPRs.filter((p) => p.linkedToWaveIssue).length,
+            items: mergedPRs,
+        },
+        stellarWave: { issues: waveIssuesTotal, platformUrl: 'https://www.drips.network/wave' },
         closedIssues: { count: closedIssues.length, items: closedIssues },
         failedRequests: failures,
         platformUrl: 'https://grantfox.xyz/open-source',
         source: `https://api.github.com/orgs/${GH_ORG}/repos`,
-        note: 'Team handles (Eras256, M0nsxx) and bots are excluded. fernando-mendoza joined the team part-time in October 2026 - PRs/issues from him on or after 2026-10-15 are excluded too, but anything from before that date (if any) still counts, since he was genuinely external then. The bounty issues themselves are written by the team, so "issues closed" counts only issues opened by people outside the team. Nothing here says whether any bounty was settled.',
+        note: 'Team handles (Eras256, M0nsxx) and bots are excluded. fernando-mendoza joined the team part-time in October 2026 - PRs/issues from him on or after 2026-10-15 are excluded too, but anything from before that date (if any) still counts, since he was genuinely external then. The bounty issues themselves are written by the team, so "issues closed" counts only issues opened by people outside the team. Stellar Wave issues are labeled "Stellar Wave" in the repo; a PR counts as Wave work when it references one. Nothing here says whether any bounty or Wave reward was settled.',
     };
 }
 
@@ -904,8 +931,71 @@ async function getNiriumPlayIntegration(): Promise<Integration> {
     };
 }
 
+// AgentRail (SorobanAgents/agentrail): opt-in public receipts for spends and
+// proof-of-task, written by Nirium and merged by AgentRail's maintainer
+// (#68 on 17 Nov 2026, #70 on 18 Nov 2026 UTC). Checked live: both PRs still
+// merged, the provider file still on main, and the network read from the
+// provider's own default node URL. This proves the integration is in their
+// code, not that anyone uses it: no AgentRail usage is counted anywhere.
+// 19-nov-2026: AgentRail's own follow-up, #71, written by its founder
+// (sparkysolutions10-pixel) and merged 19 Nov: pipeline spends on TESTNET with
+// agent-signed receipts (tx 14e72e04…385b, CID QmaYP7Lr…Gypm4, signature checked
+// against their agent key; wallet funded by Friendbot). Shown as "origin" with its
+// live PR status - their work, testnet, not organic mainnet usage.
+async function getAgentRailIntegration(): Promise<Integration> {
+    const repo = 'SorobanAgents/agentrail';
+    const [pr68, pr70, pr71, provider] = await Promise.all([
+        ghJson(`https://api.github.com/repos/${repo}/pulls/68`),
+        ghJson(`https://api.github.com/repos/${repo}/pulls/70`),
+        ghJson(`https://api.github.com/repos/${repo}/pulls/71`),
+        ghJson(`https://api.github.com/repos/${repo}/contents/src/lib/audit-trail-provider.ts?ref=main`),
+    ]);
+    let source = '';
+    if (provider.ok && typeof provider.data?.content === 'string') {
+        try { source = Buffer.from(provider.data.content, 'base64').toString('utf8'); } catch { /* stays empty */ }
+    }
+    // The default node the provider uses when no baseUrl is passed.
+    const def = source.match(/\.default\(\s*(AUDIT_TRAIL_(TESTNET|MAINNET)_URL)\s*\)/);
+    const network: Integration['network'] = def ? (def[2] === 'TESTNET' ? 'testnet' : 'mainnet') : 'unknown';
+    const merged = (r: Awaited<ReturnType<typeof ghJson>>) => r.ok && r.data?.merged === true;
+    const mergedBy = (r: Awaited<ReturnType<typeof ghJson>>) => (r.ok && r.data?.merged_by?.login ? `@${r.data.merged_by.login}` : undefined);
+    const items: Check[] = [
+        { label: 'PR #68 merged in AgentRail', ok: merged(pr68), detail: mergedBy(pr68) },
+        { label: 'PR #70 merged in AgentRail', ok: merged(pr70), detail: mergedBy(pr70) },
+        { label: 'receipts provider still on their main branch', ok: provider.ok && /nirium-agent/.test(source), detail: provider.ok ? 'src/lib/audit-trail-provider.ts' : String(provider.status) },
+        { label: 'network read from the provider\u2019s default node', ok: network !== 'unknown', detail: network },
+    ];
+    return {
+        name: 'Nirium × AgentRail',
+        description: 'Opt-in public receipts for AgentRail agent spends and proof-of-task results: only a SHA-256 hash is anchored, checkable at nirium.xyz/verify. Off the payment path, so a failed anchor never blocks a spend.',
+        demoUrl: `https://github.com/${repo}#-optional-public-receipts`,
+        badge: 'Built by Nirium · reviewed and merged by AgentRail',
+        network,
+        links: [
+            { label: `${repo}#68`, url: `https://github.com/${repo}/pull/68` },
+            { label: `${repo}#70`, url: `https://github.com/${repo}/pull/70` },
+        ],
+        origin: {
+            text: 'AgentRail then built on it in its own repo: a PR by its founder settles pipeline spends on testnet and anchors receipts signed by the agent\u2019s own key. Their work, on testnet - not counted as usage.',
+            links: [
+                {
+                    label: 'PR #71',
+                    url: `https://github.com/${repo}/pull/71`,
+                    status: pr71.ok ? (pr71.data?.merged ? `merged${pr71.data?.user?.login ? ` · @${pr71.data.user.login}` : ''}` : String(pr71.data?.state ?? '')) : null,
+                },
+                {
+                    label: 'its testnet receipt',
+                    url: 'https://nirium.xyz/verify?cid=QmaYP7Lr2kRGLrdPHf1BYwLz7nSk9aC4xyU8s2ageGypm4',
+                    status: null,
+                },
+            ],
+        },
+        checks: { ok: items.every((i) => i.ok), items },
+    };
+}
+
 async function getIntegrations(): Promise<Integration[]> {
-    return Promise.all([getPollarIntegration(), getNiriumPlayIntegration()]);
+    return Promise.all([getPollarIntegration(), getAgentRailIntegration(), getNiriumPlayIntegration()]);
 }
 
 // The reporting API's table is shared across networks, and rows written

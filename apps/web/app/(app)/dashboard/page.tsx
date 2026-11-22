@@ -228,7 +228,8 @@ function DashboardContent() {
             }
         };
         fetchThoughts();
-        const interval = setInterval(fetchThoughts, 8000);
+        // Nothing while the tab is in the background: each poll is a server function run on Vercel.
+        const interval = setInterval(() => { if (document.visibilityState === 'visible') fetchThoughts(); }, 8000);
         return () => clearInterval(interval);
     }, []);
 

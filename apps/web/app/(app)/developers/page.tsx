@@ -537,7 +537,7 @@ export default function DevelopersPage() {
                                 className="mb-6 px-4 py-1.5 rounded-full bg-stellar-teal/10 border border-stellar-teal/30 flex items-center gap-2"
                             >
                                 <Activity className="w-3 h-3 text-stellar-teal animate-pulse" />
-                                <span className="text-[10px] font-black text-stellar-teal uppercase tracking-[0.2em]">{lang('25 tools counted in nirium-mcp 0.6.7 on 17 Nov 2026', '25 herramientas contadas en nirium-mcp 0.6.7 el 17 nov 2026')}</span>
+                                <span className="text-[10px] font-black text-stellar-teal uppercase tracking-[0.2em]">{lang('25 tools in nirium-mcp 0.6.10', '25 herramientas en nirium-mcp 0.6.10')}</span>
                             </motion.div>
                             
                             <h2 className="text-4xl sm:text-7xl font-black uppercase italic tracking-tighter text-white mb-6 leading-none">

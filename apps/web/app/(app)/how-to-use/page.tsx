@@ -164,7 +164,7 @@ export default function HowToUsePage() {
 const STEPS = [
     {
         title: "Get an API key",
-        description: "Issue a free key for the Nirium agent - audit anchoring, reporting and authenticated endpoints. One key works on both testnet and mainnet. No wallet connection required to get started.",
+        description: "Issue a free key for the Nirium agent - audit anchoring, reporting and authenticated endpoints. One key works on testnet and mainnet for audit anchoring and reporting; on mainnet, Payouts and Treasury need a key Nirium authorizes (invite-only). No wallet connection required to get started.",
         icon: Wallet,
         color: "from-blue-400 to-cyan-400",
         features: [
@@ -178,7 +178,7 @@ const STEPS = [
     },
     {
         title: "Pay for an API call with x402",
-        description: "Charge or pay per request over HTTP 402. A seller returns a 402 challenge, the buyer signs a Stellar authorization entry, a facilitator verifies and settles on-chain. Nirium's own endpoint answers 402 on mainnet (last payment settled 29 Sep 2026); third-party sellers are supported on testnet.",
+        description: "Charge or pay per request over HTTP 402. A seller returns a 402 challenge, the buyer signs a Stellar authorization entry, a facilitator verifies and settles on-chain. Nirium's own endpoint answers 402 on mainnet (last payment settled 18 Nov 2026); third-party sellers are supported on testnet.",
         icon: Shield,
         color: "from-stellar-teal to-teal-500",
         features: [

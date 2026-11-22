@@ -236,6 +236,7 @@ export default function NodeActivity({ language, network: fixed, breakdownBelow 
                         lines={[
                             L("Vaults on the verified NiriumVault contract (since 9 Nov 2026)", "Bóvedas en el contrato verificado de NiriumVault (desde el 9 nov 2026)"),
                             L("Earlier contracts are listed on /security", "Los contratos anteriores están en /security"),
+                            L("DeFindex vaults deployed from /treasury/vault are not counted here", "Las bóvedas de DeFindex desplegadas desde /treasury/vault no se cuentan aquí"),
                         ]}
                         href={`https://stellar.expert/explorer/${explorerNet}/contract/${CONTRACT_IDS.VAULT}`}
                         linkLabel={L("See on-chain", "Ver on-chain")}

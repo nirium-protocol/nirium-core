@@ -215,9 +215,8 @@ export default function FiatRamp() {
                                                 <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-1.5 py-0.5 rounded">{lang('Etherfuse sandbox', 'Sandbox de Etherfuse')}</span>
                                             </div>
                                             <div className="text-[10px] text-gray-400 font-mono mb-1">{lang('Token price in the sandbox', 'Precio del token en el sandbox')}: {liveLookup[b.id]?.cost ?? '…'}</div>
-                                            <div className="text-[10px] text-gray-500 font-mono">{/* 12-nov-2026: este TVL es el que devuelve api.sand.etherfuse.com, no el mercado real de
-                                                Etherfuse (el precio de producción ese día era MX$1.19107, el del sandbox MX$1.14907). */}
-                                            {lang("TVL in Etherfuse's test environment - not real money, not Nirium's", 'TVL en el ambiente de pruebas de Etherfuse - no es dinero real ni de Nirium')}: {liveLookup[b.id]?.tvl ?? '…'}</div>
+                                            {/* 19-nov-2026: se quitó el TVL del sandbox de Etherfuse. Aunque decía "no es dinero
+                                                real", un MX$1,000 millones en una captura se lee como tracción y no ayuda a cotizar. */}
                                         </button>
                                     ))}
                                 </div>
@@ -401,7 +400,7 @@ export default function FiatRamp() {
                 </div>
                 <div className="flex flex-col space-y-2.5">
                     <span className="font-black text-gray-400 mb-2 uppercase tracking-widest">{t.ramp.component.legal.agreements}</span>
-                    <a href="https://devnet.etherfuse.com/legal/terms-and-conditions" target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition-colors uppercase font-mono">Terms & Conditions</a>
+                    <a href="https://etherfuse.com/legal/terms-and-conditions" target="_blank" rel="noreferrer" className="hover:text-emerald-400 transition-colors uppercase font-mono">Terms & Conditions</a>
                 </div>
             </div>
         </>

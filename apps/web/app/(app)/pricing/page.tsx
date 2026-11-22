@@ -92,7 +92,7 @@ type ComparisonRow = {
 
 const COMPARISON: ComparisonRow[] = [
     { feature: { en: 'Treasury vault',   es: 'Bóveda de tesorería' }, free: { en: 'NiriumVault (testnet)', es: 'NiriumVault (testnet)' }, growth: { en: 'DeFindex (mainnet, invite-only)', es: 'DeFindex (mainnet, por invitación)' }, enterprise: 'Custom' },
-    { feature: { en: 'API rate limit',   es: 'Límite de API'       }, free: '20 req/min', growth: { en: 'Higher, per account', es: 'Más alto, por cuenta' }, enterprise: { en: 'Up to 1,000 req/min', es: 'Hasta 1,000 req/min' } },
+    { feature: { en: 'API rate limit',   es: 'Límite de API'       }, free: '20 req/min', growth: { en: 'Higher, per account', es: 'Más alto, por cuenta' }, enterprise: { en: 'By agreement', es: 'Por acuerdo' } },
     { feature: { en: 'Signing model',    es: 'Modelo de firma'     }, free: { en: 'Your key withdraws; the agent spends up to a cap you set (NiriumVault)', es: 'Tu llave retira; el agente gasta hasta un tope que tú fijas (NiriumVault)' }, growth: { en: 'Your keys + revocable rebalance role', es: 'Tus llaves + rol de rebalanceo revocable' }, enterprise: { en: 'Configurable', es: 'Configurable' } },
     { feature: { en: 'Institutional export',      es: 'Export institucional'        }, free: '✓', growth: '✓', enterprise: '✓' },
     { feature: { en: 'IPFS anchoring',   es: 'Anclaje IPFS'        }, free: { en: 'Free during beta', es: 'Gratis en beta' }, growth: '✓', enterprise: '✓' },
@@ -308,7 +308,7 @@ export default function PricingPage() {
                                     // signals y execute son testnet-only por diseño (ver FEATURES_FREE
                                     // arriba). Separado en dos filas para que el fee no implique más
                                     // disponibilidad de la real.
-                                    { who: lang('x402 market state - mainnet', 'x402 market state - mainnet'), fee: '$0.05', note: lang('The only x402 endpoint that charges on mainnet (last settled payment 29 Sep 2026)', 'El único endpoint x402 que cobra en mainnet (último pago liquidado: 29 sep 2026)'), highlight: false, total: false },
+                                    { who: lang('x402 market state - mainnet', 'x402 market state - mainnet'), fee: '$0.05', note: lang('The only x402 endpoint that charges on mainnet (last settled payment 18 Nov 2026, an integration test)', 'El único endpoint x402 que cobra en mainnet (último pago liquidado: 18 nov 2026, una prueba de integración)'), highlight: false, total: false },
                                     { who: lang('x402 snapshot + execute - testnet only', 'x402 snapshot + execute - solo testnet'), fee: '$0.02 / $0.25', note: lang('Need the autonomous loop / a signing key the mainnet box does not hold', 'Necesitan el loop autónomo / una llave firmante que el box de mainnet no tiene'), highlight: false, total: false },
                                 ],
                             },

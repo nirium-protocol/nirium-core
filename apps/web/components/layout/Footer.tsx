@@ -20,7 +20,7 @@ export default function Footer() {
               <span className="text-xl font-black tracking-tighter text-white">NIRIUM</span>
             </Link>
             <p className="text-sm text-zinc-400 max-w-xs leading-relaxed">
-              {lang("Payment, audit and execution rails on Stellar. Your keys, your funds.", "Rieles de pago, auditoría y ejecución en Stellar. Tus llaves, tus fondos.")}
+              {lang("Prove what the chain doesn’t show. Payment, audit and execution rails on Stellar. Your keys, your funds.", "Demuestra lo que la cadena no muestra. Rieles de pago, auditoría y ejecución en Stellar. Tus llaves, tus fondos.")}
             </p>
             <div className="pt-4 flex items-center gap-3">
               <a
@@ -67,6 +67,7 @@ export default function Footer() {
             <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest mb-2">{lang("Navigation", "Navegación")}</h4>
             <ul className="space-y-3">
               <li><Link href="/dashboard" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Product Dashboard", "Dashboard del producto")}</Link></li>
+              <li><Link href="/verify" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Verify a receipt", "Verifica un recibo")}</Link></li>
               <li><Link href="/developers" className="text-sm text-zinc-400 hover:text-white transition-colors">Developers</Link></li>
               <li><Link href="/docs" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Documentation", "Documentación")}</Link></li>
               <li>
@@ -89,7 +90,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li><a href="https://communityfund.stellar.org/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">Stellar Community Fund <ExternalLink className="w-3 h-3" /></a></li>
               <li><a href="https://developers.stellar.org/docs" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">{lang("Developer Docs", "Docs para desarrolladores")} <ExternalLink className="w-3 h-3" /></a></li>
-              <li><a href="http://discord.gg/stellardev" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">Stellar Discord <ExternalLink className="w-3 h-3" /></a></li>
+              <li><a href="https://discord.gg/stellardev" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">Stellar Discord <ExternalLink className="w-3 h-3" /></a></li>
             </ul>
           </div>
 
@@ -101,6 +102,7 @@ export default function Footer() {
               <li><Link href="/risk-disclosure" className="text-sm text-zinc-400 hover:text-amber-400 transition-colors">{lang("Risk Disclosure (CETES)", "Aviso de riesgo (CETES)")}</Link></li>
               <li><Link href="/privacy" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Privacy Policy (LFPDPPP)", "Aviso de privacidad (LFPDPPP)")}</Link></li>
               <li><Link href="/terms" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Terms of Service", "Términos de servicio")}</Link></li>
+              <li><a href="/legal/restricted-jurisdictions-v1.md" target="_blank" rel="noopener noreferrer" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Restricted Jurisdictions", "Jurisdicciones restringidas")}</a></li>
               <li><Link href="/coc" className="text-sm text-zinc-400 hover:text-white transition-colors">{lang("Code of Conduct", "Código de conducta")}</Link></li>
               <li><Link href="/compliance" className="text-sm text-zinc-400 hover:text-white transition-colors">Compliance Hub</Link></li>
             </ul>

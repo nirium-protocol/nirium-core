@@ -102,6 +102,10 @@ const AUDIT_ANCHOR_URL = `/verify?cid=${AUDIT_ANCHOR_CID}`;
 // mainnet, 12-nov-2026. `nirium verify` → SIGNATURE: VALID. Es su cuarto anclaje.
 const TIA_ANCHOR_CID = 'QmZ9bQxXLqoCvAQ6AtRChd18MS9YkjBF6MbT9k5e84PTTv';
 const TIA_ANCHOR_URL = `/verify?cid=${TIA_ANCHOR_CID}`;
+// AgentLedger, 18 Nov 2026, mainnet: receipt for a payment its policy BLOCKED, so no
+// transaction exists and only the receipt records the decision (EVIDENCE.md section 3).
+const REFUSED_ANCHOR_CID = 'QmS5q2NvZ2K2StLB3KCWRdkBtnZ5rHAJrQAez2PnKAPwTk';
+const REFUSED_ANCHOR_URL = `/verify?cid=${REFUSED_ANCHOR_CID}`;
 
 function CodeBlock({ code, filename, copyLabel, copiedLabel }: { code: string; filename: string; copyLabel: string; copiedLabel: string }) {
     const [copied, setCopied] = useState(false);
@@ -153,6 +157,32 @@ export default function Home() {
     // /stats, verificada contra Pinata antes de escribir esto).
     const proofGroups = [
         {
+            label: lang('PROOF', 'PRUEBA'),
+            items: [
+                {
+                    icon: FileCheck,
+                    title: lang('Signed mainnet anchor (our own test)', 'Ancla firmada en mainnet (prueba propia)'),
+                    detail: `${AUDIT_ANCHOR_CID.slice(0, 18)}…`,
+                    cta: lang('verify it, 2026-10-21', 'verifícala, 2026-10-21'),
+                    href: AUDIT_ANCHOR_URL,
+                },
+                {
+                    icon: FileCheck,
+                    title: lang('A refused payment, recorded: never signed, no transaction (AgentLedger)', 'Un pago rechazado, registrado: nunca se firmó, no hay transacción (AgentLedger)'),
+                    detail: `${REFUSED_ANCHOR_CID.slice(0, 18)}…`,
+                    cta: lang('verify it, 2026-11-18', 'verifícalo, 2026-11-18'),
+                    href: REFUSED_ANCHOR_URL,
+                },
+                {
+                    icon: FileCheck,
+                    title: lang("An external integrator's signed mainnet receipt (TIA)", 'Recibo firmado en mainnet de un integrador externo (TIA)'),
+                    detail: `${TIA_ANCHOR_CID.slice(0, 18)}…`,
+                    cta: lang('verify it, 2026-11-12', 'verifícalo, 2026-11-12'),
+                    href: TIA_ANCHOR_URL,
+                },
+            ],
+        },
+        {
             label: lang('POLICY', 'DECIDE'),
             items: [
                 {
@@ -178,7 +208,7 @@ export default function Home() {
                     icon: Activity,
                     title: lang('Mainnet endpoint, answers 402', 'Endpoint en mainnet, responde 402'),
                     detail: 'GET /api/v1/premium/market',
-                    cta: lang('last paid 29 Sep 2026', 'último pago 29 sep 2026'),
+                    cta: lang('last paid 18 Nov 2026', 'último pago 18 nov 2026'),
                     href: `${MAINNET_API_URL}/api/v1/premium/market`,
                 },
                 {
@@ -197,25 +227,6 @@ export default function Home() {
                 },
             ],
         },
-        {
-            label: lang('PROOF', 'PRUEBA'),
-            items: [
-                {
-                    icon: FileCheck,
-                    title: lang('Signed mainnet anchor (our own test)', 'Ancla firmada en mainnet (prueba propia)'),
-                    detail: `${AUDIT_ANCHOR_CID.slice(0, 18)}…`,
-                    cta: lang('verify it, 2026-10-21', 'verifícala, 2026-10-21'),
-                    href: AUDIT_ANCHOR_URL,
-                },
-                {
-                    icon: FileCheck,
-                    title: lang("An external integrator's signed mainnet receipt (TIA)", 'Recibo firmado en mainnet de un integrador externo (TIA)'),
-                    detail: `${TIA_ANCHOR_CID.slice(0, 18)}…`,
-                    cta: lang('verify it, 2026-11-12', 'verifícalo, 2026-11-12'),
-                    href: TIA_ANCHOR_URL,
-                },
-            ],
-        },
     ];
 
     return (
@@ -227,7 +238,7 @@ export default function Home() {
                 <LegalDisclaimer variant="banner" locale={language === 'es' ? 'es' : 'en'} className="w-full max-w-[1600px] sm:rounded-xl shadow-2xl" />
             </div>
 
-            {/* HERO - rediseño 9-oct-2026: una idea, tres verbos (decide / cobra / demuestra) */}
+            {/* HERO - 19-nov-2026: abre con lo que solo Nirium hace (lo que la cadena no muestra), después los tres verbos */}
             <section className="relative pt-8 sm:pt-12 pb-16 sm:pb-20 overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(45,235,232,0.08),transparent_60%)]" />
                 <HeroParticles />
@@ -241,7 +252,7 @@ export default function Home() {
                         <span className="relative flex h-2 w-2">
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                         </span>
-                        {lang('x402 on Stellar · testnet + mainnet', 'x402 en Stellar · testnet + mainnet')}
+                        {lang('Audit Trail + x402 on Stellar · testnet + mainnet', 'Audit Trail + x402 en Stellar · testnet + mainnet')}
                     </motion.div>
 
                     <motion.h1
@@ -251,9 +262,9 @@ export default function Home() {
                         className="text-4xl sm:text-5xl xl:text-6xl font-black leading-[1.05] tracking-tight"
                     >
                         {language === 'es' ? (
-                            <>Rieles de pago, auditoría y <span className="text-stellar-yellow">ejecución</span> en Stellar.</>
+                            <>Demuestra lo que la <span className="text-stellar-yellow">cadena</span> no muestra.</>
                         ) : (
-                            <>Payment, audit and <span className="text-stellar-yellow">execution</span> rails on Stellar.</>
+                            <>Prove what the <span className="text-stellar-yellow">chain</span> doesn&apos;t show.</>
                         )}
                     </motion.h1>
 
@@ -264,8 +275,8 @@ export default function Home() {
                         className="mt-5 text-base sm:text-lg text-white/60 max-w-2xl mx-auto leading-relaxed"
                     >
                         {lang(
-                            'For apps, backends and AI agents. Decide before you sign, charge per request, prove every move. Non-custodial: your keys, your funds.',
-                            'Para apps, backends y agentes de IA. Decide antes de firmar, cobra por request, demuestra cada movimiento. No custodial: tus llaves, tus fondos.')}
+                            'The ledger already proves who paid, how much and when. Nirium keeps what it can\'t: what each payment was for, the payments your policy refused and never signed, off-chain records, and who stands behind them. Payment, audit and execution rails for apps, backends and AI agents. Non-custodial: your keys, your funds.',
+                            'El ledger ya prueba quién pagó, cuánto y cuándo. Nirium guarda lo que falta: para qué fue cada pago, los pagos que tu política rechazó y nunca firmó, los registros fuera de la cadena y quién responde por ellos. Rieles de pago, auditoría y ejecución para apps, backends y agentes de IA. No custodial: tus llaves, tus fondos.')}
                     </motion.p>
 
                     <motion.div
@@ -280,6 +291,12 @@ export default function Home() {
                                 <ArrowRight className="ml-2 w-4 h-4" />
                             </Button>
                         </a>
+                        <a href="/verify">
+                            <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                                {lang('Verify a receipt', 'Verifica un recibo')}
+                                <FileCheck className="ml-2 w-4 h-4" />
+                            </Button>
+                        </a>
                     </motion.div>
                     <SocialProof />
                 </div>
@@ -291,6 +308,34 @@ export default function Home() {
             {/* LOS TRES VERBOS - un bloque por verbo, cada uno con código real, estado honesto y prueba */}
             <section className="py-16 sm:py-20 border-t border-white/5">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-20">
+
+                    {/* Verbo 3 - Demuestra lo que la cadena no muestra */}
+                    <div id="prove" className="scroll-mt-28">
+                        <div className="flex items-center gap-2 mb-3">
+                            <FileCheck className="w-4 h-4 text-stellar-teal" />
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-stellar-teal/70">{lang('PROOF', 'PRUEBA')}</span>
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-bold">{lang('Prove what the chain doesn\'t show', 'Demuestra lo que la cadena no muestra')}</h2>
+                        <p className="mt-3 text-white/60 max-w-2xl">
+                            {lang(
+                                'A Stellar payment is already public on the ledger. Audit Trail covers what is not: what your policy decided, including payments it refused and never signed, a record of what each payment bought, and any document or event off chain. Anyone can check it from a hash alone.',
+                                'Un pago en Stellar ya es público en el ledger. Audit Trail cubre lo que no está ahí: lo que decidió tu política, incluidos los pagos que rechazó y nunca firmó, un registro de qué compró cada pago, y cualquier documento o evento fuera de la cadena. Cualquiera lo revisa solo con el hash.')}
+                        </p>
+                        <div className="mt-6">
+                            <CodeBlock
+                                code={`POST /api/audit/log\n\n// example request, not a live anchor:\n{ "hash": "sha-256:e3b0c442...", "tag": "invoice-2026-07" }`}
+                                filename="audit-log.http"
+                                copyLabel={copy}
+                                copiedLabel={copied}
+                            />
+                        </div>
+                        <p className="mt-3 text-xs text-emerald-400/80">
+                            {lang('Live on mainnet · free during beta.', 'En vivo en mainnet · gratis durante beta.')}
+                        </p>
+                        <a href={REFUSED_ANCHOR_URL} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-xs text-stellar-teal/80 hover:text-stellar-teal">
+                            {lang('Verify a receipt for a payment that never happened (AgentLedger blocked it, mainnet, 18 Nov 2026)', 'Verifica el recibo de un pago que nunca ocurrió (AgentLedger lo bloqueó, mainnet, 18 nov 2026)')} <ExternalLink className="w-3 h-3" />
+                        </a>
+                    </div>
 
                     {/* Verbo 1 - Paga con tu propia política */}
                     <div id="policy" className="scroll-mt-28">
@@ -309,8 +354,8 @@ export default function Home() {
                         </div>
                         <p className="mt-3 text-xs text-amber-400/80 leading-relaxed">
                             {lang(
-                                "New in 0.16.0 · experimental - the shape may change before 1.0. Tested on testnet, engine-neutral by design (no smart account required on your side).",
-                                'Nuevo en 0.16.0 · experimental - la forma puede cambiar antes de 1.0. Probado en testnet, neutral al motor por diseño (no necesitas una smart account de tu lado).')}
+                                "Since 0.16.0 · experimental - the shape may change before 1.0. Tested on testnet and run on mainnet with AgentLedger (18 Nov 2026), engine-neutral by design (no smart account required on your side).",
+                                'Desde 0.16.0 · experimental - la forma puede cambiar antes de 1.0. Probado en testnet y corrido en mainnet con AgentLedger (18 nov 2026), neutral al motor por diseño (no necesitas una smart account de tu lado).')}
                         </p>
                         <p className="mt-2 text-xs text-white/45 leading-relaxed">
                             {lang(
@@ -365,12 +410,11 @@ export default function Home() {
                         </p>
                         <p className="mt-3 text-xs text-white/45 leading-relaxed">
                             {lang(
-                                // Decía "ya cobra en mainnet". El endpoint responde 402, pero la cuenta
-                                // de cobro (GCLBBPON...) no recibe un pago desde el 29-sep-2026
-                                // (verificado en Horizon el 9-nov). "Cobrando" solo se afirma con un
-                                // pago reciente, así que se dice lo que sí es cierto, con su fecha.
-                                "Open to everyone on testnet. Nirium's own endpoint answers 402 on mainnet; its last payment settled on 29 Sep 2026. Charging on your own API (x402Serve) on mainnet is not something we promote for third parties until we have a written legal opinion.",
-                                'Abierto a todos en testnet. El endpoint de Nirium responde 402 en mainnet; su último pago se liquidó el 29 sep 2026. Cobrar en tu propia API (x402Serve) en mainnet no lo promovemos para terceros hasta tener una opinión legal por escrito.')}
+                                // Decía "ya cobra en mainnet". "Cobrando" solo se afirma con un pago
+                                // reciente y su fecha. Último pago a la cuenta de cobro (GCLBBPON...):
+                                // 18-nov-2026, corridas de prueba de AgentLedger (Horizon, 19-nov).
+                                "Open to everyone on testnet. Nirium's own endpoint answers 402 on mainnet; its last payment settled on 18 Nov 2026, in an integration test. Charging on your own API (x402Serve) on mainnet is not something we promote for third parties until we have a written legal opinion.",
+                                'Abierto a todos en testnet. El endpoint de Nirium responde 402 en mainnet; su último pago se liquidó el 18 nov 2026, en una prueba de integración. Cobrar en tu propia API (x402Serve) en mainnet no lo promovemos para terceros hasta tener una opinión legal por escrito.')}
                         </p>
                         <div className="mt-6 grid sm:grid-cols-3 gap-4 text-xs">
                             <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
@@ -395,34 +439,6 @@ export default function Home() {
                         </div>
                         <a href={CHANGELOG_URL} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70">
                             {lang('Also ships: replay guard + rate limit, opt-in since 0.15.0', 'También trae: protección contra replay + rate limit, opcional desde 0.15.0')} <ExternalLink className="w-3 h-3" />
-                        </a>
-                    </div>
-
-                    {/* Verbo 3 - Demuestra lo que la cadena no muestra */}
-                    <div id="prove" className="scroll-mt-28">
-                        <div className="flex items-center gap-2 mb-3">
-                            <FileCheck className="w-4 h-4 text-stellar-teal" />
-                            <span className="text-[10px] font-mono uppercase tracking-widest text-stellar-teal/70">{lang('PROOF', 'PRUEBA')}</span>
-                        </div>
-                        <h2 className="text-2xl sm:text-3xl font-bold">{lang('Prove what the chain doesn\'t show', 'Demuestra lo que la cadena no muestra')}</h2>
-                        <p className="mt-3 text-white/60 max-w-2xl">
-                            {lang(
-                                'A Stellar payment is already public on the ledger. Audit Trail covers what is not: what your policy decided, including payments it refused and never signed, a record of what each payment bought, and any document or event off chain. Anyone can check it from a hash alone.',
-                                'Un pago en Stellar ya es público en el ledger. Audit Trail cubre lo que no está ahí: lo que decidió tu política, incluidos los pagos que rechazó y nunca firmó, un registro de qué compró cada pago, y cualquier documento o evento fuera de la cadena. Cualquiera lo revisa solo con el hash.')}
-                        </p>
-                        <div className="mt-6">
-                            <CodeBlock
-                                code={`POST /api/audit/log\n\n// example request, not a live anchor:\n{ "hash": "sha-256:e3b0c442...", "tag": "invoice-2026-07" }`}
-                                filename="audit-log.http"
-                                copyLabel={copy}
-                                copiedLabel={copied}
-                            />
-                        </div>
-                        <p className="mt-3 text-xs text-emerald-400/80">
-                            {lang('Live on mainnet · free during beta.', 'En vivo en mainnet · gratis durante beta.')}
-                        </p>
-                        <a href={AUDIT_ANCHOR_URL} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-xs text-stellar-teal/80 hover:text-stellar-teal">
-                            {lang('Verify a signed mainnet anchor (our own test, 2026-10-21)', 'Verifica un ancla firmada en mainnet (prueba propia, 2026-10-21)')} <ExternalLink className="w-3 h-3" />
                         </a>
                     </div>
 

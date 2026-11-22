@@ -277,8 +277,8 @@ export default function KeysPage() {
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">API Keys</h1>
                 <p className="text-white/50 mb-6 max-w-xl">
                     {lang(
-                        "Issue real API keys for the Nirium agent - audit anchoring, reporting and authenticated endpoints. One key works on both testnet and mainnet.",
-                        "Emite API keys reales del agente Nirium - anclaje de auditoría, reportería y endpoints autenticados. Una misma key funciona en testnet y mainnet.")}
+                        "Issue real API keys for the Nirium agent - audit anchoring, reporting and authenticated endpoints. One key works on testnet and mainnet for audit anchoring and reporting. On mainnet, Payouts and Treasury need a key Nirium authorizes (invite-only).",
+                        "Emite API keys reales del agente Nirium - anclaje de auditoría, reportería y endpoints autenticados. Una misma key funciona en testnet y mainnet para anclaje y reportería. En mainnet, Payouts y Treasury necesitan una key que Nirium autorice (por invitación).")}
                 </p>
                 <div className="flex flex-wrap gap-2 mb-10 font-mono text-[11px]">
                     {[
