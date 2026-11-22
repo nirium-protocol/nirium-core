@@ -16,6 +16,7 @@ import {
     rawGatewayUrl, formatAnchoredAtUtc,
     type AnchoredDoc, type RecordCheck, type SignerAccount,
 } from '@/lib/auditVerify';
+import { receiptCid } from '@/lib/receiptCid';
 
 const MAX_ATTEMPTS = 10;
 const RETRY_DELAY_MS = 9000; // 10 attempts * 9s ≈ the 60-90s gateway propagation window
@@ -31,7 +32,10 @@ const EXAMPLE_PAYMENT_CID = 'QmboKKkuwck3zvRx2bqnzUdDFkrEtc1VUHo6rrzm9nyBtD';
 // AgentLedger's mainnet receipt for a payment its policy blocked (18 Nov 2026): no transaction exists.
 const EXAMPLE_REFUSED_CID = 'QmS5q2NvZ2K2StLB3KCWRdkBtnZ5rHAJrQAez2PnKAPwTk';
 
-type Phase = 'idle' | 'searching' | 'found' | 'error_invalid' | 'error_not_found' | 'error_not_audit_doc' | 'error_generic';
+type Phase = 'idle' | 'searching' | 'found' | 'error_invalid' | 'error_not_found' | 'error_not_audit_doc' | 'error_generic' | 'error_cid_mismatch';
+// 'match': el CIDv0 recalculado en el navegador es el CID pedido. 'unsupported': no se pudo
+// recalcular aquí (CIDv1, o más de un bloque de 256 KiB); se remite a la CLI.
+type CidCheck = 'match' | 'unsupported';
 type AttestationState = 'checking' | 'valid' | 'invalid' | 'none' | 'error';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -48,6 +52,7 @@ function VerifyContent() {
     const [cid, setCid] = useState('');
     const [doc, setDoc] = useState<AnchoredDoc | null>(null);
     const [recordCheck, setRecordCheck] = useState<RecordCheck | null>(null);
+    const [cidCheck, setCidCheck] = useState<CidCheck | null>(null);
     const [attestation, setAttestation] = useState<AttestationState>('none');
     const [signerAccount, setSignerAccount] = useState<SignerAccount>('unknown');
     const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -107,13 +112,30 @@ function VerifyContent() {
                 setPhase('error_not_found');
                 return;
             }
-            const data = await res.json();
+            // 21-nov-2026: /api/ipfs devuelve los bytes tal cual llegaron del gateway. Se
+            // recalcula su CIDv0 aquí, en el navegador: si no es el CID pedido, el gateway (o
+            // nuestro propio servidor) sirvió otro documento y no se muestra como válido.
+            const bytes = new Uint8Array(await res.arrayBuffer());
+            const recomputedCid = targetCid.startsWith('Qm') ? await receiptCid(bytes) : null;
             if (cancelledRef.current) return;
+            if (recomputedCid && recomputedCid !== targetCid) {
+                setCid(targetCid);
+                setPhase('error_cid_mismatch');
+                return;
+            }
+            let data: any;
+            try {
+                data = JSON.parse(new TextDecoder().decode(bytes));
+            } catch {
+                setPhase('error_not_audit_doc');
+                return;
+            }
             if (!data || typeof data.content_sha256 !== 'string') {
                 setPhase('error_not_audit_doc');
                 return;
             }
 
+            setCidCheck(recomputedCid ? 'match' : 'unsupported');
             setDoc(data);
             setCid(targetCid);
             setPhase('found');
@@ -174,6 +196,7 @@ function VerifyContent() {
         setPastedHash('');
         setDoc(null);
         setRecordCheck(null);
+        setCidCheck(null);
         setAttestation('none');
         setSignerAccount('unknown');
         signerKeyRef.current = null;
@@ -205,6 +228,7 @@ function VerifyContent() {
         setCid('');
         setCidInput('');
         setRecordCheck(null);
+        setCidCheck(null);
         setAttestation('none');
         setSignerAccount('unknown');
         setEvidence(null);
@@ -354,7 +378,7 @@ function VerifyContent() {
                         </motion.div>
                     )}
 
-                    {(phase === 'error_invalid' || phase === 'error_not_found' || phase === 'error_not_audit_doc' || phase === 'error_generic') && (
+                    {(phase === 'error_invalid' || phase === 'error_not_found' || phase === 'error_not_audit_doc' || phase === 'error_generic' || phase === 'error_cid_mismatch') && (
                         <motion.div
                             key="error"
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -366,7 +390,11 @@ function VerifyContent() {
                                 {phase === 'error_not_found' && tv.error_not_found}
                                 {phase === 'error_not_audit_doc' && tv.error_not_audit_doc}
                                 {phase === 'error_generic' && tv.error_generic}
+                                {phase === 'error_cid_mismatch' && tv.error_cid_mismatch}
                             </p>
+                            {phase === 'error_not_found' && (
+                                <p className="text-xs text-gray-400 leading-relaxed max-w-md">{tv.result.keep_copy_note.replace('<CID>', extractCid(cidInput) ?? '<CID>')}</p>
+                            )}
                             {phase !== 'error_invalid' && (
                                 <button
                                     onClick={() => startLookup(cidInput)}
@@ -411,6 +439,19 @@ function VerifyContent() {
                                 </div>
                             </div>
 
+                            {/* CID recalculado en el navegador (V2, 21-nov-2026) */}
+                            {cidCheck && (
+                                <div
+                                    data-testid="cid-check"
+                                    className={`flex items-start gap-2 px-4 py-3 rounded-2xl text-xs font-bold ${
+                                        cidCheck === 'match' ? 'bg-emerald-500/10 text-emerald-300' : 'bg-amber-500/10 text-amber-300'
+                                    }`}
+                                >
+                                    {cidCheck === 'match' ? <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5" /> : <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />}
+                                    <span>{cidCheck === 'match' ? tv.result.cid_match : tv.result.cid_unsupported.replace('<CID>', cid)}</span>
+                                </div>
+                            )}
+
                             {/* Comparar con la evidencia original: solo para anclajes de solo hash. */}
                             {recordCheck === 'no_record' && (
                                 <div className="bg-[#121212] border border-white/5 rounded-[1.5rem] p-6 sm:p-8 space-y-4">
@@ -422,6 +463,7 @@ function VerifyContent() {
                                             ? 'Si tienes la evidencia original, elígela aquí. Tu navegador calcula su SHA-256 y lo compara con el hash del recibo. El archivo no sale de tu computadora: no se sube a Nirium ni a ningún otro lado.'
                                             : 'If you have the original evidence, pick it here. Your browser computes its SHA-256 and compares it with the receipt’s hash. The file never leaves your computer: it is not uploaded to Nirium or anywhere else.'}
                                     </p>
+                                    <p className="text-xs text-gray-500 leading-relaxed">{tv.result.keep_copy_note.replace('<CID>', cid)}</p>
                                     <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-xl cursor-pointer transition-all">
                                         {evidenceBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileCode2 className="w-3.5 h-3.5" />}
                                         {language === 'es' ? 'Elegir archivo' : 'Choose file'}
@@ -543,7 +585,7 @@ function VerifyContent() {
                             </div>
 
                             {/* Embedded record */}
-                            {doc.record && (
+                            {doc.record !== undefined && (
                                 <div className="bg-[#121212] border border-white/5 rounded-[1.5rem] p-6 sm:p-8">
                                     <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">
                                         {tv.result.record_label}
@@ -595,6 +637,9 @@ function VerifyContent() {
                                                 </>
                                             )}
                                         </div>
+                                        {(attestation === 'valid' || attestation === 'invalid') && (
+                                            <p className="text-[11px] text-gray-500 leading-relaxed">{tv.result.attestation_server_note.replace('<CID>', cid)}</p>
+                                        )}
                                     </div>
                                 ) : (
                                     <p className="text-xs text-gray-500 leading-relaxed">{tv.result.attestation_none}</p>

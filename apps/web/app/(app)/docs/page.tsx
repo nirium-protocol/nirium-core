@@ -468,15 +468,22 @@ CID:            Qmb41zzbMGzP27Su1XQkhY2SQHSRjNy3ywYRbfundyWMQX
                         </Section>
 
                         <Section id="verifying" kicker={lang("04 · Reference", "04 · Referencia")} title={lang("Verifying a Receipt", "Verificar un recibo")} icon={ShieldCheck}>
-                            <p>{lang("Three equally valid ways to check a receipt - none of them require trusting Nirium:", "Tres formas igual de válidas de comprobar un recibo, ninguna requiere confiar en Nirium:")}</p>
+                            <p>{lang("Three ways to check a receipt. The CLI and the by-hand route don't depend on Nirium at all; the browser page depends on our server only for the signature:", "Tres formas de comprobar un recibo. La CLI y la comprobación a mano no dependen de Nirium para nada; la página del navegador depende de nuestro servidor solo para la firma:")}</p>
                             <ul className="list-disc pl-5 space-y-2">
-                                <li><strong className="text-white">{lang("Browser", "Navegador")}</strong> - <a href="https://nirium.xyz/verify" target="_blank" rel="noopener noreferrer">nirium.xyz/verify</a>.</li>
-                                <li><strong className="text-white">CLI</strong> - <code>npx nirium-cli verify &lt;CID&gt;</code>.</li>
+                                <li><strong className="text-white">{lang("Browser", "Navegador")}</strong> - <a href="https://nirium.xyz/verify" target="_blank" rel="noopener noreferrer">nirium.xyz/verify</a>{lang(" recalculates the CID and the hash in your browser and checks the signature on our server.", " recalcula el CID y el hash en tu navegador y revisa la firma en nuestro servidor.")}</li>
+                                <li><strong className="text-white">CLI</strong> - <code>npx nirium-cli verify &lt;CID&gt;</code>{lang(" does all of it on your machine.", " lo hace todo en tu máquina.")}</li>
                                 <li>
                                     <strong className="text-white">{lang("By hand", "A mano")}</strong>{" "}
                                     {lang(
-                                        "- fetch the CID from any IPFS gateway, recompute sha-256 over ",
-                                        "- trae el CID desde cualquier gateway de IPFS, recalcula sha-256 sobre "
+                                        "- fetch the CID from any IPFS gateway and recompute the CID of the bytes you got (",
+                                        "- trae el CID desde cualquier gateway de IPFS y recalcula el CID de los bytes que recibiste ("
+                                    )}
+                                    <code>ipfs add --only-hash --cid-version=0 {lang("file", "archivo")}</code>
+                                    {lang(" or ", " o ")}
+                                    <code>nirium cid {lang("file", "archivo")} --expect &lt;CID&gt;</code>
+                                    {lang(
+                                        "). If it matches the CID you asked for, the gateway doesn't need to be trusted. Then recompute sha-256 over ",
+                                        "). Si coincide con el CID que pediste, no necesitas confiar en el gateway. Luego recalcula sha-256 sobre "
                                     )}
                                     <code>JSON.stringify(record)</code>{" "}
                                     {lang(

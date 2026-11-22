@@ -281,8 +281,8 @@ export default function SecurityPage() {
                             <div className="font-bold mb-2">{lang('Check it without trusting us', 'Compruébalo sin confiar en nosotros')}</div>
                             <p className="text-sm text-white/60 leading-relaxed">
                                 {lang(
-                                    'nirium.xyz/verify, or npx nirium-cli verify <cid>, recompute the hash and check the signature from the raw content, not from what the document says about itself. Add --evidence <file> to compare it with your own file. If there is nothing to check, the CLI says NOTHING VERIFIED instead of passing.',
-                                    'nirium.xyz/verify, o npx nirium-cli verify <cid>, recalculan el hash y revisan la firma desde el contenido crudo, no desde lo que el documento dice de sí mismo. Agrega --evidence <archivo> para compararlo con tu propio archivo. Si no hay nada que comprobar, el CLI dice NOTHING VERIFIED en vez de aprobarlo.')}
+                                    'npx nirium-cli verify <cid> does it all on your machine, from the raw content: it recalculates the CID and the hash and checks the signature. nirium.xyz/verify recalculates the CID and the hash in your browser and checks the signature on our server. Add --require-signature to reject an unsigned receipt, or --evidence <file> to compare it with your own file. If there is nothing to check, the CLI says NOTHING VERIFIED instead of passing.',
+                                    'npx nirium-cli verify <cid> lo hace todo en tu máquina, desde el contenido crudo: recalcula el CID y el hash y revisa la firma. nirium.xyz/verify recalcula el CID y el hash en tu navegador y revisa la firma en nuestro servidor. Agrega --require-signature para rechazar un recibo sin firma, o --evidence <archivo> para compararlo con tu propio archivo. Si no hay nada que comprobar, el CLI dice NOTHING VERIFIED en vez de aprobarlo.')}
                             </p>
                         </div>
                     </div>

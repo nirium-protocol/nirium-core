@@ -26,7 +26,8 @@ export interface AnchoredDoc {
     node?: string;
     content_sha256: string;
     agent?: AgentAttestation;
-    record?: Record<string, unknown>;
+    // Cualquier valor JSON, incluido null: `"record": null` sigue siendo modo record.
+    record?: unknown;
     txHash?: string;
     network?: 'stellar:pubnet' | 'stellar:testnet';
     tag?: string;
@@ -95,8 +96,9 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
     return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-/** sha-256 of JSON.stringify(record), exactly as the agent computed it at anchor time. */
-export async function hashRecord(record: Record<string, unknown>): Promise<string> {
+/** sha-256 of JSON.stringify(record), exactly as the agent computed it at anchor time.
+ *  Any JSON value is accepted (JSON.stringify(null) === "null"), same as the CLI and the Action. */
+export async function hashRecord(record: unknown): Promise<string> {
     return sha256Hex(new TextEncoder().encode(JSON.stringify(record)));
 }
 
@@ -107,7 +109,9 @@ export type RecordCheck = 'match' | 'mismatch' | 'no_record';
  *  anchored document itself to recompute against — `content_sha256` is simply the
  *  hash the submitter declared for evidence they hold elsewhere. */
 export async function checkRecordIntegrity(doc: AnchoredDoc): Promise<RecordCheck> {
-    if (!doc.record) return 'no_record';
+    // 21-nov-2026: antes era `!doc.record`, así que `"record": null` se mostraba como
+    // "solo hash" en vez de recalcularse (el caso 10 que se arregló en la CLI 3.2.6).
+    if (doc.record === undefined) return 'no_record';
     const recomputed = await hashRecord(doc.record);
     return recomputed === doc.content_sha256.toLowerCase() ? 'match' : 'mismatch';
 }
