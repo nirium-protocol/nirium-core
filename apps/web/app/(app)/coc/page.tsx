@@ -61,7 +61,7 @@ export default function CocPage() {
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-4">
             {t("Code of Conduct", "Código de Conducta")}
           </h1>
-          <p className="text-sm font-mono text-zinc-500">{t("Last updated: November 9, 2026", "Última actualización: 9 de noviembre de 2026")}</p>
+          <p className="text-sm font-mono text-zinc-500">{t("Last updated: November 21, 2026", "Última actualización: 21 de noviembre de 2026")}</p>
         </div>
 
         <div className="prose prose-invert prose-zinc max-w-none [&_ul]:list-disc [&_ul]:pl-6 [&_li]:my-1">
@@ -87,8 +87,16 @@ export default function CocPage() {
           </div>
 
           <h2 className="text-white font-bold text-2xl mt-12 mb-6 border-b border-white/10 pb-2">
-            {t("The 5 Principles in Practice", "Los 5 principios en la práctica")}
+            {t("Our 5 principles, aligned with the Stellar Code of Conduct", "Nuestros 5 principios, alineados con el Código de Conducta de Stellar")}
           </h2>
+          <p className="text-sm">{t(
+            <>These five are Nirium&rsquo;s own. Stellar&rsquo;s code has its own rules: be kind, patient, welcoming, considerate, respectful, direct but professional, careful with your words, inquisitive and concise, try to understand disagreements, and be excellent to each other. <a href="https://stellar.org/foundation/code-of-conduct" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">Read them</a>.</>,
+            <>Estos cinco son de Nirium. El código de Stellar tiene sus propias reglas: ser amable, paciente, acogedor, considerado, respetuoso, directo pero profesional, cuidadoso con las palabras, curioso y conciso, tratar de entender los desacuerdos y ser excelentes unos con otros. <a href="https://stellar.org/foundation/code-of-conduct" target="_blank" rel="noopener noreferrer" className="text-stellar-teal hover:underline">Léelas</a>.</>
+          )}</p>
+          <p className="text-xs text-zinc-500">{t(
+            "Update, 2026-11-21 (checked against stellar.org/foundation/code-of-conduct that day): this heading read \"The 5 Principles in Practice\" right under \"Aligned with the Stellar Code of Conduct\", which read as if Stellar's code had these five principles. It doesn't: it has 11 rules, summarized above. The reporting channel below was also labeled as covering the Stellar ecosystem in general; Stellar's code covers the spaces the Stellar Development Foundation runs.",
+            "Actualización, 2026-11-21 (revisado ese día contra stellar.org/foundation/code-of-conduct): este título decía \"Los 5 principios en la práctica\" justo debajo de \"Alineados con el Código de Conducta de Stellar\", y se leía como si el código de Stellar tuviera estos cinco principios. No los tiene: tiene 11 reglas, resumidas arriba. El canal de reporte de abajo también decía cubrir el ecosistema de Stellar en general; el código de Stellar cubre los espacios que maneja la Stellar Development Foundation."
+          )}</p>
 
           <div className="space-y-8">
             {principles.map((p, i) => (
@@ -124,8 +132,8 @@ export default function CocPage() {
 
           <div className="grid sm:grid-cols-2 gap-4 mt-6">
             <div className="p-5 bg-white/[0.04] border border-white/10 rounded-xl">
-              <div className="font-bold text-white mb-1">{t("SCF & Ecosystem Violations", "Faltas en el SCF y el ecosistema")}</div>
-              <p className="text-sm text-zinc-400 mb-3">{t("For issues concerning the broader Stellar ecosystem guidelines.", "Para temas de las normas del ecosistema de Stellar en general.")}</p>
+              <div className="font-bold text-white mb-1">{t("Violations in Stellar Development Foundation spaces", "Faltas en espacios de la Stellar Development Foundation")}</div>
+              <p className="text-sm text-zinc-400 mb-3">{t("Its Discord, events and forums, under the Stellar Code of Conduct.", "Su Discord, eventos y foros, bajo el Código de Conducta de Stellar.")}</p>
               <a href="mailto:community@stellar.org" className="text-stellar-teal text-sm font-mono hover:underline">community@stellar.org</a>
             </div>
             <div className="p-5 bg-white/[0.04] border border-white/10 rounded-xl">

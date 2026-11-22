@@ -43,7 +43,8 @@ function AvisoEs() {
         <li><strong>Tesorería:</strong> las direcciones de las bóvedas y de sus responsables (Manager), para mostrarte tus bóvedas.</li>
         <li><strong>Demo de CETES (/ramp):</strong> la dirección de Stellar que escribes, que enviamos al ambiente de pruebas de Etherfuse, con la cuenta de prueba de Nirium, para pedir la cotización y la orden.</li>
         <li><strong>Audit Trail:</strong> el hash que anclas y, en modo record, el JSON que envías (hasta 8 KB), que queda publicado en IPFS para cualquiera que tenga el CID. No incluyas datos personales en un registro.</li>
-        <li><strong>Datos técnicos:</strong> la dirección IP de cada petición, que se usa en el momento para limitar la frecuencia de uso y para aplicar las restricciones por jurisdicción; nuestros proveedores de alojamiento guardan registros de peticiones por un tiempo limitado. También medimos visitas de forma agregada (ver la sección 7).</li>
+        <li><strong>Pagos x402 a la API de Nirium:</strong> la dirección de Stellar que paga, la ruta, el monto, la red, el hash de la transacción y, si se rechaza, el motivo.</li>
+        <li><strong>Datos técnicos:</strong> la dirección IP y algunos encabezados de tu navegador (como el user-agent y el idioma), que se combinan en una huella (hash) para limitar la frecuencia de uso; la huella se guarda solo en memoria y se descarta. La IP también se usa en el momento para aplicar las restricciones por jurisdicción; nuestros proveedores de alojamiento guardan registros de peticiones por un tiempo limitado. También medimos visitas de forma agregada (ver la sección 7).</li>
       </ul>
       <p>No tratamos datos personales sensibles ni biométricos, y no custodiamos fondos: el software es no custodial y cada transacción la firma el propio cliente.</p>
 
@@ -52,6 +53,7 @@ function AvisoEs() {
       <ul>
         <li>Emitir y verificar tus llaves de API y autenticarte.</li>
         <li>Construir, transmitir y registrar las corridas de Payouts que tú firmas.</li>
+        <li>Registrar y conciliar los cobros por el uso de la API de Nirium.</li>
         <li>Identificar al cliente de Payouts en mainnet, por si esa actividad resulta sujeta a obligaciones de prevención de operaciones con recursos de procedencia ilícita (LFPIORPI).</li>
         <li>Atender tus solicitudes de acceso y responder tus mensajes.</li>
         <li>Limitar la frecuencia de uso, prevenir abusos y aplicar la política de jurisdicciones restringidas.</li>
@@ -59,10 +61,10 @@ function AvisoEs() {
       <p>Hay una finalidad más que no es necesaria para el servicio: medir de forma agregada cuántas visitas recibe el sitio, para mejorarlo. Esa medición no usa cookies ni arma un perfil tuyo (ver la sección 7). Si aun así te opones, escríbenos a <strong>{CONTACT}</strong>.</p>
 
       <H2>4. Encargados y transferencias</H2>
-      <p>No vendemos tus datos. Los tratan, por cuenta nuestra y solo para operar el servicio, estos proveedores (encargados), que pueden estar fuera de México: Supabase (base de datos), Fly.io (servidores del agente), Vercel (alojamiento del sitio y medición de visitas), Pinata (almacenamiento en IPFS), Filebase (lectura de IPFS), QuickNode (acceso del agente a la red de Stellar), Etherfuse (su ambiente de pruebas, solo para la demo de CETES) y Google (el correo con el que nos escribes).</p>
+      <p>No vendemos tus datos. Los tratan, por cuenta nuestra y solo para operar el servicio, estos proveedores (encargados), que pueden estar fuera de México: Supabase (base de datos), Fly.io (servidores del agente), Vercel (alojamiento del sitio y medición de visitas), Pinata (almacenamiento en IPFS), Filebase (lectura de IPFS), OpenZeppelin (facilitador de x402, verifica y liquida los pagos a la API de Nirium), QuickNode (acceso del agente a la red de Stellar), Etherfuse (su ambiente de pruebas, solo para la demo de CETES) y Google (el correo con el que nos escribes).</p>
       <p>No transferimos tus datos a otros terceros. La única excepción sería una autoridad competente cuando una ley lo exija (artículo 36, fracción I, de la ley), por ejemplo los datos de identificación de un cliente de Payouts en mainnet; esa transferencia no requiere tu consentimiento.</p>
       <p>Hay servicios de terceros que tratan tus datos como responsables independientes, bajo sus propios avisos: Pollar, si inicias sesión con correo o Google; Etherfuse, que hace su propio KYC si contratas CETES con ellos; y tu proveedor de wallet. Nirium no recibe tus datos de inicio de sesión ni tu KYC.</p>
-      <p><strong>Información pública por naturaleza:</strong> las direcciones de wallet y las transacciones en Stellar son públicas, y lo que se ancla en IPFS queda disponible para cualquiera que tenga el CID. Nirium no puede borrar ni modificar esa información una vez publicada en la red o en IPFS.</p>
+      <p><strong>Información pública por naturaleza:</strong> las direcciones de wallet y las transacciones en Stellar son públicas, y lo que se ancla en IPFS queda disponible para cualquiera que tenga el CID. Nirium no puede modificarla, ni garantizar que se borre de IPFS, porque cualquiera con el CID puede haber guardado una copia.</p>
 
       <H2>5. Opciones para limitar el uso o la divulgación</H2>
       <p>Puedes pedir que limitemos el uso o la divulgación de tus datos escribiendo a <strong>{CONTACT}</strong>. También puedes revocar tus llaves de API en cualquier momento desde nirium.xyz/keys.</p>
@@ -78,6 +80,7 @@ function AvisoEs() {
 
       <H2>8. Cambios a este aviso</H2>
       <p>Este aviso puede cambiar por nuevos requisitos legales, por cambios en nuestros servicios o por otras causas. Publicaremos cada versión en esta misma página, con su fecha de actualización arriba.</p>
+      <p><strong>Cambios del 21 de noviembre de 2026:</strong> el aviso no mencionaba los datos de los pagos x402 a la API de Nirium, que sí se guardan, ni a OpenZeppelin como encargado; decía que solo se usaba la IP, cuando la huella para limitar la frecuencia también usa encabezados del navegador; y decía que Nirium no puede borrar lo publicado en IPFS, cuando lo preciso es que no puede garantizar que se borre. Ahora dice las cuatro cosas.</p>
     </>
   );
 }
@@ -107,7 +110,8 @@ function NoticeEn({ onSpanish }: { onSpanish: () => void }) {
         <li><strong>Treasury:</strong> vault addresses and their Manager addresses, to show you your vaults.</li>
         <li><strong>CETES demo (/ramp):</strong> the Stellar address you type, which we send to Etherfuse&apos;s test environment, under Nirium&apos;s test account, to get the quote and the order.</li>
         <li><strong>Audit Trail:</strong> the hash you anchor and, in record mode, the JSON you send (up to 8 KB), which is published on IPFS for anyone with the CID. Do not put personal data in a record.</li>
-        <li><strong>Technical data:</strong> the IP address of each request, used at that moment for rate limiting and to apply jurisdiction restrictions; our hosting providers keep request logs for a limited time. We also measure visits in aggregate (see section 7).</li>
+        <li><strong>x402 payments to Nirium&rsquo;s API:</strong> the paying Stellar address, the route, the amount, the network, the transaction hash and, if it is rejected, the reason.</li>
+        <li><strong>Technical data:</strong> the IP address and some of your browser&rsquo;s headers (such as the user-agent and language), combined into a fingerprint (hash) for rate limiting; the fingerprint is kept only in memory and discarded. The IP is also used at that moment to apply jurisdiction restrictions; our hosting providers keep request logs for a limited time. We also measure visits in aggregate (see section 7).</li>
       </ul>
       <p>We do not process sensitive or biometric personal data, and we do not custody funds: the software is non-custodial and every transaction is signed by the client.</p>
 
@@ -116,6 +120,7 @@ function NoticeEn({ onSpanish }: { onSpanish: () => void }) {
       <ul>
         <li>Issuing and verifying your API keys and authenticating you.</li>
         <li>Building, broadcasting and recording the Payouts runs you sign.</li>
+        <li>Recording and reconciling the charges for using Nirium&rsquo;s API.</li>
         <li>Identifying the Payouts client on mainnet, in case that activity is subject to Mexico&rsquo;s anti-money-laundering law (LFPIORPI).</li>
         <li>Handling your access requests and replying to your messages.</li>
         <li>Rate limiting, abuse prevention and applying the restricted-jurisdictions policy.</li>
@@ -123,10 +128,10 @@ function NoticeEn({ onSpanish }: { onSpanish: () => void }) {
       <p>One more purpose is not necessary for the service: measuring, in aggregate, how many visits the site gets, to improve it. That measurement uses no cookies and builds no profile of you (see section 7). If you still object, write to <strong>{CONTACT}</strong>.</p>
 
       <H2>4. Processors and transfers</H2>
-      <p>We do not sell your data. These providers (processors), which may be located outside Mexico, process it on our behalf and only to run the service: Supabase (database), Fly.io (agent servers), Vercel (site hosting and visit measurement), Pinata (IPFS storage), Filebase (reading from IPFS), QuickNode (the agent&apos;s access to the Stellar network), Etherfuse (its test environment, only for the CETES demo) and Google (the email you write to us at).</p>
+      <p>We do not sell your data. These providers (processors), which may be located outside Mexico, process it on our behalf and only to run the service: Supabase (database), Fly.io (agent servers), Vercel (site hosting and visit measurement), Pinata (IPFS storage), Filebase (reading from IPFS), OpenZeppelin (x402 facilitator, verifies and settles payments to Nirium&rsquo;s API), QuickNode (the agent&apos;s access to the Stellar network), Etherfuse (its test environment, only for the CETES demo) and Google (the email you write to us at).</p>
       <p>We do not transfer your data to any other third party. The only exception would be a competent authority when a law requires it (article 36, section I, of the law), for example the identification data of a Payouts client on mainnet; that transfer does not need your consent.</p>
       <p>Some third-party services process your data as independent controllers, under their own notices: Pollar, if you sign in with email or Google; Etherfuse, which runs its own KYC if you contract CETES with them; and your wallet provider. Nirium does not receive your sign-in data or your KYC.</p>
-      <p><strong>Public by nature:</strong> wallet addresses and transactions on Stellar are public, and what is anchored on IPFS is available to anyone with the CID. Nirium cannot delete or change that information once it is on the network or on IPFS.</p>
+      <p><strong>Public by nature:</strong> wallet addresses and transactions on Stellar are public, and what is anchored on IPFS is available to anyone with the CID. Nirium cannot change it, nor guarantee that it is deleted from IPFS, because anyone with the CID may have kept a copy.</p>
 
       <H2>5. Options to limit use or disclosure</H2>
       <p>You can ask us to limit the use or disclosure of your data by writing to <strong>{CONTACT}</strong>. You can also revoke your API keys at any time at nirium.xyz/keys.</p>
@@ -142,6 +147,7 @@ function NoticeEn({ onSpanish }: { onSpanish: () => void }) {
 
       <H2>8. Changes to this notice</H2>
       <p>This notice may change because of new legal requirements, changes to our services or other reasons. We will publish each version on this same page, with its update date at the top.</p>
+      <p><strong>Changes on November 21, 2026:</strong> the notice did not mention the data from x402 payments to Nirium&rsquo;s API, which is stored, nor OpenZeppelin as a processor; it said only the IP was used, when the rate-limiting fingerprint also uses browser headers; and it said Nirium cannot delete what is published on IPFS, when the precise statement is that it cannot guarantee it is deleted. It now says all four.</p>
     </>
   );
 }
@@ -161,7 +167,7 @@ export default function PrivacyPage() {
             {es ? "Aviso de Privacidad" : "Privacy Notice"}
           </h1>
           <p className="text-sm font-mono text-zinc-500">
-            {es ? "Última actualización: 19 de noviembre de 2026" : "Last updated: November 19, 2026"}
+            {es ? "Última actualización: 21 de noviembre de 2026" : "Last updated: November 21, 2026"}
           </p>
         </div>
 

@@ -6,7 +6,8 @@ import { AlertTriangle, Shield, Scale, Activity, Cpu } from "lucide-react";
 import Link from "next/link";
 
 export default function RiskDisclosurePage() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const es = language === 'es';
     const risk = t.risk_disclosure || {
         title: "Risk Disclosure",
         badge: "Risk notice",
@@ -89,10 +90,10 @@ export default function RiskDisclosurePage() {
                 {/* Back Links */}
                 <div className="flex justify-center gap-6 pt-8">
                     <Link href="/" className="text-[10px] font-black uppercase tracking-widest text-stellar-teal hover:text-white transition-colors">
-                        ← Return to Home
+                        {es ? '← Volver al inicio' : '← Return to Home'}
                     </Link>
                     <Link href="/privacy" className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
-                        Privacy Policy →
+                        {es ? 'Aviso de privacidad →' : 'Privacy Policy →'}
                     </Link>
                 </div>
             </div>

@@ -1185,7 +1185,7 @@
   "terms": {
     "title": "Terms of Service",
     "badge": "Terms of service",
-    "last_updated": "Last updated: November 16, 2026",
+    "last_updated": "Last updated: November 21, 2026",
     "footer": "If you use Nirium, these terms apply together with the Privacy Notice, the Risk Disclosure and the Legal Disclaimers. Nothing here limits the rights the law gives you.",
     "sections": {
       "nature": {
@@ -1198,11 +1198,11 @@
       },
       "ai_liability": {
         "title": "3. Automation",
-        "content": "If you enable autonomous rebalancing, you authorize Nirium's agent to sign, with its own key, moves between your DeFindex vault and its strategies, following the thresholds you set. That role cannot withdraw funds, and you can revoke it at any time. Automated systems, data sources and external APIs can fail, be late or return wrong data; the risks are described in the Risk Disclosure."
+        "content": "If you enable autonomous rebalancing, you authorize Nirium's agent to sign, with its own key, moves between your DeFindex vault and its strategies, following the thresholds you set. That role cannot withdraw funds, and you can revoke it at any time. The role you hand over also allows swaps inside the vault; Nirium's code does not send them, and no instruction allows taking funds out of the vault. Automated systems, data sources and external APIs can fail, be late or return wrong data; the risks are described in the Risk Disclosure."
       },
       "rwa_disclaimer": {
         "title": "4. Tokenized assets (USDC, CETES)",
-        "content": "USDC is issued by Circle; tokenized CETES are issued by Etherfuse. Their value and redemption depend on those issuers and, for CETES, on the Mexican government bonds behind them. Nirium does not issue, hold or redeem either. On mainnet, CETES exposure happens through DeFindex vaults the client owns (invite-only until there is a written legal opinion); on testnet, also through Nirium's own NiriumVault contract, as a proof of concept."
+        "content": "USDC is issued by Circle; tokenized CETES are issued by Etherfuse. Their value and redemption depend on those issuers and, for CETES, on the Mexican government bonds that, according to Etherfuse, back them. Nirium does not issue, hold or redeem either. On mainnet, CETES exposure happens through DeFindex vaults the client owns (invite-only until there is a written legal opinion); on testnet, also through Nirium's own NiriumVault contract, as a proof of concept."
       },
       "dispute": {
         "title": "5. Governing law and disputes",
@@ -1210,7 +1210,7 @@
       },
       "infrastructure": {
         "title": "6. Availability",
-        "content": "The software is provided as is. We do not guarantee it is always available: it depends on the Stellar network and on providers such as Fly.io, Vercel, Supabase and IPFS gateways. We are not liable for losses caused by failures of the network or of those third parties, except for intentional misconduct (dolo) or to the extent the law does not allow that liability to be excluded."
+        "content": "The software is provided as is. We do not guarantee it is always available: it depends on the Stellar network and on providers such as Fly.io, Vercel, Supabase, IPFS gateways and the x402 facilitator. We are not liable for losses caused by failures of the network or of those third parties, except for intentional misconduct (dolo) or to the extent the law does not allow that liability to be excluded."
       },
       "reverse_solicitation": {
         "title": "7. What Nirium does not do",
@@ -1218,7 +1218,7 @@
       },
       "restricted_jurisdictions": {
         "title": "8. Restricted jurisdictions and sanctions",
-        "content": "Nirium Protocol operates from Mexico, run by its founders, with no incorporated legal entity to date, and does not offer its services into jurisdictions where they would be regulated activity, however the software is built. Access is prohibited from comprehensively sanctioned jurisdictions, jurisdictions under a FATF call for action, and mainland China. In the European Economic Area, the United Kingdom and the United States, pending a written legal opinion, Payouts and the Treasury node are not offered on mainnet; on testnet both stay available as a demonstration, and withdrawing from a vault you already own is never restricted there. By using any Nirium service you represent, each time, that you are not located in or resident of a prohibited jurisdiction and are not a sanctioned person or acting for one. Nirium may block access by technical means, including IP geolocation, and may refuse or end service. Because Nirium never holds funds, ending service never strands assets: your keys, accounts and vaults keep working without us. The full policy governs: /legal/restricted-jurisdictions-v1.md."
+        "content": "Nirium Protocol operates from Mexico, run by its founders, with no incorporated legal entity to date, and seeks not to offer services where they would be regulated activity without the corresponding authorization; that is why, until it has a written legal opinion, Payouts and Treasury on mainnet are invite-only. Access is prohibited from comprehensively sanctioned jurisdictions, jurisdictions under a FATF call for action, and mainland China. In the European Economic Area, the United Kingdom and the United States, pending a written legal opinion, Payouts and the Treasury node are not offered on mainnet; on testnet both stay available as a demonstration, and withdrawing from a vault you already own is never restricted there. By using any Nirium service you represent, each time, that you are not located in or resident of a prohibited jurisdiction and are not a sanctioned person or acting for one. Nirium may block access by technical means, including IP geolocation, and may refuse or end service. Because Nirium never holds funds, ending service never strands assets: your keys, accounts and vaults keep working without us. The full policy governs: /legal/restricted-jurisdictions-v1.md.\n\nUpdate, 21 Nov 2026: this section said Nirium \"does not offer its services into jurisdictions where they would be regulated activity, however the software is built\". Read that way it claimed Nirium already knows its services are not regulated in Mexico, which is the open question in section 7. Section 3 also described the rebalance role without saying it allows swaps inside the vault."
       },
       "intellectual_property": {
         "title": "9. Open source and brand",
@@ -1249,7 +1249,7 @@
   "risk_disclosure": {
     "title": "Risk Disclosure",
     "badge": "Risk notice",
-    "last_updated": "Last updated: November 19, 2026",
+    "last_updated": "Last updated: November 21, 2026",
     "mandatory": "Read this before using Nirium: it is experimental open-source software on Stellar. You sign your own transactions, and you can lose funds.",
     "sections": {
       "execution": {
@@ -1258,19 +1258,19 @@
       },
       "contracts": {
         "title": "2. Smart contracts and third-party protocols",
-        "content": "Vaults are DeFindex contracts, and their strategies lend through Blend. Both have third-party audits (DeFindex by OtterSec, March 2025), but an audit does not remove risk and does not cover each vault's configuration. Taking funds out of a lending strategy depends on that pool having enough liquidity at that moment. Nirium's own contracts (NiriumVault, NiriumProtocol) are not audited and run on testnet only."
+        "content": "Vaults are DeFindex contracts, and their strategies lend through Blend. Both have third-party audits (DeFindex by OtterSec, March 2025; Blend, a Code4rena audit and two Certora reports, marked as draft), but an audit does not remove risk and does not cover each vault's configuration. Taking funds out of a lending strategy depends on that pool having enough liquidity at that moment. Nirium's own contracts (NiriumVault, NiriumProtocol) are not audited and run on testnet only. On testnet, Nirium's admin key can pause NiriumVault in an emergency; while paused nobody can withdraw until it is resumed. Pausing moves no funds."
       },
       "sovereign_assets": {
         "title": "3. Tokenized assets (USDC, CETES)",
-        "content": "USDC is issued by Circle; tokenized CETES are issued by Etherfuse. Their value and redemption depend on those issuers and, for CETES, on the Mexican government bonds behind them. Nirium does not issue, hold or redeem either. Whether a tokenized CETES counts as a security (valor) under Mexico's Securities Market Law is an open legal question. Rates shown on this site are reference data, not a promise of return."
+        "content": "USDC is issued by Circle; tokenized CETES are issued by Etherfuse. Their value and redemption depend on those issuers and, for CETES, on the Mexican government bonds that, according to Etherfuse, back them. Nirium does not issue, hold or redeem either. Whether a tokenized CETES counts as a security (valor) under Mexico's Securities Market Law is an open legal question. Rates shown on this site are reference data, not a promise of return.\n\nUpdate, 21 Nov 2026: this section stated as fact that tokenized CETES are backed by bonds; it now attributes that to Etherfuse. Nirium does not answer for a third party's reserves."
       },
       "payments": {
         "title": "4. Payments and Payouts",
-        "content": "Stellar transactions are final: a payment sent to a wrong address cannot be reversed by Nirium or by anyone else. You sign every payout with your own wallet, so check each recipient before signing. x402 payments settle through a third-party facilitator; if it is unavailable, the paid call fails."
+        "content": "Stellar transactions are final: a payment sent to a wrong address cannot be reversed by Nirium or by anyone else. You sign every payout with your own wallet, so check each recipient before signing. x402 payments settle through a third-party facilitator; if it is unavailable, the paid call fails. It can also happen the other way round: the payment settles on the network, the facilitator answers with an error, and the call is not delivered. We saw it with OpenZeppelin's facilitator on testnet on 9 Nov 2026. If it happens to you, the payment is visible on the network with its hash."
       },
       "data": {
         "title": "5. Audit Trail records",
-        "content": "Receipts are anchored on IPFS. A CID proves a document has not changed since it was anchored, not that its contents are true. A record stays reachable only while some provider keeps it pinned; Nirium pins them today but cannot promise it forever. In record mode, the JSON you send (up to 8 KB) is published on IPFS for anyone with the CID: never include personal data or secrets."
+        "content": "Receipts are anchored on IPFS. A CID proves a document has not changed since it was anchored, not that its contents are true. A record stays reachable only while some provider keeps it pinned; Nirium pins them today but cannot promise it forever. Keep your own copy with `nirium anchor --save receipt.json`; `nirium cid receipt.json --expect <CID>` proves it's the original. In record mode, the JSON you send (up to 8 KB) is published on IPFS for anyone with the CID: never include personal data or secrets."
       },
       "governance": {
         "title": "6. Legal and regulatory",
