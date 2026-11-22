@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/pageMetadata";
 export const metadata = pageMetadata({
     path: "/keys",
     title: "API Keys",
-    description: "Issue a free Nirium API key tied to your Stellar wallet, proven by signature. One key works on testnet and mainnet.",
+    description: "Issue a free Nirium API key tied to your Stellar wallet, proven by signature. One key works on testnet and mainnet; mainnet Payouts and Treasury are invite-only.",
 });
 
 export default function KeysLayout({ children }: { children: React.ReactNode }) {
