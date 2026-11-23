@@ -565,7 +565,7 @@
             "name": "Servidor MCP",
             "sub": "Claude Desktop · Cursor · cualquier cliente MCP",
             "cmd": "npx nirium-mcp",
-            "badge": "v0.6.11"
+            "badge": "v0.6.12"
           },
           "rest": {
             "name": "REST API",
@@ -1149,7 +1149,7 @@
     "mcp": {
       "title": "Servidor MCP",
       "subtitle": "Conecta Claude Desktop o Cursor a los nodos de Nirium: datos de mercado, anclajes de Audit Trail, Reporting y herramientas de Treasury. Las herramientas gratis funcionan sin llave; Treasury y el control del loop piden API key, y el rebalanceo autónomo en mainnet es por invitación.",
-      "tools_count": "25 herramientas (nirium-mcp 0.6.11)"
+      "tools_count": "25 herramientas (nirium-mcp 0.6.12)"
     },
     "hub": {
       "title": "Referencia de la API",
