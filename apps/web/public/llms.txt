@@ -6,7 +6,7 @@
 ## Network scope
 - Stellar mainnet, open: x402 per-request billing, Audit Trail (receipts anchored on IPFS), Reporting.
 - Stellar mainnet, invite-only: Payouts, Treasury.
-- MPP Charge (Machine Payments Protocol): experimental, verified on testnet, untested on mainnet. For paid access on mainnet, use x402.
+- MPP Charge (Machine Payments Protocol): experimental, verified on testnet, untested on mainnet. For paid access on mainnet, use x402. The MPP client fails on nirium 0.20.0 until @stellar/mpp supports stellar-sdk 17; use nirium@0.19.8 for MPP (checked 23 Nov 2026).
 - NiriumVault, Nirium's own contract, stays on testnet until an external audit.
 
 ## Packages (versions checked 2026-11-21)
