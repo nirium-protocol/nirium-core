@@ -103,6 +103,8 @@ const MPP_CODE = `import { Agent } from "nirium";
 // the client signs a full USDC transfer and retries. No external facilitator.
 // Nirium's hosted testnet endpoint accepts MPP Charge (verified 15 Oct 2026).
 // Mainnet is not tested; for paid access on mainnet, use x402.
+// For now install nirium@0.19.8 for MPP: on 0.20.0 the MPP client fails until
+// @stellar/mpp ships a release for stellar-sdk 17 (checked 23 Nov 2026).
 const agent = new Agent({ apiKey: "unused" });
 agent.initMpp({ secretKey: process.env.STELLAR_SECRET_KEY, mode: "pull" }); // testnet key with USDC
 
@@ -359,8 +361,8 @@ export default function DevelopersPage() {
                                 </div>
                                 <CodeBlock code={MPP_CODE} lang="typescript" />
                                 <NetworkScopeNote className="mt-4" mainnet={{
-                                    en: "MPP Charge is tested on testnet only, so this example stays on testnet. For paid access on mainnet, use x402.",
-                                    es: "MPP Charge solo está probado en testnet, así que este ejemplo se queda en testnet. Para acceso de pago en mainnet, usa x402.",
+                                    en: "MPP Charge is tested on testnet only, so this example stays on testnet. For paid access on mainnet, use x402. For now, use nirium@0.19.8 for MPP: on 0.20.0 the MPP client fails until @stellar/mpp ships a release for stellar-sdk 17 (checked 23 Nov 2026).",
+                                    es: "MPP Charge solo está probado en testnet, así que este ejemplo se queda en testnet. Para acceso de pago en mainnet, usa x402. Por ahora, para MPP usa nirium@0.19.8: en la 0.20.0 el cliente MPP falla hasta que @stellar/mpp publique una versión para stellar-sdk 17 (revisado el 23 de noviembre de 2026).",
                                 }} />
                                 <div className="mt-6 flex items-center gap-4 text-[10px] font-mono text-gray-500 uppercase tracking-widest">
                                     <span className="px-2 py-0.5 rounded border border-white/10">{lang('No facilitator', 'Sin facilitador')}</span>
@@ -535,7 +537,7 @@ export default function DevelopersPage() {
                                 className="mb-6 px-4 py-1.5 rounded-full bg-stellar-teal/10 border border-stellar-teal/30 flex items-center gap-2"
                             >
                                 <Activity className="w-3 h-3 text-stellar-teal animate-pulse" />
-                                <span className="text-[10px] font-black text-stellar-teal uppercase tracking-[0.2em]">{lang('25 tools in nirium-mcp 0.6.12', '25 herramientas en nirium-mcp 0.6.12')}</span>
+                                <span className="text-[10px] font-black text-stellar-teal uppercase tracking-[0.2em]">{lang('25 tools in nirium-mcp 0.6.13', '25 herramientas en nirium-mcp 0.6.13')}</span>
                             </motion.div>
                             
                             <h2 className="text-4xl sm:text-7xl font-black uppercase italic tracking-tighter text-white mb-6 leading-none">

@@ -355,11 +355,11 @@ An invalid signature returns **400 and nothing is anchored**: nobody can guarant
 
 | SDK | Package | Version | Install |
 |---|---|---|---|
-| TypeScript | [nirium (npm)](https://www.npmjs.com/package/nirium) | 0.19.8 | `npm install nirium` |
-| Python | [nirium (PyPI)](https://pypi.org/project/nirium/) | 0.12.9 | `pip install nirium` |
-| MCP server | [nirium-mcp (npm)](https://www.npmjs.com/package/nirium-mcp) | 0.6.12 | `npx nirium-mcp` |
+| TypeScript | [nirium (npm)](https://www.npmjs.com/package/nirium) | 0.20.0 | `npm install nirium` |
+| Python | [nirium (PyPI)](https://pypi.org/project/nirium/) | 0.13.0 | `pip install nirium` |
+| MCP server | [nirium-mcp (npm)](https://www.npmjs.com/package/nirium-mcp) | 0.6.13 | `npx nirium-mcp` |
 | Pollar adapter | [nirium-pollar-adapter (npm)](https://www.npmjs.com/package/nirium-pollar-adapter) | 0.6.6 | `npm install nirium-pollar-adapter` |
-| CLI | [nirium-cli (npm)](https://www.npmjs.com/package/nirium-cli) | 3.2.7 | `npm install -g nirium-cli` |
+| CLI | [nirium-cli (npm)](https://www.npmjs.com/package/nirium-cli) | 3.2.8 | `npm install -g nirium-cli` |
 
 Versions checked against the npm and PyPI registries on 23 Nov 2026. These packages are released from [nirium-protocol/nirium](https://github.com/nirium-protocol/nirium).
 
@@ -423,7 +423,7 @@ Live: [nirium.xyz/build](https://nirium.xyz/build)
 ## Quick Start
 
 ### Requirements
-- Node.js >=22.12.0, pnpm 9+ (`@stellar/stellar-sdk` 16.x requires 22.12.0+; an older Node resolves an older, incompatible SDK silently)
+- Node.js >=22.12.0, pnpm 9+ (`@stellar/stellar-sdk` 17.x requires 22.12.0+; an older Node resolves an older, incompatible SDK silently)
 - [Freighter Wallet](https://freighter.app/) for dashboard interactions
 
 ### Run locally

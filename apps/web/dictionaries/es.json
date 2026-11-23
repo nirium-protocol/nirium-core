@@ -553,19 +553,19 @@
             "name": "TypeScript SDK",
             "sub": "NPM · nirium",
             "cmd": "npm install nirium",
-            "badge": "v0.19.8"
+            "badge": "v0.20.0"
           },
           "py": {
             "name": "Python SDK",
             "sub": "PyPI · nirium",
             "cmd": "pip install nirium",
-            "badge": "v0.12.9"
+            "badge": "v0.13.0"
           },
           "mcp": {
             "name": "Servidor MCP",
             "sub": "Claude Desktop · Cursor · cualquier cliente MCP",
             "cmd": "npx nirium-mcp",
-            "badge": "v0.6.12"
+            "badge": "v0.6.13"
           },
           "rest": {
             "name": "REST API",
@@ -600,7 +600,7 @@
   },
   "dashboard": {
     "title": "PANEL DEL OPERADOR",
-    "version_live": "v0.19.8",
+    "version_live": "v0.20.0",
     "loading_dashboard": "Cargando panel...",
     "no_helpers": "No hay nodos de ejecución activos.",
     "no_helpers_desc": "Inicializa tu bóveda y delega el agente para activar el rebalanceo autónomo.",
@@ -1149,7 +1149,7 @@
     "mcp": {
       "title": "Servidor MCP",
       "subtitle": "Conecta Claude Desktop o Cursor a los nodos de Nirium: datos de mercado, anclajes de Audit Trail, Reporting y herramientas de Treasury. Las herramientas gratis funcionan sin llave; Treasury y el control del loop piden API key, y el rebalanceo autónomo en mainnet es por invitación.",
-      "tools_count": "25 herramientas (nirium-mcp 0.6.12)"
+      "tools_count": "25 herramientas (nirium-mcp 0.6.13)"
     },
     "hub": {
       "title": "Referencia de la API",

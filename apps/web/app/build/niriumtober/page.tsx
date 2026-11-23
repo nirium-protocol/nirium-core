@@ -48,10 +48,11 @@ const SPRINT_END = NIRIUMTOBER_END;
 // al campo `heard` de la plantilla de evidencia; cualquier otro valor se ignora.
 const REF_RX = /^[a-z0-9_-]{1,32}$/i;
 
-// `@16`, no la última: con la 17 arriba, @stellar/mpp (que pide ^15) toma la 17
-// y MPP Charge truena con "toEnvelope(...).v1 is not a function". Probado el
-// 21-oct-2026: con @16 corren todos los snippets de esta página.
-const INSTALL = "npm i nirium @stellar/stellar-sdk@16";
+// `@17` desde nirium 0.20.0 (23-nov-2026): audit, x402 y reporting probados en
+// testnet con nirium 0.20.0 + stellar-sdk 17.4.0 (x402 tx 85b41e0b...). MPP Charge
+// truena con "toEnvelope(...).v1 is not a function" porque @stellar/mpp 0.7.1 aún
+// no soporta la 17; con nirium@0.19.8 + stellar-sdk@16 sí paga (tx 4495861d...).
+const INSTALL = "npm i nirium @stellar/stellar-sdk@17";
 
 // Probado de punta a punta en testnet el 21-oct-2026 desde una instalación
 // limpia (`npm i nirium @stellar/stellar-sdk`, nirium 0.16.1): llave nueva sin
@@ -757,7 +758,7 @@ export default function NiriumtoberPage() {
         { name: "x402 Market", label: "node-x402", what: lang("Pay per request for market data, from your own key.", "Paga por consulta datos de mercado, desde tu propia llave."), nets: ["Testnet", "Mainnet"], needs: lang("Needs testnet USDC", "Pide USDC de testnet"), points: lang("Builder · +3 on mainnet", "Builder · +3 en mainnet"), code: X402_PAY_TESTNET, run: "STELLAR_SECRET=S... node pay.mjs", tokens: ["usdc"] },
         { name: "Payouts", label: "node-payouts", what: lang("Pay several people in one run. You sign it, Nirium never does.", "Paga a varias personas en una sola corrida. Tú firmas, Nirium nunca."), nets: ["Testnet"], needs: lang("Needs testnet USDC and a free API key", "Pide USDC de testnet y una API key gratis"), points: "Builder", code: PAYOUTS_TESTNET, run: "STELLAR_SECRET=S... NIRIUM_API_KEY=sk_... TO_1=G... TO_2=G... node payouts.mjs", keysLink: true, tokens: ["usdc"] },
         { name: "x402Serve", label: "node-x402serve", what: lang("Charge other people and agents for your own API.", "Cobra a otras personas y agentes por tu propia API."), nets: ["Testnet"], needs: lang("Needs testnet USDC and a free facilitator key", "Pide USDC de testnet y una llave gratuita de facilitador"), points: "Builder", code: X402_SERVE_TESTNET, run: `${X402_SERVE_INSTALL} && PAY_TO=G... FACILITATOR_KEY=... node serve.mjs`, tokens: ["usdc"] },
-        { name: "MPP Charge", label: "node-mpp", what: lang("Pay per request with a USDC transfer signed inside the request.", "Paga por consulta con una transferencia de USDC firmada dentro de la petición."), nets: ["Testnet"], needs: lang("Needs testnet USDC", "Pide USDC de testnet"), points: "Builder", code: MPP_TESTNET, run: "STELLAR_SECRET=S... node mpp.mjs", tokens: ["usdc"] },
+        { name: "MPP Charge", label: "node-mpp", what: lang("Pay per request with a USDC transfer signed inside the request.", "Paga por consulta con una transferencia de USDC firmada dentro de la petición."), nets: ["Testnet"], needs: lang("Needs testnet USDC. For now install nirium@0.19.8 @stellar/stellar-sdk@16: on nirium 0.20.0 the MPP client fails until @stellar/mpp supports stellar-sdk 17", "Pide USDC de testnet. Por ahora instala nirium@0.19.8 @stellar/stellar-sdk@16: en nirium 0.20.0 el cliente MPP falla hasta que @stellar/mpp soporte stellar-sdk 17"), points: "Builder", code: MPP_TESTNET, run: "STELLAR_SECRET=S... node mpp.mjs", tokens: ["usdc"] },
         { name: "NiriumVault", label: "node-niriumvault", what: lang("Create your own vault, deposit testnet CETES and read your balance. You sign everything.", "Crea tu propia bóveda, deposita CETES de testnet y lee tu saldo. Tú firmas todo."), nets: ["Testnet"], needs: lang("Testnet XLM and CETES", "XLM y CETES de testnet"), points: "Builder", code: VAULT_TESTNET, run: "node vault.mjs", tokens: ["cetes"],
             notes: [lang("Creating the vault costs 12.5 testnet XLM.", "Crear la bóveda cuesta 12.5 XLM de testnet."), lang("Testnet CETES from the DEX with Friendbot XLM, one transaction in the snippet.", "CETES de testnet desde el DEX con XLM de friendbot, una transacción en el snippet."), lang("Nirium's own contract, not externally audited.", "Contrato propio de Nirium, sin auditoría externa.")] },
         { name: "Treasury (DeFindex)", label: "node-treasury", what: lang("Deploy your vault, deposit and ask for a rebalance proposal. You sign everything with your two keys; Nirium holds no role in your vault.", "Despliega tu bóveda, deposita y pide una propuesta de rebalanceo. Tú firmas todo con tus dos llaves; Nirium no tiene ningún rol en tu bóveda."), nets: ["Testnet"], needs: lang("Testnet XLM, CETES and a free API key", "XLM y CETES de testnet y una API key gratis"), points: "Builder", code: TREASURY_TESTNET, run: "NIRIUM_API_KEY=sk_... node treasury.mjs", keysLink: true, tokens: ["cetes"],

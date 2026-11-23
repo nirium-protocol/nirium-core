@@ -10,7 +10,7 @@ Thank you for your interest in contributing to Nirium Protocol. This document co
 
 ### Prerequisites
 
-- Node.js >=22.12.0 (the real floor - `@stellar/stellar-sdk` 16.x requires it; older Node installs silently resolve an older, incompatible SDK)
+- Node.js >=22.12.0 (the real floor - `@stellar/stellar-sdk` 17.x requires it; older Node installs silently resolve an older, incompatible SDK)
 - pnpm 9+
 - Rust (for Soroban contracts - `rustup target add wasm32-unknown-unknown`)
 - Git
@@ -47,8 +47,8 @@ pnpm dev
 ```
 nirium-core/
 ├── apps/web/                  → Next.js 15 Dashboard - 27 routes, i18n (EN/ES)
-├── packages/sdk/              → TypeScript SDK v0.19.8 (npm: nirium)
-├── packages/sdk-python/       → Python SDK v0.12.9 (PyPI: nirium)
+├── packages/sdk/              → TypeScript SDK v0.20.0 (npm: nirium)
+├── packages/sdk-python/       → Python SDK v0.13.0 (PyPI: nirium)
 ├── nirium-soroban-contracts/  → Soroban smart contracts (Rust): NiriumVault + NiriumProtocol, both deployed on testnet
 └── .github/workflows/         → CI, release, security-gate
 ```
