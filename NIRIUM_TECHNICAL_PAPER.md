@@ -311,7 +311,7 @@ SEP-10, SEP-24, SEP-31, SEP-12/Travel Rule, Bug Bounty, Proof of Reserves, Sanct
 
 Both SDKs verified against live API, current as of 24 Oct 2026: TypeScript `nirium` 0.16.1, Python `nirium` 0.11.0.
 
-### TypeScript (Node.js >=22.12.0 - `@stellar/stellar-sdk` 16.x requires it)
+### TypeScript (Node.js >=22.12.0 - `@stellar/stellar-sdk` 17.x requires it)
 ```bash
 npm install nirium
 ```
