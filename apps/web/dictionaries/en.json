@@ -565,7 +565,7 @@
             "name": "MCP Server",
             "sub": "Claude Desktop · Cursor · any MCP client",
             "cmd": "npx nirium-mcp",
-            "badge": "v0.6.11"
+            "badge": "v0.6.12"
           },
           "rest": {
             "name": "REST API",
@@ -1149,7 +1149,7 @@
     "mcp": {
       "title": "MCP server",
       "subtitle": "Connect Claude Desktop or Cursor to Nirium's nodes: market data, Audit Trail anchors, Reporting and Treasury tools. Free tools work without a key; Treasury and loop control need an API key, and autonomous rebalancing on mainnet is invite-only.",
-      "tools_count": "25 tools (nirium-mcp 0.6.11)"
+      "tools_count": "25 tools (nirium-mcp 0.6.12)"
     },
     "hub": {
       "title": "API reference",
