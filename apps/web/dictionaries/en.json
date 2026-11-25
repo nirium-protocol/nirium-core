@@ -75,18 +75,44 @@
     "input_placeholder": "Qm... or https://any-gateway/ipfs/Qm...",
     "button": "Verify",
     "button_loading": "Verifying…",
-    "example_intro": "Don't have a CID?",
-    "example_handoff_button": "One handoff of a shipment (testnet)",
-    "example_notice_button": "A notice you can check yourself (testnet)",
-    "example_handoff_link": "All four handoffs (GitHub)",
-    "example_notice_link": "Download the notice (GitHub)",
-    "example_tia_button": "A partner's signed quote",
-    "example_payment_button": "A payment receipt (testnet)",
-    "example_refused_button": "A payment that never happened",
-    "example_or": "or",
+    "example_intro": "Don't have a CID? Open one of these, or",
     "example_anchor_link": "anchor your own",
     "example_guide_suffix": "(guide).",
-    "example_note": "The quote is signed with TIA's own key on mainnet: a record that never touches the chain. The payment that never happened is AgentLedger's own receipt (its founder joined the Nirium team in October 2026), on mainnet, for a payment its policy blocked: there is no Stellar transaction, and its hash matches entry 867 of AgentLedger's public ledger. The handoff is the last of four in a demo by an outside contributor, who generated the four keys that sign them. The notice is by another outside contributor: download the file, choose it under \"Compare with your file\" and it matches; change one letter and it doesn't. The payment receipt is a Nirium self-test: its record only repeats the transaction, so the transaction itself is the proof of the payment.",
+    "example_code_prefix": "Code:",
+    "example_notice_link": "Download the notice (GitHub)",
+    "example_labels": {
+      "tia": "A partner's signed quote",
+      "terms": "Accepted terms (testnet)",
+      "refused": "A payment that never happened",
+      "held": "A payment held for a person's approval",
+      "handoff": "One handoff of a shipment (testnet)",
+      "delivery": "Proof of delivery (testnet)",
+      "correction": "A correction (testnet)",
+      "notice": "A notice you can check yourself (testnet)",
+      "payment": "A payment receipt (testnet)"
+    },
+    "example_groups": {
+      "before": {
+        "title": "Before paying",
+        "note": "The quote is signed with TIA's own key on mainnet: a record that never touches the chain. The accepted terms are our own testnet demo: which version a customer agreed to."
+      },
+      "decision": {
+        "title": "The decision",
+        "note": "AgentLedger's own receipts on mainnet, from an integration test (its founder joined the Nirium team in October 2026). Its policy blocked one payment, so there is no Stellar transaction for it. It held the other until a person approved it. Their hashes match entries 867 and 862 of AgentLedger's public ledger."
+      },
+      "delivery": {
+        "title": "The delivery",
+        "note": "Testnet demos by outside contributors. The handoff is the last of four, each signed with a different key; the contributor generated all four. In the proof of delivery the photo stays private and only a hash is public."
+      },
+      "after": {
+        "title": "Afterwards",
+        "note": "The correction is our own testnet demo: it names the invoice it corrects and leaves it as it was. The notice is by an outside contributor: download the file, choose it under \"Compare with your file\" and it matches; change one letter and it doesn't."
+      },
+      "contrast": {
+        "title": "For contrast",
+        "note": "Our own testnet self-test. Its record only repeats the transaction, so the transaction itself is the proof of the payment."
+      }
+    },
     "searching_title": "Looking up this CID on IPFS…",
     "searching_hint": "Gateway propagation can take 60 to 90 seconds right after anchoring. Retrying automatically (attempt {attempt}/{max}).",
     "retry_button": "Try again",

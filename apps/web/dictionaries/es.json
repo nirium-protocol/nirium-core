@@ -75,18 +75,44 @@
     "input_placeholder": "Qm... o https://cualquier-gateway/ipfs/Qm...",
     "button": "Verificar",
     "button_loading": "Verificando…",
-    "example_intro": "¿No tienes un CID?",
-    "example_handoff_button": "Una entrega de un envío (testnet)",
-    "example_notice_button": "Un aviso que puedes comprobar tú (testnet)",
-    "example_handoff_link": "Las cuatro entregas (GitHub)",
-    "example_notice_link": "Descargar el aviso (GitHub)",
-    "example_tia_button": "Cotización firmada por un socio",
-    "example_payment_button": "Recibo de un pago (testnet)",
-    "example_refused_button": "Un pago que nunca ocurrió",
-    "example_or": "o",
+    "example_intro": "¿No tienes un CID? Abre uno de estos, o",
     "example_anchor_link": "ancla el tuyo",
     "example_guide_suffix": "(guía).",
-    "example_note": "La cotización está firmada con la propia llave de TIA en mainnet: un registro que nunca toca la cadena. El pago que nunca ocurrió es el recibo propio de AgentLedger (su fundador se unió al equipo de Nirium en octubre de 2026), en mainnet, de un pago que su política bloqueó: no hay transacción en Stellar, y su hash coincide con la entrada 867 del registro público de AgentLedger. La entrega es la última de cuatro en una demo de un contribuidor externo, que generó las cuatro llaves que las firman. El aviso es de otro contribuidor externo: descarga el archivo, elígelo en \"Comparar con tu archivo\" y coincide; cambia una letra y ya no. El recibo de pago es un autotest de Nirium: su registro solo repite la transacción, así que la prueba del pago es la transacción misma.",
+    "example_code_prefix": "Código:",
+    "example_notice_link": "Descargar el aviso (GitHub)",
+    "example_labels": {
+      "tia": "Cotización firmada por un socio",
+      "terms": "Términos aceptados (testnet)",
+      "refused": "Un pago que nunca ocurrió",
+      "held": "Un pago retenido hasta que lo aprobó una persona",
+      "handoff": "Una entrega de un envío (testnet)",
+      "delivery": "Prueba de entrega (testnet)",
+      "correction": "Una corrección (testnet)",
+      "notice": "Un aviso que puedes comprobar tú (testnet)",
+      "payment": "Recibo de un pago (testnet)"
+    },
+    "example_groups": {
+      "before": {
+        "title": "Antes de pagar",
+        "note": "La cotización está firmada con la propia llave de TIA en mainnet: un registro que nunca toca la cadena. Los términos aceptados son una demo nuestra en testnet: qué versión aceptó un cliente."
+      },
+      "decision": {
+        "title": "La decisión",
+        "note": "Recibos propios de AgentLedger en mainnet, de una prueba de integración (su fundador se unió al equipo de Nirium en octubre de 2026). Su política bloqueó un pago, así que no hay transacción en Stellar. El otro quedó retenido hasta que lo aprobó una persona. Sus hashes coinciden con las entradas 867 y 862 del registro público de AgentLedger."
+      },
+      "delivery": {
+        "title": "La entrega",
+        "note": "Demos en testnet de contribuidores externos. La entrega del envío es la última de cuatro, cada una firmada con una llave distinta; las cuatro las generó el contribuidor. En la prueba de entrega la foto queda privada y solo un hash es público."
+      },
+      "after": {
+        "title": "Después",
+        "note": "La corrección es una demo nuestra en testnet: nombra la factura que corrige y la deja como estaba. El aviso es de un contribuidor externo: descarga el archivo, elígelo en \"Comparar con tu archivo\" y coincide; cambia una letra y ya no."
+      },
+      "contrast": {
+        "title": "Como contraste",
+        "note": "Autotest nuestro en testnet. Su registro solo repite la transacción, así que la prueba del pago es la transacción misma."
+      }
+    },
     "searching_title": "Buscando este CID en IPFS…",
     "searching_hint": "La propagación del gateway puede tardar de 60 a 90 segundos justo después de anclar. Reintentando automáticamente (intento {attempt}/{max}).",
     "retry_button": "Intentar de nuevo",
