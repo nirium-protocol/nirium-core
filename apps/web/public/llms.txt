@@ -9,7 +9,7 @@
 - MPP Charge (Machine Payments Protocol): experimental, verified on testnet, untested on mainnet. For paid access on mainnet, use x402. The MPP client fails on nirium 0.20.0 until @stellar/mpp supports stellar-sdk 17; use nirium@0.19.8 for MPP (checked 23 Nov 2026).
 - NiriumVault, Nirium's own contract, stays on testnet until an external audit.
 
-## Packages (versions checked 2026-11-21)
+## Packages (versions checked 2026-11-25)
 - npm: nirium 0.20.0, nirium-mcp 0.6.13, nirium-cli 3.2.8, nirium-pollar-adapter 0.6.6
 - PyPI: nirium 0.13.0
 
@@ -17,7 +17,7 @@
 - `nirium anchor --hash <hex> | --file <path> | --record <json>`: anchor to IPFS via an Audit Trail node; `--sign --key-env <VAR>` adds an ed25519 attestation; `--save <file>` keeps your own copy of the anchored document (3.2.7+).
 - `nirium verify <cid>`: checks hash and signature locally; tries several IPFS gateways in order. `--require-signature` (3.2.6+) fails any document without a valid agent signature.
 - `nirium cid <file> --expect <cid>`: recomputes a saved receipt's CID locally (3.2.7+); the same bytes re-added to IPFS give back the same CID.
-- `nirium report summary` / `nirium report export anchors|payments|payroll`: your own records from the Reporting node (not certified regulatory reporting).
+- `nirium report summary` / `nirium report export anchors|payments|payroll`: totals and rows of the whole node, including our own tests, without CIDs (not certified regulatory reporting).
 
 ## Links
 - Website: https://nirium.xyz
