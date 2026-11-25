@@ -12,8 +12,6 @@ import { useFreighter } from "@/hooks/useFreighter";
 import OpsConsole from "@/components/layout/OpsConsole";
 import SecurityDisclaimer from "@/components/shared/SecurityDisclaimer";
 import { useEffect, useState } from "react";
-import { useEloReputation } from "@/hooks/useNiriumContracts";
-import { eloGetTotalSentinels } from "@/lib/sorobanContracts";
 
 export default function AgentsPage() {
     const { language } = useLanguage();
@@ -21,9 +19,6 @@ export default function AgentsPage() {
         language === "es" ? es : en;
 
     const { address: walletAddress, isConnected } = useFreighter();
-    const elo = useEloReputation();
-    const [eloScore, setEloScore] = useState<number | null>(null);
-    const [totalSentinels, setTotalSentinels] = useState<number | null>(null);
     const [protocols, setProtocols] = useState<{ mainnet: number | null; testnet: number | null }>({ mainnet: null, testnet: null });
 
     useEffect(() => {
@@ -37,13 +32,6 @@ export default function AgentsPage() {
         });
         return () => { cancelled = true; };
     }, []);
-
-    useEffect(() => {
-        eloGetTotalSentinels().then(n => setTotalSentinels(Number(n))).catch(() => {});
-        if (walletAddress) {
-            elo.getScore(walletAddress).then(s => setEloScore(s)).catch(() => {});
-        }
-    }, [walletAddress]);
 
     const nodes = [
         {
@@ -179,8 +167,8 @@ export default function AgentsPage() {
                 "Payment receipt logged per call; the settlement hash is on Horizon",
                 "Recibo de pago registrado por llamada; el hash de liquidación está en Horizon"),
             metric: lang(
-                "Nirium's own test endpoint on mainnet, last settled payment 18 Nov 2026 (an integration test). x402Serve() for third parties: written legal opinion pending",
-                "Endpoint de prueba propio de Nirium en mainnet, último pago liquidado el 18 nov 2026 (una prueba de integración). x402Serve() para terceros: opinión legal por escrito pendiente"),
+                "Nirium's own test endpoint on mainnet, last settled payment 24 Nov 2026 (our own test). x402Serve() for third parties: written legal opinion pending",
+                "Endpoint de prueba propio de Nirium en mainnet, último pago liquidado el 24 nov 2026 (una prueba nuestra). x402Serve() para terceros: opinión legal por escrito pendiente"),
             locked: false,
         },
         {
@@ -318,20 +306,6 @@ export default function AgentsPage() {
                         <span className="text-white/40">{lang("Network", "Red")}</span>
                         <span className="text-white/80 ml-1">Horizon API</span>
                     </div>
-                    {eloScore !== null && eloScore > 0 && (
-                        <div className="flex items-center gap-1.5">
-                            <Activity className="w-3 h-3 text-stellar-teal/60" />
-                            <span className="text-white/40">ELO (testnet)</span>
-                            <span className="text-stellar-teal ml-1 font-bold">{eloScore}</span>
-                        </div>
-                    )}
-                    {totalSentinels !== null && totalSentinels > 0 && (
-                        <div className="flex items-center gap-1.5">
-                            <Shield className="w-3 h-3 text-green-400/60" />
-                            <span className="text-white/40">{lang("Sentinels (testnet)", "Centinelas (testnet)")}</span>
-                            <span className="text-green-400 ml-1 font-bold">{totalSentinels}</span>
-                        </div>
-                    )}
                 </motion.div>
 
                 {/* ── NODE CARDS ─────────────────────────────────────────── */}

@@ -126,10 +126,10 @@ const BUILT_WITH_GROUPS: BuiltWithGroup[] = [
                 badge: { en: 'Every x402 settlement', es: 'Cada liquidación x402' },
                 tags: ['x402 facilitator', 'Mainnet'],
                 description: {
-                    en: 'x402 payment facilitator - verifies and settles on-chain, with sponsored fees. Every x402 payment route on the agent, testnet and mainnet, delegates verify/settle to their hosted facilitator. Last mainnet settlement through it: 18 Nov 2026.',
-                    es: 'Facilitador de pagos x402 - verifica y liquida en cadena, con fees patrocinados. Toda ruta de pago x402 del agente, en testnet y mainnet, delega verify/settle a su facilitador hospedado. Última liquidación en mainnet a través de él: 18-nov-2026.',
+                    en: 'x402 payment facilitator - verifies and settles on-chain, with sponsored fees. Every x402 payment route on the agent, testnet and mainnet, delegates verify/settle to their hosted facilitator. Last mainnet settlement through it: 24 Nov 2026 (our own test).',
+                    es: 'Facilitador de pagos x402 - verifica y liquida en cadena, con fees patrocinados. Toda ruta de pago x402 del agente, en testnet y mainnet, delega verify/settle a su facilitador hospedado. Última liquidación en mainnet a través de él: 24-nov-2026 (una prueba nuestra).',
                 },
-                evidenceUrl: 'https://stellar.expert/explorer/public/tx/0f6250773f9c3311bb27da64f5194c06e5d24cf2507d234a9df8c17ad156994b',
+                evidenceUrl: 'https://stellar.expert/explorer/public/tx/786db50b8cba033f56f987adb113e53d2dee7d8a08066ed9e5664fc41f3ec336',
                 evidenceLabel: { en: 'mainnet tx 0f625077... - 2026-11-18', es: 'tx mainnet 0f625077... - 18-nov-2026' },
             },
             {

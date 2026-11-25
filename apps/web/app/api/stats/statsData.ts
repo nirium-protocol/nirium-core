@@ -60,6 +60,12 @@ const KNOWN_PAYERS: Record<string, { kind: PayerKind; label: string; shortName: 
         shortName: 'Nirium',
         note: 'Wallet created through our Pollar app; its reserve sponsor was funded from a wallet we control.',
     },
+    GCE5L5ZAXXLI4J6ZTMPIZKQBJLPUET33YCIZSQIC2AAMDV2U4A7FZE5Z: {
+        kind: 'internal',
+        label: 'Nirium self-test (Protocol 30, nirium 0.20.0)',
+        shortName: 'Nirium',
+        note: 'Throwaway account we created and funded on 24 Nov 2026 to test nirium 0.20.0 with stellar-sdk 17 on mainnet (tx 786db50b...). Our own test, not usage.',
+    },
     GA5WN2JBYTPARINB7YCAVGBHPV65475GY37DN7VDKU2VXYSY6MQAIUA3: {
         kind: 'integration-test',
         label: 'AgentLedger (@fernando-mendoza)',
@@ -466,7 +472,11 @@ async function getX402Settlements() {
                 note: 'Paid during the Niriumtober sprint to earn a badge, with its own funds. Counted apart from external payers.',
                 evidenceUrl: campaign.evidenceUrl,
             });
-            const kind: PayerKind = known?.kind ?? 'external';
+            // An unlisted payer whose account was created by a Nirium wallet is
+            // never counted as external: we can't claim it as outside usage.
+            const funding = known?.kind === 'internal' ? null : await fundingOf(address);
+            const fundedByNirium = !known && funding?.funderIsNirium === true;
+            const kind: PayerKind = known?.kind ?? (fundedByNirium ? 'internal' : 'external');
             return {
                 address,
                 count: stats.count,
@@ -480,9 +490,11 @@ async function getX402Settlements() {
                 kind,
                 label: known?.label ?? null,
                 shortName: known?.shortName ?? null,
-                note: known?.note ?? 'Not matched to any wallet we control - counted as external, unverified identity.',
+                note: known?.note ?? (fundedByNirium
+                    ? 'Funded by a Nirium wallet - counted as internal, not as an external payer.'
+                    : 'Not matched to any wallet we control - counted as external, unverified identity.'),
                 evidenceUrl: known?.evidenceUrl ?? null,
-                funding: kind !== 'internal' ? await fundingOf(address) : null,
+                funding: known?.kind === 'internal' ? null : funding,
             };
         }),
     );

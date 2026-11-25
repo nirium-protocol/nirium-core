@@ -810,9 +810,9 @@ export default function DevelopersPage() {
                             {[
                                 { icon: Package,  title: 'NPM Package', desc_en: 'Official Node.js package', desc_es: 'Paquete oficial para Node.js',              href: 'https://www.npmjs.com/package/nirium' },
                                 { icon: Terminal, title: 'PyPI Package', desc_en: 'Official Python package', desc_es: 'Paquete oficial para Python',              href: 'https://pypi.org/project/nirium/' },
-                                { icon: Globe,    title: 'Stellar RPC',  desc_en: 'Node RPC and testnet endpoints', desc_es: 'Node RPC y testnet endpoints',    href: 'https://developers.stellar.org/docs/data/rpc' },
-                                { icon: Code2,    title: 'Soroban SDK',  desc_en: 'Official Rust + JS docs', desc_es: 'Docs oficiales Rust + JS',                href: 'https://developers.stellar.org/docs/smart-contracts' },
-                                { icon: Terminal, title: 'Stellar CLI', desc_en: 'Local deploy and test', desc_es: 'Deploy y test local',                              href: 'https://developers.stellar.org/docs/tools/developer-tools/cli/stellar-cli' },
+                                { icon: Globe,    title: 'Stellar RPC',  desc_en: 'Node RPC and testnet endpoints', desc_es: 'Node RPC y testnet endpoints',    href: 'https://developers.stellar.org/docs/data/apis/rpc' },
+                                { icon: Code2,    title: 'Soroban SDK',  desc_en: 'Official Rust + JS docs', desc_es: 'Docs oficiales Rust + JS',                href: 'https://developers.stellar.org/docs/build/smart-contracts/overview' },
+                                { icon: Terminal, title: 'Stellar CLI', desc_en: 'Local deploy and test', desc_es: 'Deploy y test local',                              href: 'https://developers.stellar.org/docs/tools/cli/stellar-cli' },
                             ].map((res) => {
                                 const Icon = res.icon;
                                 return (

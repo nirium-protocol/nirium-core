@@ -18,6 +18,11 @@ const ES: Record<string, string> = {
     'Niriumtober participant': 'Participante de Niriumtober',
     'Paid during the Niriumtober sprint to earn a badge, with its own funds. Counted apart from external payers.':
         'Pagó durante el sprint de Niriumtober para ganar una insignia, con sus propios fondos. Se cuenta aparte de los pagadores externos.',
+    'Nirium self-test (Protocol 30, nirium 0.20.0)': 'Autoprueba de Nirium (Protocol 30, nirium 0.20.0)',
+    'Throwaway account we created and funded on 24 Nov 2026 to test nirium 0.20.0 with stellar-sdk 17 on mainnet (tx 786db50b...). Our own test, not usage.':
+        'Cuenta desechable que creamos y fondeamos el 24 nov 2026 para probar nirium 0.20.0 con stellar-sdk 17 en mainnet (tx 786db50b...). Prueba nuestra, no uso.',
+    'Funded by a Nirium wallet - counted as internal, not as an external payer.':
+        'La fondeó una wallet de Nirium: se cuenta como interna, no como pagador externo.',
     'Not matched to any wallet we control - counted as external, unverified identity.':
         'No coincide con ninguna wallet que controlemos: se cuenta como externo, con identidad sin verificar.',
     'Team handles (Eras256, M0nsxx) and bots are excluded. fernando-mendoza joined the team part-time in October 2026 - PRs/issues from him on or after 2026-10-15 are excluded too, but anything from before that date (if any) still counts, since he was genuinely external then. The bounty issues themselves are written by the team, so "issues closed" counts only issues opened by people outside the team. Stellar Wave issues are labeled "Stellar Wave" in the repo; a PR counts as Wave work when it references one. Nothing here says whether any bounty or Wave reward was settled.':

@@ -217,7 +217,7 @@ export default function Home() {
                     icon: Activity,
                     title: lang('Mainnet endpoint, answers 402', 'Endpoint en mainnet, responde 402'),
                     detail: 'GET /api/v1/premium/market',
-                    cta: lang('last paid 18 Nov 2026', 'último pago 18 nov 2026'),
+                    cta: lang('last paid 24 Nov 2026', 'último pago 24 nov 2026'),
                     href: `${MAINNET_API_URL}/api/v1/premium/market`,
                 },
                 {
@@ -432,8 +432,8 @@ export default function Home() {
                                 // Decía "ya cobra en mainnet". "Cobrando" solo se afirma con un pago
                                 // reciente y su fecha. Último pago a la cuenta de cobro (GCLBBPON...):
                                 // 18-nov-2026, corridas de prueba de AgentLedger (Horizon, 19-nov).
-                                "Open to everyone on testnet. Nirium's own endpoint answers 402 on mainnet; its last payment settled on 18 Nov 2026, in an integration test. Charging on your own API (x402Serve) on mainnet is not something we promote for third parties until we have a written legal opinion.",
-                                'Abierto a todos en testnet. El endpoint de Nirium responde 402 en mainnet; su último pago se liquidó el 18 nov 2026, en una prueba de integración. Cobrar en tu propia API (x402Serve) en mainnet no lo promovemos para terceros hasta tener una opinión legal por escrito.')}
+                                "Open to everyone on testnet. Nirium's own endpoint answers 402 on mainnet; its last payment settled on 24 Nov 2026, in our own test. Charging on your own API (x402Serve) on mainnet is not something we promote for third parties until we have a written legal opinion.",
+                                'Abierto a todos en testnet. El endpoint de Nirium responde 402 en mainnet; su último pago se liquidó el 24 nov 2026, en una prueba nuestra. Cobrar en tu propia API (x402Serve) en mainnet no lo promovemos para terceros hasta tener una opinión legal por escrito.')}
                         </p>
                         <div className="mt-6 grid sm:grid-cols-3 gap-4 text-xs">
                             <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
