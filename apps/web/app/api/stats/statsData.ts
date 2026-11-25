@@ -720,6 +720,7 @@ async function getCommunityContributions() {
                 .filter((p) => p.merged_at && isCommunity(p.user, p.merged_at))
                 .map((p) => {
                     const refs = new Set<number>([...`${p.title} ${p.body ?? ''}`.matchAll(/(?:#|\/issues\/)(\d+)/g)].map((m) => Number(m[1])));
+                    const linkedToWaveIssue = [...refs].some((n) => waveIssues.has(n));
                     return {
                         repo: `${GH_ORG}/${repo}`,
                         number: p.number as number,
@@ -727,8 +728,11 @@ async function getCommunityContributions() {
                         url: p.html_url as string,
                         author: p.user.login as string,
                         mergedAt: p.merged_at as string,
-                        linkedToGrantfoxIssue: [...refs].some((n) => grantfoxIssues.has(n)),
-                        linkedToWaveIssue: [...refs].some((n) => waveIssues.has(n)),
+                        // GrantFox issues have low numbers, so a Wave PR that numbers its
+                        // runs "#1" and "#2" (#476, #485) matched them. The GrantFox
+                        // campaigns ended before Wave 11, so a Wave PR is never both.
+                        linkedToGrantfoxIssue: !linkedToWaveIssue && [...refs].some((n) => grantfoxIssues.has(n)),
+                        linkedToWaveIssue,
                     };
                 });
             const closedIssues = issues

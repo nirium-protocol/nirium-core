@@ -652,7 +652,7 @@ export default function StatsClient({ initialData }: { initialData: StatsRespons
                                             value={com.stellarWave?.issues ?? 0}
                                             sourceUrl="https://github.com/nirium-protocol/nirium/issues?q=label%3A%22Stellar+Wave%22"
                                             sourceLabel="GitHub"
-                                            footnote={<span className="text-xs text-white/40">{lang('issues open to Wave contributors since Wave 11 (18 Nov 2026); merged PRs are tagged below', 'issues abiertos a contribuidores de la Wave desde la Wave 11 (18 nov 2026); los PRs mergeados se marcan abajo')}</span>}
+                                            footnote={<span className="text-xs text-white/40">{lang('issues published for Stellar Wave; Wave 11 ran 18-25 Nov 2026 and is closed. Merged PRs are tagged below', 'issues publicados para Stellar Wave; la Wave 11 fue del 18 al 25 nov 2026 y ya cerró. Los PRs mergeados se marcan abajo')}</span>}
                                         />
                                         <StatCard
                                             label={lang('Issues opened by external contributors, closed as completed', 'Issues abiertos por contribuidores externos, cerrados como completados')}
