@@ -21,16 +21,18 @@ import { receiptCid } from '@/lib/receiptCid';
 const MAX_ATTEMPTS = 10;
 const RETRY_DELAY_MS = 9000; // 10 attempts * 9s ≈ the 60-90s gateway propagation window
 
-// Nirium's own signed mainnet anchor (agent.id "selftest-nirium") - a
-// deliberate self-test, not a partner's evidence, so it's safe to point
-// visitors at from this page and always resolves to the full green result.
-const EXAMPLE_CID = 'QmaAXCmpqaptjDTJoRPcyFBUywrvuA7GfLyArVaQwd5VDM';
 // A partner's (TIA) own signed quote on mainnet - a record that never touches the chain.
 const EXAMPLE_TIA_CID = 'QmVWZM1i9qusiTfNAT9QdSFYJNEwQUXtnWuSkrCqRAnGEu';
 // A Nirium self-test payment receipt on testnet that links its settled transaction.
 const EXAMPLE_PAYMENT_CID = 'QmboKKkuwck3zvRx2bqnzUdDFkrEtc1VUHo6rrzm9nyBtD';
 // AgentLedger's mainnet receipt for a payment its policy blocked (18 Nov 2026): no transaction exists.
 const EXAMPLE_REFUSED_CID = 'QmS5q2NvZ2K2StLB3KCWRdkBtnZ5rHAJrQAez2PnKAPwTk';
+// Last of four testnet handoffs, each signed with its own key (nirium#484, outside contributor).
+const EXAMPLE_HANDOFF_CID = 'QmRX7SjLBbsPHnGVR3vrxrmi3MBdAeKa4b19KEWtBy4VMR';
+const EXAMPLE_HANDOFF_URL = 'https://github.com/nirium-protocol/nirium/tree/main/examples/build-logistics-checkpoints';
+// Testnet receipt of a public file (nirium#384, outside contributor). The link is pinned to a commit so its bytes keep matching.
+const EXAMPLE_NOTICE_CID = 'QmSpqbrNwioZpcMU1PyZBQsguNGCGGemM31iNa47f4ShKt';
+const EXAMPLE_NOTICE_URL = 'https://github.com/nirium-protocol/nirium/blob/2a5b354d82d4bcf4b8fdf55d38b95e1ec2588cef/examples/build-tamper-evident-announcements/announcements/2026-11-18-publication-policy.md';
 
 type Phase = 'idle' | 'searching' | 'found' | 'error_invalid' | 'error_not_found' | 'error_not_audit_doc' | 'error_generic' | 'error_cid_mismatch';
 // 'match': el CIDv0 recalculado en el navegador es el CID pedido. 'unsupported': no se pudo
@@ -315,30 +317,12 @@ function VerifyContent() {
                         <span>{tv.example_intro}</span>
                         <button
                             type="button"
-                            onClick={() => { setCidInput(EXAMPLE_CID); startLookup(EXAMPLE_CID); }}
-                            disabled={isSearching}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
-                        >
-                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                            {tv.example_button}
-                        </button>
-                        <button
-                            type="button"
                             onClick={() => { setCidInput(EXAMPLE_TIA_CID); startLookup(EXAMPLE_TIA_CID); }}
                             disabled={isSearching}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
                         >
                             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                             {tv.example_tia_button}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => { setCidInput(EXAMPLE_PAYMENT_CID); startLookup(EXAMPLE_PAYMENT_CID); }}
-                            disabled={isSearching}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
-                        >
-                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                            {tv.example_payment_button}
                         </button>
                         <button
                             type="button"
@@ -349,6 +333,33 @@ function VerifyContent() {
                             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                             {tv.example_refused_button}
                         </button>
+                        <button
+                            type="button"
+                            onClick={() => { setCidInput(EXAMPLE_HANDOFF_CID); startLookup(EXAMPLE_HANDOFF_CID); }}
+                            disabled={isSearching}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                            {tv.example_handoff_button}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setCidInput(EXAMPLE_NOTICE_CID); startLookup(EXAMPLE_NOTICE_CID); }}
+                            disabled={isSearching}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                            {tv.example_notice_button}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setCidInput(EXAMPLE_PAYMENT_CID); startLookup(EXAMPLE_PAYMENT_CID); }}
+                            disabled={isSearching}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold rounded-lg transition-all disabled:opacity-40"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                            {tv.example_payment_button}
+                        </button>
                         <span>
                             {tv.example_or}{' '}
                             <Link href="/docs#quickstart" className="text-emerald-400 hover:text-emerald-300 transition-colors">
@@ -358,6 +369,11 @@ function VerifyContent() {
                         </span>
                     </div>
                     <p className="text-[11px] text-gray-600">{tv.example_note}</p>
+                    <p className="text-[11px] text-gray-600">
+                        <a href={EXAMPLE_HANDOFF_URL} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 transition-colors">{tv.example_handoff_link}</a>
+                        {' · '}
+                        <a href={EXAMPLE_NOTICE_URL} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 transition-colors">{tv.example_notice_link}</a>
+                    </p>
                 </div>
 
                 {/* Status / results */}
