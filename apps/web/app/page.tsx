@@ -27,20 +27,19 @@ import { isNiriumtoberLive, niriumtoberHref } from "@/lib/niriumtober";
 import { niriumtoberHit, trackFunnel } from "@/lib/attribution";
 import { MAINNET_API_URL, PROOF_TX_HASH, PROOF_TX_URL } from "@/lib/constants";
 
-// El snippet de abajo se corrió TAL CUAL contra nirium@0.18.0 el 9-nov-2026
-// (Node 24, express 5.3, @x402/* 2.30.0, facilitador de OpenZeppelin en
+// El snippet de abajo se corrió TAL CUAL contra nirium@0.20.0 el 25-nov-2026
+// (Node 24, express 5.3.0, @x402/* 2.32.0, facilitador de OpenZeppelin en
 // testnet, cuentas nuevas fondeadas con Friendbot): 402 sin pago, 200 con
 // pago y {"tempC":21}, 0.05 USDC liquidado en esta tx (verificada en Horizon,
-// ledger 5637422). La corrida anterior fue con 0.16.0 el 4-oct
-// (d121b61c...). Si se edita el snippet, hay que volver a correrlo y cambiar
-// este hash.
+// ledger 5922472). La corrida anterior fue con 0.18.0 el 9-nov (97f11e97...).
+// Si se edita el snippet, hay que volver a correrlo y cambiar este hash.
 //
-// Ojo, visto en la misma prueba: el facilitador de testnet respondió 504 en
+// Ojo, visto en la prueba del 9-nov (el 25-nov, 2 de 2 pagos salieron bien): el facilitador de testnet respondió 504 en
 // 6 de 9 intentos y aun así liquidó el pago, así que el cliente pagó y recibió
 // 402. Es del facilitador, no del snippet, pero quien lo pruebe puede verlo.
 // Verificación externa de holistis: sus 21 casos y su resultado público (19-nov-2026).
 const HOLISTIS_RESULT_URL = 'https://github.com/nirium-protocol/nirium/pull/396#issuecomment-7016710117';
-const SNIPPET_TESTNET_TX = '97f11e97d81924b8874f4643bcb59720cc59dfc4248beae5059422b7ae800b90';
+const SNIPPET_TESTNET_TX = '0ab43362e90d5d123ade51ea906fa760c7d042dfd4d01c5ca8815aa6e6025e24';
 const SNIPPET_TESTNET_TX_URL = `https://stellar.expert/explorer/testnet/tx/${SNIPPET_TESTNET_TX}`;
 
 const SERVE_SNIPPET = `import express from 'express';
@@ -92,13 +91,10 @@ const POLICY_WAIT_THEN_ALLOW_TX = '63fe315ad191c12d8baab4e7d146dc4b8cd7bb0c0ce97
 const POLICY_RACE_ALLOW_TX = '20b9f5a21f012001488630e4f5be7a64c69f6a39648ad53b092d724df3c9b57c';
 const stellarTestnetTx = (hash: string) => `https://stellar.expert/explorer/testnet/tx/${hash}`;
 
-// Ancla propia de Nirium en mainnet (agent.id "selftest-nirium", 21-oct-2026):
-// firmada y con record embebido, así /verify muestra el resultado completo
-// (hash recalculado y firma válida). Es la misma que usa el botón de ejemplo
-// de /verify. La anterior (QmZEuGg…) solo declaraba un hash, sin firma, y en
-// /verify no mostraba quién la ancló. Se enlaza a /verify y no a un gateway
-// público, que a veces tarda o limita.
-const AUDIT_ANCHOR_CID = 'QmaAXCmpqaptjDTJoRPcyFBUywrvuA7GfLyArVaQwd5VDM';
+// Aviso propio en mainnet (25-nov-2026): el hash de la política de jurisdicciones v1.5,
+// firmado con una llave de pruebas de Nirium. Uso propio, no se cuenta como uso. Es el
+// mismo ejemplo de /verify. `nirium verify --evidence --require-signature` pasa.
+const AUDIT_ANCHOR_CID = 'Qmd7yun1FUDZ3p2DK36BxRpLaAA2EQjjWfZ1S77R4Z1v4F';
 const AUDIT_ANCHOR_URL = `/verify?cid=${AUDIT_ANCHOR_CID}`;
 // Recibo firmado de un integrador externo (TIA, agent.id "tia-api", llave GATT3…),
 // mainnet, 12-nov-2026. `nirium verify` → SIGNATURE: VALID. Es su cuarto anclaje.
@@ -163,9 +159,9 @@ export default function Home() {
             items: [
                 {
                     icon: FileCheck,
-                    title: lang('Signed mainnet anchor (our own test)', 'Ancla firmada en mainnet (prueba propia)'),
+                    title: lang('Our own policy notice, signed and anchored on mainnet (own use)', 'Nuestro propio aviso de política, firmado y anclado en mainnet (uso propio)'),
                     detail: `${AUDIT_ANCHOR_CID.slice(0, 18)}…`,
-                    cta: lang('verify it, 2026-10-21', 'verifícala, 2026-10-21'),
+                    cta: lang('verify it, 2026-11-25', 'verifícalo, 2026-11-25'),
                     href: AUDIT_ANCHOR_URL,
                 },
                 {
@@ -231,7 +227,7 @@ export default function Home() {
                     icon: Terminal,
                     title: lang('The snippet above, run verbatim', 'El snippet de arriba, corrido tal cual'),
                     detail: `${SNIPPET_TESTNET_TX.slice(0, 20)}…`,
-                    cta: lang('testnet, 2026-11-09', 'testnet, 2026-11-09'),
+                    cta: lang('testnet, 2026-11-25', 'testnet, 2026-11-25'),
                     href: SNIPPET_TESTNET_TX_URL,
                 },
             ],
@@ -284,8 +280,8 @@ export default function Home() {
                         className="mt-5 text-base sm:text-lg text-white/60 max-w-2xl mx-auto leading-relaxed"
                     >
                         {lang(
-                            'The ledger already proves who paid, how much and when. Nirium keeps what it can\'t: what each payment was for, the payments your policy refused and never signed, off-chain records, and who stands behind them. Payment, audit and execution rails for apps, backends and AI agents. Non-custodial: your keys, your funds.',
-                            'El ledger ya prueba quién pagó, cuánto y cuándo. Nirium guarda lo que falta: para qué fue cada pago, los pagos que tu política rechazó y nunca firmó, los registros fuera de la cadena y quién responde por ellos. Rieles de pago, auditoría y ejecución para apps, backends y agentes de IA. No custodial: tus llaves, tus fondos.')}
+                            'The ledger already proves who paid, how much and when. Audit Trail records what it can\'t: what each payment was for, the payments your policy refused and never signed, off-chain records, and who stands behind them. Payment, audit and execution rails for apps, backends and AI agents. Non-custodial: your keys, your funds.',
+                            'El ledger ya prueba quién pagó, cuánto y cuándo. Audit Trail registra lo que falta: para qué fue cada pago, los pagos que tu política rechazó y nunca firmó, los registros fuera de la cadena y quién responde por ellos. Rieles de pago, auditoría y ejecución para apps, backends y agentes de IA. No custodial: tus llaves, tus fondos.')}
                     </motion.p>
 
                     <motion.div
@@ -327,8 +323,8 @@ export default function Home() {
                         <h2 className="text-2xl sm:text-3xl font-bold">{lang('Prove what the chain doesn\'t show', 'Demuestra lo que la cadena no muestra')}</h2>
                         <p className="mt-3 text-white/60 max-w-2xl">
                             {lang(
-                                'A Stellar payment is already public on the ledger. Audit Trail covers what is not: what your policy decided, including payments it refused and never signed, a record of what each payment bought, and any document or event off chain. Anyone can check it from a hash alone, and if anyone changes a receipt, it shows: the CID no longer matches.',
-                                'Un pago en Stellar ya es público en el ledger. Audit Trail cubre lo que no está ahí: lo que decidió tu política, incluidos los pagos que rechazó y nunca firmó, un registro de qué compró cada pago, y cualquier documento o evento fuera de la cadena. Cualquiera lo revisa solo con el hash, y si alguien cambia un recibo, se nota: el CID deja de coincidir.')}
+                                'A Stellar payment is already public on the ledger. Audit Trail covers what is not: the quote or terms behind a payment, what your policy decided (including payments it refused, or held for a person), what was delivered, and any later correction. Anchor just a hash and the document stays with you. Anyone can check a receipt from its CID, and if anyone changes it, it shows: the CID no longer matches.',
+                                'Un pago en Stellar ya es público en el ledger. Audit Trail cubre lo que no está ahí: la cotización o los términos detrás de un pago, lo que decidió tu política (incluidos los pagos que rechazó, o retuvo para una persona), qué se entregó y cualquier corrección posterior. Ancla solo un hash y el documento se queda contigo. Cualquiera revisa un recibo con su CID, y si alguien lo cambia, se nota: el CID deja de coincidir.')}
                         </p>
                         <div className="mt-6">
                             <CodeBlock
@@ -351,7 +347,10 @@ export default function Home() {
                             <code className="font-mono text-stellar-teal/80">nirium cid receipt.json</code>
                             {lang(' shows it is the original, without relying on us.', ' demuestra que es el original, sin depender de nosotros.')}
                         </p>
-                        <a href={REFUSED_ANCHOR_URL} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-xs text-stellar-teal/80 hover:text-stellar-teal">
+                        <Link href="/verify#examples" className="mt-5 block text-xs text-stellar-teal/80 hover:text-stellar-teal">
+                            {lang('See examples: before paying, the decision, the delivery and afterwards', 'Ver ejemplos: antes de pagar, la decisión, la entrega y después')}
+                        </Link>
+                        <a href={REFUSED_ANCHOR_URL} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-xs text-stellar-teal/80 hover:text-stellar-teal">
                             {lang('Verify a receipt for a payment that never happened (AgentLedger blocked it, mainnet, 18 Nov 2026)', 'Verifica el recibo de un pago que nunca ocurrió (AgentLedger lo bloqueó, mainnet, 18 nov 2026)')} <ExternalLink className="w-3 h-3" />
                         </a>
                     </div>
@@ -422,7 +421,7 @@ export default function Home() {
                             <CodeBlock code={SERVE_SNIPPET} filename="server.js" copyLabel={copy} copiedLabel={copied} />
                         </div>
                         <p className="mt-3 text-xs text-white/40 font-mono leading-relaxed">
-                            {lang('Ran verbatim with nirium@0.18.0 on testnet (9 Nov 2026): ', 'Corrido tal cual con nirium@0.18.0 en testnet (9 nov 2026): ')}
+                            {lang('Ran verbatim with nirium@0.20.0 on testnet (25 Nov 2026): ', 'Corrido tal cual con nirium@0.20.0 en testnet (25 nov 2026): ')}
                             <a href={SNIPPET_TESTNET_TX_URL} target="_blank" rel="noopener noreferrer" className="text-stellar-teal/80 hover:text-stellar-teal underline underline-offset-2">
                                 {lang('402, then paid, then 200', '402, luego pago, luego 200')}
                             </a>.
@@ -568,7 +567,7 @@ export default function Home() {
                     <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-white/60 mb-6">
                         <span className="font-mono">x402</span>
                         <span className="text-white/20">•</span>
-                        <span className="font-mono">MPP <span className="text-white/35">(testnet)</span></span>
+                        <span className="font-mono">MPP <span className="text-white/35">(testnet, nirium 0.19.8)</span></span>
                         <span className="text-white/20">•</span>
                         {/* LCP salía aquí como "estándar abierto". Es la capa propia de Nirium,
                             apagada mientras dura la revisión legal: no va en esta fila. */}

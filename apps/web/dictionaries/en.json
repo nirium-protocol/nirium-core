@@ -55,10 +55,12 @@
     "receipt_title": "A receipt adds",
     "receipt_items": [
         "What doesn't fit in a memo: \"0.02 USDC paid for GET /signals, request r-123, response delivered\"",
-        "A payment that never happened: if a policy refuses a $25 charge, there is no transaction; the decision can be anchored as a receipt",
+        "A payment that never happened, or one held for approval: a policy refuses a $25 charge, so there is no transaction, or waits for a person; the decision can be anchored as a receipt",
         "Records that never touch the chain: a partner's exchange-rate quote, the evidence behind an escrow release, the invoice or order being paid, or which version of the terms a user accepted",
+        "Several parties: each one signs its own part, so a missing or out-of-order step can be detected",
+        "A correction: a new receipt names the one it fixes, and the original stays as it was",
         "Private evidence: only its hash is public; the file stays with you, and anyone you give it to can check it matches",
-        "Who stands behind it: signed with the declarer's own Stellar key, so anyone can check the signer said it, not Nirium, and any later change shows"
+        "Who stands behind it, when it is signed: the declarer's own Stellar key, so anyone can check the signer said it, not Nirium, and any later change shows"
     ],
     "proves_footer": "If all you need to prove is the transfer, link the transaction. A receipt shows a record hasn't changed since it was anchored; it doesn't prove the record is true.",
     "design_notes_link": "Design notes",
@@ -66,7 +68,7 @@
     "planned_title": "What verification will add",
     "planned_items": [
         "Anchors on Stellar itself: each batch of receipts gets one Merkle root in a Soroban contract, so a receipt can be proven from Stellar alone and its time comes from the ledger, not our server clock",
-        "Policy-decision receipts built in: every ALLOW or DENY from the pre-sign hook anchored automatically, including payments that were refused and never signed (AgentLedger already anchors its own decisions by hand)",
+        "Policy-decision receipts built in: every ALLOW or DENY from the pre-sign hook anchored automatically, including payments that were refused and never signed (AgentLedger anchored five of its own by hand on 18 Nov 2026)",
         "One receipt format for Stellar payments, x402 payments and escrow releases",
         "Reconciliation that flags a payment with no receipt, or a receipt with no payment"
     ],

@@ -473,8 +473,8 @@ CID:            QmehRz7Xab8Cg27fypBiffVgW11Yoac6BJcgd3g1pH5V7m
                                     )}
                                     <code>null</code>
                                     {lang(
-                                        ", it is verified in record mode (sha-256 of JSON.stringify(record)). That's what the CLI has done since 3.2.6 and the GitHub Action does too; /verify does it once V1 ships.",
-                                        ", se verifica como modo record (sha-256 de JSON.stringify(record)). Así lo hacen la CLI desde 3.2.6 y el GitHub Action; /verify lo hará con V1."
+                                        ", it is verified in record mode (sha-256 of JSON.stringify(record)). That's what the CLI has done since 3.2.6; the GitHub Action and /verify do it too.",
+                                        ", se verifica como modo record (sha-256 de JSON.stringify(record)). Así lo hace la CLI desde 3.2.6; el GitHub Action y /verify también."
                                     )}
                                 </li>
                             </ul>
