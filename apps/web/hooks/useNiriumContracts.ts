@@ -17,10 +17,6 @@ import {
     vaultGetVault,
     vaultDeposit,
     vaultWithdraw,
-    eloGetScore,
-    eloGetProfile,
-    eloGetTotalSentinels,
-    eloRegisterSentinel,
     marketplaceGetStrategy,
     marketplaceGetStrategyCount,
     marketplacePublishStrategy,
@@ -119,44 +115,6 @@ export function useVault() {
         createVault,
         deposit,
         withdraw,
-    };
-}
-
-// ═══════════════════════════════════════════════════════
-// ELO REPUTATION HOOK
-// ═══════════════════════════════════════════════════════
-export function useEloReputation() {
-    const { tx, begin, confirm, fail, reset } = useTxState();
-
-    const getScore = useCallback((address: string) => eloGetScore(address), []);
-    const getProfile = useCallback((address: string) => eloGetProfile(address), []);
-    const getTotalSentinels = useCallback(() => eloGetTotalSentinels(), []);
-
-    const registerSentinel = useCallback(async (callerAddress: string) => {
-        begin();
-        try {
-            const result = await eloRegisterSentinel(callerAddress);
-            if (result.success && result.txHash) {
-                confirm(result.txHash);
-            } else {
-                fail(result.error ?? 'Unknown error');
-            }
-            return result;
-        } catch (e: unknown) {
-            const msg = e instanceof Error ? e.message : String(e);
-            fail(msg);
-            return { success: false, error: msg };
-        }
-    }, []);
-
-    return {
-        tx,
-        reset,
-        contractId: CONTRACT_IDS.PROTOCOL,
-        getScore,
-        getProfile,
-        getTotalSentinels,
-        registerSentinel,
     };
 }
 

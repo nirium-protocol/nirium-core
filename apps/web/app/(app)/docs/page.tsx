@@ -1017,8 +1017,8 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIi...
                                 {lang("The x402 payment account ", "La cuenta de cobro x402 ")}
                                 <code className="break-all">GCLBBPON256CV7ATEHM5B54BOKNC7GX53MBINJ42MHVXGDMMZ3ZWKBHP</code>{" "}
                                 {lang(
-                                    "shows 39 settled x402 payments between 9 Jul and 18 Nov 2026 (confirmed against Horizon: the account's successful ",
-                                    "muestra 39 pagos x402 liquidados entre el 9 de julio y el 18 de noviembre de 2026 (confirmado contra Horizon: las "
+                                    "shows 40 settled x402 payments between 9 Jul and 24 Nov 2026 (confirmed against Horizon: the account's successful ",
+                                    "muestra 40 pagos x402 liquidados entre el 9 de julio y el 24 de noviembre de 2026 (confirmado contra Horizon: las "
                                 )}
                                 <code>invoke_host_function</code>{" "}
                                 {lang(

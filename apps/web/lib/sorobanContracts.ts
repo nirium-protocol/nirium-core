@@ -347,72 +347,6 @@ export async function vaultClose(callerAddress: string, vaultId: number) {
 }
 
 // ═══════════════════════════════════════════════════════
-// ELO CONTRACT - Reputation System
-// ═══════════════════════════════════════════════════════
-
-/**
- * Get ELO score for a public key
- */
-export async function eloGetScore(sentinelAddress: string): Promise<number> {
-    const result = await simulateContractRead({
-        contractId: CONTRACT_IDS.PROTOCOL,
-        method: 'get_elo',
-        args: [Address.fromString(sentinelAddress).toScVal()],
-    });
-    return Number(result ?? 0);
-}
-
-/**
- * Get total registered sentinels
- */
-export async function eloGetTotalSentinels(): Promise<number> {
-    const result = await simulateContractRead({
-        contractId: CONTRACT_IDS.PROTOCOL,
-        method: 'get_total_agents',
-        args: [],
-    });
-    return Number(result ?? 0);
-}
-
-/**
- * Get full profile for a sentinel
- */
-export async function eloGetProfile(sentinelAddress: string): Promise<{
-    elo_score: number;
-    total_trades: number;
-    winning_trades: number;
-    total_volume_usdc: number;
-    tier: string;
-} | null> {
-    const result = await simulateContractRead({
-        contractId: CONTRACT_IDS.PROTOCOL,
-        method: 'get_agent_profile',
-        args: [Address.fromString(sentinelAddress).toScVal()],
-    }) as Record<string, unknown> | null;
-
-    if (!result) return null;
-    return {
-        elo_score: Number(result.elo_score ?? 0),
-        total_trades: Number(result.total_trades ?? 0),
-        winning_trades: Number(result.winning_trades ?? 0),
-        total_volume_usdc: Number(result.total_volume_usdc ?? 0),
-        tier: String(result.tier ?? 'Unranked'),
-    };
-}
-
-/**
- * Register the connected wallet as a Sentinel (Freighter-signed)
- */
-export async function eloRegisterSentinel(callerAddress: string) {
-    return invokeContract({
-        contractId: CONTRACT_IDS.PROTOCOL,
-        method: 'register_agent',
-        args: [Address.fromString(callerAddress).toScVal()],
-        callerAddress,
-    });
-}
-
-// ═══════════════════════════════════════════════════════
 // MARKETPLACE CONTRACT - Strategy Registry
 // ═══════════════════════════════════════════════════════
 
@@ -550,34 +484,6 @@ export async function hasCETESTrustline(walletAddress: string): Promise<boolean>
     } catch {
         return false;
     }
-}
-
-// ═══════════════════════════════════════════════════════
-// COMPLIANCE SENTINEL - Performance Scoring
-// ═══════════════════════════════════════════════════════
-
-/**
- * Get current ELO score for an agent
- */
-export async function sentinelGetScore(agentAddress: string): Promise<number> {
-    const result = await simulateContractRead({
-        contractId: CONTRACT_IDS.PROTOCOL,
-        method: 'get_score',
-        args: [Address.fromString(agentAddress).toScVal()],
-    });
-    return Number(result ?? 1000);
-}
-
-/**
- * Get full performance record for an agent
- */
-export async function sentinelGetRecord(agentAddress: string): Promise<any> {
-    const result = await simulateContractRead({
-        contractId: CONTRACT_IDS.PROTOCOL,
-        method: 'get_score_record',
-        args: [Address.fromString(agentAddress).toScVal()],
-    });
-    return result;
 }
 
 // ═══════════════════════════════════════════════════════

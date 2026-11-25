@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Zap, TrendingUp, DollarSign, RefreshCw, Activity, ShieldCheck, Globe, Database } from "lucide-react";
+import { Zap, TrendingUp, DollarSign, RefreshCw, Activity, Globe, Database } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface PaymentEvent {
@@ -20,11 +20,9 @@ interface RevenueStats {
     last24h: number;
     requestCount: number;
     lastPayment: string | null;
-    eloHealth: number;
 }
 
 import { useLanguage } from "@/context/LanguageContext";
-import { useEloReputation } from "@/hooks/useNiriumContracts";
 
 export default function ProtocolRevenue({ compact = false }: { compact?: boolean }) {
     const { t } = useLanguage();
@@ -33,22 +31,13 @@ export default function ProtocolRevenue({ compact = false }: { compact?: boolean
         totalUsdc: 0,
         last24h: 0,
         requestCount: 0,
-        lastPayment: null,
-        eloHealth: 1450
+        lastPayment: null
     });
     const [loading, setLoading] = useState(true);
     const [isPulsing, setIsPulsing] = useState(false);
     const prevEventsCount = useRef(0);
 
     const treasury = "GC4Q5TWWXI7IHN6DYCBEKCOWJWCKY4JE2NLKLU5SE3YL44IUUFPKUOPC";
-    const elo = useEloReputation();
-
-    // Fetch real ELO score from NiriumProtocol contract on Soroban
-    useEffect(() => {
-        elo.getScore(treasury)
-            .then((score: number) => { if (score > 0) setStats(prev => ({ ...prev, eloHealth: score })); })
-            .catch(() => {}); // fallback stays at 1450
-    }, []);
 
     const fetchRevenue = useCallback(async () => {
         try {
@@ -206,7 +195,7 @@ export default function ProtocolRevenue({ compact = false }: { compact?: boolean
                 )}
             </div>
 
-            <div className={`relative z-10 grid ${compact ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2 lg:grid-cols-4'} gap-2 ${compact ? 'mb-2' : 'mb-6'}`}>
+            <div className={`relative z-10 grid ${compact ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-2 lg:grid-cols-3'} gap-2 ${compact ? 'mb-2' : 'mb-6'}`}>
                 <div className={`relative group overflow-hidden bg-white/[0.02] border border-white/5 rounded-xl ${compact ? 'p-2' : 'p-4'} transition-all hover:border-stellar-teal/30 hover:bg-stellar-teal/[0.02]`}>
                     <div className="absolute top-0 right-0 w-12 h-12 bg-stellar-teal/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                     <div className="flex items-center gap-2 mb-1">
@@ -239,15 +228,6 @@ export default function ProtocolRevenue({ compact = false }: { compact?: boolean
                     </div>
                 </div>
 
-                <div className={`relative group overflow-hidden bg-purple-500/5 border border-purple-500/10 rounded-xl ${compact ? 'p-2' : 'p-4'} transition-all hover:border-purple-500/30 ${compact ? 'hidden lg:block' : ''}`}>
-                    <div className="flex items-center gap-2 mb-1">
-                        <ShieldCheck size={compact ? 10 : 12} className="text-purple-400" />
-                        <span className={`font-mono text-purple-400/60 font-bold uppercase tracking-widest leading-none ${compact ? 'text-[7px]' : 'text-[9px]'}`}>ELO</span>
-                    </div>
-                    <div className={`${compact ? 'text-sm' : 'text-lg'} font-mono text-purple-200 font-black leading-none`}>
-                        {stats.eloHealth}
-                    </div>
-                </div>
             </div>
 
             <div className={`relative z-10 ${compact ? 'mb-1.5' : 'mb-3'} flex items-center justify-between border-b border-white/5 pb-2`}>

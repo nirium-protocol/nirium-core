@@ -19,11 +19,11 @@ import PaymentStreams from "@/components/dashboard/PaymentStreams";
 import TelemetryFeed from "@/components/dashboard/TelemetryFeed";
 import { writeLog } from "@/lib/logger";
 import { stellarClient } from "@/lib/stellarClient";
-import { useVault, useEloReputation } from "@/hooks/useNiriumContracts";
+import { useVault } from "@/hooks/useNiriumContracts";
 import { getWebSocketUrl } from "@/lib/constants";
 import { simulateSorobanTx } from "@/lib/stellarSim";
 import { handleWalletError } from "@/components/wallet/WalletErrorHandler";
-import { NATIVE_ASSET_ID, USDC_ASSET_ID, CETES_ASSET_ID, vaultDeposit, vaultWithdraw, vaultCreate, vaultClose, vaultRevokeAgent, vaultDelegateAgent, vaultGetVaultCount, CETES_ASSET, getCETESBalance, hasCETESTrustline, eloGetTotalSentinels } from "@/lib/sorobanContracts";
+import { NATIVE_ASSET_ID, USDC_ASSET_ID, CETES_ASSET_ID, vaultDeposit, vaultWithdraw, vaultCreate, vaultClose, vaultRevokeAgent, vaultDelegateAgent, vaultGetVaultCount, CETES_ASSET, getCETESBalance, hasCETESTrustline } from "@/lib/sorobanContracts";
 import { generateOnboardingUrl, getOrCreateCustomerIds } from "@/lib/etherfuseApi";
 import MarketTicker from "@/components/dashboard/MarketTicker";
 import AuditTrailViewer from "@/components/dashboard/AuditTrailViewer";
@@ -34,7 +34,6 @@ import NodeActivity from "@/components/analytics/NodeActivity";
 import ReceiptsSettlements from "@/components/analytics/ReceiptsSettlements";
 import { useNetwork } from "@/context/NetworkContext";
 import NetworkScopeNote from "@/components/shared/NetworkScopeNote";
-import { useSecurityKillSwitch } from "@/lib/securityHooks";
 
 import { ComplianceBanner } from "@/components/ui/ComplianceBanner";
 
@@ -83,7 +82,6 @@ function DashboardContent() {
     const L = (en: string, es: string) => (language === 'es' ? es : en);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { isLocked } = useSecurityKillSwitch();
     const { address: accountStr, isConnected, connect, disconnect } = useFreighter();
     const account = useMemo(() => isConnected && accountStr ? { address: accountStr, chains: ['stellar:testnet'] } : null, [isConnected, accountStr]);
     // Helper: Sign transaction with Freighter and submit to Horizon.
@@ -159,31 +157,23 @@ function DashboardContent() {
     const [hasCetesTrust, setHasCetesTrust] = useState<boolean>(false);
     const [onChainVaultCount, setOnChainVaultCount] = useState<number | null>(null);
     const [onChainTotalFees, setOnChainTotalFees] = useState<number | null>(null);
-    const [onChainElo, setOnChainElo] = useState<number | null>(null);
     const [globalActiveAgents, setGlobalActiveAgents] = useState<number | null>(null);
     // Empieza vacío: antes traía tres mensajes de demo ("Strategic execution
     // network online...") que se veían igual que logs reales y se quedaban si
     // /api/logs fallaba. TelemetryFeed ya tiene su propio estado vacío.
     const [thoughts, setThoughts] = useState<any[]>([]);
     const vault = useVault();
-    const elo = useEloReputation();
 
     // Fetch live on-chain data from Soroban RPC
     useEffect(() => {
         const fetchOnChainData = async () => {
             try {
-                const [count, fees, sentinels] = await Promise.all([
+                const [count, fees] = await Promise.all([
                     vault.getVaultCount(),
                     vault.getTotalFees(),
-                    eloGetTotalSentinels(),
                 ]);
                 setOnChainVaultCount(count);
                 setOnChainTotalFees(fees / 10_000_000);
-                setGlobalActiveAgents(Number(sentinels));
-                if (accountStr) {
-                    const score = await elo.getScore(accountStr);
-                    setOnChainElo(score);
-                }
             } catch (e) {
                 console.warn('[Dashboard] On-chain data fetch failed:', e);
             }
@@ -2730,26 +2720,7 @@ function DashboardContent() {
                 />
 
             {/* On-Chain Soroban Verifiable Stats */}
-            <div className="w-full max-w-[1600px] mx-auto grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 mb-4 relative z-10">
-                <div className="glass-panel p-4 rounded-xl border border-stellar-teal/20 bg-stellar-teal/5 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-stellar-teal/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                    <h3 className="text-xs text-stellar-teal uppercase tracking-wider mb-1 font-bold flex items-center gap-1.5 relative z-10">
-                        <Shield size={12} />
-                        {t.dashboard.stats.reputation}
-                    </h3>
-                    <div className="text-xl font-mono text-stellar-teal font-black flex items-baseline gap-2 relative z-10">
-                        {onChainElo !== null
-                            ? onChainElo
-                            : !accountStr
-                                ? <span className="text-xs font-bold">{language === 'es' ? 'Conecta tu wallet' : 'Connect your wallet'}</span>
-                                : '-'}
-                        {onChainElo !== null && <span className="text-[10px] text-stellar-teal/60">SCORE</span>}
-                    </div>
-                    <div className="text-[10px] text-gray-500 mt-1 font-mono flex items-center gap-1.5 relative z-10">
-                        <div className="w-1.5 h-1.5 rounded-full bg-stellar-teal animate-pulse" />
-                        {t.dashboard.stats.trust_verified}
-                    </div>
-                </div>
+            <div className="w-full max-w-[1600px] mx-auto grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4 mb-4 relative z-10">
                 <div className="glass-panel p-4 rounded-xl border border-white/5">
                     <h3 className="text-xs text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
                         <Activity size={12} />

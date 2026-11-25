@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { 
-    Activity, TrendingUp, Zap, Server, Wallet, Database, 
+    Activity, Zap, Server, Wallet, Database, 
     ShieldCheck, Globe, Cpu, Lock, Archive, ExternalLink,
     ChevronRight, Download, Box, Key, BarChart3, Clock,
     FileSearch, Shield, Fingerprint
@@ -16,7 +16,6 @@ import NodeActivity from "@/components/analytics/NodeActivity";
 import ReceiptsSettlements from "@/components/analytics/ReceiptsSettlements";
 import NetworkScopeNote from "@/components/shared/NetworkScopeNote";
 import { ComplianceBanner, AtomicProofBadge } from "@/components/ui/ComplianceBanner";
-import { useEloReputation } from "@/hooks/useNiriumContracts";
 import { getCETESBalance, vaultGetVaultCount, vaultGetTotalFees } from "@/lib/sorobanContracts";
 import { CETES_REFERENCE_RATE_PCT, CETES_REFERENCE_DATE_LABEL_EN } from "@/lib/cetesReference";
 
@@ -150,9 +149,7 @@ export default function AnalyticsPage() {
     const [vaultCount, setVaultCount] = useState<string>('-');
     const [feesCollected, setFeesCollected] = useState<string>('-');
     const [cetesBalance, setCetesBalance] = useState<string>('-');
-    const [eloScore, setEloScore] = useState<string>('-');
     const [cetesRate, setCetesRate] = useState<string>(`${CETES_REFERENCE_RATE_PCT}%`);
-    const elo = useEloReputation();
 
     useEffect(() => {
         // Fetch on-chain metrics
@@ -161,7 +158,6 @@ export default function AnalyticsPage() {
 
         if (accountStr) {
             getCETESBalance(accountStr).then(b => setCetesBalance(`${Number(b).toFixed(2)} CETES`)).catch(() => {});
-            elo.getScore(accountStr).then(s => setEloScore(String(s))).catch(() => {});
         }
 
         // CETES reference rate from the agent API: a fixed value (12 Nov 2026), not a live reading
@@ -238,7 +234,7 @@ export default function AnalyticsPage() {
                     en: "These Treasury cards read NiriumVault on testnet and your wallet; NiriumVault is not on mainnet. Mainnet Treasury is in the Treasury card of the row above.",
                     es: "Estas tarjetas de Treasury leen NiriumVault en testnet y tu wallet; NiriumVault no está en mainnet. Treasury en mainnet está en la tarjeta Treasury de la fila de arriba.",
                 }} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     <StatCard
                         title="CETES Balance"
                         value={cetesBalance}
@@ -253,14 +249,6 @@ export default function AnalyticsPage() {
                         change="TESTNET · verified contract since 9 Nov 2026 · incl. our tests"
                         icon={Server}
                         color="text-stellar-yellow"
-                        status="ON-CHAIN"
-                    />
-                    <StatCard
-                        title="ELO Score"
-                        value={eloScore}
-                        change="REPUTATION"
-                        icon={TrendingUp}
-                        color="text-green-400"
                         status="ON-CHAIN"
                     />
                     <StatCard

@@ -308,7 +308,7 @@ export default function PricingPage() {
                                     // signals y execute son testnet-only por diseño (ver FEATURES_FREE
                                     // arriba). Separado en dos filas para que el fee no implique más
                                     // disponibilidad de la real.
-                                    { who: lang('x402 market state - mainnet', 'x402 market state - mainnet'), fee: '$0.05', note: lang('The only x402 endpoint that charges on mainnet (last settled payment 18 Nov 2026, an integration test)', 'El único endpoint x402 que cobra en mainnet (último pago liquidado: 18 nov 2026, una prueba de integración)'), highlight: false, total: false },
+                                    { who: lang('x402 market state - mainnet', 'x402 market state - mainnet'), fee: '$0.05', note: lang('The only x402 endpoint that charges on mainnet (last settled payment 24 Nov 2026, our own test)', 'El único endpoint x402 que cobra en mainnet (último pago liquidado: 24 nov 2026, una prueba nuestra)'), highlight: false, total: false },
                                     { who: lang('x402 snapshot + execute - testnet only', 'x402 snapshot + execute - solo testnet'), fee: '$0.02 / $0.25', note: lang('Need the autonomous loop / a signing key the mainnet box does not hold', 'Necesitan el loop autónomo / una llave firmante que el box de mainnet no tiene'), highlight: false, total: false },
                                 ],
                             },
