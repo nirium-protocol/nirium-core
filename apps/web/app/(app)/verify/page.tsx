@@ -333,7 +333,7 @@ function VerifyContent() {
                     </div>
                 </motion.form>
 
-                <div className="mb-8 -mt-2 space-y-4">
+                <div id="examples" className="mb-8 -mt-2 space-y-4 scroll-mt-48">
                     <p className="text-center text-xs text-gray-500">
                         {tv.example_intro}{' '}
                         <Link href="/docs#quickstart" className="text-emerald-400 hover:text-emerald-300 transition-colors">

@@ -55,10 +55,12 @@
     "receipt_title": "Un recibo agrega",
     "receipt_items": [
         "Lo que no cabe en un memo: \"0.02 USDC por GET /signals, petición r-123, respuesta entregada\"",
-        "Un pago que nunca ocurrió: si una política rechaza un cobro de $25, no hay transacción; la decisión se puede anclar como recibo",
+        "Un pago que nunca ocurrió, o uno retenido: una política rechaza un cobro de $25, así que no hay transacción, o espera a una persona; la decisión se puede anclar como recibo",
         "Registros que nunca tocan la cadena: la cotización de un socio, la evidencia detrás de la liberación de un escrow, la factura u orden que se pagó, o qué versión de los términos aceptó un usuario",
+        "Varias partes: cada una firma lo suyo, así se puede detectar un paso que falta o está fuera de orden",
+        "Una corrección: un recibo nuevo nombra al que corrige, y el original queda como estaba",
         "Evidencia privada: solo su hash es público; el archivo se queda contigo y quien lo reciba puede comprobar que coincide",
-        "Quién responde por él: firmado con la propia llave de Stellar de quien lo declara; cualquiera puede comprobar que lo dijo quien firmó, no Nirium, y si alguien lo cambia después se nota"
+        "Quién responde por él, cuando va firmado: la propia llave de Stellar de quien lo declara; cualquiera puede comprobar que lo dijo quien firmó, no Nirium, y si alguien lo cambia después se nota"
     ],
     "proves_footer": "Si solo necesitas probar la transferencia, enlaza la transacción. Un recibo muestra que un registro no cambió desde que se ancló; no prueba que lo que dice sea verdad.",
     "design_notes_link": "Notas de diseño",
@@ -66,7 +68,7 @@
     "planned_title": "Lo que agregará la verificación",
     "planned_items": [
         "Anclas en Stellar mismo: cada lote de recibos deja una raíz Merkle en un contrato de Soroban, así un recibo se prueba solo con Stellar y su hora viene del ledger, no del reloj de nuestro servidor",
-        "Recibos de decisiones de política integrados: cada ALLOW o DENY del hook anclado automáticamente, incluidos los pagos rechazados que nunca se firmaron (AgentLedger ya ancla sus propias decisiones a mano)",
+        "Recibos de decisiones de política integrados: cada ALLOW o DENY del hook anclado automáticamente, incluidos los pagos rechazados que nunca se firmaron (AgentLedger ancló cinco de las suyas a mano el 18 nov 2026)",
         "Un solo formato de recibo para pagos en Stellar, pagos x402 y liberaciones de escrow",
         "Conciliación que marca un pago sin recibo, o un recibo sin pago"
     ],
