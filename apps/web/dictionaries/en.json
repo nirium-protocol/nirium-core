@@ -88,7 +88,7 @@
       "handoff": "One handoff of a shipment (testnet)",
       "delivery": "Proof of delivery (testnet)",
       "correction": "A correction (testnet)",
-      "notice": "A notice you can check yourself (testnet)",
+      "notice": "A notice you can check yourself",
       "payment": "A payment receipt (testnet)"
     },
     "example_groups": {
@@ -106,7 +106,7 @@
       },
       "after": {
         "title": "Afterwards",
-        "note": "The correction is our own testnet demo: it names the invoice it corrects and leaves it as it was. The notice is by an outside contributor: download the file, choose it under \"Compare with your file\" and it matches; change one letter and it doesn't."
+        "note": "The correction is our own testnet demo: it names the invoice it corrects and leaves it as it was. The notice is ours, on mainnet, signed with a Nirium test key: version 1.5 of our jurisdictions policy (own use, not counted as usage). Download the file, choose it under \"Compare with your file\" and it matches; change one letter and it doesn't."
       },
       "contrast": {
         "title": "For contrast",

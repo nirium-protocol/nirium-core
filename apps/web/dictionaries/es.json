@@ -88,7 +88,7 @@
       "handoff": "Una entrega de un envío (testnet)",
       "delivery": "Prueba de entrega (testnet)",
       "correction": "Una corrección (testnet)",
-      "notice": "Un aviso que puedes comprobar tú (testnet)",
+      "notice": "Un aviso que puedes comprobar tú",
       "payment": "Recibo de un pago (testnet)"
     },
     "example_groups": {
@@ -106,7 +106,7 @@
       },
       "after": {
         "title": "Después",
-        "note": "La corrección es una demo nuestra en testnet: nombra la factura que corrige y la deja como estaba. El aviso es de un contribuidor externo: descarga el archivo, elígelo en \"Comparar con tu archivo\" y coincide; cambia una letra y ya no."
+        "note": "La corrección es una demo nuestra en testnet: nombra la factura que corrige y la deja como estaba. El aviso es nuestro, en mainnet, firmado con una llave de pruebas de Nirium: la versión 1.5 de nuestra política de jurisdicciones (uso propio, no se cuenta como uso). Descarga el archivo, elígelo en \"Comparar con tu archivo\" y coincide; cambia una letra y ya no."
       },
       "contrast": {
         "title": "Como contraste",
