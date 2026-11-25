@@ -810,7 +810,7 @@ export default function NiriumtoberPage() {
                                             <a href={`https://github.com/nirium-protocol/nirium/issues/${b.issue}`} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">@{b.user}</a>
                                         </span>
                                     ))}
-                                    {lang("). Champion: under review; we'll post it here once decided.", "). Champion: en revisión; lo anunciamos aquí cuando se decida.")}
+                                    {lang("). Champion: not awarded. The team decided that no project met the public criteria, and the rules say it is not awarded in that case (25 Nov 2026).", "). Champion: no se otorgó. El equipo decidió que ningún proyecto cumplió los criterios públicos, y las reglas dicen que en ese caso no se otorga (25 nov 2026).")}
                                 </p>
                             </div>
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs font-bold">

@@ -753,7 +753,7 @@
   "terms": {
     "title": "Términos de servicio",
     "badge": "Términos de servicio",
-    "last_updated": "Última actualización: 21 de noviembre de 2026",
+    "last_updated": "Última actualización: 25 de noviembre de 2026",
     "footer": "Si usas Nirium, aplican estos términos junto con el Aviso de privacidad, el Aviso de riesgos y los Avisos legales. Nada aquí limita los derechos que te da la ley.",
     "sections": {
       "nature": {
@@ -762,7 +762,7 @@
       },
       "no_guarantees": {
         "title": "2. Sin garantía de rendimientos",
-        "content": "Nirium no garantiza rendimientos ni la liquidez de ningún activo o mercado. Las tasas y métricas del sitio son solo informativas. Nirium no es un producto de inversión, un valor ni un fondo. Los fondos siguen bajo las llaves del propio cliente."
+        "content": "Nirium no garantiza rendimientos ni la liquidez de ningún activo o mercado. Las tasas y métricas del sitio son solo informativas. Nirium es software y no se ofrece como inversión. Los fondos siguen bajo las llaves del propio cliente."
       },
       "ai_liability": {
         "title": "3. Automatización",
@@ -782,7 +782,7 @@
       },
       "reverse_solicitation": {
         "title": "7. Lo que Nirium no hace",
-        "content": "Nirium no ofrece valores al público, no es una entidad financiera y no tiene autorización financiera. Si el rebalanceo autónomo y Payouts caen en la fracción XVI del artículo 17 de la LFPIORPI es una pregunta abierta, todavía sin opinión legal por escrito; mientras tanto, los dos son solo por invitación en mainnet. Cada parte cumple, por sus propios clientes, las leyes financieras, de sanciones y antilavado que le apliquen."
+        "content": "Nirium no tiene autorización financiera. Si el rebalanceo autónomo y Payouts caen en la fracción XVI del artículo 17 de la LFPIORPI es una pregunta abierta, igual que si un CETES tokenizado cuenta como valor; todavía no hay opinión legal por escrito sobre ninguna. Mientras tanto, el rebalanceo autónomo y Payouts son solo por invitación en mainnet. Cada parte cumple, por sus propios clientes, las leyes financieras, de sanciones y antilavado que le apliquen. Actualización, 25 nov 2026: esta sección decía que Nirium \"no ofrece valores al público\" y \"no es una entidad financiera\", y la sección 2 que no es \"un valor\". Ningún abogado ha revisado esas afirmaciones, así que se quitaron."
       },
       "restricted_jurisdictions": {
         "title": "8. Jurisdicciones restringidas y sanciones",

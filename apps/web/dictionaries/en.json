@@ -753,7 +753,7 @@
   "terms": {
     "title": "Terms of Service",
     "badge": "Terms of service",
-    "last_updated": "Last updated: November 21, 2026",
+    "last_updated": "Last updated: November 25, 2026",
     "footer": "If you use Nirium, these terms apply together with the Privacy Notice, the Risk Disclosure and the Legal Disclaimers. Nothing here limits the rights the law gives you.",
     "sections": {
       "nature": {
@@ -762,7 +762,7 @@
       },
       "no_guarantees": {
         "title": "2. No guarantee of returns",
-        "content": "Nirium does not guarantee returns or the liquidity of any asset or market. Rates and metrics shown on the site are for information only. Nirium is not an investment product, a security or a fund. Funds stay under the client's own keys."
+        "content": "Nirium does not guarantee returns or the liquidity of any asset or market. Rates and metrics shown on the site are for information only. Nirium is software and is not offered as an investment. Funds stay under the client's own keys."
       },
       "ai_liability": {
         "title": "3. Automation",
@@ -782,7 +782,7 @@
       },
       "reverse_solicitation": {
         "title": "7. What Nirium does not do",
-        "content": "Nirium does not offer securities to the public, is not a financial entity and holds no financial authorization. Whether autonomous rebalancing and Payouts fall under fraction XVI of article 17 of the LFPIORPI is an open question, with no written legal opinion yet; meanwhile both are invite-only on mainnet. Each party complies, for its own clients, with the financial, sanctions and anti-money-laundering laws that apply to it."
+        "content": "Nirium holds no financial authorization. Whether autonomous rebalancing and Payouts fall under fraction XVI of article 17 of the LFPIORPI is an open question, and so is whether a tokenized CETES counts as a security (valor); there is no written legal opinion on either yet. Meanwhile autonomous rebalancing and Payouts are invite-only on mainnet. Each party complies, for its own clients, with the financial, sanctions and anti-money-laundering laws that apply to it. Update, 25 Nov 2026: this section said Nirium \"does not offer securities to the public\" and \"is not a financial entity\", and section 2 that it is not \"a security\". No lawyer has reviewed those statements, so they were removed."
       },
       "restricted_jurisdictions": {
         "title": "8. Restricted jurisdictions and sanctions",
