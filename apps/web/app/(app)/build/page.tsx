@@ -38,8 +38,9 @@ const STARTUP_CARDS = [
 const COMMUNITY_EXAMPLES: Record<string, { dir: string; related?: { en: string; es: string } }> = {
     global_payroll: { dir: 'payouts-batch-testnet' },
     oracle_bridge: { dir: 'build-oracle-x402' },
-    defi_insurance: { dir: 'treasury-vault-monitor' },
-    logistics_settle: { dir: 'build-proof-of-delivery', related: { en: 'proof of delivery with a hash', es: 'prueba de entrega con hash' } },
+    defi_insurance: { dir: 'build-risk-signals' },
+    logistics_settle: { dir: 'build-smart-settlement' },
+    grant_distributor: { dir: 'build-autonomous-grants' },
     m2m_exchange: { dir: 'openai-agents-x402', related: { en: 'an agent that pays x402 with a cap', es: 'un agente que paga x402 con tope' } },
 };
 
