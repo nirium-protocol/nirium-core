@@ -46,8 +46,8 @@ const EXAMPLE_GROUPS: { id: ExampleGroup; items: { label: ExampleLabel; cid: str
     { id: 'after', items: [
         // Our own testnet demo.
         { label: 'correction', cid: 'QmaquPQ3g6ArzET9A7uuxJgVqpR5zwYLkaXqMDSpf3J5Q6', href: `${EX_REPO}/tree/main/examples/build-correction-receipt` },
-        // Testnet, outside contributor (nirium#384).
-        { label: 'notice', cid: 'QmSpqbrNwioZpcMU1PyZBQsguNGCGGemM31iNa47f4ShKt', href: `${EX_REPO}/blob/2a5b354d82d4bcf4b8fdf55d38b95e1ec2588cef/examples/build-tamper-evident-announcements/announcements/2026-11-18-publication-policy.md` },
+        // Our own mainnet notice (25 Nov 2026): policy v1.5, signed with a Nirium test key. Own use, never counted as usage.
+        { label: 'notice', cid: 'Qmd7yun1FUDZ3p2DK36BxRpLaAA2EQjjWfZ1S77R4Z1v4F', href: 'https://github.com/nirium-protocol/nirium-core/blob/0b628f563b22436e71410b829cab38842ee4acf4/apps/web/public/legal/restricted-jurisdictions-v1.md' },
     ] },
     { id: 'contrast', items: [
         // Our own testnet self-test; its record only repeats the transaction.
